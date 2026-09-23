@@ -1398,11 +1398,11 @@ async function crearClub(nombre,categoria,rama){
   const ref=db.collection('clubes').doc();let cod=codigoNuevo();
   for(let i=0;i<5;i++){const e=await db.collection('codigos').doc(cod).get();if(!e.exists)break;cod=codigoNuevo()}
   const nomU=(PERFIL&&PERFIL.nombre)||USR.displayName||USR.email;
-  await ref.set({nombre,codigo:cod,creador:USR.uid,miembros:{[USR.uid]:'admin'},info:{[USR.uid]:{nombre:nomU,email:USR.email}},creado:firebase.firestore.FieldValue.serverTimestamp()});
+  await ref.set({nombre,categoria,rama,codigo:cod,creador:USR.uid,miembros:{[USR.uid]:'admin'},info:{[USR.uid]:{nombre:nomU,email:USR.email}},creado:firebase.firestore.FieldValue.serverTimestamp()});
   await db.collection('codigos').doc(cod).set({clubId:ref.id,nombre,creador:USR.uid});
   await db.collection('usuarios').doc(USR.uid).set({clubId:ref.id,pendiente:firebase.firestore.FieldValue.delete()},{merge:true});
   const base=clubVacio();base.club={...base.club,nombre,categoria,rama};
-  S=base;CLUB=ref.id;await subirTodo();abrirClub(ref.id,true);
+  S=base;CLUB=ref.id;MODO='nube';await subirTodo();abrirClub(ref.id,true);
 }
 let tEspera=null;
 function pantallaEspera(){
@@ -1438,9 +1438,9 @@ function abrirClub(clubId,recienCreado){
     qs.docChanges().forEach(ch=>{const k=ch.doc.id;if(!COL_DOC.includes(k))return;const s=ch.doc.data().v;if(s===ultimo[k])return;
       if(listos.datos&&localSinSubir(k))return; // hay cambios propios sin subir: gana el último que guarda
       ultimo[k]=s;let v=JSON.parse(s);if(k==='jugadores')v=v.map(j=>({...j,foto:FOTOS[j.id]||''}));S[k]=v;cambio=true});
-    if(!listos.datos&&qs.empty&&!recienCreado){S=clubVacio();S.club.nombre=(CLUBDOC&&CLUBDOC.nombre)||'Mi club';subirTodo()}
+    if(!listos.datos&&qs.empty){if(!recienCreado){S=clubVacio();S.club.nombre=(CLUBDOC&&CLUBDOC.nombre)||'Mi club';if(CLUBDOC&&CLUBDOC.categoria)S.club.categoria=CLUBDOC.categoria;if(CLUBDOC&&CLUBDOC.rama)S.club.rama=CLUBDOC.rama}subirTodo()}
     if(cambio&&listos.datos)repintarRemoto();listo('datos');
-  },e=>aviso(errTxt(e))));
+  },e=>{pantallaCompleta(marcaGrande()+'<p class="acc-err">No se pudieron cargar los datos: '+esc(errTxt(e))+'</p><button class="btn" onclick="location.reload()">Reintentar</button>')}));
   COL_ITEMS.forEach(k=>subs.push(ref.collection(k).onSnapshot(qs=>{
     let cambio=false;
     qs.docChanges().forEach(ch=>{const id=ch.doc.id;if(ch.type==='removed'){if(ultimoItems[k][id]!==undefined){delete ultimoItems[k][id];S[k]=S[k].filter(x=>x.id!==id);cambio=true}return}
@@ -1451,7 +1451,7 @@ function abrirClub(clubId,recienCreado){
   subs.push(ref.collection('fotos').onSnapshot(qs=>{
     qs.docChanges().forEach(ch=>{const id=ch.doc.id;if(ch.type==='removed'){delete FOTOS[id];delete ultimoFoto[id]}else{FOTOS[id]=ch.doc.data().d||'';ultimoFoto[id]=FOTOS[id]}const j=S.jugadores.find(x=>x.id===id);if(j)j.foto=FOTOS[id]||''});
     if(listos.fotos)repintarRemoto();listo('fotos');
-  },e=>aviso(errTxt(e))));
+  },e=>{pantallaCompleta(marcaGrande()+'<p class="acc-err">No se pudieron cargar los datos: '+esc(errTxt(e))+'</p><button class="btn" onclick="location.reload()">Reintentar</button>')}));
 }
 function migrarNube(){S.jugadores.forEach(j=>j.foto=FOTOS[j.id]||j.foto||'');if(!S.contenidos||!S.contenidos.length)S.contenidos=[...CONT_BASE];S.pizarras.forEach(normalizar);if(CLUBDOC&&CLUBDOC.nombre&&!S.club.nombre)S.club.nombre=CLUBDOC.nombre}
 function valorDoc(k){let v=S[k];if(k==='jugadores')v=v.map(j=>({...j,foto:''}));return JSON.stringify(v??null)}
