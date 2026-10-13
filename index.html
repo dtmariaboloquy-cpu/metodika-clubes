@@ -1434,7 +1434,7 @@ function abrirClub(clubId,recienCreado){
     if(!CLUBDOC.miembros||!CLUBDOC.miembros[USR.uid]){cortarSubs();db.collection('usuarios').doc(USR.uid).set({clubId:firebase.firestore.FieldValue.delete()},{merge:true});pantallaClub('Ya no formás parte de ese club.');return}
     if(esAdmin()&&!subs.solic){subs.solic=true;subs.push(ref.collection('solicitudes').onSnapshot(qs=>{SOLIC=qs.docs.map(x=>({uid:x.id,...x.data()}));pintarMenu();if(ruta==='ajustes'&&!$('#capaModal').innerHTML)pintar()},()=>{}))}
     if(listos.club)repintarRemoto();listo('club');
-  },e=>{cortarSubs();pantallaClub(errTxt(e))}));
+  },e=>{cortarSubs();if(e&&e.code==='permission-denied'){db.collection('usuarios').doc(USR.uid).set({clubId:firebase.firestore.FieldValue.delete()},{merge:true}).catch(()=>{});pantallaClub('Ya no formás parte de ese club.')}else pantallaClub(errTxt(e))}));
   subs.push(ref.collection('datos').onSnapshot(qs=>{
     let cambio=false;
     qs.docChanges().forEach(ch=>{const k=ch.doc.id;if(!COL_DOC.includes(k))return;const s=ch.doc.data().v;if(s===ultimo[k])return;
@@ -1460,17 +1460,20 @@ function valorDoc(k){let v=S[k];if(k==='jugadores')v=v.map(j=>({...j,foto:''}));
 function localSinSubir(k){return tSync&&valorDoc(k)!==ultimo[k]}
 function repintarRemoto(){if($('#capaModal').innerHTML||(ruta==='pizarra')||(ruta==='partido'&&tabPartido==='vivo'&&pend)){pintarPend=true;return}pintar()}
 function programarSync(){estadoNube('guardando');clearTimeout(tSync);tSync=setTimeout(sincronizar,700)}
+const LIM_DOC=900000,TXE=new TextEncoder(),bytes=t=>TXE.encode(t).length,NOMBRE_DOC={club:'Datos del club',contenidos:'Contenidos',jugadores:'Plantel',tareas:'Biblioteca de tareas',microciclos:'Microciclos',sesiones:'Sesiones',asistencia:'Asistencia',evaluaciones:'Evaluaciones'};let avisoGrande=false;
 async function sincronizar(){
   tSync=null;if(MODO!=='nube'||!CLUB)return;
   const ref=db.collection('clubes').doc(CLUB),ops=[],ts=firebase.firestore.FieldValue.serverTimestamp();
-  COL_DOC.forEach(k=>{const s=valorDoc(k);if(s!==ultimo[k]){ultimo[k]=s;ops.push(b=>b.set(ref.collection('datos').doc(k),{v:s,t:ts,por:USR.uid}))}});
+  const grandes=[];COL_DOC.forEach(k=>{const s=valorDoc(k);if(bytes(s)>LIM_DOC){grandes.push(k);return}if(s!==ultimo[k]){ultimo[k]=s;ops.push(b=>b.set(ref.collection('datos').doc(k),{v:s,t:ts,por:USR.uid}))}});
   COL_ITEMS.forEach(k=>{const vivos=new Set();S[k].forEach(it=>{vivos.add(it.id);const s=JSON.stringify(it);if(s!==ultimoItems[k][it.id]){ultimoItems[k][it.id]=s;ops.push(b=>b.set(ref.collection(k).doc(it.id),{v:s,t:ts,por:USR.uid}))}});
     Object.keys(ultimoItems[k]).forEach(id=>{if(!vivos.has(id)){delete ultimoItems[k][id];ops.push(b=>b.delete(ref.collection(k).doc(id)))}})});
   const ids=new Set(S.jugadores.map(j=>j.id));
   S.jugadores.forEach(j=>{const f=j.foto||'';if(f!==(ultimoFoto[j.id]||'')){ultimoFoto[j.id]=f;FOTOS[j.id]=f;ops.push(b=>f?b.set(ref.collection('fotos').doc(j.id),{d:f}):b.delete(ref.collection('fotos').doc(j.id)))}});
   Object.keys(ultimoFoto).forEach(id=>{if(!ids.has(id)){delete ultimoFoto[id];delete FOTOS[id];ops.push(b=>b.delete(ref.collection('fotos').doc(id)))}});
-  if(!ops.length){estadoNube('guardado');return}
-  try{for(let i=0;i<ops.length;i+=400){const b=db.batch();ops.slice(i,i+400).forEach(f=>f(b));await b.commit()}estadoNube(navigator.onLine===false?'offline':'guardado')}
+  if(grandes.length)aviso('No se pudo guardar en la nube: '+grandes.map(k=>NOMBRE_DOC[k]||k).join(', ')+' superó el espacio máximo. Borrá elementos viejos para liberar lugar.');
+  else if(COL_DOC.some(k=>bytes(valorDoc(k))>LIM_DOC*.8)&&!avisoGrande){avisoGrande=true;aviso('Atención: '+COL_DOC.filter(k=>bytes(valorDoc(k))>LIM_DOC*.8).map(k=>NOMBRE_DOC[k]||k).join(', ')+' está cerca del límite de espacio en la nube.')}
+  if(!ops.length){estadoNube(grandes.length?'error':'guardado');return}
+  try{for(let i=0;i<ops.length;i+=400){const b=db.batch();ops.slice(i,i+400).forEach(f=>f(b));await b.commit()}estadoNube(grandes.length?'error':navigator.onLine===false?'offline':'guardado')}
   catch(e){estadoNube('error');aviso('No se pudo guardar en la nube: '+errTxt(e));ultimo={};Object.keys(ultimoItems).forEach(k=>ultimoItems[k]={})}
 }
 async function subirTodo(){ultimo={};ultimoItems={partidos:{},pizarras:{}};ultimoFoto={};await sincronizar()}
@@ -1496,7 +1499,7 @@ function conectarPanelEquipo(el){
   $$('[data-rol]',el).forEach(b=>b.onclick=async()=>{const u=b.dataset.rol;try{await ref.update({['miembros.'+u]:CLUBDOC.miembros[u]==='admin'?'staff':'admin'})}catch(x){aviso(errTxt(x))}});
   $('#cerrarSes',el).onclick=()=>auth.signOut();
   $('#cambiarPass',el).onclick=async()=>{try{await auth.sendPasswordResetEmail(USR.email);aviso('Te mandamos un mail a '+USR.email+' para cambiar la contraseña.')}catch(x){aviso(errTxt(x))}};
-  const sc=$('#salirClub',el);if(sc)sc.onclick=()=>confirmar('¿Salir del club?','Vas a dejar de ver sus datos. Para volver tenés que pedir unirte otra vez.','Salir del club',async()=>{try{await ref.update({['miembros.'+USR.uid]:FV.delete(),['info.'+USR.uid]:FV.delete()})}catch(x){aviso(errTxt(x))}});
+  const sc=$('#salirClub',el);if(sc)sc.onclick=()=>confirmar('¿Salir del club?','Vas a dejar de ver sus datos. Para volver tenés que pedir unirte otra vez.','Salir del club',async()=>{try{cortarSubs();await ref.update({['miembros.'+USR.uid]:FV.delete(),['info.'+USR.uid]:FV.delete()});await db.collection('usuarios').doc(USR.uid).set({clubId:FV.delete()},{merge:true});PERFIL={...PERFIL,clubId:null};CLUB=null;CLUBDOC=null;MODO='local';aviso('Saliste del club');pantallaClub()}catch(x){aviso(errTxt(x));abrirClub(CLUB)}});
 }
 
 /* ---------- Arranque ---------- */
