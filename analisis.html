@@ -311,6 +311,7 @@ function mtkMarca(){
 }
 document.addEventListener("DOMContentLoaded", ()=>{
   mtkMarca();
+  window.MTK_READY.then(()=>{ if (typeof aplicarRama==="function") aplicarRama(); }, ()=>{ if (typeof aplicarRama==="function") aplicarRama(); });
   window.MTK_READY.then(mtkMarca, msg=>{
     const how = document.querySelector(".how");
     if (how && window.MTK_NO_CLOUD) how.insertAdjacentHTML("afterend", '<div class="mtk-aviso">' + window.MTK_NO_CLOUD + ' Mientras tanto, lo que completes queda guardado solo en este navegador.</div>');
@@ -629,12 +630,29 @@ function refreshField(id){
   if (f && old) old.replaceWith(renderField(f));
 }
 
+/* Textos según la rama del club (femenino, masculino o mixto) */
+function ramaClub(){
+  let r = (window.MTK_CLUB||{}).rama;
+  if (!r) { try { if (window.parent && window.parent!==window) r = window.parent.eval('typeof S!=="undefined"&&S&&S.club?S.club.rama:""'); } catch(e) {} }
+  return r || "F";
+}
+const GX_M = [["Jugadoras a tener en cuenta","Jugadores a tener en cuenta"],["Jugadoras clave","Jugadores clave"],["Las que más influyen","Los que más influyen"],["la arquera o las centrales","el arquero o los centrales"],["si las presionan, la arquera la tira larga a la 9","si los presionan, el arquero la tira larga al 9"],["la arquera sale poco","el arquero sale poco"],["salida corta de la arquera","salida corta del arquero"],["Pelota larga a la 9","Pelota larga al 9"],["Pelota a la 9","Pelota al 9"],["Arquera","Arquero"],["Jugadora ","Jugador "],["Defensora","Defensor"],["Delantera","Delantero"]];
+const GX_X = [["Jugadoras a tener en cuenta","Jugadoras/es a tener en cuenta"],["Jugadoras clave","Jugadoras/es clave"],["Las que más influyen","Quienes más influyen"],["la arquera o las centrales","quien ataja o quienes juegan de centrales"],["la arquera","quien ataja"],["Arquera","Arquera/o"],["Jugadora ","Jugador/a "],["Defensora","Defensor/a"],["Delantera","Delantera/o"]];
+function gx(t){ const r = ramaClub(); const L = r==="M" ? GX_M : r==="X" ? GX_X : null; if (!L) return t; let o = String(t); L.forEach(([a,b])=>{ o = o.split(a).join(b); }); return o; }
+function aplicarRama(){
+  if (window.__ramaAplicada || ramaClub()==="F") return;
+  window.__ramaAplicada = true;
+  const nuevo = JSON.parse(gx(JSON.stringify(SECTIONS)));
+  SECTIONS.splice(0, SECTIONS.length, ...nuevo);
+  try { render(); } catch(e) {}
+}
+
 function onceLabels(){
   const f = state.sis_con;
-  if (!/^\d(-\d){2,3}$/.test(f||"")) return ["Arquera","Jugadora 2","Jugadora 3","Jugadora 4","Jugadora 5","Jugadora 6","Jugadora 7","Jugadora 8","Jugadora 9","Jugadora 10","Jugadora 11"];
+  if (!/^\d(-\d){2,3}$/.test(f||"")) return ["Arquera","Jugadora 2","Jugadora 3","Jugadora 4","Jugadora 5","Jugadora 6","Jugadora 7","Jugadora 8","Jugadora 9","Jugadora 10","Jugadora 11"].map(gx);
   const lines = f.split("-").map(Number), out = ["Arquera"];
   lines.forEach((n,i)=>{ const nm = i===0 ? "Defensora" : (i===lines.length-1 ? "Delantera" : "Volante"); for(let k=0;k<n;k++) out.push(nm+" "+(k+1)); });
-  return out.slice(0,11);
+  return out.slice(0,11).map(gx);
 }
 
 function renderField(f) {
@@ -1089,7 +1107,7 @@ function buildSlides(){
     if (val("pp_favor")){ const c=D("div"); block(c,"A favor de "+name,D("div","note",val("pp_favor"))); g.appendChild(c); any=true; }
     if (val("pp_contra")){ const c=D("div"); block(c,"En contra de "+name,D("div","note",val("pp_contra"))); g.appendChild(c); any=true; }
     if (any) w.appendChild(g); else empty(w); });
-  sectionSlide(S("jugadoras"), w=>{ w.appendChild(D("h3",null,"Jugadoras a tener en cuenta"));
+  sectionSlide(S("jugadoras"), w=>{ w.appendChild(D("h3",null,gx("Jugadoras a tener en cuenta")));
     const ps = list("jug").filter(p=>p&&(p.dor||p.pos||p.car));
     if (!ps.length) return empty(w);
     const g=D("div","players"); ps.forEach(p=>{ const c=D("div","pcard"); c.appendChild(D("div","num",p.dor||"?")); const t=D("div"); t.appendChild(D("p","pos",p.pos||"")); if(p.car) t.appendChild(D("p","car",p.car)); c.appendChild(t); g.appendChild(c); }); w.appendChild(g); });
