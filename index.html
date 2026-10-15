@@ -245,7 +245,17 @@ body.sin-menu .lateral{display:none}
   .g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}
   .form{grid-template-columns:minmax(0,1fr)}
   .piz-wrap{grid-template-columns:minmax(0,1fr)}
-  .hg,.hg.g2h,.hg.g3h{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+  /* Pizarra en celular y tablet vertical: herramientas en una tira deslizable arriba de la cancha */
+  .herr{flex-direction:row;overflow-x:auto;gap:6px;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .herr .etq{display:none}
+  .herr .hg,.herr .hg.g2h,.herr .hg.g3h{display:flex;gap:6px}
+  .herr button,.hg.g2h button,.hg.g3h button{flex-direction:column;gap:3px;min-width:68px;max-width:78px;padding:7px 4px;font-size:10.5px;line-height:1.15;text-align:center;justify-content:center;flex:none}
+  .herr .colores{flex-wrap:nowrap;align-items:center;margin:0 4px}
+  .herr .sw{width:30px;height:30px}
+  .cancha{padding:4px}
+  .cancha svg{max-height:62vh}
+  .cartas-pz{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important}
+  .ayuda-tira{display:block!important}
   h1{font-size:28px}
   .reloj{font-size:48px}
 }
@@ -517,6 +527,7 @@ function clubVacio(){
 
 /* ================= NAVEGACIÓN ================= */
 const ICO={
+  libro:'<path d="M4 5.5c2.5-1 5.5-1 8 .8v13c-2.5-1.8-5.5-1.8-8-.8z"/><path d="M20 5.5c-2.5-1-5.5-1-8 .8v13c2.5-1.8 5.5-1.8 8-.8z"/>',
   tag:'<path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8.2-8.6 8.8z"/><circle cx="8" cy="8" r="1.6"/>',
   video:'<rect x="3" y="5" width="13" height="14" rx="2"/><path d="M16 10l5-3v10l-5-3z"/><path d="M8 9.5v5l4-2.5z"/>',
   inicio:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
@@ -531,8 +542,8 @@ const ICO={
   tienda:'<path d="M4 8h16l-1.3 12H5.3z"/><path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2"/>',
   ajustes:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>'
 };
-const RUTAS=[['inicio','Inicio'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes']];
-const ICO_R={inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',asistencia:'asist',tienda:'tienda',ajustes:'ajustes'};
+const RUTAS=[['inicio','Inicio'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes']];
+const ICO_R={inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',asistencia:'asist',tienda:'tienda',ajustes:'ajustes'};
 let ruta='inicio',param=null;
 function ir(r,p=null){ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
 function pintarMenu(){
@@ -938,7 +949,7 @@ const CATEG_PZ=['Entrenamiento','Partido','Estrategia','ABP'];
 const PALETA=['#FFD400','#FFFFFF','#E23B2E','#2F6FDB','#141412','#4FB3E8','#F08A24','#3FA34D','#8E44AD','hueco'];
 const MATERIALES={O:{n:'Cono',c:'#FF7A1A',rot:false},D:{n:'Disco',c:'#FFD400',rot:false},R:{n:'Aro',c:'#E23B2E',rot:false},V:{n:'Valla',c:'#F08A24',rot:true},H:{n:'Pechera',c:'#3FA34D',rot:false},E:{n:'Escalera',c:'#FFD400',rot:true},N:{n:'Mini arco',c:'#FFFFFF',rot:true},G:{n:'Arco',c:'#FFFFFF',rot:true},P:{n:'Pelota',c:'#FFFFFF',rot:false}};
 const FLECHAS={pase:{n:'Pase',c:'#FFFFFF'},mov:{n:'Movimiento',c:'#FFD400'},cond:{n:'Conducción',c:'#FFFFFF'},tiro:{n:'Remate',c:'#E23B2E'}};
-function radio(f){const [w,h]=FORMATOS[f]||[40,30];return Math.max(.55,Math.min(1.7,Math.max(w,h)*.02))}
+function radio(f){const [w,h]=FORMATOS[f]||[40,30];const base=Math.max(.55,Math.min(1.7,Math.max(w,h)*.02));const vw=window.innerWidth||1200;return base*(vw<600?1.6:vw<1000?1.25:1)} // piezas más grandes en celular y tablet para tocarlas con el dedo
 function tintaSobre(hex){if(!hex||hex==='hueco')return '#FFFFFF';const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>150?'#141412':'#FFFFFF'}
 function normalizar(pz){
   if(pz._v===2)return pz;
@@ -1065,14 +1076,14 @@ VISTAS.pizarra=el=>{
       <div class="pasos"><button class="btn chico" id="frAnt" ${FR?'':'disabled'} aria-label="Paso anterior">◀</button><b class="num">Paso ${FR+1} de ${PZ.pasos.length+1}</b><button class="btn chico" id="frSig" ${FR<PZ.pasos.length?'':'disabled'} aria-label="Paso siguiente">▶</button>
         <button class="btn chico" id="frNuevo">＋ Paso</button>${FR>0?'<button class="btn chico fantasma" id="frQuitar">Quitar este paso</button>':''}
         <button class="btn chico ${PZ.pasos.length?'ama':''}" id="frPlay" ${PZ.pasos.length?'':'disabled'} style="margin-left:auto">▶ Reproducir jugada</button></div>
-      <div class="cancha" id="cancha">${svgPizarra(PZ,{frame:FR,sel:SEL})}</div>
+      <p class="sub ayuda-tira" style="display:none;font-size:12px;margin:0 0 6px">Deslizá la barra de herramientas para ver todas. Tocá la cancha para ubicar y arrastrá con el dedo para mover.</p><div class="cancha" id="cancha">${svgPizarra(PZ,{frame:FR,sel:SEL})}</div>
       <p class="sub" style="font-size:12.5px;margin:6px 0 0">${PZ.pasos.length?'En cada paso mové a las '+J('pl')+' a su nueva posición. Las flechas se dibujan por paso.':'Para animar una jugada: ubicá las piezas, tocá “＋ Paso” y mové a las '+J('pl')+' a su nueva posición.'}</p>
       <div id="panelSel"></div>
     </div>
   </div>
   <div class="panel" style="margin-top:16px"><div class="panel-cab"><h3>Ejercicios guardados</h3><span class="chip">${S.pizarras.length}</span>
     <div class="der"><div class="seg">${[['','Todos'],...CATEG_PZ.map(c=>[c,c])].map(([v,t])=>`<button data-fcp="${esc(v)}" class="${fCatPz===v?'activo':''}">${t}</button>`).join('')}</div>${carpetas.length?`<select id="fCarp" style="width:auto" aria-label="Carpeta"><option value="">Todas las carpetas</option>${opts(carpetas,fCarpeta)}</select>`:''}</div></div>
-  ${guardadas.length?`<div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">${guardadas.map(p=>`<div class="ct"><div class="mini">${svgPizarra(p,{mini:true})}</div><div class="cuerpo" style="padding:9px 10px;gap:5px"><b style="font-size:14px;line-height:1.2">${esc(p.nombre)}</b><div class="chips"><span class="chip">${esc(p.categoria)}</span>${p.carpeta?`<span class="chip">📁 ${esc(p.carpeta)}</span>`:''}${p.pasos.length?`<span class="chip ama">${p.pasos.length+1} pasos</span>`:''}</div><span class="sub" style="font-size:12px">${esc(p.formato)}</span><div style="display:flex;gap:4px;margin-top:auto"><button class="btn chico" data-abrir="${p.id}">Abrir</button><button class="btn chico fantasma" data-borrarpz="${p.id}" aria-label="Eliminar">✕</button></div></div></div>`).join('')}</div>`:'<div class="vacio">No hay ejercicios guardados en esta categoría.</div>'}</div>`;
+  ${guardadas.length?`<div class="cartas-t cartas-pz" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">${guardadas.map(p=>`<div class="ct"><div class="mini">${svgPizarra(p,{mini:true})}</div><div class="cuerpo" style="padding:9px 10px;gap:5px"><b style="font-size:14px;line-height:1.2">${esc(p.nombre)}</b><div class="chips"><span class="chip">${esc(p.categoria)}</span>${p.carpeta?`<span class="chip">📁 ${esc(p.carpeta)}</span>`:''}${p.pasos.length?`<span class="chip ama">${p.pasos.length+1} pasos</span>`:''}</div><span class="sub" style="font-size:12px">${esc(p.formato)}</span><div style="display:flex;gap:4px;margin-top:auto"><button class="btn chico" data-abrir="${p.id}">Abrir</button><button class="btn chico fantasma" data-borrarpz="${p.id}" aria-label="Eliminar">✕</button></div></div></div>`).join('')}</div>`:'<div class="vacio">No hay ejercicios guardados en esta categoría.</div>'}</div>`;
   $$('[data-h]',el).forEach(b=>b.onclick=()=>{herr=b.dataset.h;$$('[data-h]',el).forEach(x=>x.classList.toggle('activo',x===b));if(herr!=='mover'){SEL=null;redibujar()}});
   $$('[data-cj]',el).forEach(b=>b.onclick=()=>{colorJ=b.dataset.cj;herr='J';if(SEL&&SEL.tipo==='el'){const e=PZ.elementos.find(x=>x.id===SEL.id);if(e&&e.t==='J'){snap();e.color=colorJ}}pintar()});
   $$('[data-cz]',el).forEach(b=>b.onclick=()=>{colorZ=b.dataset.cz;if(SEL&&SEL.tipo==='zo'){const z=PZ.zonas.find(x=>x.id===SEL.id);if(z){snap();z.color=colorZ}}else if(!['rect','cuad','circ'].includes(herr))herr='rect';pintar()});
@@ -1437,7 +1448,7 @@ function pantallaAcceso(msg=''){
   const q=id=>$('#'+id);
   if(q('aCrear'))q('aCrear').onclick=()=>{modoAcceso='crear';pantallaAcceso()};
   if(q('aEntrar'))q('aEntrar').onclick=()=>{modoAcceso='entrar';pantallaAcceso()};
-  if(q('aOlvido'))q('aOlvido').onclick=async()=>{const mail=$('#accMail').value.trim();if(!mail){err('Escribí tu mail arriba y tocá de nuevo “Olvidé mi contraseña”.');return}try{await auth.sendPasswordResetEmail(mail);err('');aviso('Te mandamos un mail para crear una contraseña nueva.')}catch(x){err(errTxt(x))}};
+  if(q('aOlvido'))q('aOlvido').onclick=async()=>{const mail=$('#accMail').value.trim();if(!mail){err('Escribí tu mail arriba y tocá de nuevo “Olvidé mi contraseña”.');return}try{await auth.sendPasswordResetEmail(mail);err('');err('');$('#accErr').style.color='var(--verde)';$('#accErr').textContent='Listo: te mandamos un mail a '+mail+' con un link para crear una contraseña nueva. Si no lo ves en unos minutos, revisá Spam o Correo no deseado.'}catch(x){err(errTxt(x))}};
   q('aDemo').onclick=()=>{MODO='demo';S=crearDemo();S.pizarras.forEach(normalizar);document.body.classList.remove('sin-menu');ir('inicio')};
 }
 
@@ -1492,7 +1503,7 @@ function pantallaEspera(){
 /* ---------- Abrir el club y sincronizar ---------- */
 function cortarSubs(){subs.forEach(u=>{try{u()}catch(e){}});subs=[]}
 function abrirClub(clubId,recienCreado){
-  cortarSubs();CLUB=clubId;MODO='nube';
+  cortarSubs();CLUB=clubId;MODO='nube';LECT.cargado=false;
   pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando los datos del club…</p>`);
   const ref=db.collection('clubes').doc(clubId);
   let listos={club:false,datos:false,partidos:false,pizarras:false,fotos:false};
@@ -1697,6 +1708,76 @@ function tomarAsistencia(el,k){
   $('#todosP').onclick=()=>{lista.forEach(j=>reg.reg[j.id]='P');save();pintar();aviso('Todos marcados presentes')};
   $$('[data-a]',el).forEach(b=>b.onclick=()=>{reg.reg[b.dataset.a]=b.dataset.v;$$(`[data-a="${b.dataset.a}"]`,el).forEach(x=>x.classList.toggle('activo',x===b));save()});
   $$('[data-o]',el).forEach(i=>i.onchange=()=>{reg.obs[i.dataset.o]=i.value;save()});
+}
+
+/* ================= BIBLIOTECA DE LECTURA ================= */
+/* Material propio de Metodika (solo clubes con plan activo) + lecturas recomendadas (con dónde conseguirlas).
+   Lo administra la dueña de Metodika desde esta misma vista. */
+const DUENIAS=['dtmariaboloquy@gmail.com','metodikaoficial26@gmail.com'];
+const CONTACTO_MAIL='metodikaoficial26@gmail.com',CONTACTO_IG='https://instagram.com/metodikaoficial';
+const esDuenia=()=>MODO==='nube'&&USR&&DUENIAS.includes(String(USR.email||'').toLowerCase());
+let LECT={cargado:false,items:[],pago:false,error:''};
+const CHUNK_L=700*1024;
+const b64aBytes=b=>{const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u};
+const bytesAb64=u=>{let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
+async function cargarLecturas(){
+  LECT={cargado:false,items:[],pago:false,error:''};
+  if(MODO!=='nube'){LECT.cargado=true;return}
+  try{const q=await db.collection('lecturas').get();LECT.items=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.orden||0)-(b.orden||0)||String(a.titulo).localeCompare(String(b.titulo)))}
+  catch(e){LECT.error=e&&e.code==='permission-denied'?'reglas':errTxt(e)}
+  try{const p=await db.collection('planes').doc(CLUB).get();LECT.pago=!!(p.exists&&p.data().pago)}catch(e){}
+  LECT.cargado=true;
+}
+VISTAS.lecturas=el=>{
+  if(!LECT.cargado){el.innerHTML=cabecera('Formación','Biblioteca de lectura','')+'<div class="vacio">Cargando…</div>';cargarLecturas().then(()=>{if(ruta==='lecturas')pintar()});return}
+  const duenia=esDuenia(),acceso=LECT.pago||duenia;
+  const propios=LECT.items.filter(x=>x.tipo==='metodika'),recom=LECT.items.filter(x=>x.tipo==='recomendada');
+  const pedir=`<a class="btn ama chico" href="mailto:${CONTACTO_MAIL}?subject=${encodeURIComponent('Plan Metodika Clubes · '+(S.club.nombre||''))}">Pedir el plan</a><a class="btn chico" href="${CONTACTO_IG}" target="_blank" rel="noopener">Instagram</a>`;
+  el.innerHTML=cabecera('Formación','Biblioteca de lectura','Material de Metodika para el cuerpo técnico y lecturas recomendadas para seguir formándote.',duenia?'<button class="btn pri" id="admL">Administrar</button>':'')+
+  (MODO!=='nube'?'<div class="vacio">Entrá con tu cuenta de Metodika Clubes para ver la biblioteca de lectura.</div>':
+   LECT.error==='reglas'?`<div class="vacio">${duenia?'Falta activar esta sección en Firebase (reglas de la base de datos). Seguí los pasos que te pasó Claude.':'Esta sección todavía no está disponible.'}</div>`:
+   LECT.error?`<div class="vacio">No se pudo cargar: ${esc(LECT.error)}</div>`:
+  `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>Material Metodika</h3>${acceso?'<span class="chip ok" style="margin-left:auto">Incluido en tu plan</span>':'<span class="chip ama" style="margin-left:auto">🔒 Plan Metodika Clubes</span>'}</div>
+    ${acceso?'':`<p class="sub" style="margin:0 0 12px">Este material está incluido en el plan pago de Metodika Clubes. Pedilo y lo activamos para todo tu cuerpo técnico.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">${pedir}</div>`}
+    ${propios.length?`<div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${propios.map(x=>`<div class="pack"><div class="etq">${acceso?'Disponible':'🔒 Con el plan'}</div><h2 style="font-size:20px">${esc(x.titulo)}</h2><p class="sub" style="margin:0;font-size:14px">${esc(x.descripcion||'')}</p><div style="margin-top:auto;display:flex;gap:8px;flex-wrap:wrap">${acceso&&x.archivo?`<button class="btn pri chico" data-leer="${x.id}">Leer</button>`:''}${duenia?`<button class="btn chico peligro" data-borrarl="${x.id}">Eliminar</button>`:''}</div></div>`).join('')}</div>`:'<div class="vacio">Pronto vas a encontrar acá el material de Metodika.</div>'}</div>
+  <div class="panel"><div class="panel-cab"><h3>Lecturas recomendadas</h3></div><p class="sub" style="margin:0 0 12px;font-size:14px">Libros que recomendamos para el cuerpo técnico. Conseguilos en librerías o tiendas oficiales.</p>
+    ${recom.length?`<div class="lista">${recom.map(x=>`<div class="fila" style="align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:200px"><b>${esc(x.titulo)}</b>${x.autor?` <span class="sub">· ${esc(x.autor)}</span>`:''}<div class="sub" style="font-size:14px;margin-top:3px">${esc(x.descripcion||'')}</div></div><div style="display:flex;gap:6px">${x.link?`<a class="btn chico" href="${esc(x.link)}" target="_blank" rel="noopener">Dónde conseguirlo ↗</a>`:''}${duenia?`<button class="btn chico peligro" data-borrarl="${x.id}">Eliminar</button>`:''}</div></div>`).join('')}</div>`:'<div class="vacio">Todavía no hay lecturas recomendadas.</div>'}</div>`);
+  const a=$('#admL');if(a)a.onclick=adminLecturas;
+  $$('[data-leer]',el).forEach(b=>b.onclick=()=>leerMaterial(LECT.items.find(x=>x.id===b.dataset.leer),b));
+  $$('[data-borrarl]',el).forEach(b=>b.onclick=()=>{const x=LECT.items.find(y=>y.id===b.dataset.borrarl);confirmar('¿Eliminar “'+x.titulo+'”?','Deja de verse en todos los clubes.','Eliminar',async()=>{try{if(x.archivo){const ps=await db.collection('lecturas-archivos').doc(x.archivo).collection('partes').get();for(const d of ps.docs)await d.ref.delete();await db.collection('lecturas-archivos').doc(x.archivo).delete()}await db.collection('lecturas').doc(x.id).delete();aviso('Eliminado');LECT.cargado=false;pintar()}catch(e){aviso(errTxt(e))}})});
+};
+async function leerMaterial(x,btn){
+  if(!x||!x.archivo)return;
+  const t=btn.textContent;btn.disabled=true;btn.textContent='Abriendo…';
+  try{
+    const meta=await db.collection('lecturas-archivos').doc(x.archivo).get();
+    const ps=await db.collection('lecturas-archivos').doc(x.archivo).collection('partes').get();
+    const partes=ps.docs.slice().sort((a,b)=>Number(a.id)-Number(b.id)).map(d=>b64aBytes(d.data().d));
+    const url=URL.createObjectURL(new Blob(partes,{type:(meta.exists&&meta.data().type)||'application/pdf'}));
+    modal(x.titulo,`<iframe src="${url}" title="${esc(x.titulo)}" style="width:100%;height:70vh;border:0;border-radius:8px;background:#fff"></iframe><div class="modal-pie"><span class="sub" style="margin-right:auto;font-size:13px">Material de uso exclusivo para tu club.</span><a class="btn" href="${url}" target="_blank" rel="noopener">Abrir en pantalla completa</a></div>`,{ancho:true});
+  }catch(e){aviso(e&&e.code==='permission-denied'?'Tu club no tiene el plan activo.':errTxt(e))}
+  btn.disabled=false;btn.textContent=t;
+}
+function adminLecturas(){
+  modal('Administrar biblioteca de lectura',`<div class="tabs" id="tabsAL"><button data-al="mat" class="activo">Subir material</button><button data-al="rec">Agregar recomendada</button><button data-al="planes">Clubes con plan</button></div><div id="cuerpoAL"></div>`,{ancho:true,alMontar:m=>{
+    const pint=k=>{$$('[data-al]',m).forEach(b=>b.classList.toggle('activo',b.dataset.al===k));const c=$('#cuerpoAL',m);
+      if(k==='mat'){c.innerHTML=`<form class="form" id="fMat"><label class="campo ancho">Título<input type="text" id="lmT" placeholder="Ej.: Libro de Planificación Metodika"></label><label class="campo ancho">Descripción<textarea id="lmD" placeholder="Qué trae y para quién sirve"></textarea></label><label class="campo ancho">Archivo (PDF, hasta 15 MB)<input type="file" id="lmF" accept="application/pdf"></label></form><p class="sub" style="font-size:13px">Solo subí material tuyo o con permiso de quien lo escribió.</p><div class="modal-pie"><span class="sub" id="lmP" style="margin-right:auto"></span><button class="btn pri" id="lmOk">Subir</button></div>`;
+        $('#lmOk',m).onclick=async()=>{const ti=$('#lmT',m).value.trim(),f=$('#lmF',m).files[0];if(!ti||!f){aviso('Poné un título y elegí el archivo.');return}if(f.size>15*1024*1024){aviso('El archivo pesa más de 15 MB.');return}
+          const b=$('#lmOk',m);b.disabled=true;try{const u8=new Uint8Array(await f.arrayBuffer()),n=Math.max(1,Math.ceil(u8.length/CHUNK_L)),ref=db.collection('lecturas-archivos').doc();
+            for(let i=0;i<n;i++){$('#lmP',m).textContent='Subiendo '+(i+1)+' de '+n+'…';await ref.collection('partes').doc(String(i)).set({d:bytesAb64(u8.subarray(i*CHUNK_L,(i+1)*CHUNK_L))})}
+            await ref.set({type:f.type||'application/pdf',size:u8.length,partes:n,nombre:f.name});
+            await db.collection('lecturas').add({tipo:'metodika',titulo:ti,descripcion:$('#lmD',m).value.trim(),archivo:ref.id,creado:firebase.firestore.FieldValue.serverTimestamp()});
+            cerrarModal();aviso('Material subido');LECT.cargado=false;pintar()}catch(e){aviso(errTxt(e));b.disabled=false;$('#lmP',m).textContent=''}};
+      } else if(k==='rec'){c.innerHTML=`<form class="form" id="fRec"><label class="campo">Título<input type="text" id="lrT"></label><label class="campo">Autor/a<input type="text" id="lrA"></label><label class="campo ancho">Por qué lo recomendamos<textarea id="lrD"></textarea></label><label class="campo ancho">Dónde conseguirlo (link a librería o editorial)<input type="url" id="lrL" placeholder="https://…"></label></form><div class="modal-pie"><button class="btn pri" id="lrOk">Agregar</button></div>`;
+        $('#lrOk',m).onclick=async()=>{const ti=$('#lrT',m).value.trim();if(!ti){aviso('Poné el título.');return}try{await db.collection('lecturas').add({tipo:'recomendada',titulo:ti,autor:$('#lrA',m).value.trim(),descripcion:$('#lrD',m).value.trim(),link:$('#lrL',m).value.trim(),creado:firebase.firestore.FieldValue.serverTimestamp()});cerrarModal();aviso('Lectura agregada');LECT.cargado=false;pintar()}catch(e){aviso(errTxt(e))}};
+      } else {c.innerHTML=`<p class="sub" style="margin:0 0 10px">Para activar el plan de un club, escribí su código (lo ve quien administra el club en Ajustes).</p><div style="display:flex;gap:8px;max-width:360px"><input type="text" id="plC" maxlength="6" placeholder="Ej.: K7M2QX" style="text-transform:uppercase;letter-spacing:3px;font-weight:700"><button class="btn pri" id="plOk">Activar plan</button></div><div class="lista" id="plL" style="margin-top:14px"><div class="sub">Cargando…</div></div>`;
+        const listar=async()=>{try{const q=await db.collection('planes').get();$('#plL',m).innerHTML=q.docs.map(d=>{const v=d.data();return `<div class="fila"><div style="flex:1"><b>${esc(v.nombre||d.id)}</b><div class="sub" style="font-size:12.5px">${esc(v.codigo||'')} · ${v.pago?'Plan activo':'Sin plan'}</div></div><button class="btn chico ${v.pago?'peligro':''}" data-pl="${d.id}" data-v="${v.pago?0:1}">${v.pago?'Desactivar':'Activar'}</button></div>`}).join('')||'<div class="vacio">Todavía no activaste ningún club.</div>';
+          $$('[data-pl]',m).forEach(b=>b.onclick=async()=>{try{await db.collection('planes').doc(b.dataset.pl).set({pago:b.dataset.v==='1'},{merge:true});listar()}catch(e){aviso(errTxt(e))}})}catch(e){$('#plL',m).innerHTML='<div class="vacio">'+esc(errTxt(e))+'</div>'}};
+        listar();
+        $('#plOk',m).onclick=async()=>{const cod=$('#plC',m).value.trim().toUpperCase();if(cod.length<6){aviso('El código tiene 6 letras o números.');return}try{const d=await db.collection('codigos').doc(cod).get();if(!d.exists){aviso('No hay ningún club con ese código.');return}const {clubId,nombre}=d.data();await db.collection('planes').doc(clubId).set({pago:true,nombre,codigo:cod,desde:iso(HOY)},{merge:true});aviso('Plan activado para '+nombre);$('#plC',m).value='';listar();if(clubId===CLUB){LECT.cargado=false}}catch(e){aviso(errTxt(e))}};
+      }};
+    $$('[data-al]',m).forEach(b=>b.onclick=()=>pint(b.dataset.al));pint('mat');
+  }});
 }
 
 /* ================= TIENDA ================= */
