@@ -345,7 +345,7 @@ function catTarea(c){ // adapta "Jugadora con pelota" a la rama
 }
 function posTxt(p){
   if(!p)return '';
-  if(S.club.rama==='F')return p.replace('/o','a').replace('Arquera/o','Arquera');
+  if(S.club.rama==='F')return p.replace('/o','');
   if(S.club.rama==='M')return p.replace('Arquera/o','Arquero').replace('Delantera/o','Delantero').replace('Volante interna/o','Volante interno');
   return p;
 }
@@ -684,7 +684,7 @@ function reducirFoto(file,cb){
 function editarJugador(j){
   const n=!j;j=j||{id:uid(),nombre:'',apellido:'',dorsal:'',posicion:POSICIONES[3],categoria:S.club.categoria,nacimiento:'',pie:'Derecho',altura:'',foto:'',obs:''};
   let foto=j.foto;
-  modal(n?'Nueva '+J('sg').replace('jugador/a','ficha'):'Editar '+J('sg'),`
+  modal(n?(S.club.rama==='F'?'Nueva jugadora':S.club.rama==='M'?'Nuevo jugador':'Nueva ficha'):'Editar '+J('sg'),`
   <form class="form" id="fJ">
     <div class="ancho" style="display:flex;gap:14px;align-items:center"><div id="prevF">${avatar(j,true)}</div><label class="btn chico" for="fotoJ">Subir foto</label><input type="file" id="fotoJ" accept="image/*" hidden>${foto?'<button type="button" class="btn chico fantasma" id="sacarF">Quitar foto</button>':''}</div>
     <label class="campo">Nombre<input type="text" id="jn" name="nombre" value="${esc(j.nombre)}" required></label>
@@ -1172,7 +1172,8 @@ function reproducir(){
 function exportarPng(){
   const txt=svgPizarra(PZ,{frame:FR});const [W,H]=FORMATOS[PZ.formato];const esc2=1600/Math.max(W,H),pad=Math.max(W,H)*.045;
   const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=Math.round((W+pad*2)*esc2);c.height=Math.round((H+pad*2)*esc2);c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-    modal('Imagen del ejercicio',`<img src="${c.toDataURL('image/png')}" alt="${esc(PZ.nombre)}" style="width:100%;border-radius:8px"><p class="sub" style="margin:12px 0 0">Para guardarla: hacé clic derecho sobre la imagen y elegí <b>“Guardar imagen como…”</b>. En el celular, mantené apretada la imagen.${PZ.pasos.length?' Se exporta el paso que estás viendo.':''}</p>`,{ancho:true})};
+    const url=c.toDataURL('image/png'),nom=(PZ.nombre||'ejercicio').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase()||'ejercicio';
+    modal('Imagen del ejercicio',`<img src="${url}" alt="${esc(PZ.nombre)}" style="width:100%;border-radius:8px"><p class="sub" style="margin:12px 0 0">${PZ.pasos.length?'Se exporta el paso que estás viendo. ':''}En el celular también podés mantener apretada la imagen para guardarla.</p><div class="modal-pie"><a class="btn pri" href="${url}" download="${nom}.png">Descargar imagen</a></div>`,{ancho:true})};
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(txt);
 }
 
@@ -1197,10 +1198,10 @@ VISTAS.partido=el=>{
     $$('[data-p]',el).forEach(b=>b.onclick=()=>{tabPartido=S.partidos.find(x=>x.id===b.dataset.p).estado==='finalizado'?'analisis':'previa';ir('partido',b.dataset.p)});
     return;
   }
-  const g=goles(p);if(p.estado!=='programado'){p.golesF=g.f;p.golesC=g.c}
+  const g=p.eventos.length?goles(p):{f:p.golesF??0,c:p.golesC??0};if(p.estado!=='programado'&&p.eventos.length){p.golesF=g.f;p.golesC=g.c}
   const loc=p.condicion==='Local';
   el.innerHTML=`<button class="btn fantasma chico" id="volverP" style="margin-bottom:12px">← Partidos</button>
-  <div class="panel" style="margin-bottom:16px"><div class="etq" style="text-align:center;margin-bottom:8px">${esc(p.competicion)} · ${fFecha(p.fecha)} · ${esc(p.hora)}</div>
+  <div class="panel" style="margin-bottom:16px"><div class="etq" style="text-align:center;margin-bottom:8px">${[esc(p.competicion),fFecha(p.fecha),esc(p.hora)].filter(Boolean).join(' · ')}</div>
     <div class="marcador"><div class="eq">${esc(loc?S.club.nombre:p.rival)}</div><div class="gol" id="gL">${loc?g.f:g.c}</div><div class="gol tenue">–</div><div class="gol" id="gV">${loc?g.c:g.f}</div><div class="eq">${esc(loc?p.rival:S.club.nombre)}</div></div>
     <div style="text-align:center;margin-top:6px"><span class="chip ${p.estado==='en juego'?'ama':p.estado==='finalizado'?'':''}">${p.estado==='en juego'?'En juego':p.estado==='finalizado'?'Finalizado':'Programado'}</span> <button class="btn chico fantasma" id="edP">Editar datos</button></div></div>
   <div class="tabs" role="tablist">${[['previa','Previa'],['vivo','En vivo'],['analisis','Análisis']].map(([k,t])=>`<button role="tab" data-tab="${k}" class="${tabPartido===k?'activo':''}">${t}</button>`).join('')}</div><div id="tabP"></div>`;
@@ -1378,7 +1379,7 @@ function pantallaClub(msg=''){
   pantallaCompleta(`${marcaGrande()}<h1 style="text-align:center">Hola${nom?', '+esc(nom.split(' ')[0]):''}</h1><p class="sub" style="text-align:center;margin:6px 0 20px">Para empezar, creá tu club o unite al de tu cuerpo técnico.</p>
   <p class="acc-err" style="text-align:center" role="alert">${esc(msg)}</p>
   <div class="grilla g2" style="max-width:760px;width:100%">
-    <div class="acc-caja"><h2>Crear mi club</h2><p class="sub" style="margin:4px 0 14px;font-size:14px">Vas a ser la administradora: aprobás a quién entra.</p>
+    <div class="acc-caja"><h2>Crear mi club</h2><p class="sub" style="margin:4px 0 14px;font-size:14px">Vas a administrar el club: aprobás a quién entra.</p>
       <form id="fClub" class="acc-form"><label class="campo">Nombre del club<input type="text" id="ncNom" required placeholder="Ej.: Club Atlético San Martín"></label>
       <label class="campo">Categoría o equipo<input type="text" id="ncCat" placeholder="Ej.: Primera Femenina"></label>
       <label class="campo">Rama<select id="ncRama">${opts([['F','Femenino'],['M','Masculino'],['X','Mixto']],'F')}</select></label>
@@ -1410,7 +1411,7 @@ async function crearClub(nombre,categoria,rama){
 let tEspera=null;
 function pantallaEspera(){
   clearInterval(tEspera);
-  pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="text-align:center"><h1>Pedido enviado</h1><p style="margin:10px 0 4px">Pediste unirte a <b>${esc(PERFIL.pendienteNombre||'un club')}</b>.</p><p class="sub" style="margin:0 0 18px">Cuando la administradora te apruebe, vas a entrar automáticamente.</p>
+  pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="text-align:center"><h1>Pedido enviado</h1><p style="margin:10px 0 4px">Pediste unirte a <b>${esc(PERFIL.pendienteNombre||'un club')}</b>.</p><p class="sub" style="margin:0 0 18px">Cuando quien administra el club te apruebe, vas a entrar automáticamente.</p>
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn pri" id="reint">Ya me aprobaron</button><button class="btn" id="cancelP">Cancelar pedido</button></div></div>
     <button class="btn fantasma chico" id="salir" style="margin-top:18px">Cerrar sesión (${esc(USR.email)})</button>`);
   const probar=async(avisar)=>{try{const d=await db.collection('clubes').doc(PERFIL.pendiente).get();if(d.exists){clearInterval(tEspera);const c=PERFIL.pendiente;await db.collection('usuarios').doc(USR.uid).set({clubId:c,pendiente:firebase.firestore.FieldValue.delete(),pendienteNombre:firebase.firestore.FieldValue.delete()},{merge:true});abrirClub(c)}}catch(x){if(avisar)aviso('Todavía no te aprobaron.')}};
@@ -1678,7 +1679,7 @@ VISTAS.ajustes=el=>{
       <div class="chips" id="listaCont">${CONT().map(c=>`<span class="chip">${esc(c)} <button type="button" class="btn fantasma chico" style="padding:0 2px;font-size:12px" data-qc="${esc(c)}" aria-label="Quitar ${esc(c)}">✕</button></span>`).join('')}</div>
       <div style="display:flex;gap:6px;margin-top:10px;max-width:380px"><input type="text" id="aCont" placeholder="Nuevo concepto, ej.: Salida de juego" aria-label="Nuevo concepto"><button class="btn chico" id="aContB">＋ Agregar</button></div></div>
     <div class="panel"><h3>Copia de seguridad</h3><p class="sub" style="margin:0 0 12px;font-size:14px">${nube?'Los datos del club se guardan en la nube y los ve todo el cuerpo técnico. Igual podés guardar una copia en tu compu.':'Los datos se guardan en este dispositivo y navegador. Hacé una copia cada tanto para no perderlos o para pasarlos a otra compu.'}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="expD">Copiar mis datos</button>${nube&&!esAdmin()?'':'<label class="btn" for="impF">Restaurar desde archivo</label><input type="file" id="impF" accept=".json,application/json,text/plain" hidden>'}${nube&&!esAdmin()?'':'<button class="btn" id="impT">Pegar copia</button>'}</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="desD">Descargar copia</button><button class="btn" id="expD">Copiar mis datos</button>${nube&&!esAdmin()?'':'<label class="btn" for="impF">Restaurar desde archivo</label><input type="file" id="impF" accept=".json,application/json,text/plain" hidden>'}${nube&&!esAdmin()?'':'<button class="btn" id="impT">Pegar copia</button>'}</div></div>
     ${nube&&!esAdmin()?'':`<div class="panel"><h3>Empezar de nuevo</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${nube?'':'<button class="btn" id="verDemo">Cargar club de ejemplo</button>'}<button class="btn peligro" id="vaciar">Borrar todo y empezar de cero</button></div></div>`}
   </div></div>`;
   const addA=()=>{const n=agregarContenido($('#aCont').value);if(n){aviso('Concepto agregado: '+n);pintar()}};
@@ -1688,6 +1689,7 @@ VISTAS.ajustes=el=>{
   $('#gC').onclick=()=>{const d=leerForm($('#fC'));Object.assign(S.club,d,{duracionTiempo:+d.duracionTiempo||45,escudo:esc0});guardar();if(nube&&esAdmin()&&CLUBDOC.nombre!==S.club.nombre)db.collection('clubes').doc(CLUB).update({nombre:S.club.nombre}).catch(()=>{});aviso('Datos del club guardados');pintar()};
   conectarPanelEquipo(el);
   $$('[data-tema]').forEach(b=>b.onclick=()=>{const v=b.dataset.tema;try{v?localStorage.setItem('metodika_tema',v):localStorage.removeItem('metodika_tema')}catch(e){}aplicarTema();pintar()});
+  $('#desD').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='metodika-copia-'+iso(HOY)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);aviso('Copia descargada')};
   $('#expD').onclick=()=>{const txt=JSON.stringify(S);modal('Copia de tus datos',`<p class="sub" style="margin:0 0 10px">Copiá este texto y guardalo en un archivo de texto (por ejemplo en el Bloc de notas) con el nombre <b>metodika-copia.json</b>.</p><textarea id="txtD" readonly style="min-height:200px;font-family:monospace;font-size:12px">${esc(txt)}</textarea><div class="modal-pie"><button class="btn pri" id="copD">Copiar</button></div>`,{alMontar:m=>$('#copD',m).onclick=()=>{const ta=$('#txtD',m);navigator.clipboard.writeText(txt).then(()=>aviso('Copiado'),()=>{ta.focus();ta.select();aviso('Seleccionado: apretá Ctrl + C')})}})};
   const restaurar=txt=>{try{const d=JSON.parse(txt);if(!d.club||!Array.isArray(d.jugadores))throw 0;confirmar('¿Restaurar esta copia?','Reemplaza todos los datos actuales por los de la copia.','Restaurar',()=>{S=d;migrar();guardar();ir('inicio');aviso('Datos restaurados')})}catch(e){aviso('El archivo no es una copia válida de Metodika.')}};
   if($('#impF'))$('#impF').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restaurar(r.result);r.readAsText(f)};
