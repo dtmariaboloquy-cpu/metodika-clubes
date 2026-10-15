@@ -191,6 +191,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--tinta);outline:none}
 .herr .ico{width:22px;height:22px;flex:none}
 .cancha{background:var(--cesped);border-radius:var(--r);padding:10px;touch-action:none}
 .cancha svg{display:block;width:100%;height:auto;max-height:72vh;user-select:none}
+@media(max-width:700px){.cfg-cancha{grid-template-columns:1fr!important}}
 
 /* Partido en vivo */
 .reloj{font-family:var(--f-d);font-size:64px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:1px}
@@ -1006,7 +1007,7 @@ const COMPLETAS=['11 vs 11','9 vs 9','8 vs 8','7 vs 7','5 vs 5'];
 const SISTEMAS={'11 vs 11':['4-4-2','4-3-3','4-2-3-1','3-5-2','5-3-2','3-4-3'],'9 vs 9':['3-3-2','3-2-3','4-3-1','3-4-1'],'8 vs 8':['3-3-1','3-2-2','2-3-2','3-1-3'],'7 vs 7':['2-3-1','3-2-1','3-1-2','2-1-2-1'],'5 vs 5':['2-2','1-2-1','2-1-1']};
 const CATEG_PZ=['Entrenamiento','Partido','Estrategia','ABP'];
 const PALETA=['#FFD400','#FFFFFF','#E23B2E','#2F6FDB','#141412','#4FB3E8','#F08A24','#3FA34D','#8E44AD','hueco'];
-const MATERIALES={O:{n:'Cono',c:'#FF7A1A',rot:false},D:{n:'Disco',c:'#FFD400',rot:false},R:{n:'Aro',c:'#E23B2E',rot:false},V:{n:'Valla',c:'#F08A24',rot:true},H:{n:'Pechera',c:'#3FA34D',rot:false},E:{n:'Escalera',c:'#FFD400',rot:true},N:{n:'Mini arco',c:'#FFFFFF',rot:true},G:{n:'Arco',c:'#FFFFFF',rot:true},P:{n:'Pelota',c:'#FFFFFF',rot:false}};
+const MATERIALES={O:{n:'Cono',c:'#FF7A1A',rot:false},D:{n:'Disco',c:'#FFD400',rot:false},R:{n:'Aro',c:'#E23B2E',rot:false},V:{n:'Valla',c:'#F08A24',rot:true},H:{n:'Pechera',c:'#3FA34D',rot:false},E:{n:'Escalera',c:'#FFD400',rot:true},N:{n:'Mini arco',c:'#FFFFFF',rot:true},G:{n:'Arco',c:'#FFFFFF',rot:true},P:{n:'Pelota',c:'#FFFFFF',rot:false},S:{n:'Pica',c:'#E23B2E',rot:false},M:{n:'Maniquí',c:'#2F6FDB',rot:false}};
 const FLECHAS={pase:{n:'Pase',c:'#FFFFFF'},mov:{n:'Movimiento',c:'#FFD400'},cond:{n:'Conducción',c:'#FFFFFF'},tiro:{n:'Remate',c:'#E23B2E'}};
 function radio(f){const [w,h]=FORMATOS[f]||[40,30];const base=Math.max(.55,Math.min(1.7,Math.max(w,h)*.02));const vw=window.innerWidth||1200;return base*(vw<600?1.6:vw<1000?1.25:1)} // piezas más grandes en celular y tablet para tocarlas con el dedo
 function tintaSobre(hex){if(!hex||hex==='hueco')return '#FFFFFF';const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>150?'#141412':'#FFFFFF'}
@@ -1020,19 +1021,73 @@ function normalizar(pz){
   return pz;
 }
 function posEn(pz,e,fr,over){if(over&&over[e.id])return over[e.id];let p=[e.x,e.y];for(let i=0;i<fr&&i<pz.pasos.length;i++){const q=pz.pasos[i].pos[e.id];if(q)p=q}return p}
-function lineasCancha(f,k){
-  const [W,H]=FORMATOS[f]||[40,30],L='stroke="rgba(255,255,255,.82)" stroke-width="'+(Math.max(W,H)*.045)+'" fill="none"';
-  let s=`<rect x="0" y="0" width="${W*k}" height="${H*k}" ${L}/>`;
+function arcoC(cx,cy,R,a0,a1,k){const p=a=>((cx+R*Math.cos(a))*k).toFixed(1)+' '+((cy+R*Math.sin(a))*k).toFixed(1);return `M${p(a0)} A ${R*k} ${R*k} 0 ${a1-a0>Math.PI?1:0} 1 ${p(a1)}`}
+function lineasCancha(f,k,lc='#FFFFFF',pid='redArco'){
+  const [W,H]=FORMATOS[f]||[40,30],sw=Math.max(W,H)*.045,L=`stroke="${lc}" stroke-opacity=".92" stroke-width="${sw}" fill="none" stroke-linecap="round"`;
+  const pto=(x,y,rr)=>`<circle cx="${x*k}" cy="${y*k}" r="${rr*k}" fill="${lc}" fill-opacity=".92"/>`;
+  const arcoRed=(x,y,w,h)=>`<rect x="${x*k}" y="${y*k}" width="${w*k}" height="${h*k}" fill="url(#${pid})" stroke="${lc}" stroke-width="${sw*.75}" stroke-linejoin="round"/>`;
+  const PI=Math.PI;let s=`<rect x="0" y="0" width="${W*k}" height="${H*k}" ${L}/>`;
   if(f==='Área reducida')return s;
   if(f==='Medio campo'){
-    const aw=Math.min(W*.7,40.3),ah=Math.min(H*.3,16.5),cw=aw*.45,ch=ah*.33;
-    return s+`<rect x="${(W-aw)/2*k}" y="0" width="${aw*k}" height="${ah*k}" ${L}/><rect x="${(W-cw)/2*k}" y="0" width="${cw*k}" height="${ch*k}" ${L}/><path d="M${(W/2-6)*k} ${H*k} A ${6*k} ${6*k} 0 0 1 ${(W/2+6)*k} ${H*k}" ${L}/><rect x="${(W/2-3.66)*k}" y="${-1.2*k}" width="${7.32*k}" height="${1.2*k}" fill="rgba(255,255,255,.9)"/>`;
+    const aw=Math.min(W*.7,40.3),ah=Math.min(H*.3,16.5),cw=aw*.45,ch=ah*.33,q=ah/16.5,dp=11*q,ra=9.15*q,rc=Math.max(.5,q),gw=Math.min(7.32,W*.2),gd=Math.max(1,1.8*q),rcc=Math.min(9.15,W/4);
+    s+=`<rect x="${(W-aw)/2*k}" y="0" width="${aw*k}" height="${ah*k}" ${L}/><rect x="${(W-cw)/2*k}" y="0" width="${cw*k}" height="${ch*k}" ${L}/><path d="${arcoC(W/2,H,rcc,PI,2*PI,k)}" ${L}/>`+pto(W/2,dp,.28)+pto(W/2,H,.3);
+    if(ra>ah-dp){const t=Math.acos((ah-dp)/ra);s+=`<path d="${arcoC(W/2,dp,ra,PI/2-t,PI/2+t,k)}" ${L}/>`}
+    s+=`<path d="${arcoC(0,0,rc,0,PI/2,k)}" ${L}/><path d="${arcoC(W,0,rc,PI/2,PI,k)}" ${L}/>`;
+    return s+arcoRed(W/2-gw/2,-gd,gw,gd);
   }
-  const ah=Math.min(H*.6,40.3),aw=Math.min(W*.157,16.5),ch=ah*.45,cw=aw*.33,r=Math.min(9.15,H*.13),gw=Math.min(7.32,H*.14);
-  s+=`<line x1="${W/2*k}" y1="0" x2="${W/2*k}" y2="${H*k}" ${L}/><circle cx="${W/2*k}" cy="${H/2*k}" r="${r*k}" ${L}/><circle cx="${W/2*k}" cy="${H/2*k}" r="${k*.35}" fill="rgba(255,255,255,.85)"/>`;
-  [0,1].forEach(l=>{const x=l?W-aw:0,xc=l?W-cw:0;s+=`<rect x="${x*k}" y="${(H-ah)/2*k}" width="${aw*k}" height="${ah*k}" ${L}/><rect x="${xc*k}" y="${(H-ch)/2*k}" width="${cw*k}" height="${ch*k}" ${L}/><rect x="${(l?W:-1.2)*k}" y="${(H-gw)/2*k}" width="${1.2*k}" height="${gw*k}" fill="rgba(255,255,255,.9)"/>`});
+  const ah=Math.min(H*.6,40.3),aw=Math.min(W*.157,16.5),ch=ah*.45,cw=aw*.33,r=Math.min(9.15,H*.13),gw=Math.min(7.32,H*.14),q=aw/16.5,dp=11*q,ra=9.15*q,rc=Math.max(.5,q),gd=Math.max(1,1.8*q);
+  s+=`<line x1="${W/2*k}" y1="0" x2="${W/2*k}" y2="${H*k}" ${L}/><circle cx="${W/2*k}" cy="${H/2*k}" r="${r*k}" ${L}/>`+pto(W/2,H/2,.35);
+  [[0,0,0,PI/2],[W,0,PI/2,PI],[W,H,PI,1.5*PI],[0,H,1.5*PI,2*PI]].forEach(([cx,cy,a0,a1])=>{s+=`<path d="${arcoC(cx,cy,rc,a0,a1,k)}" ${L}/>`});
+  const t=ra>aw-dp?Math.acos((aw-dp)/ra):0;
+  [0,1].forEach(l=>{const x=l?W-aw:0,xc=l?W-cw:0,sx=l?W-dp:dp;s+=`<rect x="${x*k}" y="${(H-ah)/2*k}" width="${aw*k}" height="${ah*k}" ${L}/><rect x="${xc*k}" y="${(H-ch)/2*k}" width="${cw*k}" height="${ch*k}" ${L}/>`+pto(sx,H/2,.28);
+    if(t)s+=`<path d="${l?arcoC(sx,H/2,ra,PI-t,PI+t,k):arcoC(sx,H/2,ra,-t,t,k)}" ${L}/>`;
+    s+=arcoRed(l?W:-gd,(H-gw)/2,gd,gw)});
   return s;
 }
+/* ---------- Estilo de cancha (por club) ---------- */
+const ESTILOS_CANCHA={
+  cesped:{n:'Césped',a:'#5A9216',b:'#6BA328',l:'#FFFFFF'},
+  clasico:{n:'Césped oscuro',a:'#2F6B45',b:'#367650',l:'#FFFFFF'},
+  nocturno:{n:'Nocturno',a:'#2C3849',b:'#334156',l:'#FFFFFF'},
+  pizarra:{n:'Pizarra',a:'#1F2D27',b:'#22322B',l:'#ECE8DC'},
+  blanca:{n:'Blanca (para imprimir)',a:'#F7F6F1',b:'#EEECE4',l:'#2B3440'}
+};
+function estiloPz(){const e=(typeof S!=='undefined'&&S&&S.club&&S.club.pizarraEstilo)||{};const tipo=ESTILOS_CANCHA[e.tipo]?e.tipo:'cesped',b=ESTILOS_CANCHA[tipo];return {tipo,...b,l:e.lineas||b.l,logo:e.logo!==false,op:e.op??7,tam:e.tam??45}}
+function tono(hex,f){if(!hex||hex[0]!=='#'||hex.length<7)return hex;const n=parseInt(hex.slice(1,7),16);let r=n>>16,g=n>>8&255,b=n&255;const t=f<0?0:255,a=Math.abs(f);r=Math.round(r+(t-r)*a);g=Math.round(g+(t-g)*a);b=Math.round(b+(t-b)*a);return '#'+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1)}
+const DEFS_MAT=`<radialGradient id="gBola" cx=".36" cy=".3" r=".75"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><pattern id="redMat" width="3" height="3" patternUnits="userSpaceOnUse"><rect width="3" height="3" fill="rgba(255,255,255,.12)"/><path d="M0 0L3 3M3 0L0 3" stroke="#fff" stroke-opacity=".6" stroke-width=".35"/></pattern>`;
+let _idMat=0;
+function pent(cx,cy,R,a0){let d='';for(let i=0;i<5;i++){const a=a0+i*Math.PI*2/5;d+=(i?'L':'M')+(cx+R*Math.cos(a)).toFixed(2)+' '+(cy+R*Math.sin(a)).toFixed(2)}return d+'Z'}
+// dibujo de materiales (cancha e íconos)
+function dibMat(t,x,y,r,c,rot,k=10){
+  const os=tono(c,-.38),cl=tono(c,.4),sh='fill="rgba(0,0,0,.28)"',R=rot?` transform="rotate(${rot} ${x} ${y})"`:'';
+  switch(t){
+    case 'P':{const b=r*.55,pr=b*.36,id='cb'+(++_idMat);let s=`<ellipse cx="${x+b*.2}" cy="${y+b*.28}" rx="${b*.95}" ry="${b*.8}" ${sh}/><clipPath id="${id}"><circle cx="${x}" cy="${y}" r="${b}"/></clipPath><circle cx="${x}" cy="${y}" r="${b}" fill="#fff"/><g clip-path="url(#${id})"><path d="${pent(x,y,pr,-Math.PI/2)}" fill="#1B1B1B"/>`;
+      for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5,ca=Math.cos(a),sa=Math.sin(a);s+=`<line x1="${x+pr*ca}" y1="${y+pr*sa}" x2="${x+b*.72*ca}" y2="${y+b*.72*sa}" stroke="#1B1B1B" stroke-width="${b*.07}"/><path d="${pent(x+b*1.02*ca,y+b*1.02*sa,pr*.95,a+Math.PI)}" fill="#1B1B1B"/>`}
+      return s+`</g><circle cx="${x}" cy="${y}" r="${b}" fill="url(#gBola)" stroke="#141412" stroke-width="${b*.09}"/><ellipse cx="${x-b*.38}" cy="${y-b*.42}" rx="${b*.2}" ry="${b*.12}" fill="#fff" fill-opacity=".75" transform="rotate(-35 ${x-b*.38} ${y-b*.42})"/>`}
+    case 'O':{const h=r*1.55,w=r*.62,yt=y-h*.55,yb=y+h*.38,wa=f=>w*.13+(w-w*.13)*f,yy=f=>yt+(yb-yt)*f;
+      let s=`<ellipse cx="${x+r*.18}" cy="${yb+r*.12}" rx="${w*1.35}" ry="${r*.26}" ${sh}/><ellipse cx="${x}" cy="${yb+r*.04}" rx="${w*1.18}" ry="${r*.22}" fill="${os}"/>`;
+      s+=`<path d="M${x-wa(0)} ${yt}L${x+wa(0)} ${yt}L${x+w} ${yb}Q${x} ${yb+r*.16} ${x-w} ${yb}Z" fill="${c}"/><path d="M${x+wa(0)*.2} ${yt}L${x+wa(0)} ${yt}L${x+w} ${yb}Q${x+w*.6} ${yb+r*.12} ${x+w*.32} ${yb+r*.14}Z" fill="#000" fill-opacity=".16"/>`;
+      const f1=.38,f2=.58;s+=`<path d="M${x-wa(f1)} ${yy(f1)}Q${x} ${yy(f1)+r*.08} ${x+wa(f1)} ${yy(f1)}L${x+wa(f2)} ${yy(f2)}Q${x} ${yy(f2)+r*.1} ${x-wa(f2)} ${yy(f2)}Z" fill="#fff" fill-opacity=".88"/>`;
+      return s+`<path d="M${x-wa(.05)*.5} ${yy(.05)}L${x-wa(.75)*.55} ${yy(.75)}" stroke="#fff" stroke-opacity=".45" stroke-width="${r*.07}" stroke-linecap="round"/><ellipse cx="${x}" cy="${yt}" rx="${wa(0)}" ry="${r*.05}" fill="${os}"/>`}
+    case 'D':return `<ellipse cx="${x+r*.12}" cy="${y+r*.16}" rx="${r*.66}" ry="${r*.42}" ${sh}/><ellipse cx="${x}" cy="${y}" rx="${r*.66}" ry="${r*.42}" fill="${c}" stroke="${os}" stroke-width="${r*.05}"/><ellipse cx="${x}" cy="${y-r*.05}" rx="${r*.42}" ry="${r*.25}" fill="${cl}" fill-opacity=".55"/><ellipse cx="${x}" cy="${y-r*.04}" rx="${r*.17}" ry="${r*.1}" fill="${os}"/><path d="M${x-r*.5} ${y-r*.12}Q${x-r*.3} ${y-r*.36} ${x+r*.05} ${y-r*.38}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="${r*.06}" stroke-linecap="round"/>`;
+    case 'R':return `<circle cx="${x+r*.12}" cy="${y+r*.15}" r="${r*1.05}" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="${r*.24}"/><circle cx="${x}" cy="${y}" r="${r*1.05}" fill="none" stroke="${c}" stroke-width="${r*.24}"/><circle cx="${x}" cy="${y}" r="${r*1.05}" fill="none" stroke="${os}" stroke-width="${r*.05}" stroke-dasharray="${r*.42} ${r*.42}"/><path d="${arcoC(x/k,y/k,r*1.05/k,Math.PI*1.08,Math.PI*1.5,k)}" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="${r*.07}" stroke-linecap="round"/>`;
+    case 'V':{let s=`<g${R}><rect x="${x-r*1.15+r*.14}" y="${y-r*.12+r*.2}" width="${r*2.3}" height="${r*.26}" rx="${r*.1}" fill="rgba(0,0,0,.25)"/>`;
+      [-1,1].forEach(l=>{const px=x+l*r*1.08;s+=`<rect x="${px-r*.09}" y="${y-r*.55}" width="${r*.18}" height="${r*1.1}" rx="${r*.08}" fill="${os}"/><circle cx="${px}" cy="${y-r*.55}" r="${r*.11}" fill="${os}"/><circle cx="${px}" cy="${y+r*.55}" r="${r*.11}" fill="${os}"/>`});
+      s+=`<rect x="${x-r*1.15}" y="${y-r*.13}" width="${r*2.3}" height="${r*.26}" rx="${r*.1}" fill="${c}" stroke="${os}" stroke-width="${r*.04}"/>`;
+      for(let i=0;i<4;i++)s+=`<rect x="${x-r*.78+i*r*.46}" y="${y-r*.13}" width="${r*.2}" height="${r*.26}" fill="#fff" fill-opacity=".85"/>`;
+      return s+'</g>'}
+    case 'H':{const P=(a,b)=>(x+a*r).toFixed(2)+' '+(y+b*r).toFixed(2);const d=`M${P(-.22,-.74)}L${P(0,-.36)}L${P(.22,-.74)}L${P(.44,-.74)}Q${P(.42,-.28)} ${P(.64,-.16)}L${P(.62,.72)}Q${P(0,.86)} ${P(-.62,.72)}L${P(-.64,-.16)}Q${P(-.42,-.28)} ${P(-.44,-.74)}Z`;
+      return `<path d="${d}" ${sh} transform="translate(${r*.12} ${r*.15})"/><path d="${d}" fill="${c}" stroke="${os}" stroke-width="${r*.06}" stroke-linejoin="round"/><path d="M${P(-.22,-.74)}L${P(0,-.36)}L${P(.22,-.74)}" fill="none" stroke="${os}" stroke-width="${r*.1}" stroke-linejoin="round"/><path d="M${P(-.6,.56)}Q${P(0,.7)} ${P(.6,.56)}" fill="none" stroke="${os}" stroke-opacity=".7" stroke-width="${r*.06}"/><path d="M${P(.05,-.2)}L${P(.05,.6)}" stroke="#fff" stroke-opacity=".25" stroke-width="${r*.08}"/>`}
+    case 'E':{let s=`<g${R}><rect x="${x-r*2.6+r*.14}" y="${y-r*.6+r*.18}" width="${r*5.2}" height="${r*1.2}" rx="${r*.1}" fill="rgba(0,0,0,.2)"/>`;
+      for(let i=0;i<7;i++){const xi=x-r*2.6+i*r*5.2/6;s+=`<rect x="${xi-r*.11}" y="${y-r*.6}" width="${r*.22}" height="${r*1.2}" rx="${r*.06}" fill="${c}" stroke="${os}" stroke-width="${r*.04}"/>`}
+      return s+`<line x1="${x-r*2.7}" y1="${y-r*.6}" x2="${x+r*2.7}" y2="${y-r*.6}" stroke="#1F2228" stroke-width="${r*.13}" stroke-linecap="round"/><line x1="${x-r*2.7}" y1="${y+r*.6}" x2="${x+r*2.7}" y2="${y+r*.6}" stroke="#1F2228" stroke-width="${r*.13}" stroke-linecap="round"/></g>`}
+    case 'N':return `<g${R}><path d="M${x-r*1.4} ${y-r*.3}L${x-r*1.15} ${y+r*.45}L${x+r*1.15} ${y+r*.45}L${x+r*1.4} ${y-r*.3}Z" fill="url(#redMat)" stroke="${c}" stroke-opacity=".7" stroke-width="${r*.07}"/><line x1="${x-r*1.4}" y1="${y-r*.3}" x2="${x+r*1.4}" y2="${y-r*.3}" stroke="${c}" stroke-width="${r*.2}" stroke-linecap="round"/><line x1="${x-r*1.4}" y1="${y-r*.3}" x2="${x+r*1.4}" y2="${y-r*.3}" stroke="${os}" stroke-opacity=".5" stroke-width="${r*.05}" transform="translate(0 ${r*.08})"/><circle cx="${x-r*1.4}" cy="${y-r*.3}" r="${r*.15}" fill="${c}" stroke="${os}" stroke-width="${r*.04}"/><circle cx="${x+r*1.4}" cy="${y-r*.3}" r="${r*.15}" fill="${c}" stroke="${os}" stroke-width="${r*.04}"/></g>`;
+    case 'G':{const gw=3.66*k;return `<g${R}><path d="M${x-gw} ${y-r*.4}L${x-gw*.94} ${y+r*.7}L${x+gw*.94} ${y+r*.7}L${x+gw} ${y-r*.4}Z" fill="url(#redMat)" stroke="${c}" stroke-opacity=".7" stroke-width="${r*.07}"/><line x1="${x-gw}" y1="${y-r*.4}" x2="${x+gw}" y2="${y-r*.4}" stroke="${c}" stroke-width="${r*.26}" stroke-linecap="round"/><circle cx="${x-gw}" cy="${y-r*.4}" r="${r*.2}" fill="${c}" stroke="${os}" stroke-width="${r*.05}"/><circle cx="${x+gw}" cy="${y-r*.4}" r="${r*.2}" fill="${c}" stroke="${os}" stroke-width="${r*.05}"/></g>`}
+    case 'S':{const h=r*1.9,yt=y-h*.58,yb=y+h*.38,pw=r*.11;let s=`<ellipse cx="${x+r*.2}" cy="${yb+r*.1}" rx="${r*.5}" ry="${r*.16}" ${sh}/><ellipse cx="${x}" cy="${yb}" rx="${r*.36}" ry="${r*.13}" fill="#2B2E33"/><rect x="${x-pw}" y="${yt}" width="${pw*2}" height="${yb-yt}" rx="${pw*.6}" fill="${c}" stroke="${os}" stroke-width="${r*.03}"/>`;
+      for(let i=1;i<5;i+=2)s+=`<rect x="${x-pw}" y="${yt+(yb-yt)*i/5}" width="${pw*2}" height="${(yb-yt)/5}" fill="#fff" fill-opacity=".9"/>`;
+      return s+`<circle cx="${x}" cy="${yt}" r="${pw*1.15}" fill="${os}"/>`}
+    case 'M':{const P=(a,b)=>(x+a*r).toFixed(2)+' '+(y+b*r).toFixed(2);return `<ellipse cx="${x+r*.2}" cy="${y+r*.92}" rx="${r*.62}" ry="${r*.18}" ${sh}/><ellipse cx="${x}" cy="${y+r*.88}" rx="${r*.45}" ry="${r*.14}" fill="#2B2E33"/><rect x="${x-r*.07}" y="${y+r*.35}" width="${r*.14}" height="${r*.55}" fill="#3A3E45"/><path d="M${P(-.56,-.5)}Q${P(-.56,-.78)} ${P(-.3,-.78)}L${P(.3,-.78)}Q${P(.56,-.78)} ${P(.56,-.5)}L${P(.4,.45)}Q${P(0,.52)} ${P(-.4,.45)}Z" fill="${c}" stroke="${os}" stroke-width="${r*.06}" stroke-linejoin="round"/><path d="M${P(.18,-.7)}L${P(.12,.4)}" stroke="#000" stroke-opacity=".15" stroke-width="${r*.22}"/><circle cx="${x}" cy="${y-r*1.06}" r="${r*.27}" fill="${c}" stroke="${os}" stroke-width="${r*.06}"/>`}
+  }return ''}
 // curva cuadrática: (cx,cy) es el punto medio SOBRE la curva
 function ctrl(a){const mx=(a.x1+a.x2)/2,my=(a.y1+a.y2)/2;const hx=a.cx??mx,hy=a.cy??my;return [2*hx-mx,2*hy-my]}
 function puntoCurva(a,t){const [qx,qy]=ctrl(a),u=1-t;return [u*u*a.x1+2*u*t*qx+t*t*a.x2,u*u*a.y1+2*u*t*qy+t*t*a.y2]}
@@ -1049,9 +1104,9 @@ function dentroZona(z,x,y){if(z.forma==='circ'){const rx=z.w/2,ry=z.h/2;return (
 function areaZona(z){return z.forma==='circ'?Math.PI*z.w/2*z.h/2:z.w*z.h}
 const FONDOS=[['','Sin referencias'],['tercios','Tercios'],['carriles','5 carriles'],['ambos','Tercios + carriles'],['zonas','18 zonas']];
 const esVertical=f=>f==='Medio campo';
-function refTacticas(pz,k){
+function refTacticas(pz,k,lc='#FFFFFF'){
   const f=pz.fondo;if(!f)return '';
-  const [W,H]=FORMATOS[pz.formato]||[40,30],v=esVertical(pz.formato),st=`stroke="rgba(255,255,255,.42)" stroke-width="${Math.max(W,H)*.03}" stroke-dasharray="${Math.max(W,H)*.12} ${Math.max(W,H)*.08}" fill="none"`;
+  const [W,H]=FORMATOS[pz.formato]||[40,30],v=esVertical(pz.formato),st=`stroke="${lc}" stroke-opacity=".45" stroke-width="${Math.max(W,H)*.03}" stroke-dasharray="${Math.max(W,H)*.12} ${Math.max(W,H)*.08}" fill="none"`;
   const largo=v?H:W,ancho=v?W:H;
   const lin=(a,b,c,d)=>`<line x1="${a*k}" y1="${b*k}" x2="${c*k}" y2="${d*k}" ${st}/>`;
   const cortesLargo=n=>{let o='';for(let i=1;i<n;i++){const q=largo*i/n;o+=v?lin(0,q,W,q):lin(q,0,q,H)}return o};
@@ -1060,15 +1115,20 @@ function refTacticas(pz,k){
   if(f==='carriles')return cortesAncho(5);
   if(f==='ambos')return cortesLargo(3)+cortesAncho(5);
   if(f==='zonas'){const nl=v?3:6,na=3;let o=cortesLargo(nl)+cortesAncho(na),n=1,fs=Math.min(largo/nl,ancho/na)*k*.32;
-    for(let a=0;a<na;a++)for(let l=0;l<nl;l++){const cx=v?(a+.5)*W/na:(l+.5)*W/nl,cy=v?(l+.5)*H/nl:(a+.5)*H/na;o+=`<text x="${cx*k}" y="${cy*k+fs*.35}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${fs}" fill="rgba(255,255,255,.22)">${n++}</text>`}
+    for(let a=0;a<na;a++)for(let l=0;l<nl;l++){const cx=v?(a+.5)*W/na:(l+.5)*W/nl,cy=v?(l+.5)*H/nl:(a+.5)*H/na;o+=`<text x="${cx*k}" y="${cy*k+fs*.35}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${fs}" fill="${lc}" fill-opacity=".25">${n++}</text>`}
     return o}
   return '';
 }
 function distTxt(m){return (Math.round(m*10)/10).toString().replace('.',',')+' m'}
-function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=null,rectSel=null}={}){
-  normalizar(pz);
+function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=null,rectSel=null,estilo=null}={}){
+  normalizar(pz);const ES=estilo||estiloPz();if(!estilo&&!mini)try{document.documentElement.style.setProperty('--cesped',ES.a)}catch(e){}
   const [W,H]=FORMATOS[pz.formato]||[40,30],k=10,r=radio(pz.formato)*k,pad=Math.max(W,H)*.045*k;
-  const fr=[];for(let i=0;i<8;i++)fr.push(`<rect x="${i*W*k/8}" y="0" width="${W*k/16}" height="${H*k}" fill="rgba(255,255,255,.035)"/>`);
+  const vert=esVertical(pz.formato),largo=vert?H:W,nF=largo>=60?18:largo>=35?12:8,anF=largo/nF,fr=[];
+  for(let i=Math.floor(-pad/k/anF)-1;i*anF*k<largo*k+pad;i++){if(i%2===0)continue;fr.push(vert?`<rect x="${-pad}" y="${i*anF*k}" width="${W*k+pad*2}" height="${anF*k}" fill="${ES.b}"/>`:`<rect x="${i*anF*k}" y="${-pad}" width="${anF*k}" height="${H*k+pad*2}" fill="${ES.b}"/>`)}
+  const esc0=(typeof S!=='undefined'&&S.club&&S.club.escudo)||'';let logo='';
+  if(ES.logo&&esc0&&ES.op>0){const t=Math.min(W,H)*k*ES.tam/100;logo=`<image href="${esc0.replace(/"/g,'%22')}" x="${W*k/2-t/2}" y="${H*k/2-t/2}" width="${t}" height="${t}" opacity="${ES.op/100}" preserveAspectRatio="xMidYMid meet"/>`}
+  const pid='redArco'+ES.tipo+(ES.l||'').replace('#','');
+  const vig=ES.tipo==='blanca'?'':`<rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="url(#vig)"/>`;
   const mk=Object.entries(FLECHAS).map(([key,v])=>`<marker id="pt-${key}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${v.c}"/></marker>`).join('');
   const pos=e=>posEn(pz,e,frame,over);
   const zon=z=>{const c=z.color||'#FFD400',sw=r*.12;let s=z.forma==='circ'?`<ellipse cx="${(z.x+z.w/2)*k}" cy="${(z.y+z.h/2)*k}" rx="${z.w/2*k}" ry="${z.h/2*k}"`:`<rect x="${z.x*k}" y="${z.y*k}" width="${z.w*k}" height="${z.h*k}"`;
@@ -1079,16 +1139,8 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
   const fle=a=>{const f=FLECHAS[a.k]||FLECHAS.pase;return `<path d="${dFlecha(a,k,r/k)}" fill="none" stroke="${f.c}" stroke-width="${r*(a.k==='tiro'?.3:.2)}" ${a.k==='pase'?`stroke-dasharray="${r*.7} ${r*.45}"`:''} stroke-linecap="round" stroke-linejoin="round" marker-end="url(#pt-${a.k})"/>`};
   const el=e=>{const [px,py]=pos(e),x=px*k,y=py*k,c=e.color||'#fff',rot=e.rot?` transform="rotate(${e.rot} ${x} ${y})"`:'';
     switch(e.t){
-      case 'J':{const h=c==='hueco';const tx=h?'#FFFFFF':tintaSobre(c);let s=`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`;if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}">${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
-      case 'P':return `<circle cx="${x}" cy="${y}" r="${r*.5}" fill="#fff" stroke="#141412" stroke-width="${r*.1}"/><circle cx="${x}" cy="${y}" r="${r*.18}" fill="#141412"/>`;
-      case 'O':return `<path d="M${x} ${y-r*.75}L${x+r*.6} ${y+r*.5}H${x-r*.6}Z" fill="${c}" stroke="rgba(0,0,0,.5)" stroke-width="${r*.08}"/>`;
-      case 'D':return `<ellipse cx="${x}" cy="${y}" rx="${r*.55}" ry="${r*.32}" fill="${c}" stroke="rgba(0,0,0,.45)" stroke-width="${r*.07}"/><ellipse cx="${x}" cy="${y-r*.04}" rx="${r*.18}" ry="${r*.1}" fill="rgba(0,0,0,.25)"/>`;
-      case 'R':return `<circle cx="${x}" cy="${y}" r="${r*1.05}" fill="none" stroke="${c}" stroke-width="${r*.2}"/>`;
-      case 'V':return `<g${rot}><rect x="${x-r*1.1}" y="${y-r*.14}" width="${r*2.2}" height="${r*.28}" rx="${r*.06}" fill="${c}" stroke="rgba(0,0,0,.5)" stroke-width="${r*.06}"/><rect x="${x-r*1.1}" y="${y-r*.4}" width="${r*.16}" height="${r*.8}" fill="${c}"/><rect x="${x+r*.94}" y="${y-r*.4}" width="${r*.16}" height="${r*.8}" fill="${c}"/></g>`;
-      case 'H':return `<path d="M${x-r*.55} ${y-r*.7}L${x-r*.2} ${y-r*.7}L${x} ${y-r*.35}L${x+r*.2} ${y-r*.7}L${x+r*.55} ${y-r*.7}L${x+r*.6} ${y+r*.7}L${x-r*.6} ${y+r*.7}Z" fill="${c}" stroke="rgba(0,0,0,.5)" stroke-width="${r*.07}" stroke-linejoin="round"/>`;
-      case 'E':{let s=`<g${rot}><rect x="${x-r*2.6}" y="${y-r*.6}" width="${r*5.2}" height="${r*1.2}" fill="none" stroke="${c}" stroke-width="${r*.12}"/>`;for(let i=1;i<6;i++)s+=`<line x1="${x-r*2.6+i*r*5.2/6}" y1="${y-r*.6}" x2="${x-r*2.6+i*r*5.2/6}" y2="${y+r*.6}" stroke="${c}" stroke-width="${r*.12}"/>`;return s+'</g>'}
-      case 'N':return `<g${rot}><rect x="${x-r*1.4}" y="${y-r*.35}" width="${r*2.8}" height="${r*.7}" fill="rgba(255,255,255,.15)" stroke="${c}" stroke-width="${r*.2}"/></g>`;
-      case 'G':return `<g${rot}><rect x="${x-3.66*k}" y="${y-r*.45}" width="${7.32*k}" height="${r*.9}" fill="rgba(255,255,255,.18)" stroke="${c}" stroke-width="${r*.22}"/></g>`;
+      case 'J':{const h=c==='hueco';const tx=h?'#FFFFFF':tintaSobre(c);let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`;if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}">${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
+      default:return dibMat(e.t,x,y,r,c,e.rot,k);
     }return ''};
   const txt=t=>`<text x="${t.x*k}" y="${t.y*k}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*(t.tam||1)}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.2}" paint-order="stroke">${esc(t.txt)}</text>`;
   // resaltado de la selección y manijas
@@ -1107,8 +1159,8 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
     return o}).join('');
   if(multi&&multi.size&&!mini)pz.elementos.filter(e=>multi.has(e.id)).forEach(e=>{const [x,y]=pos(e);hl+=`<circle cx="${x*k}" cy="${y*k}" r="${r*1.55}" fill="none" stroke="#4FB3E8" stroke-width="${r*.14}" stroke-dasharray="${r*.35} ${r*.25}"/>`});
   if(rectSel)hl+=`<rect x="${Math.min(rectSel.x1,rectSel.x2)*k}" y="${Math.min(rectSel.y1,rectSel.y2)*k}" width="${Math.abs(rectSel.x2-rectSel.x1)*k}" height="${Math.abs(rectSel.y2-rectSel.y1)*k}" fill="rgba(79,179,232,.12)" stroke="#4FB3E8" stroke-width="${r*.08}" stroke-dasharray="${r*.3} ${r*.2}"/>`;
-  return `<svg viewBox="${-pad} ${-pad} ${W*k+pad*2} ${H*k+pad*2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama ${esc(pz.nombre||'')}"><defs>${mk}</defs>
-    <rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="#2F6B45"/>${fr.join('')}${lineasCancha(pz.formato,k)}${refTacticas(pz,k)}
+  return `<svg viewBox="${-pad} ${-pad} ${W*k+pad*2} ${H*k+pad*2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama ${esc(pz.nombre||'')}"><defs>${mk}${DEFS_MAT}<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient><pattern id="${pid}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="${ES.l}" fill-opacity=".1"/><path d="M0 0L5 5M5 0L0 5" stroke="${ES.l}" stroke-opacity=".55" stroke-width=".6"/></pattern></defs>
+    <rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="${ES.a}"/>${fr.join('')}${vig}${logo}${lineasCancha(pz.formato,k,ES.l,pid)}${refTacticas(pz,k,ES.l)}
     ${pz.zonas.map(zon).join('')}${lineasSvg}${flechasV.map(fle).join('')}${previa?fle(previa):''}${pz.elementos.filter(e=>e.t!=='J'&&e.t!=='P').map(el).join('')}${pz.elementos.filter(e=>e.t==='J').map(el).join('')}${pz.elementos.filter(e=>e.t==='P').map(el).join('')}${pz.textos.map(txt).join('')}${hl}</svg>`;
 }
 
@@ -1123,18 +1175,15 @@ const ICOS_H={
   lazo:'<rect x="3.5" y="3.5" width="17" height="17" rx="1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2"/><circle cx="9" cy="10" r="2.4" fill="currentColor"/><circle cx="15" cy="14" r="2.4" fill="currentColor"/>',
   unir:'<circle cx="5" cy="17" r="2.6" fill="currentColor"/><circle cx="19" cy="7" r="2.6" fill="currentColor"/><path d="M6.8 15.6L17.2 8.4" stroke="#E0B800" stroke-width="2.2"/><path d="M9 20h3M9 19v2M12 19v2" stroke="currentColor" stroke-width="1.2"/>',
   J:c=>`<circle cx="12" cy="12" r="8" fill="${c==='hueco'?'none':c}" stroke="${c==='hueco'?'currentColor':'#141412'}" stroke-width="${c==='hueco'?2.2:1}"/>`,
-  P:'<circle cx="12" cy="12" r="6" fill="#fff" stroke="#141412" stroke-width="1.5"/><circle cx="12" cy="12" r="2" fill="#141412"/>',
-  O:'<path d="M12 4l6 15H6z" fill="#FF7A1A"/>',D:'<ellipse cx="12" cy="13" rx="8" ry="4.5" fill="#FFD400" stroke="rgba(0,0,0,.4)"/>',R:'<circle cx="12" cy="12" r="7.5" fill="none" stroke="#E23B2E" stroke-width="2.6"/>',
-  V:'<rect x="3" y="10.5" width="18" height="3" fill="#F08A24"/><rect x="3" y="7" width="2" height="10" fill="#F08A24"/><rect x="19" y="7" width="2" height="10" fill="#F08A24"/>',
-  H:'<path d="M7 4h3l2 3 2-3h3l1 16H6z" fill="#3FA34D"/>',E:'<rect x="2" y="8" width="20" height="8" fill="none" stroke="#C9A300" stroke-width="1.6"/><path d="M6 8v8M10 8v8M14 8v8M18 8v8" stroke="#C9A300" stroke-width="1.6"/>',
-  N:'<rect x="4" y="9" width="16" height="6" fill="none" stroke="currentColor" stroke-width="2"/>',G:'<rect x="2" y="8" width="20" height="8" fill="none" stroke="currentColor" stroke-width="2.4"/>',
   pase:'<path d="M4 18L18 6" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2.5"/><path d="M13 5.5h5.5V11" stroke="currentColor" stroke-width="2" fill="none"/>',
   mov:'<path d="M4 18L18 6" stroke="#E0B800" stroke-width="2.4"/><path d="M13 5.5h5.5V11" stroke="#E0B800" stroke-width="2.4" fill="none"/>',
   cond:'<path d="M3 15c2-4 3 2 5-2s3 2 5-2 3 1 4-1" stroke="currentColor" stroke-width="2" fill="none"/><path d="M15 6h4v4" stroke="currentColor" stroke-width="2" fill="none"/>',
   tiro:'<path d="M4 18L18 6" stroke="#E23B2E" stroke-width="3"/><path d="M13 5.5h5.5V11" stroke="#E23B2E" stroke-width="3" fill="none"/>',
   rect:()=>`<rect x="3" y="6" width="18" height="12" fill="${colorZ}" fill-opacity=".3" stroke="${colorZ==='#FFFFFF'?'#8A857A':colorZ}" stroke-width="1.4" stroke-dasharray="3 2"/>`,cuad:()=>`<rect x="5" y="5" width="14" height="14" fill="${colorZ}" fill-opacity=".3" stroke="${colorZ==='#FFFFFF'?'#8A857A':colorZ}" stroke-width="1.4" stroke-dasharray="3 2"/>`,circ:()=>`<ellipse cx="12" cy="12" rx="9" ry="7" fill="${colorZ}" fill-opacity=".3" stroke="${colorZ==='#FFFFFF'?'#8A857A':colorZ}" stroke-width="1.4" stroke-dasharray="3 2"/>`
 };
-function bHerr(k,t){const i=typeof ICOS_H[k]==='function'?ICOS_H[k](colorJ):ICOS_H[k];return `<button data-h="${k}" class="${herr===k?'activo':''}" title="${esc(t)}"><svg class="ico" viewBox="0 0 24 24">${i}</svg><span>${esc(t)}</span></button>`}
+const ICO_MAT={P:[12,12,17,0],O:[12,12.6,9.5,0],D:[12,12.5,13,0],R:[12,12,8.4,0],V:[12,12,8.6,0],H:[12,12,11,0],E:[12,12,4,0],N:[12,13,7.6,0],G:[12,12.5,7,0,2.9],S:[12,13,9,0],M:[12,13.5,8,0]};
+function icoMat(m){const [x,y,r,rot,k]=ICO_MAT[m];const c=MATERIALES[m].c;return `<defs>${DEFS_MAT}</defs>`+dibMat(m,x,y,r,c==='#FFFFFF'&&m!=='P'?'#7C8794':c,rot,k||10)}
+function bHerr(k,t){const i=ICO_MAT[k]?icoMat(k):typeof ICOS_H[k]==='function'?ICOS_H[k](colorJ):ICOS_H[k];return `<button data-h="${k}" class="${herr===k?'activo':''}" title="${esc(t)}"><svg class="ico" viewBox="0 0 24 24">${i}</svg><span>${esc(t)}</span></button>`}
 function arqTxt(){return S.club.rama==='M'?'Arquero':S.club.rama==='F'?'Arquera':'Arquera/o'}
 VISTAS.pizarra=el=>{
   pararAnim();
@@ -1149,6 +1198,7 @@ VISTAS.pizarra=el=>{
     <select id="pzCat" style="width:auto" aria-label="Categoría">${opts(CATEG_PZ,PZ.categoria)}</select>
     <input type="text" id="pzCarpeta" value="${esc(PZ.carpeta)}" list="dlCarp" placeholder="Carpeta (opcional)" style="max-width:190px" aria-label="Carpeta"><datalist id="dlCarp">${carpetas.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
     <select id="pzFondo" style="width:auto" aria-label="Referencias tácticas">${opts(FONDOS,PZ.fondo)}</select>
+    <button class="btn chico" id="pzCfg" title="Diseño de la cancha: césped, colores y escudo">⚙ Cancha</button>
     <button class="btn chico" id="pzEsp" title="Dar vuelta la cancha de izquierda a derecha">⇆ Espejar</button>
     <label class="chip" style="cursor:pointer"><input type="checkbox" id="pzDist" ${PZ.verDist!==false?'checked':''}> Ver metros</label>
     <button class="btn chico" id="pzDeshacer" ${hist.length?'':'disabled'}>↶ Deshacer</button><button class="btn chico fantasma" id="pzLimpiar">Vaciar cancha</button></div>
@@ -1157,7 +1207,7 @@ VISTAS.pizarra=el=>{
       <div class="etq">Herramientas</div><div class="hg">${bHerr('mover','Mover y editar')}${bHerr('lazo','Elegir varias')}${bHerr('unir','Unir y medir')}${bHerr('texto','Texto')}${bHerr('borrar','Borrar')}</div>
       <div class="etq">${J('Pl')}</div><div class="hg">${bHerr('J',J('Sg'))}<button id="pzEquipo" title="Agregar equipo completo"><svg class="ico" viewBox="0 0 24 24"><circle cx="7" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="17" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="12" cy="16" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/></svg><span>Equipo completo</span></button></div>
       <div class="colores" aria-label="Color de camiseta">${PALETA.map(c=>`<button class="sw ${colorJ===c?'activo':''}" data-cj="${c}" title="${c==='hueco'?'Sin relleno':c}" style="${c==='hueco'?'background:transparent;border:2px dashed var(--sub)':'background:'+c}"></button>`).join('')}</div>
-      <div class="etq">Materiales</div><div class="hg g3h">${['P','O','D','R','V','H','E','N','G'].map(m=>bHerr(m,MATERIALES[m].n)).join('')}</div>
+      <div class="etq">Materiales</div><div class="hg g3h">${['P','O','D','R','V','H','E','N','G','S','M'].map(m=>bHerr(m,MATERIALES[m].n)).join('')}</div>
       <div class="etq">Flechas</div><div class="hg g2h">${Object.entries(FLECHAS).map(([k2,v])=>bHerr(k2,v.n)).join('')}</div>
       <div class="etq">Zonas</div><div class="hg g3h">${bHerr('rect','Rectángulo')}${bHerr('cuad','Cuadrado')}${bHerr('circ','Círculo')}</div>
       <div class="colores" aria-label="Color de la zona">${PALETA.filter(c=>c!=='hueco').map(c=>`<button class="sw ${colorZ===c?'activo':''}" data-cz="${c}" title="Zona de color ${c}" style="background:${c}"></button>`).join('')}</div>
@@ -1189,6 +1239,7 @@ VISTAS.pizarra=el=>{
   $('#pzPng').onclick=exportarPng;
   $('#pzFondo').onchange=e=>{snap();PZ.fondo=e.target.value;redibujar()};
   $('#pzEsp').onclick=espejar;
+  $('#pzCfg').onclick=configCancha;
   $('#pzDist').onchange=e=>{PZ.verDist=e.target.checked;redibujar()};
   $('#pzPlant').onclick=plantillasABP;
   $('#pzPres').onclick=presentar;
@@ -1204,6 +1255,34 @@ VISTAS.pizarra=el=>{
   $$('[data-borrarpz]',el).forEach(b=>b.onclick=()=>confirmar('¿Eliminar el ejercicio?','Las tareas que lo usan quedan sin diagrama.','Eliminar',()=>{S.pizarras=S.pizarras.filter(p=>p.id!==b.dataset.borrarpz);S.tareas.forEach(t=>{if(t.diagrama===b.dataset.borrarpz)t.diagrama=''});guardar();pintar()}));
   conectarCancha();pintarSel();
 };
+function configCancha(){
+  const e0=estiloPz();let T={tipo:e0.tipo,lineas:e0.l,logo:e0.logo,op:e0.op,tam:e0.tam};const hayEsc=!!S.club.escudo;
+  const vacio=normalizar({formato:'11 vs 11',elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],fondo:''});
+  const est=()=>{const b=ESTILOS_CANCHA[T.tipo];return {tipo:T.tipo,...b,l:T.lineas||b.l,logo:T.logo,op:T.op,tam:T.tam}};
+  modal('Diseño de la cancha',`<p class="sub" style="margin:0 0 10px">Se aplica a todas las pizarras, fichas PDF y videos del club.</p>
+    <div class="etq">Tipo de campo</div>
+    <div class="estilos-cancha" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:6px 0 14px">${Object.entries(ESTILOS_CANCHA).map(([k2,v])=>`<button type="button" class="ct" data-est="${k2}" style="padding:6px;font:inherit;cursor:pointer;text-align:center;border:2px solid ${k2===T.tipo?'var(--tinta)':'transparent'}"><div style="border-radius:6px;overflow:hidden">${svgPizarra(vacio,{mini:true,estilo:{tipo:k2,...v,logo:T.logo,op:T.op,tam:T.tam}})}</div><span style="font-size:12.5px;font-weight:600">${v.n}</span></button>`).join('')}</div>
+    <div style="display:grid;grid-template-columns:minmax(200px,1fr) 2fr;gap:16px;align-items:start" class="cfg-cancha">
+      <div class="cfg-ctl" style="display:flex;flex-direction:column;gap:14px;font-size:14px">
+        <label>Color de las líneas<span style="display:flex;gap:8px;align-items:center;margin-top:4px"><input type="color" id="ccLin" value="${T.lineas}" style="width:48px;height:34px;padding:2px"><button type="button" class="btn chico" id="ccLinR">Original</button></span></label>
+        <label class="chip" style="cursor:pointer;align-self:flex-start;${hayEsc?'':'opacity:.55'}"><input type="checkbox" id="ccLogo" ${T.logo&&hayEsc?'checked':''} ${hayEsc?'':'disabled'}> Escudo del club de fondo</label>
+        ${hayEsc?'':'<p class="sub" style="margin:0;font-size:12px">Para usarlo, subí el escudo en Ajustes → Datos del club.</p>'}
+        <label>Opacidad del escudo <b id="ccOpV">${T.op}%</b><input type="range" id="ccOp" style="width:100%;display:block" min="0" max="40" value="${T.op}"></label>
+        <label>Tamaño del escudo <b id="ccTamV">${T.tam}%</b><input type="range" id="ccTam" style="width:100%;display:block" min="15" max="95" value="${T.tam}"></label>
+      </div>
+      <div class="cancha" id="ccPrev" style="padding:6px"></div>
+    </div>
+    <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ccOk">Guardar diseño</button></div>`,{ancho:true,alMontar:m=>{
+      const prev=()=>{const e=est();$('#ccPrev',m).style.background=e.a;$('#ccPrev',m).innerHTML=svgPizarra(PZ||vacio,{estilo:e,frame:FR||0});$('#ccOpV',m).textContent=T.op+'%';$('#ccTamV',m).textContent=T.tam+'%'};
+      $$('[data-est]',m).forEach(b=>b.onclick=()=>{T.tipo=b.dataset.est;T.lineas=ESTILOS_CANCHA[T.tipo].l;$('#ccLin',m).value=T.lineas;$$('[data-est]',m).forEach(x=>x.style.borderColor=x===b?'var(--tinta)':'transparent');prev()});
+      $('#ccLin',m).oninput=e=>{T.lineas=e.target.value.toUpperCase();prev()};
+      $('#ccLinR',m).onclick=()=>{T.lineas=ESTILOS_CANCHA[T.tipo].l;$('#ccLin',m).value=T.lineas;prev()};
+      $('#ccLogo',m).onchange=e=>{T.logo=e.target.checked;prev()};
+      $('#ccOp',m).oninput=e=>{T.op=+e.target.value;prev()};
+      $('#ccTam',m).oninput=e=>{T.tam=+e.target.value;prev()};
+      $('#ccOk',m).onclick=()=>{S.club.pizarraEstilo={...T,lineas:T.lineas===ESTILOS_CANCHA[T.tipo].l?'':T.lineas};guardar();cerrarModal();aviso('Diseño de cancha guardado');pintar()};
+      prev()}});
+}
 function snap(){hist.push(JSON.parse(JSON.stringify(PZ)));if(hist.length>50)hist.shift();const d=$('#pzDeshacer');if(d)d.disabled=false}
 function redibujar(){const c=$('#cancha');if(!c)return;c.innerHTML=svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI});conectarCancha();const d=$('#pzDeshacer');if(d)d.disabled=!hist.length}
 function setPos(e,x,y){if(FR===0){e.x=x;e.y=y}else{PZ.pasos[FR-1].pos[e.id]=[x,y]}}
