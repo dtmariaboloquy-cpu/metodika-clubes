@@ -1,0 +1,1840 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metodika · Videoanálisis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDEAE2; --card:#FAF8F3; --ink:#17160F; --sub:#6A6558; --mute:#9C968A;
+  --line:#DCD7CA; --field:#F3F0E8; --accent:#141412; --accent-ink:#FFD400; --accent-wash:#FFF3B0;
+  --navy:#141412; --rival:#B3452F; --rival-wash:#F6E2DC; --ok:#2E6B4A; --ok-wash:#E1EFE6; --pink:#9A7400;
+  --f-d:'Barlow Condensed','Arial Narrow',Arial,sans-serif; --f-b:'Barlow','Segoe UI',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#11100D; --card:#1A1915; --ink:#EDEAE2; --sub:#A9A396; --mute:#7C776C;
+    --line:#2E2C26; --field:#15140F; --accent:#FFD400; --accent-ink:#141412; --accent-wash:#2B2610;
+    --navy:#FFD400; --rival:#E08A73; --rival-wash:#2E1C18; --ok:#5DB184; --ok-wash:#16261C; --pink:#FFD400;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#11100D; --card:#1A1915; --ink:#EDEAE2; --sub:#A9A396; --mute:#7C776C;
+  --line:#2E2C26; --field:#15140F; --accent:#FFD400; --accent-ink:#141412; --accent-wash:#2B2610;
+  --navy:#FFD400; --rival:#E08A73; --rival-wash:#2E1C18; --ok:#5DB184; --ok-wash:#16261C; --pink:#FFD400;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-b);font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1500px;margin:0 auto;padding:14px 16px 40px}
+h1,h2,h3{font-family:var(--f-d);margin:0}
+.muted{color:var(--sub)}
+.small{font-size:12px}
+.hidden{display:none!important}
+
+/* barra superior */
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+.top h1{font-size:26px;font-weight:800;letter-spacing:.3px;text-transform:uppercase}
+#escudo{width:42px;height:42px;object-fit:contain;border-radius:8px}
+.top .eyebrow{font-family:var(--f-d);font-weight:600;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--pink)}
+.top .grow{flex:1}
+.status{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--mute)}
+.status.saved .dot{background:var(--ok)} .status.saving .dot{background:var(--accent)} .status.err .dot{background:var(--rival)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:9px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.solid{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--rival)}
+.btn.sm{padding:4px 9px;font-size:12px;border-radius:7px}
+.btn:disabled{opacity:.45;cursor:default}
+select.inp,input.inp,textarea.inp{background:var(--field);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px;min-width:0}
+textarea.inp{width:100%;resize:vertical;min-height:54px}
+label.lbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--sub);margin:0 0 4px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+
+/* layout principal */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:start}
+@media (max-width:1050px){ .grid{grid-template-columns:1fr} }
+
+/* video */
+.stage{position:relative;background:#000;border-radius:12px;overflow:hidden;aspect-ratio:16/9}
+.stage video,.stage iframe,.stage #ytHost{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.stage .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#C9D3DF;text-align:center;padding:20px}
+.stage .empty b{font-family:var(--f-d);font-size:18px;color:#fff}
+.overlay{position:absolute;left:12px;top:12px;background:rgba(4,16,31,.78);color:#fff;border-radius:8px;padding:6px 10px;font-weight:700;font-size:13px;pointer-events:none;display:none;max-width:80%}
+.overlay small{display:block;font-weight:500;opacity:.8}
+.stage:fullscreen .overlay{font-size:20px;padding:10px 16px}
+.flash{position:absolute;right:12px;top:12px;background:var(--ok);color:#fff;border-radius:8px;padding:6px 12px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none}
+.flash.on{opacity:1}
+
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.clock{font-family:var(--f-d);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;padding:0 6px}
+.clock small{font-family:var(--f-b);font-weight:600;color:var(--pink);font-size:12px;margin-left:4px}
+.sep{width:1px;height:22px;background:var(--line);margin:0 4px}
+
+/* timeline */
+.tl{margin-top:10px;position:relative;user-select:none}
+.tl-scale{position:relative;height:16px;margin-left:120px;font-size:10px;color:var(--mute)}
+.tl-scale span{position:absolute;transform:translateX(-50%)}
+.tl-row{display:flex;align-items:center;height:20px;border-top:1px solid var(--line)}
+.tl-row:last-child{border-bottom:1px solid var(--line)}
+.tl-name{width:120px;flex:none;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:6px;display:flex;align-items:center;gap:5px}
+.tl-name i{width:8px;height:8px;border-radius:2px;flex:none}
+.tl-lane{position:relative;flex:1;height:100%;cursor:pointer;background:var(--field)}
+.tl-mk{position:absolute;top:3px;bottom:3px;min-width:4px;border-radius:2px;opacity:.9}
+.tl-mk.riv{top:10px;opacity:.55}
+.tl-mk.sel{outline:2px solid var(--ink);opacity:1}
+.tl-head{position:absolute;top:0;bottom:0;width:2px;background:var(--rival);pointer-events:none;margin-left:120px}
+.tl-empty{font-size:12px;color:var(--mute);padding:8px 0}
+
+/* botonera */
+.team{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.team button{border:0;background:var(--field);padding:8px;font-weight:700;cursor:pointer}
+.team button.on.prop{background:var(--accent);color:var(--accent-ink)}
+.team button.on.riv{background:var(--rival);color:#fff}
+.grp{margin-bottom:8px}
+.grp h3{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);margin:0 0 5px;font-family:var(--f-b);font-weight:700}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.tb{position:relative;border:1px solid var(--line);border-left:4px solid var(--c);background:var(--card);border-radius:8px;padding:6px 18px 5px 7px;text-align:left;cursor:pointer;font-weight:700;font-size:12px;line-height:1.12;min-height:36px}
+.tb:hover{background:var(--field)}
+.tb kbd{position:absolute;right:3px;top:3px;font-family:var(--f-b);font-size:10px;font-weight:700;color:var(--sub);background:var(--field);border:1px solid var(--line);border-radius:4px;padding:0 4px}
+.tb .m{display:block;font-size:10px;font-weight:500;color:var(--mute);margin-top:2px}
+.tb.rec{background:var(--c);color:#fff;animation:pulse 1s infinite}
+.tb.rec .m,.tb.rec kbd{color:#fff;background:transparent;border-color:rgba(255,255,255,.5)}
+@keyframes pulse{50%{opacity:.75}}
+
+/* ultimo tag / descriptores */
+.desc-box{border:1px dashed var(--line);border-radius:10px;padding:10px;margin-top:6px}
+.desc-box h4{margin:0 0 6px;font-size:13px;font-family:var(--f-d);display:flex;justify-content:space-between;gap:6px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border:1px solid var(--line);background:var(--field);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.chip.pos.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.chip.neg.on{background:var(--rival);border-color:var(--rival);color:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+
+/* mini cancha (zonas) */
+.pitch{position:relative;width:100%;max-width:440px;margin:0 auto;aspect-ratio:105/68;background:linear-gradient(90deg,#1E7A46,#23864E);border-radius:8px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
+.pitch::before{content:"";position:absolute;inset:6%;border:1.5px solid rgba(255,255,255,.65);pointer-events:none}
+.pitch::after{content:"";position:absolute;left:50%;top:6%;bottom:6%;border-left:1.5px solid rgba(255,255,255,.65);pointer-events:none}
+.pz{position:relative;border:1px dashed rgba(255,255,255,.25);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.pz:hover{background:rgba(255,255,255,.12)}
+.pz.on{background:rgba(255,255,255,.35)}
+.pitch .dir{position:absolute;bottom:2px;right:6px;font-size:10px;color:rgba(255,255,255,.85);pointer-events:none;z-index:2}
+
+/* pestañas inferiores */
+.tabs{display:flex;gap:4px;margin:14px 0 8px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.tab.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--sub);padding:6px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.t td{padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr.sel td{background:var(--accent-wash)}
+table.t tr:hover td{background:var(--field)}
+.tagdot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.pill{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px}
+.pill.prop{background:var(--accent-wash);color:var(--accent)}
+.pill.riv{background:var(--rival-wash);color:var(--rival)}
+.pill.pos{background:var(--ok-wash);color:var(--ok)}
+.pill.neg{background:var(--rival-wash);color:var(--rival)}
+.scroll{max-height:440px;overflow:auto}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.bar{height:8px;border-radius:4px;background:var(--accent)}
+.bar.riv{background:var(--rival)}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(4,12,24,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal .box{background:var(--card);border-radius:14px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:18px}
+.modal h2{font-size:19px;margin-bottom:10px}
+.ed-row{display:grid;grid-template-columns:28px 1.6fr 1.3fr 54px 54px 54px 92px 74px 28px;gap:6px;align-items:center;margin-bottom:6px}
+.ed-row input[type=color]{width:28px;height:28px;border:0;padding:0;background:none}
+.ed-head{font-size:10.5px;text-transform:uppercase;color:var(--sub);font-weight:700}
+@media (max-width:700px){ .ed-row{grid-template-columns:28px 1fr 1fr 48px; } .ed-row .opt{display:none} }
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}
+.toast.show{opacity:1}
+.help{font-size:12.5px;color:var(--sub);line-height:1.6}
+.help kbd{font-family:var(--f-b);font-size:11px;font-weight:700;background:var(--field);border:1px solid var(--line);border-radius:4px;padding:0 5px;color:var(--ink)}
+#panel{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow:auto}
+@media (max-width:1050px){ #panel{position:static;max-height:none} }
+#descBox .pitch{max-width:260px}
+
+/* dibujo */
+#cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.stage.drawing #cv{pointer-events:auto;cursor:crosshair}
+.drawbar{position:absolute;left:50%;transform:translateX(-50%);bottom:10px;z-index:4;display:none;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;background:rgba(4,16,31,.88);padding:6px 8px;border-radius:12px;max-width:96%}
+.stage.drawing .drawbar{display:flex}
+.drawbar button{border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer}
+.drawbar button.on{background:#fff;color:#0D2038}
+.drawbar .sw{width:22px;height:22px;border-radius:50%;padding:0;border:2px solid rgba(255,255,255,.4)}
+.drawbar .sw.on{border-color:#fff;box-shadow:0 0 0 2px #fff}
+.drawbar select{background:#0D2038;color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;font-size:12px;padding:3px}
+.drawbar .ok{background:#1E8E5A;border-color:#1E8E5A}
+.drawbar .vs{width:1px;height:20px;background:rgba(255,255,255,.25);margin:0 2px}
+.drawhint{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:4;background:rgba(4,16,31,.85);color:#fff;font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;display:none}
+.stage.drawing .drawhint{display:block}
+.pausa-dib{position:absolute;right:12px;bottom:12px;z-index:4;background:rgba(194,55,126,.9);color:#fff;font-weight:700;font-size:12px;padding:4px 10px;border-radius:8px;display:none}
+
+/* listas / jugadoras */
+.two{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}
+@media (max-width:800px){ .two{grid-template-columns:1fr} }
+.li{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;cursor:pointer;font-weight:600}
+.li.on{border-color:var(--accent);background:var(--accent-wash)}
+.li small{color:var(--sub);font-weight:500}
+.kpis{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.kpi{background:var(--field);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:90px}
+.kpi b{display:block;font-family:var(--f-d);font-size:20px}
+.kpi span{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.menu{position:absolute;z-index:60;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;min-width:220px}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:7px 10px;border-radius:7px;font-weight:600;cursor:pointer}
+.menu button:hover{background:var(--field)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <img id="escudo" class="hidden" alt="">
+    <div>
+      <div class="eyebrow" id="eyebrow">Videoanálisis · Tagging</div>
+      <h1 id="tituloProyecto">Videoanálisis</h1>
+    </div>
+    <div class="grow"></div>
+    <select class="inp" id="selProyecto" title="Proyecto"></select>
+    <button class="btn" id="btnNuevo">+ Nuevo análisis</button>
+    <button class="btn" id="btnDatos">Datos del partido</button>
+    <button class="btn danger sm" id="btnBorrarProy" title="Borrar este análisis">Borrar</button>
+    <div class="status" id="status"><span class="dot"></span><span id="statusTxt">Conectando…</span></div>
+  </div>
+
+  <div class="grid">
+    <!-- columna video -->
+    <div>
+      <div class="stage" id="stage">
+        <video id="vid" playsinline preload="auto" class="hidden"></video>
+        <div id="ytHost" class="hidden"></div>
+        <div class="empty" id="emptyStage">
+          <b>Cargá el video del partido</b>
+          <span>Elegí un archivo de tu compu (mp4) o pegá un link de YouTube.</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+            <button class="btn solid" id="btnArchivo">Elegir archivo</button>
+            <button class="btn" id="btnYT">Pegar link de YouTube</button>
+          </div>
+          <span class="small" id="reelegir"></span>
+        </div>
+        <canvas id="cv"></canvas>
+        <div class="drawhint">Pausado · dibujá sobre la imagen. Se va a ver cuando reproduzcas este clip.</div>
+        <div class="drawbar" id="drawBar">
+          <button data-tool="flecha" class="on" title="Flecha (pase / movimiento)">➝ Flecha</button>
+          <button data-tool="punteada" title="Flecha punteada (desmarque / conducción)">⇢ Punteada</button>
+          <button data-tool="linea" title="Línea (líneas del equipo)">— Línea</button>
+          <button data-tool="circulo" title="Marcar a quien hace la acción">◯ Marcar</button>
+          <button data-tool="zona" title="Zona / espacio">▭ Zona</button>
+          <button data-tool="lapiz" title="Mano alzada">✎ Lápiz</button>
+          <button data-tool="texto" title="Texto">T Texto</button>
+          <span class="vs"></span>
+          <button class="sw on" data-col="#FFD60A" style="background:#FFD60A" title="Amarillo"></button>
+          <button class="sw" data-col="#FF3B30" style="background:#FF3B30" title="Rojo"></button>
+          <button class="sw" data-col="#FFFFFF" style="background:#FFFFFF" title="Blanco"></button>
+          <button class="sw" data-col="#38BDF8" style="background:#38BDF8" title="Celeste"></button>
+          <button class="sw" data-col="#22C55E" style="background:#22C55E" title="Verde"></button>
+          <span class="vs"></span>
+          <button id="dUndo" title="Deshacer">↶</button>
+          <button id="dClear" title="Borrar todo el dibujo">Limpiar</button>
+          <select id="dPausa" title="Cuántos segundos se frena el clip mostrando el dibujo"><option value="3">Pausa 3 s</option><option value="5" selected>Pausa 5 s</option><option value="8">Pausa 8 s</option><option value="12">Pausa 12 s</option><option value="0">Sin pausa</option></select>
+          <button id="dCancel">Cancelar</button>
+          <button id="dSave" class="ok">Guardar dibujo</button>
+        </div>
+        <div class="pausa-dib" id="pausaDib"></div>
+        <div class="overlay" id="overlay"></div>
+        <div class="flash" id="flash"></div>
+      </div>
+      <input type="file" id="fileIn" accept="video/*" hidden>
+      <input type="file" id="jsonIn" accept=".json,application/json" hidden>
+
+      <div class="ctrl">
+        <button class="btn sm" id="bPlay" title="Espacio">▶︎ / ❚❚</button>
+        <button class="btn sm" data-skip="-10">−10 s</button>
+        <button class="btn sm" data-skip="-5">−5 s</button>
+        <button class="btn sm" data-skip="5">+5 s</button>
+        <button class="btn sm" data-skip="10">+10 s</button>
+        <span class="sep"></span>
+        <button class="btn sm" data-rate="0.5">0,5×</button>
+        <button class="btn sm" data-rate="1">1×</button>
+        <button class="btn sm" data-rate="2">2×</button>
+        <span class="sep"></span>
+        <span class="clock" id="clock">0:00</span>
+        <div style="flex:1"></div>
+        <button class="btn sm" id="bIni1">Marcar inicio 1T</button>
+        <button class="btn sm" id="bIni2">Marcar inicio 2T</button>
+        <button class="btn sm" id="bDibujar" title="Dibujar sobre el tag seleccionado">✏️ Dibujar</button>
+        <button class="btn sm" id="bCambiarVideo">Cambiar video</button>
+        <button class="btn sm" id="bFull">Pantalla completa</button>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px">
+          <h3 style="font-size:15px">Línea de tiempo</h3>
+          <span class="small muted">Tocá una franja para ir a ese momento · tocá un tag para verlo</span>
+        </div>
+        <div class="tl" id="tl"></div>
+      </div>
+    </div>
+
+    <!-- columna botonera -->
+    <div class="card" id="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3 style="font-size:16px" title="El número en cada botón es la cantidad de tags marcados">Botonera</h3>
+        <button class="btn sm" id="btnEditar">Editar botones</button>
+      </div>
+      <div class="team" id="team">
+        <button class="prop" data-eq="propio">Mi equipo</button>
+        <button class="riv" data-eq="rival">Rival</button>
+      </div>
+      <div id="botonera"></div>
+      <div class="desc-box" id="descBox"></div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-t="lista">Tags</button>
+    <button class="tab" data-t="listas">Listas de clips</button>
+    <button class="tab" data-t="jugadoras">Jugadoras</button>
+    <button class="tab" data-t="stats">Estadísticas</button>
+    <button class="tab" data-t="export">Exportar / importar</button>
+    <button class="tab" data-t="ayuda">Atajos y ayuda</button>
+  </div>
+  <div class="card" id="tabBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+window.MTK_FIREBASE_CONFIG = {apiKey:"AIzaSyAQXlqWl9LdXwGsZMo1p7BAAXsMMcGd-QE",authDomain:"metodika-clubes.firebaseapp.com",projectId:"metodika-clubes",storageBucket:"metodika-clubes.firebasestorage.app",messagingSenderId:"927882662557",appId:"1:927882662557:web:e4515abe0ba8fd1c98fa74"};
+/* Usa la misma sesión de Metodika Clubes: los datos quedan dentro del club del usuario. */
+window.addEventListener("load", function(){
+  try{ if(!firebase.apps.length) firebase.initializeApp(window.MTK_FIREBASE_CONFIG); }catch(e){ console.error(e); }
+  try{
+    let listo = false;
+    firebase.auth().onAuthStateChanged(function(u){ if (listo) return; listo = true; if (window.VA) window.VA.onUser(u); });
+  }catch(e){ if (window.VA) window.VA.onUser(null); }
+});
+</script>
+
+<script>
+(function(){
+"use strict";
+/* =========================================================
+   Metodika · Videoanálisis (tagging de partido)
+   Guarda cada análisis en Firestore: colección "videoanalisis"
+   La botonera modelo se guarda en "videoanalisis-config/botonera".
+   Copia de respaldo en este navegador (localStorage).
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const clone = o => JSON.parse(JSON.stringify(o));
+let NS = "vac_local_";
+function lsGet(k){ try{ return localStorage.getItem(NS+k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(NS+k,v); }catch(e){} }
+function lsDel(k){ try{ localStorage.removeItem(NS+k); }catch(e){} }
+function fmt(t){ t=Math.max(0,t||0); const h=Math.floor(t/3600), m=Math.floor(t%3600/60), s=Math.floor(t%60); return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s).padStart(2,"0"); }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200); }
+
+/* ---------- botonera por defecto (momentos del juego) ---------- */
+const GRUPOS = ["Ataque organizado","Transición ofensiva","Defensa organizada","Transición defensiva","Pelota parada"];
+function B(nombre, grupo, color, tecla, pre, post, modo){ return {id:uid(), nombre, grupo, color, tecla, pre, post, modo:modo||"clic"}; }
+function botoneraDefault(){ return [
+  B("Salida de juego","Ataque organizado","#2563EB","1",4,8),
+  B("Progresión","Ataque organizado","#3B82F6","2",5,6),
+  B("Llegada a último tercio","Ataque organizado","#0EA5E9","3",6,6),
+  B("Centro","Ataque organizado","#06B6D4","4",5,4),
+  B("Remate","Ataque organizado","#7C3AED","5",8,4),
+  B("Gol","Ataque organizado","#16A34A","G",15,8),
+  B("Recuperación","Transición ofensiva","#22C55E","R",3,8),
+  B("Contraataque","Transición ofensiva","#10B981","C",3,12),
+  B("Pérdida","Transición defensiva","#EF4444","P",4,6),
+  B("Presión tras pérdida","Transición defensiva","#F97316","X",2,8),
+  B("Repliegue","Transición defensiva","#FB923C","Z",2,10),
+  B("Presión alta","Defensa organizada","#DB2777","A",2,10),
+  B("Bloque medio","Defensa organizada","#C026D3","M",2,10),
+  B("Bloque bajo","Defensa organizada","#9333EA","B",2,10),
+  B("Duelo","Defensa organizada","#A855F7","D",3,3),
+  B("Falta","Defensa organizada","#64748B","F",4,4),
+  B("Córner","Pelota parada","#CA8A04","Q",3,12),
+  B("Tiro libre","Pelota parada","#EAB308","L",3,12),
+  B("Lateral","Pelota parada","#A16207","W",2,8),
+  B("Saque de arco","Pelota parada","#854D0E","S",2,10),
+  B("Penal","Pelota parada","#B45309","N",3,8),
+  B("Posesión larga","Ataque organizado","#1D4ED8","O",0,0,"rango")
+]; }
+
+const ZONAS = [
+  ["DI","Def. izq"],["MI","Medio izq"],["OI","Of. izq"],
+  ["DC","Def. centro"],["MC","Medio centro"],["OC","Of. centro"],
+  ["DD","Def. der"],["MD","Medio der"],["OD","Of. der"]
+];
+const ZONA_NOMBRE = Object.fromEntries(ZONAS);
+
+/* ---------- club ---------- */
+let CLUB = {}, CLUB_ID = null, USER = null, MODO_DB = "col";
+const EQ = () => (CLUB.nombre || "Mi equipo");
+const subtituloClub = () => [CLUB.nombre, CLUB.categoria].filter(Boolean).join(" · ") || "Metodika Clubes";
+function J(t){
+  const r = CLUB.rama;
+  const m = {
+    sg:  r==="F"?"jugadora":r==="M"?"jugador":"jugador/a",
+    pl:  r==="F"?"jugadoras":r==="M"?"jugadores":"jugadoras/es",
+    Sg:  r==="F"?"Jugadora":r==="M"?"Jugador":"Jugador/a",
+    Pl:  r==="F"?"Jugadoras":r==="M"?"Jugadores":"Jugadoras/es",
+    una: r==="F"?"una jugadora":r==="M"?"un jugador":"un/a jugador/a",
+    la:  r==="F"?"la jugadora":r==="M"?"el jugador":"el/la jugador/a"
+  };
+  return m[t] || m.sg;
+}
+
+/* ---------- estado ---------- */
+let proyectos = [];          // [{id,nombre}]
+let P = null;                // proyecto abierto
+let plantilla = null;        // botonera modelo
+let equipo = "propio";
+let selTagId = null;
+let recording = {};          // botonId -> tiempo inicio (modo rango)
+let tabActual = lsGet("va_tab") || "lista";
+let filtros = {boton:"", equipo:"", jugadora:"", resultado:"", periodo:""};
+let JUGADORAS = [], PARTIDOS = [];
+let playlist = null;         // {items:[{p,id}], i:0, present:bool, nombre}
+let clipFin = null;
+let LISTAS = [];             // [{id,nombre,items:[{p,id}]}]
+let listaSel = lsGet("va_lista") || null;
+let jugSel = null;           // num de jugadora en pestaña Jugadoras
+let videoCache = {};         // pid -> objectURL del archivo elegido en esta sesión
+let pendiente = null;        // clip esperando que se cargue el video {p,id}
+let marcados = new Set();    // tags tildados en la tabla
+
+/* ---------- plantel y club desde Metodika Clubes ---------- */
+function fechaAR(iso){ const m = String(iso||"").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3]+"/"+m[2]+"/"+m[1] : String(iso||""); }
+async function cargarPlantel(){
+  let S = null;
+  try{
+    if (window.parent && window.parent !== window)
+      S = window.parent.eval('typeof S!=="undefined" && S ? JSON.parse(JSON.stringify({club:S.club, jugadores:S.jugadores, partidos:(S.partidos||[]).map(function(p){return {fecha:p.fecha, rival:p.rival, golesF:p.golesF, golesC:p.golesC, estado:p.estado};})})) : null');
+  }catch(e){}
+  if (!S && CLUB_ID && getDb()){
+    try{
+      const base = getDb().collection("clubes").doc(CLUB_ID).collection("datos");
+      const [c, j] = await Promise.all([base.doc("club").get(), base.doc("jugadores").get()]);
+      S = {club: c.exists ? JSON.parse(c.data().v||"{}") : {}, jugadores: j.exists ? JSON.parse(j.data().v||"[]") : [], partidos: []};
+      try{ const ps = await getDb().collection("clubes").doc(CLUB_ID).collection("partidos").get(); S.partidos = ps.docs.map(d=>{ try{ return JSON.parse(d.data().v||"{}"); }catch(e){ return null; } }).filter(Boolean); }catch(e){}
+    }catch(e){ console.warn(e); }
+  }
+  if (!S){ try{ const t = localStorage.getItem("metodika_clubes_v1"); if (t){ const x = JSON.parse(t); S = {club:x.club, jugadores:x.jugadores, partidos:x.partidos}; } }catch(e){} }
+  S = S || {};
+  CLUB = S.club || {};
+  JUGADORAS = (S.jugadores||[]).map(j=>{ const nombre = ((j.nombre||"")+" "+(j.apellido||"")).trim(); const dorsal = (j.dorsal!=null && j.dorsal!=="") ? j.dorsal : ""; return {num:String(j.id), dorsal, apellido:j.apellido||"", nombre, pos:j.posicion||"", label:(dorsal!==""?dorsal+" · ":"")+nombre}; })
+    .sort((a,b)=>(+a.dorsal||99)-(+b.dorsal||99) || a.nombre.localeCompare(b.nombre));
+  PARTIDOS = (S.partidos||[]).filter(p=>p && p.rival).map(p=>({fecha:fechaAR(p.fecha), fechaISO:String(p.fecha||""), rival:p.rival, golesFavor:(p.golesF!=null?p.golesF:null), golesContra:(p.golesC!=null?p.golesC:null)}));
+  pintarMarca();
+  if (P) render();
+}
+function pintarMarca(){
+  const img = $("#escudo");
+  if (CLUB.escudo){ img.src = CLUB.escudo; img.classList.remove("hidden"); } else img.classList.add("hidden");
+  $("#eyebrow").textContent = "Videoanálisis · " + subtituloClub();
+  const tj = document.querySelector('[data-t="jugadoras"]'); if (tj) tj.textContent = J("Pl");
+  try{ const tema = localStorage.getItem("metodika_tema"); if (tema==="oscuro"||tema==="dark") document.documentElement.setAttribute("data-theme","dark"); else if (tema==="claro"||tema==="light") document.documentElement.setAttribute("data-theme","light"); }catch(e){}
+}
+
+/* ---------- guardado (Firestore + respaldo local) ---------- */
+let db = null, online = false, saveTimer = null;
+function setStatus(cls, txt){ $("#status").className = "status "+cls; $("#statusTxt").textContent = txt; }
+function getDb(){
+  if (db) return db;
+  try{ if (typeof firebase==="undefined") return null; if(!firebase.apps.length) firebase.initializeApp(window.MTK_FIREBASE_CONFIG); db = firebase.firestore(); }catch(e){ db=null; }
+  return db;
+}
+const BASE = () => "clubes/" + CLUB_ID + "/";
+function refProy(id){ return MODO_DB==="col" ? getDb().doc(BASE()+"videoanalisis/"+id) : getDb().doc(BASE()+"datos/va_p_"+id); }
+function refCfg(n){ return MODO_DB==="col" ? getDb().doc(BASE()+"videoanalisis-config/"+n) : getDb().doc(BASE()+"datos/va_cfg_"+n); }
+async function listarProyectos(){
+  if (MODO_DB==="col"){ const q = await getDb().collection(BASE()+"videoanalisis").get(); return q.docs.map(x=>({id:x.id, data:x.data()})); }
+  const FP = firebase.firestore.FieldPath.documentId();
+  const q = await getDb().collection(BASE()+"datos").where(FP, ">=", "va_p_").where(FP, "<", "va_p_~").get();
+  return q.docs.map(x=>({id:x.id.slice(5), data:x.data()}));
+}
+function guardarLocal(){
+  if (!P) return;
+  lsSet("va_p_"+P.id, JSON.stringify(P));
+  const idx = proyectos.map(x=>({id:x.id,nombre:x.nombre,fecha:x.fecha||""}));
+  lsSet("va_index", JSON.stringify(idx));
+  lsSet("va_last", P.id);
+}
+function changed(){
+  if (!P) return;
+  P.actualizado = new Date().toISOString();
+  const it = proyectos.find(x=>x.id===P.id); if (it){ it.nombre=P.nombre; it.fecha=P.fecha; }
+  guardarLocal();
+  if (!online){ setStatus("", "Guardado solo en este navegador"); return; }
+  setStatus("saving","Guardando…");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(guardarNube, 900);
+}
+async function guardarNube(){
+  if (!P || !online) return;
+  try{
+    const data = clone(P); delete data._videoUrl;
+    await refProy(P.id).set(data);
+    setStatus("saved","Guardado en la nube del club");
+  }catch(e){
+    console.error(e);
+    setStatus("err","No se pudo guardar en la nube — quedó guardado en este navegador");
+  }
+}
+let listasTimer = null;
+function guardarListas(){
+  lsSet("va_listas", JSON.stringify(LISTAS));
+  if (!online) return;
+  clearTimeout(listasTimer);
+  listasTimer = setTimeout(async ()=>{ try{ await refCfg("listas").set({listas:LISTAS, actualizado:new Date().toISOString()}); }catch(e){ console.error(e); setStatus("err","No se pudieron guardar las listas en la nube"); } }, 700);
+}
+function getProyecto(pid){
+  if (P && P.id===pid) return P;
+  try{ return JSON.parse(lsGet("va_p_"+pid)||"null"); }catch(e){ return null; }
+}
+async function guardarPlantilla(){
+  lsSet("va_plantilla", JSON.stringify(plantilla));
+  if (online){ try{ await refCfg("botonera").set({botones:plantilla, actualizado:new Date().toISOString()}); }catch(e){ console.error(e); } }
+}
+
+async function iniciar(){
+  // índice local primero (rápido)
+  try{ proyectos = JSON.parse(lsGet("va_index")||"[]"); }catch(e){ proyectos=[]; }
+  try{ plantilla = JSON.parse(lsGet("va_plantilla")||"null"); }catch(e){ plantilla=null; }
+  try{ LISTAS = JSON.parse(lsGet("va_listas")||"[]"); }catch(e){ LISTAS=[]; }
+  const d = CLUB_ID ? getDb() : null;
+  if (d){
+    try{
+      let docs;
+      try{ docs = await listarProyectos(); }
+      catch(e){ if (e && e.code==="permission-denied"){ MODO_DB = "datos"; docs = await listarProyectos(); } else throw e; }
+      const nube = docs.map(x=>{ const v=x.data; return {id:x.id, nombre:v.nombre||"Sin nombre", fecha:v.fecha||"", _data:v}; });
+      // unir con locales que no estén en la nube
+      const ids = new Set(nube.map(x=>x.id));
+      proyectos.filter(x=>!ids.has(x.id)).forEach(x=>nube.push(x));
+      nube.forEach(x=>{ if (x._data){ lsSet("va_p_"+x.id, JSON.stringify(x._data)); delete x._data; } });
+      proyectos = nube;
+      online = true;
+      try{ const c = await refCfg("botonera").get(); if (c.exists && c.data().botones) plantilla = c.data().botones; }catch(e){}
+      try{ const l = await refCfg("listas").get(); if (l.exists && Array.isArray(l.data().listas)) { LISTAS = l.data().listas; lsSet("va_listas", JSON.stringify(LISTAS)); } }catch(e){}
+      setStatus("saved","Conectado a la nube del club");
+    }catch(e){
+      console.warn("Firestore no disponible:", e);
+      online = false;
+      setStatus("err","Sin conexión a la nube — se guarda en este navegador");
+    }
+  } else setStatus(USER ? "" : "err", USER ? "Tu cuenta todavía no está en un club — se guarda en este navegador" : "Entrá a Metodika Clubes con tu cuenta para guardar en la nube del club");
+  if (!plantilla) plantilla = botoneraDefault();
+  proyectos.sort((a,b)=>String(b.fecha||"").localeCompare(String(a.fecha||"")));
+  const last = lsGet("va_last");
+  // parámetros: ?clip=pid:tagId · ?jug=numero
+  const q = new URLSearchParams(location.search);
+  const clip = (q.get("clip")||"").split(":");
+  if (clip.length===2 && proyectos.some(x=>x.id===clip[0])){ abrirProyecto(clip[0]); selTagId = clip[1]; pendiente = {p:clip[0], id:clip[1]}; render(); intentarPendiente(); }
+  else if (proyectos.length) abrirProyecto((proyectos.find(x=>x.id===last)||proyectos[0]).id);
+  else nuevoProyecto(true);
+  if (q.get("jug")){ jugSel = q.get("jug"); tabActual = "jugadoras"; renderTabs(); renderTab(); setTimeout(()=>$("#tabs").scrollIntoView({behavior:"smooth"}), 300); }
+}
+let iniciado = false;
+window.VA = { async onUser(u){
+  if (iniciado) return; iniciado = true;
+  USER = u || null;
+  if (u){ try{ const pf = await getDb().collection("usuarios").doc(u.uid).get(); CLUB_ID = (pf.exists && pf.data().clubId) || null; }catch(e){ console.warn(e); } }
+  NS = "vac_" + (CLUB_ID || "local") + "_";
+  tabActual = lsGet("va_tab") || "lista";
+  await cargarPlantel();
+  iniciar();
+} };
+// sin Firebase (sin conexión): arrancar igual, guardando en este navegador
+setTimeout(()=>{ if(!iniciado && (typeof firebase==="undefined")) window.VA.onUser(null); }, 2500);
+
+function abrirProyecto(id, mantenerLista){
+  if (dibujando) cerrarDibujo(false);
+  pausar(); if(!mantenerLista) playlist=null; recording={}; clipFin=null; marcados.clear();
+  let data = null;
+  try{ data = JSON.parse(lsGet("va_p_"+id)||"null"); }catch(e){}
+  if (!data){ toast("No se encontró ese análisis."); return; }
+  P = data;
+  P.botones = P.botones && P.botones.length ? P.botones : clone(plantilla);
+  P.tags = P.tags || [];
+  selTagId = null;
+  lsSet("va_last", P.id);
+  cargarVideoDeProyecto();
+  render();
+}
+function nuevoProyecto(silencioso){
+  const p = {id:uid(), nombre:"Nuevo análisis", rival:"", fecha:new Date().toISOString().slice(0,10), competencia:"",
+    video:null, ini1:null, ini2:null, botones:clone(plantilla), tags:[], creado:new Date().toISOString()};
+  proyectos.unshift({id:p.id, nombre:p.nombre, fecha:p.fecha});
+  lsSet("va_p_"+p.id, JSON.stringify(p));
+  abrirProyecto(p.id);
+  changed();
+  if (!silencioso) abrirDatos();
+}
+async function borrarProyecto(){
+  if (!P) return;
+  if (!confirm("¿Borrar \""+P.nombre+"\" con sus "+P.tags.length+" tags? No se puede deshacer.")) return;
+  const id = P.id;
+  if (online){ try{ await refProy(id).delete(); }catch(e){ toast("No se pudo borrar en la nube."); return; } }
+  lsDel("va_p_"+id);
+  proyectos = proyectos.filter(x=>x.id!==id);
+  P = null;
+  if (proyectos.length) abrirProyecto(proyectos[0].id); else nuevoProyecto(true);
+  guardarLocal();
+  toast("Análisis borrado.");
+}
+
+/* ---------- reproductor (archivo o YouTube) ---------- */
+const vid = $("#vid");
+let kind = null, yt = null, ytReady = false;
+const player = {
+  time(){ if(kind==="file") return vid.currentTime||0; if(kind==="yt"&&ytReady) return yt.getCurrentTime()||0; return 0; },
+  dur(){ if(kind==="file") return isFinite(vid.duration)?vid.duration:0; if(kind==="yt"&&ytReady) return yt.getDuration()||0; return 0; },
+  seek(t){ t=Math.max(0,t); if(kind==="file") vid.currentTime=t; else if(kind==="yt"&&ytReady) yt.seekTo(t,true); },
+  play(){ if(kind==="file") vid.play().catch(()=>{}); else if(kind==="yt"&&ytReady) yt.playVideo(); },
+  pause(){ if(kind==="file") vid.pause(); else if(kind==="yt"&&ytReady) yt.pauseVideo(); },
+  paused(){ if(kind==="file") return vid.paused; if(kind==="yt"&&ytReady) return yt.getPlayerState()!==1; return true; },
+  rate(r){ if(kind==="file") vid.playbackRate=r; else if(kind==="yt"&&ytReady) yt.setPlaybackRate(r); }
+};
+function pausar(){ try{ player.pause(); }catch(e){} }
+function ytId(url){
+  const m = String(url||"").match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(url||"") ? url : null);
+}
+function mostrarVacio(msg){
+  vid.classList.add("hidden"); $("#ytHost").classList.add("hidden"); $("#emptyStage").classList.remove("hidden");
+  $("#reelegir").textContent = msg || "";
+}
+function cargarVideoDeProyecto(){
+  kind = null;
+  if (vid.src){ try{ vid.pause(); }catch(e){} vid.removeAttribute("src"); vid.load(); }
+  if (yt){ try{ yt.destroy(); }catch(e){} yt=null; ytReady=false; $("#ytHost").outerHTML = '<div id="ytHost" class="hidden"></div>'; }
+  if (!P || !P.video){ mostrarVacio(""); return; }
+  if (P.video.tipo==="youtube") cargarYT(P.video.url);
+  else if (videoCache[P.id]){ vid.src = videoCache[P.id]; kind="file"; vid.classList.remove("hidden"); $("#emptyStage").classList.add("hidden"); }
+  else mostrarVacio("Este análisis usa el archivo “"+P.video.nombre+"”. Volvé a elegirlo desde tu compu para seguir (los videos no se suben a la nube).");
+}
+function cargarArchivo(file){
+  if (!file) return;
+  if (yt){ try{ yt.destroy(); }catch(e){} yt=null; ytReady=false; $("#ytHost").outerHTML = '<div id="ytHost" class="hidden"></div>'; }
+  const prev = P && P.video && P.video.tipo==="archivo" ? P.video.nombre : null;
+  if (prev && prev !== file.name && P.tags.length && !confirm("Este análisis tenía el video “"+prev+"”. ¿Usar “"+file.name+"” igual? Los tags quedan con sus tiempos.")) return;
+  vid.src = videoCache[P.id] = URL.createObjectURL(file);
+  kind = "file";
+  vid.classList.remove("hidden"); $("#emptyStage").classList.add("hidden");
+  P.video = {tipo:"archivo", nombre:file.name, size:file.size};
+  changed();
+}
+function cargarYT(url){
+  const id = ytId(url);
+  if (!id){ toast("Ese link de YouTube no es válido."); return; }
+  if (vid.src){ vid.pause(); vid.removeAttribute("src"); vid.load(); }
+  if (yt){ try{ yt.destroy(); }catch(e){} yt=null; $("#ytHost").outerHTML = '<div id="ytHost"></div>'; }
+  vid.classList.add("hidden"); $("#emptyStage").classList.add("hidden");
+  const host = $("#ytHost"); host.classList.remove("hidden");
+  kind = "yt"; ytReady = false;
+  P.video = {tipo:"youtube", url:url, id:id};
+  const crear = ()=>{
+    yt = new YT.Player("ytHost", { videoId:id, playerVars:{rel:0, modestbranding:1, playsinline:1},
+      events:{ onReady(){ ytReady=true; renderTimeline._d=0; intentarPendiente(); } } });
+  };
+  if (window.YT && window.YT.Player) crear();
+  else {
+    window.onYouTubeIframeAPIReady = crear;
+    if (!document.getElementById("ytApi")){ const s=document.createElement("script"); s.id="ytApi"; s.src="https://www.youtube.com/iframe_api"; document.head.appendChild(s); }
+  }
+}
+
+/* ---------- reloj de partido ---------- */
+function minutoPartido(t){
+  if (!P) return null;
+  if (P.ini2!=null && t>=P.ini2) return {per:"2T", min:45+Math.floor((t-P.ini2)/60)+1};
+  if (P.ini1!=null && t>=P.ini1) return {per:"1T", min:Math.floor((t-P.ini1)/60)+1};
+  return null;
+}
+function etiquetaMin(t){ const m=minutoPartido(t); return m ? m.min+"' "+m.per : fmt(t); }
+
+/* ---------- taggear ---------- */
+function botonPorId(id){ return P.botones.find(b=>b.id===id); }
+function crearTag(b, ini, fin, centro){
+  const dur = player.dur();
+  const tag = {id:uid(), b:b.id, nombre:b.nombre, grupo:b.grupo, color:b.color, equipo,
+    t:+centro.toFixed(2), ini:+Math.max(0,ini).toFixed(2), fin:+(dur?Math.min(dur,fin):fin).toFixed(2),
+    jugadora:"", zona:"", resultado:"", nota:"", creado:new Date().toISOString()};
+  P.tags.push(tag);
+  P.tags.sort((a,c)=>a.t-c.t);
+  selTagId = tag.id;
+  flash(b.nombre + " · " + (equipo==="propio"?EQ():"Rival") + " · " + etiquetaMin(centro));
+  changed();
+  renderBotonera(); renderDesc(); renderTimeline(); renderTab();
+}
+function pulsar(b){
+  if (!kind){ toast("Primero cargá el video."); return; }
+  const t = player.time();
+  if (b.modo==="rango"){
+    if (recording[b.id]==null){ recording[b.id]=t; renderBotonera(); flash("Grabando "+b.nombre+"…"); return; }
+    const t0 = recording[b.id]; delete recording[b.id];
+    const a = Math.min(t0,t), z = Math.max(t0,t);
+    crearTag(b, a-(+b.pre||0), z+(+b.post||0), (a+z)/2);
+  } else {
+    crearTag(b, t-(+b.pre||0), t+(+b.post||0), t);
+  }
+}
+function flash(txt){ const f=$("#flash"); f.textContent=txt; f.classList.add("on"); clearTimeout(flash._t); flash._t=setTimeout(()=>f.classList.remove("on"),1300); }
+
+/* ---------- reproducir clips / playlist ---------- */
+let clipTag = null, dibMostrados = new Set(), pausaDibTimer = null;
+function verTag(id, fromList){
+  const tag = P.tags.find(x=>x.id===id); if(!tag) return;
+  if (dibujando) cerrarDibujo(false);
+  selTagId = id;
+  if (!fromList) playlist = null;
+  if (!kind){ pendiente = {p:P.id, id}; toast(P.video && P.video.tipo==="archivo" ? "Elegí el archivo “"+P.video.nombre+"” para ver el clip." : "Cargá el video para ver el clip."); renderDesc(); return; }
+  limpiarCanvas(); clearTimeout(pausaDibTimer); $("#pausaDib").style.display="none";
+  clipTag = tag; dibMostrados = new Set();
+  player.seek(tag.ini); player.play();
+  clipFin = tag.fin;
+  mostrarOverlay(tag);
+  renderDesc(); renderTimeline(); marcarFilaSel();
+}
+/* abre un clip de cualquier partido (para listas y jugadoras) */
+function irAClip(pid, id, fromList){
+  if (!P || P.id!==pid){ if (!getProyecto(pid)){ toast("Ese análisis ya no existe."); if(fromList) siguienteClip(1); return; } abrirProyecto(pid, !!fromList); }
+  pendiente = {p:pid, id, lista:!!fromList};
+  intentarPendiente();
+}
+function intentarPendiente(){
+  if (!pendiente || !P || P.id!==pendiente.p) return;
+  const listo = (kind==="file" && vid.readyState>=1) || (kind==="yt" && ytReady);
+  if (!listo){
+    if (!kind && P.video && P.video.tipo==="archivo") toast("Para seguir, elegí el archivo “"+P.video.nombre+"”.");
+    return;
+  }
+  const pe = pendiente; pendiente = null;
+  verTag(pe.id, pe.lista);
+}
+function mostrarOverlay(tag){
+  const o=$("#overlay");
+  if (!tag){ o.style.display="none"; return; }
+  const jug = tag.jugadora ? " · "+tag.jugadora : "";
+  o.innerHTML = esc(tag.nombre)+esc(jug)+"<small>"+(tag.equipo==="propio"?EQ():"Rival")+" · "+esc(etiquetaMin(tag.t))+(tag.zona?" · "+esc(ZONA_NOMBRE[tag.zona]||tag.zona):"")+(tag.nota?" — "+esc(tag.nota):"")+(playlist?" · clip "+(playlist.i+1)+"/"+playlist.items.length+(playlist.nombre?" · "+esc(playlist.nombre):""):"")+"</small>";
+  o.style.display="block";
+}
+function reproducirLista(items, present, nombre){
+  items = items.filter(it=>{ const p=getProyecto(it.p); return p && p.tags.some(t=>t.id===it.id); });
+  if (!items.length){ toast("No hay clips para reproducir."); return; }
+  playlist = {items, i:0, present:!!present, nombre:nombre||""};
+  if (present) pantallaCompleta(true);
+  irAClip(items[0].p, items[0].id, true);
+}
+function siguienteClip(dir){
+  if (!playlist) return;
+  playlist.i += dir||1;
+  if (playlist.i<0) playlist.i=0;
+  if (playlist.i>=playlist.items.length){ playlist=null; pausar(); clipFin=null; mostrarOverlay(null); toast("Fin de la selección."); return; }
+  const it = playlist.items[playlist.i];
+  irAClip(it.p, it.id, true);
+}
+function pantallaCompleta(on){
+  const st=$("#stage");
+  if (on===false || document.fullscreenElement){ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); return; }
+  (st.requestFullscreen||st.webkitRequestFullscreen||function(){}).call(st);
+}
+
+/* loop: reloj, cabezal, fin de clip */
+function tick(){
+  const t = player.time();
+  const m = minutoPartido(t);
+  $("#clock").innerHTML = fmt(t) + (m?'<small>'+m.min+"' "+m.per+"</small>":"");
+  const d = player.dur();
+  const head = document.getElementById("tlHead");
+  if (head && d){ const lane=document.querySelector(".tl-lane"); if(lane){ head.style.left = (t/d*lane.clientWidth)+"px"; } }
+  if (clipTag && clipFin!=null && !dibujando && clipTag.dibujos && clipTag.dibujos.length && !player.paused()){
+    const dd = clipTag.dibujos.find(x=>!dibMostrados.has(x.id) && t>=x.t-0.05 && t<x.t+1.5);
+    if (dd){
+      dibMostrados.add(dd.id);
+      pintarFormas(dd.formas);
+      if (+dd.pausa>0){
+        pausar(); const pd=$("#pausaDib"); let rest=+dd.pausa; pd.style.display="block"; pd.textContent="✏️ "+rest+" s";
+        clearInterval(pausaDibTimer);
+        pausaDibTimer = setInterval(()=>{ rest--; pd.textContent="✏️ "+rest+" s"; if(rest<=0){ clearInterval(pausaDibTimer); pd.style.display="none"; limpiarCanvas(); if(clipFin!=null) player.play(); } }, 1000);
+      } else setTimeout(limpiarCanvas, 2500);
+    }
+  }
+  if (clipFin!=null && t>=clipFin){
+    limpiarCanvas();
+    clipFin=null;
+    if (playlist) siguienteClip(1); else { pausar(); setTimeout(()=>mostrarOverlay(null),1200); }
+  }
+  if (d && !renderTimeline._d){ renderTimeline(); }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* ---------- render ---------- */
+function render(){
+  if (!P) return;
+  $("#tituloProyecto").textContent = P.nombre || "Videoanálisis";
+  $("#selProyecto").innerHTML = proyectos.map(x=>`<option value="${esc(x.id)}" ${x.id===P.id?"selected":""}>${esc(x.nombre)}${x.fecha?" · "+esc(x.fecha.split("-").reverse().join("/")):""}</option>`).join("");
+  document.querySelectorAll("#team button").forEach(b=>b.classList.toggle("on", b.dataset.eq===equipo));
+  $("#team .riv").textContent = P.rival || "Rival";
+  $("#team .prop").textContent = EQ();
+  $("#bIni1").textContent = P.ini1!=null ? "1T: "+fmt(P.ini1) : "Marcar inicio 1T";
+  $("#bIni2").textContent = P.ini2!=null ? "2T: "+fmt(P.ini2) : "Marcar inicio 2T";
+  renderBotonera(); renderDesc(); renderTimeline(); renderTabs(); renderTab();
+}
+function renderBotonera(){
+  const grupos = [...new Set([...GRUPOS, ...P.botones.map(b=>b.grupo)])].filter(g=>P.botones.some(b=>b.grupo===g));
+  $("#botonera").innerHTML = grupos.map(g=>`
+    <div class="grp"><h3>${esc(g)}</h3><div class="btns">
+      ${P.botones.filter(b=>b.grupo===g).map(b=>{
+        const rec = recording[b.id]!=null;
+        const n = P.tags.filter(t=>t.b===b.id && t.equipo===equipo).length;
+        return `<button class="tb ${rec?"rec":""}" style="--c:${esc(b.color)}" data-b="${esc(b.id)}">${esc(b.nombre)}${b.tecla?`<kbd>${esc(b.tecla)}</kbd>`:""}<span class="m">${rec?"● grabando…":(b.modo==="rango"?"inicio/fin · ":"")+n}</span></button>`;
+      }).join("")}
+    </div></div>`).join("");
+}
+function renderDesc(){
+  const box = $("#descBox");
+  const tag = P && P.tags.find(x=>x.id===selTagId);
+  if (!tag){ box.innerHTML = `<div class="small muted">Después de marcar una acción, acá le agregás ${J("la")}, la zona, si salió bien o mal y una nota.</div>`; return; }
+  const actual = jugadoraDeTag(tag);
+  const jug = JUGADORAS.length
+    ? `<select class="inp" id="dJug" style="width:100%"><option value="">— ${J("Sg")} —</option>${JUGADORAS.map(j=>`<option value="${esc(j.num)}" ${actual&&actual.num===j.num?"selected":""}>${esc(j.label)}</option>`).join("")}${tag.jugadora && !actual?`<option value="_txt" selected>${esc(tag.jugadora)}</option>`:""}</select>`
+    : `<input class="inp" id="dJug" style="width:100%" placeholder="${J("Sg")} (n° o nombre)" value="${esc(tag.jugadora)}">`;
+  box.innerHTML = `
+    <h4><span><span class="tagdot" style="background:${esc(tag.color)}"></span>${esc(tag.nombre)} · ${esc(etiquetaMin(tag.t))}</span>
+      <span><button class="btn sm" id="dVer" title="Ver clip">▶︎</button> <button class="btn sm danger" id="dDel" title="Borrar tag">✕</button></span></h4>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn sm" id="dDib">✏️ ${tag.dibujos&&tag.dibujos.length?"Dibujar otro":"Dibujar"}</button>
+      ${tag.dibujos&&tag.dibujos.length?`<button class="btn sm danger" id="dDibDel" title="Borrar los dibujos de este clip">Borrar ${tag.dibujos.length} dibujo${tag.dibujos.length>1?"s":""}</button>`:""}
+      <button class="btn sm" id="dLista">＋ A una lista</button>
+      <button class="btn sm" id="dPdf" title="Descargar este recorte en PDF">PDF</button>
+      <button class="btn sm" id="dMp4" title="Descargar este recorte en video">🎬 Video</button>
+    </div>
+    <div class="chips" style="margin-bottom:8px">
+      <button class="chip ${tag.equipo==="propio"?"on":""}" data-deq="propio">${esc(EQ())}</button>
+      <button class="chip ${tag.equipo==="rival"?"on":""}" data-deq="rival">Rival</button>
+      <span style="width:8px"></span>
+      <button class="chip pos ${tag.resultado==="pos"?"on":""}" data-res="pos">✓ Positiva</button>
+      <button class="chip neg ${tag.resultado==="neg"?"on":""}" data-res="neg">✗ Negativa</button>
+    </div>
+    ${jug}
+    <div style="margin-top:8px"><label class="lbl">Zona (atacando →)</label>
+      <div class="pitch" id="dPitch">${[0,1,2].map(r=>[0,1,2].map(c=>{ const z=ZONAS[r*3+c]; return `<div class="pz ${tag.zona===z[0]?"on":""}" data-z="${z[0]}" title="${z[1]}">${tag.zona===z[0]?"●":""}</div>`; }).join("")).join("")}<span class="dir">ataque →</span></div>
+    </div>
+    <div class="row2">
+      <div><label class="lbl">Inicio</label><div style="display:flex;gap:4px;align-items:center"><button class="btn sm" data-adj="ini:-1">−1</button><span class="clock" style="font-size:13px">${fmt(tag.ini)}</span><button class="btn sm" data-adj="ini:1">+1</button></div></div>
+      <div><label class="lbl">Fin</label><div style="display:flex;gap:4px;align-items:center"><button class="btn sm" data-adj="fin:-1">−1</button><span class="clock" style="font-size:13px">${fmt(tag.fin)}</span><button class="btn sm" data-adj="fin:1">+1</button></div></div>
+    </div>
+    <div style="margin-top:8px"><textarea class="inp" id="dNota" placeholder="Nota (ej.: buena lectura del pase filtrado)">${esc(tag.nota)}</textarea></div>`;
+}
+function renderTimeline(){
+  const el = $("#tl");
+  if (!P) return;
+  const d = player.dur();
+  renderTimeline._d = d;
+  const usados = P.botones.filter(b=>P.tags.some(t=>t.b===b.id));
+  if (!d){ el.innerHTML = `<div class="tl-empty">${kind?"Cargando duración del video…":"Cargá el video para ver la línea de tiempo."}</div>`; return; }
+  const paso = d>3600?600:d>1200?300:60;
+  let scale = ""; for (let s=0; s<=d; s+=paso) scale += `<span style="left:${s/d*100}%">${fmt(s)}</span>`;
+  const per = [];
+  if (P.ini1!=null) per.push(`<div class="tl-mk" title="Inicio 1T" style="left:${P.ini1/d*100}%;width:2px;background:var(--ink);top:0;bottom:0"></div>`);
+  if (P.ini2!=null) per.push(`<div class="tl-mk" title="Inicio 2T" style="left:${P.ini2/d*100}%;width:2px;background:var(--ink);top:0;bottom:0"></div>`);
+  const rows = (usados.length?usados:[{id:"_",nombre:"(sin tags todavía)",color:"var(--line)"}]).map(b=>`
+    <div class="tl-row"><div class="tl-name" title="${esc(b.nombre)}"><i style="background:${esc(b.color)}"></i>${esc(b.nombre)}</div>
+      <div class="tl-lane" data-lane="1">${per.join("")}${P.tags.filter(t=>t.b===b.id).map(t=>`<div class="tl-mk ${t.equipo==="rival"?"riv":""} ${t.id===selTagId?"sel":""}" data-tag="${esc(t.id)}" title="${esc(t.nombre)} · ${t.equipo==="propio"?EQ():"Rival"} · ${esc(etiquetaMin(t.t))}${t.jugadora?" · "+esc(t.jugadora):""}" style="left:${t.ini/d*100}%;width:${Math.max(.25,(t.fin-t.ini)/d*100)}%;background:${esc(t.color)}"></div>`).join("")}</div></div>`).join("");
+  el.innerHTML = `<div class="tl-scale">${scale}</div>${rows}<div class="tl-head" id="tlHead"></div>`;
+}
+function renderTabs(){ document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("on", b.dataset.t===tabActual)); }
+
+function tagsFiltrados(){
+  return P.tags.filter(t=>
+    (!filtros.boton || t.b===filtros.boton) &&
+    (!filtros.equipo || t.equipo===filtros.equipo) &&
+    (!filtros.jugadora || t.jugadora===filtros.jugadora) &&
+    (!filtros.resultado || (filtros.resultado==="sin" ? !t.resultado : t.resultado===filtros.resultado)) &&
+    (!filtros.periodo || ((minutoPartido(t.t)||{}).per===filtros.periodo)));
+}
+function filtrosHtml(){
+  const jugs = [...new Set(P.tags.map(t=>t.jugadora).filter(Boolean))].sort();
+  return `<div class="filters">
+    <select class="inp" data-f="boton"><option value="">Todas las acciones</option>${P.botones.map(b=>`<option value="${esc(b.id)}" ${filtros.boton===b.id?"selected":""}>${esc(b.nombre)}</option>`).join("")}</select>
+    <select class="inp" data-f="equipo"><option value="">Ambos equipos</option><option value="propio" ${filtros.equipo==="propio"?"selected":""}>${esc(EQ())}</option><option value="rival" ${filtros.equipo==="rival"?"selected":""}>Rival</option></select>
+    <select class="inp" data-f="jugadora"><option value="">Todas las ${J("pl")}</option>${jugs.map(j=>`<option ${filtros.jugadora===j?"selected":""}>${esc(j)}</option>`).join("")}</select>
+    <select class="inp" data-f="resultado"><option value="">Cualquier resultado</option><option value="pos" ${filtros.resultado==="pos"?"selected":""}>Positivas</option><option value="neg" ${filtros.resultado==="neg"?"selected":""}>Negativas</option><option value="sin" ${filtros.resultado==="sin"?"selected":""}>Sin calificar</option></select>
+    <select class="inp" data-f="periodo"><option value="">Todo el partido</option><option value="1T" ${filtros.periodo==="1T"?"selected":""}>1T</option><option value="2T" ${filtros.periodo==="2T"?"selected":""}>2T</option></select>
+    <button class="btn sm" id="fLimpiar">Limpiar</button>
+  </div>`;
+}
+function renderTab(){
+  const body = $("#tabBody");
+  if (!P) return;
+  if (tabActual==="lista"){
+    const ts = tagsFiltrados();
+    body.innerHTML = filtrosHtml() + `
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn sm solid" id="lPlay">▶︎ Reproducir selección (${ts.length})</button>
+        <button class="btn sm" id="lPresent">Presentación en pantalla completa</button>
+        <button class="btn sm" id="lPrev">◀︎ Anterior</button><button class="btn sm" id="lNext">Siguiente ▶︎</button>
+        <button class="btn sm" id="lMp4">🎬 Video ${marcados.size?"("+marcados.size+" tildados)":"("+ts.length+")"}</button>
+        <button class="btn sm" id="lPdf">⬇ PDF ${marcados.size?"("+marcados.size+" tildados)":"("+ts.length+")"}</button>
+        <button class="btn sm" id="lAddList" ${marcados.size?"":"disabled"}>＋ Agregar ${marcados.size||""} tildado${marcados.size===1?"":"s"} a una lista</button>
+        <span class="small muted" style="align-self:center">${P.tags.length} tags en total</span>
+      </div>
+      <div class="scroll"><table class="t"><thead><tr><th><input type="checkbox" id="chkAll" title="Tildar todos" ${ts.length&&ts.every(t=>marcados.has(t.id))?"checked":""}></th><th>Min</th><th>Acción</th><th>Equipo</th><th>${J("Sg")}</th><th>Zona</th><th>Res.</th><th>Nota</th><th>Dur.</th><th></th></tr></thead><tbody>
+      ${ts.map(t=>`<tr data-row="${esc(t.id)}" class="${t.id===selTagId?"sel":""}" style="cursor:pointer">
+        <td><input type="checkbox" data-chk="${esc(t.id)}" ${marcados.has(t.id)?"checked":""}></td>
+        <td style="white-space:nowrap;font-variant-numeric:tabular-nums">${esc(etiquetaMin(t.t))}</td>
+        <td><span class="tagdot" style="background:${esc(t.color)}"></span>${esc(t.nombre)}${t.dibujos&&t.dibujos.length?' <span title="Tiene dibujo">✏️</span>':""}</td>
+        <td><span class="pill ${t.equipo==="propio"?"prop":"riv"}">${t.equipo==="propio"?EQ():"Rival"}</span></td>
+        <td>${esc(t.jugadora)}</td><td>${esc(ZONA_NOMBRE[t.zona]||"")}</td>
+        <td>${t.resultado==="pos"?'<span class="pill pos">✓</span>':t.resultado==="neg"?'<span class="pill neg">✗</span>':""}</td>
+        <td class="small" style="max-width:240px">${esc(t.nota)}</td>
+        <td class="small muted">${Math.round(t.fin-t.ini)} s</td>
+        <td><button class="btn sm danger" data-del="${esc(t.id)}" title="Borrar">✕</button></td></tr>`).join("") || `<tr><td colspan="10" class="muted" style="padding:14px">Todavía no hay tags. Cargá el video y usá la botonera (o las teclas).</td></tr>`}
+      </tbody></table></div>`;
+  } else if (tabActual==="listas"){
+    body.innerHTML = renderListas();
+  } else if (tabActual==="jugadoras"){
+    body.innerHTML = renderJugadoras();
+  } else if (tabActual==="stats"){
+    body.innerHTML = filtrosHtml().replace(/<select class="inp" data-f="equipo">[\s\S]*?<\/select>/,"") + renderStats();
+  } else if (tabActual==="export"){
+    body.innerHTML = `
+      <div class="statgrid">
+        <div><h3 style="font-size:15px;margin-bottom:6px">Exportar este análisis</h3>
+          <p class="small muted" style="margin:0 0 8px">CSV para Excel / Google Sheets, XML compatible con Sportscode / LongoMatch / Nacsport, y JSON para respaldo completo.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" id="xCsv">CSV (Excel)</button><button class="btn" id="xXml">XML (Sportscode)</button><button class="btn" id="xJson">JSON (respaldo)</button></div></div>
+        <div><h3 style="font-size:15px;margin-bottom:6px">Importar</h3>
+          <p class="small muted" style="margin:0 0 8px">Un JSON exportado desde acá: si trae tags se crea un análisis nuevo; si es solo una botonera, se usa como botonera de este análisis.</p>
+          <button class="btn" id="xImp">Importar JSON</button></div>
+        <div><h3 style="font-size:15px;margin-bottom:6px">Botonera modelo</h3>
+          <p class="small muted" style="margin:0 0 8px">Los análisis nuevos arrancan con la botonera modelo. Podés guardar la de este análisis como modelo o volver a la original.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" id="xPlant">Usar esta botonera como modelo</button><button class="btn" id="xBotJson">Exportar botonera</button><button class="btn danger" id="xReset">Volver a la botonera original</button></div></div>
+      </div>`;
+  } else {
+    body.innerHTML = `<div class="statgrid help">
+      <div><h3 style="font-size:15px;color:var(--ink);margin-bottom:6px">Cómo se usa</h3>
+        1. <b>Nuevo análisis</b> y completá los datos del partido.<br>
+        2. Cargá el video (archivo de tu compu o link de YouTube). El archivo no se sube: la próxima vez lo volvés a elegir y los tags siguen ahí.<br>
+        3. Marcá <b>inicio 1T</b> e <b>inicio 2T</b> para que cada tag tenga el minuto de juego.<br>
+        4. Elegí <b>${esc(EQ())} / Rival</b> y tocá los botones (o sus teclas) mientras mirás. Cada tag guarda unos segundos antes y después.<br>
+        5. Al tag recién marcado le agregás ${J("sg")}, zona, ✓/✗ y nota.<br>
+        6. En <b>Tags</b> filtrás y armás la selección de clips para mostrarle al plantel.<br>
+        7. Con <b>✏️ Dibujar</b> pausás y marcás flechas, ${J("pl")} y zonas: el clip se frena solo en ese momento y muestra el dibujo.<br>
+        8. En <b>Listas de clips</b> juntás clips de distintos partidos (ej.: “Presión tras pérdida – charla del martes”).<br>
+        9. En <b>${J("Pl")}</b> ves todas las acciones de cada una en la temporada, para la devolución individual.<br>
+        10. <b>⬇ PDF</b> (en Tags, Listas, ${J("Pl")} o en un tag) arma un PDF con la imagen de cada recorte, su dibujo, minuto, ${J("sg")} y nota. Con YouTube, Chrome te pide permiso para compartir la pestaña y así saca la imagen de cada recorte.<br>
+        11. <b>🎬 Video</b> arma un video con los recortes: cartel con la acción, el minuto y ${J("la")}, y los dibujos. Se graba en tiempo real, así que dejá la pestaña abierta. Sale en MP4 en Chrome/Edge actualizados (si no, en WebM). Con YouTube también funciona: Chrome te pide permiso para compartir la pestaña y graba lo que se ve en el reproductor (no muevas el mouse sobre el video mientras graba).</div>
+      <div><h3 style="font-size:15px;color:var(--ink);margin-bottom:6px">Atajos de teclado</h3>
+        <kbd>Espacio</kbd> play / pausa · <kbd>←</kbd> <kbd>→</kbd> −/+ 5 s · <kbd>Shift</kbd>+<kbd>←</kbd> <kbd>→</kbd> −/+ 1 s<br>
+        <kbd>,</kbd> <kbd>.</kbd> cuadro a cuadro (archivo) · <kbd>Tab</kbd> cambia ${esc(EQ())} / Rival<br>
+        <kbd>Enter</kbd> ver el último tag · <kbd>Supr</kbd> borrar tag seleccionado<br>
+        <kbd>+</kbd> / <kbd>−</kbd> resultado positivo / negativo del tag seleccionado<br>
+        Cada botón tiene su letra o número (se ven en la botonera y se cambian en “Editar botones”).<br>
+        En la presentación: <kbd>→</kbd> siguiente clip · <kbd>←</kbd> anterior · <kbd>Esc</kbd> salir.</div>
+      <div><h3 style="font-size:15px;color:var(--ink);margin-bottom:6px">Botones “clic” y “inicio / fin”</h3>
+        <b>Clic</b>: un toque marca el momento y guarda los segundos antes/después que tenga el botón.<br>
+        <b>Inicio / fin</b>: el primer toque empieza a grabar y el segundo lo cierra (sirve para posesiones largas, bloques, etc.).</div>
+    </div>`;
+  }
+}
+function renderStats(){
+  const ts = tagsFiltrados();
+  const botones = P.botones.filter(b=>ts.some(t=>t.b===b.id));
+  if (!ts.length) return `<p class="muted">Sin tags para mostrar con estos filtros.</p>`;
+  const max = Math.max(1,...botones.map(b=>Math.max(ts.filter(t=>t.b===b.id&&t.equipo==="propio").length, ts.filter(t=>t.b===b.id&&t.equipo==="rival").length)));
+  const tabla = botones.map(b=>{
+    const p = ts.filter(t=>t.b===b.id&&t.equipo==="propio"), r = ts.filter(t=>t.b===b.id&&t.equipo==="rival");
+    const pc = p.filter(t=>t.resultado), pp = pc.length ? Math.round(p.filter(t=>t.resultado==="pos").length/pc.length*100)+"%" : "—";
+    return `<tr><td><span class="tagdot" style="background:${esc(b.color)}"></span>${esc(b.nombre)}</td>
+      <td style="width:28%"><div style="display:flex;align-items:center;gap:6px"><b style="min-width:20px">${p.length}</b><div class="bar" style="width:${p.length/max*100}%"></div></div></td>
+      <td style="width:28%"><div style="display:flex;align-items:center;gap:6px"><b style="min-width:20px">${r.length}</b><div class="bar riv" style="width:${r.length/max*100}%"></div></div></td>
+      <td>${pp}</td></tr>`;
+  }).join("");
+  const porJug = {};
+  ts.filter(t=>t.equipo==="propio"&&t.jugadora).forEach(t=>{ const o = porJug[t.jugadora] = porJug[t.jugadora]||{n:0,pos:0,neg:0,acc:{}}; o.n++; if(t.resultado==="pos")o.pos++; if(t.resultado==="neg")o.neg++; o.acc[t.nombre]=(o.acc[t.nombre]||0)+1; });
+  const jugRows = Object.entries(porJug).sort((a,b)=>b[1].n-a[1].n).map(([j,o])=>`<tr><td>${esc(j)}</td><td><b>${o.n}</b></td><td><span class="pill pos">${o.pos}</span> <span class="pill neg">${o.neg}</span></td><td class="small muted">${Object.entries(o.acc).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>esc(k)+" "+v).join(" · ")}</td></tr>`).join("");
+  const zonas = {}; ts.filter(t=>t.zona).forEach(t=>zonas[t.zona]=(zonas[t.zona]||0)+1);
+  const zmax = Math.max(1,...Object.values(zonas));
+  const zTot = Object.values(zonas).reduce((a,b)=>a+b,0);
+  const pitch = `<div class="pitch" style="cursor:default">${[0,1,2].map(r=>[0,1,2].map(c=>{ const z=ZONAS[r*3+c][0]; const n=zonas[z]||0; return `<div class="pz" style="cursor:default;background:rgba(194,55,126,${(n/zmax*.75).toFixed(2)})" title="${esc(ZONA_NOMBRE[z])}">${n?n+"<br><small style='font-weight:600'>"+Math.round(n/zTot*100)+"%</small>":""}</div>`; }).join("")).join("")}<span class="dir">ataque →</span></div>`;
+  return `<div class="statgrid">
+    <div><h3 style="font-size:15px;margin-bottom:6px">Acciones por equipo</h3>
+      <table class="t"><thead><tr><th>Acción</th><th>${esc(EQ())}</th><th>Rival</th><th>% ✓ ${esc(EQ())}</th></tr></thead><tbody>${tabla}</tbody></table></div>
+    <div><h3 style="font-size:15px;margin-bottom:6px">Zonas (${zTot} tags con zona)</h3>${zTot?pitch:'<p class="small muted">Todavía no hay tags con zona.</p>'}
+      <h3 style="font-size:15px;margin:14px 0 6px">Por ${J("sg")} (${esc(EQ())})</h3>
+      ${jugRows?`<table class="t"><thead><tr><th>${J("Sg")}</th><th>Tags</th><th>✓ / ✗</th><th>Más frecuentes</th></tr></thead><tbody>${jugRows}</tbody></table>`:'<p class="small muted">Asigná ${J("pl")} a los tags para ver este cuadro.</p>'}</div>
+  </div>`;
+}
+function marcarFilaSel(){ document.querySelectorAll("tr[data-row]").forEach(r=>r.classList.toggle("sel", r.dataset.row===selTagId)); }
+
+/* ---------- jugadoras ---------- */
+const norm = s => String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+function jugadoraDeTag(t){
+  if (!t) return null;
+  if (t.jugNum!=null){ const j = JUGADORAS.find(x=>x.num===t.jugNum); if (j) return j; }
+  if (!t.jugadora) return null;
+  const txt = norm(t.jugadora);
+  return JUGADORAS.find(j=>norm(j.label)===txt) || JUGADORAS.find(j=>txt.startsWith(norm(j.dorsal)+" · ")) || JUGADORAS.find(j=>j.apellido && txt.includes(norm(j.apellido))) || null;
+}
+function nombreJug(key){ const j = JUGADORAS.find(x=>String(x.num)===String(key)); return j ? j.label : String(key||""); }
+function todosLosProyectos(){ return proyectos.map(x=>getProyecto(x.id)).filter(Boolean); }
+function clipsDeJugadora(key){
+  if (key==null || key==="") return [];
+  const out = [];
+  todosLosProyectos().forEach(p=>(p.tags||[]).forEach(t=>{
+    if (t.equipo!=="propio") return;
+    const j = jugadoraDeTag(t);
+    if ((j && String(j.num)===String(key)) || (!j && t.jugadora && t.jugadora===key)) out.push({p,t});
+  }));
+  out.sort((a,b)=>String(b.p.fecha||"").localeCompare(String(a.p.fecha||"")) || a.t.t-b.t.t);
+  return out;
+}
+function renderJugadoras(){
+  const conteo = {};
+  todosLosProyectos().forEach(p=>(p.tags||[]).forEach(t=>{ if(t.equipo!=="propio") return; const j=jugadoraDeTag(t); const k = j?String(j.num):(t.jugadora||null); if(k) conteo[k]=(conteo[k]||0)+1; }));
+  const opciones = JUGADORAS.map(j=>`<option value="${esc(j.num)}" ${String(jugSel)===String(j.num)?"selected":""}>${esc(j.label)}${conteo[j.num]?" ("+conteo[j.num]+")":""}</option>`).join("")
+    + Object.keys(conteo).filter(k=>!JUGADORAS.some(j=>String(j.num)===k)).map(k=>`<option value="${esc(k)}" ${jugSel===k?"selected":""}>${esc(k)} (${conteo[k]})</option>`).join("");
+  let html = `<div class="filters"><select class="inp" id="jSel" style="min-width:240px"><option value="">— Elegí ${J("una")} —</option>${opciones}</select>
+    <span class="small muted">Junta las acciones de ${esc(EQ())} de todos los partidos taggeados.</span></div>`;
+  if (!jugSel) return html + `<p class="muted">Elegí ${J("una")} para ver todos sus clips, cuántas acciones salieron bien o mal y armar su lista para la devolución.</p>`;
+  const cs = clipsDeJugadora(jugSel);
+  if (!cs.length) return html + `<p class="muted">Todavía no tiene acciones taggeadas. Asignale ${J("la")} a los tags desde el panel de la derecha.</p>`;
+  const pos = cs.filter(c=>c.t.resultado==="pos").length, neg = cs.filter(c=>c.t.resultado==="neg").length;
+  const partidos = new Set(cs.map(c=>c.p.id)).size;
+  const acc = {}; cs.forEach(c=>{ const a = acc[c.t.nombre] = acc[c.t.nombre]||{n:0,pos:0,neg:0,color:c.t.color}; a.n++; if(c.t.resultado==="pos")a.pos++; if(c.t.resultado==="neg")a.neg++; });
+  html += `<div class="kpis">
+      <div class="kpi"><b>${cs.length}</b><span>Acciones</span></div>
+      <div class="kpi"><b>${partidos}</b><span>Partidos</span></div>
+      <div class="kpi"><b style="color:var(--ok)">${pos}</b><span>Positivas</span></div>
+      <div class="kpi"><b style="color:var(--rival)">${neg}</b><span>Negativas</span></div>
+      <div class="kpi"><b>${pos+neg?Math.round(pos/(pos+neg)*100)+"%":"—"}</b><span>Efectividad</span></div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="btn sm solid" id="jPlay">▶︎ Ver todos sus clips</button>
+      <button class="btn sm" id="jPresent">Presentación en pantalla completa</button>
+      <button class="btn sm" id="jLista">Crear lista con sus clips</button>
+      <button class="btn sm" id="jPdf">⬇ PDF para la devolución</button>
+      <button class="btn sm" id="jMp4">🎬 Video con sus clips</button>
+    </div>
+    <div class="statgrid">
+      <div><h3 style="font-size:15px;margin-bottom:6px">Por acción</h3>
+        <table class="t"><thead><tr><th>Acción</th><th>Total</th><th>✓ / ✗</th></tr></thead><tbody>
+        ${Object.entries(acc).sort((a,b)=>b[1].n-a[1].n).map(([k,v])=>`<tr><td><span class="tagdot" style="background:${esc(v.color)}"></span>${esc(k)}</td><td><b>${v.n}</b></td><td><span class="pill pos">${v.pos}</span> <span class="pill neg">${v.neg}</span></td></tr>`).join("")}
+        </tbody></table></div>
+      <div><h3 style="font-size:15px;margin-bottom:6px">Clips</h3><div class="scroll" style="max-height:360px">
+        <table class="t"><thead><tr><th>Partido</th><th>Min</th><th>Acción</th><th>Res.</th><th>Nota</th><th></th></tr></thead><tbody>
+        ${cs.map(c=>`<tr data-clip="${esc(c.p.id)}:${esc(c.t.id)}" style="cursor:pointer"><td class="small">${esc(c.p.nombre)}</td><td class="small" style="white-space:nowrap">${esc(minLabel(c.p,c.t.t))}</td><td><span class="tagdot" style="background:${esc(c.t.color)}"></span>${esc(c.t.nombre)}${c.t.dibujos&&c.t.dibujos.length?" ✏️":""}</td><td>${c.t.resultado==="pos"?'<span class="pill pos">✓</span>':c.t.resultado==="neg"?'<span class="pill neg">✗</span>':""}</td><td class="small">${esc(c.t.nota)}</td><td>▶︎</td></tr>`).join("")}
+        </tbody></table></div></div>
+    </div>`;
+  return html;
+}
+function minLabel(p, t){
+  if (p.ini2!=null && t>=p.ini2) return (45+Math.floor((t-p.ini2)/60)+1)+"' 2T";
+  if (p.ini1!=null && t>=p.ini1) return (Math.floor((t-p.ini1)/60)+1)+"' 1T";
+  return fmt(t);
+}
+
+/* ---------- listas de clips ---------- */
+function crearLista(nombre){ const l = {id:uid(), nombre, items:[], creada:new Date().toISOString()}; LISTAS.unshift(l); guardarListas(); return l; }
+function agregarALista(l, items){
+  let n=0; items.forEach(it=>{ if(!l.items.some(x=>x.p===it.p&&x.id===it.id)){ l.items.push(it); n++; } });
+  guardarListas(); toast(n ? n+" clip"+(n>1?"s":"")+" agregado"+(n>1?"s":"")+" a “"+l.nombre+"”" : "Ya estaba"+(items.length>1?"n":"")+" en esa lista.");
+}
+function menuListas(anchor, items){
+  if (!items.length) return;
+  document.querySelectorAll(".menu").forEach(m=>m.remove());
+  const m = document.createElement("div"); m.className="menu";
+  m.innerHTML = LISTAS.map(l=>`<button data-ml="${esc(l.id)}">${esc(l.nombre)} <small class="muted">(${l.items.length})</small></button>`).join("") + `<button data-ml="_nueva" style="color:var(--accent)">＋ Nueva lista…</button>`;
+  document.body.appendChild(m);
+  const r = anchor.getBoundingClientRect();
+  m.style.left = Math.min(window.innerWidth-240, r.left+window.scrollX)+"px"; m.style.top = (r.bottom+window.scrollY+4)+"px";
+  m.onclick = e=>{
+    const b = e.target.closest("[data-ml]"); if(!b) return;
+    let l;
+    if (b.dataset.ml==="_nueva"){ const n = prompt("Nombre de la lista (ej.: Presión tras pérdida – charla del martes):"); if(!n||!n.trim()) return m.remove(); l = crearLista(n.trim()); }
+    else l = LISTAS.find(x=>x.id===b.dataset.ml);
+    agregarALista(l, items); m.remove(); marcados.clear(); renderTab();
+  };
+  setTimeout(()=>document.addEventListener("mousedown", function cerrar(ev){ if(!m.contains(ev.target)){ m.remove(); document.removeEventListener("mousedown", cerrar); } }), 0);
+}
+function infoItem(it){ const p = getProyecto(it.p); const t = p && (p.tags||[]).find(x=>x.id===it.id); return {p,t}; }
+function renderListas(){
+  const sel = LISTAS.find(x=>x.id===listaSel) || LISTAS[0];
+  if (sel) listaSel = sel.id;
+  const izq = `<div><button class="btn sm solid" id="liNueva" style="width:100%;margin-bottom:8px">＋ Nueva lista</button>
+    ${LISTAS.map(l=>`<div class="li ${sel&&l.id===sel.id?"on":""}" data-li="${esc(l.id)}"><span>${esc(l.nombre)}</span><small>${l.items.length}</small></div>`).join("") || `<p class="small muted">Todavía no hay listas. Creá una y sumale clips desde el panel del tag (“＋ A una lista”) o tildando varios en la pestaña Tags.</p>`}</div>`;
+  if (!sel) return `<div class="two">${izq}<div class="muted">Las listas juntan clips de distintos partidos para la charla con el plantel o para ${J("una")}.</div></div>`;
+  const filas = sel.items.map((it,i)=>{ const {p,t} = infoItem(it);
+    if (!t) return `<tr><td colspan="6" class="small muted">Clip borrado</td><td><button class="btn sm danger" data-it="rm" data-idx="${i}">✕</button></td></tr>`;
+    return `<tr><td class="small muted">${i+1}</td><td class="small">${esc(p.nombre)}</td><td class="small" style="white-space:nowrap">${esc(minLabel(p,t.t))}</td>
+      <td><span class="tagdot" style="background:${esc(t.color)}"></span>${esc(t.nombre)}${t.dibujos&&t.dibujos.length?" ✏️":""}</td><td class="small">${esc(t.jugadora)}</td>
+      <td class="small">${esc(t.nota)}</td>
+      <td style="white-space:nowrap"><button class="btn sm" data-it="play" data-idx="${i}" title="Ver">▶︎</button> <button class="btn sm" data-it="up" data-idx="${i}" title="Subir">↑</button> <button class="btn sm" data-it="down" data-idx="${i}" title="Bajar">↓</button> <button class="btn sm danger" data-it="rm" data-idx="${i}" title="Quitar de la lista">✕</button></td></tr>`; }).join("");
+  const partidos = new Set(sel.items.map(x=>x.p)).size;
+  return `<div class="two">${izq}<div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <div><h3 style="font-size:17px">${esc(sel.nombre)}</h3><span class="small muted">${sel.items.length} clips · ${partidos} partido${partidos===1?"":"s"}</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm solid" id="liPlay">▶︎ Reproducir</button><button class="btn sm" id="liPresent">Presentación</button><button class="btn sm" id="liPdf">⬇ PDF</button><button class="btn sm" id="liMp4">🎬 Video</button><button class="btn sm" id="liRen">Renombrar</button><button class="btn sm danger" id="liDel">Borrar lista</button></div>
+    </div>
+    ${partidos>1?`<p class="small muted" style="margin:0 0 8px">Tiene clips de varios partidos: al pasar de uno a otro se cambia el video solo (si es un archivo de tu compu, la primera vez te lo pide).</p>`:""}
+    <div class="scroll"><table class="t"><thead><tr><th>#</th><th>Partido</th><th>Min</th><th>Acción</th><th>${J("Sg")}</th><th>Nota</th><th></th></tr></thead><tbody>${filas || `<tr><td colspan="7" class="muted" style="padding:12px">Lista vacía.</td></tr>`}</tbody></table></div>
+  </div></div>`;
+}
+function accionItem(acc, i){
+  const l = LISTAS.find(x=>x.id===listaSel); if(!l) return;
+  if (acc==="play"){ const it=l.items[i]; playlist = {items:l.items.slice(), i, present:false, nombre:l.nombre}; irAClip(it.p,it.id,true); return; }
+  if (acc==="rm") l.items.splice(i,1);
+  if (acc==="up" && i>0) [l.items[i-1],l.items[i]]=[l.items[i],l.items[i-1]];
+  if (acc==="down" && i<l.items.length-1) [l.items[i+1],l.items[i]]=[l.items[i],l.items[i+1]];
+  guardarListas(); renderTab();
+}
+
+/* ---------- dibujo sobre el clip ---------- */
+const cv = $("#cv"), ctx = cv.getContext("2d"), ctxCv = ctx;
+let dibujando = false, herramienta = "flecha", colorDib = "#FFD60A", formasEd = [], trazo = null, tagDib = null, dibEditId = null;
+function ajustarCanvas(){
+  const st = $("#stage"), dpr = window.devicePixelRatio||1;
+  cv.width = Math.round(st.clientWidth*dpr); cv.height = Math.round(st.clientHeight*dpr);
+  if (dibujando) repintarEditor();
+}
+new ResizeObserver(ajustarCanvas).observe($("#stage"));
+function limpiarCanvas(){ ctx.clearRect(0,0,cv.width,cv.height); }
+function flechaPunta(x1,y1,x2,y2,tam,ctx){
+  const a = Math.atan2(y2-y1,x2-x1);
+  ctx.beginPath(); ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-tam*Math.cos(a-0.45), y2-tam*Math.sin(a-0.45));
+  ctx.lineTo(x2-tam*Math.cos(a+0.45), y2-tam*Math.sin(a+0.45));
+  ctx.closePath(); ctx.fill();
+}
+function pintarForma(f, c2, W2, H2){
+  const ctx = c2 || ctxCv, W = W2 || cv.width, H = H2 || cv.height, k = W/1000;
+  const pts = f.pts.map(p=>[p[0]*W, p[1]*H]);
+  ctx.save();
+  ctx.strokeStyle = f.c; ctx.fillStyle = f.c; ctx.lineWidth = Math.max(2, 4*k); ctx.lineCap="round"; ctx.lineJoin="round";
+  ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = 4*k;
+  const [a,b] = [pts[0], pts[pts.length-1]];
+  if (f.k==="flecha" || f.k==="punteada" || f.k==="linea"){
+    if (f.k==="punteada") ctx.setLineDash([14*k, 10*k]);
+    ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
+    ctx.setLineDash([]);
+    if (f.k!=="linea") flechaPunta(a[0],a[1],b[0],b[1], 22*k, ctx);
+    if (f.k==="linea"){ [a,b].forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],6*k,0,Math.PI*2); ctx.fill(); }); }
+  } else if (f.k==="circulo"){
+    const rx = Math.max(10*k, Math.hypot(b[0]-a[0], b[1]-a[1])), ry = rx*0.42;
+    ctx.beginPath(); ctx.ellipse(a[0], a[1], rx, ry, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.globalAlpha = .18; ctx.fill();
+  } else if (f.k==="zona"){
+    const x=Math.min(a[0],b[0]), y=Math.min(a[1],b[1]), w=Math.abs(b[0]-a[0]), h=Math.abs(b[1]-a[1]);
+    ctx.globalAlpha = .25; ctx.fillRect(x,y,w,h); ctx.globalAlpha = 1; ctx.setLineDash([10*k,6*k]); ctx.strokeRect(x,y,w,h);
+  } else if (f.k==="lapiz"){
+    ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.stroke();
+  } else if (f.k==="texto"){
+    const fs = Math.round(30*k);
+    ctx.font = `800 ${fs}px Barlow, Arial, sans-serif`; ctx.textBaseline="middle";
+    const w = ctx.measureText(f.txt).width;
+    ctx.shadowBlur = 0; ctx.globalAlpha=.75; ctx.fillStyle="#04101F"; ctx.fillRect(a[0]-8*k, a[1]-fs*0.75, w+16*k, fs*1.5);
+    ctx.globalAlpha=1; ctx.fillStyle=f.c; ctx.fillText(f.txt, a[0], a[1]);
+  }
+  ctx.restore();
+}
+function pintarFormas(formas){ limpiarCanvas(); (formas||[]).forEach(f=>pintarForma(f)); }
+function repintarEditor(){ pintarFormas(trazo ? formasEd.concat([trazo]) : formasEd); }
+function abrirDibujo(tag){
+  if (!kind) return toast("Primero cargá el video.");
+  playlist = null; clipFin = null; pausar();
+  const t = player.time();
+  if (t < tag.ini-0.5 || t > tag.fin+0.5) player.seek(tag.t);
+  tagDib = tag;
+  const tt = (t < tag.ini-0.5 || t > tag.fin+0.5) ? tag.t : t;
+  const ex = (tag.dibujos||[]).find(d=>Math.abs(d.t-tt)<0.6);
+  dibEditId = ex ? ex.id : null;
+  formasEd = ex ? clone(ex.formas) : [];
+  $("#dPausa").value = ex ? String(ex.pausa) : "5";
+  dibujando = true; $("#stage").classList.add("drawing");
+  mostrarOverlay(null); ajustarCanvas(); repintarEditor();
+  if (kind==="yt") toast("Con YouTube: pausá en el momento justo antes de dibujar.");
+}
+function cerrarDibujo(guardar){
+  if (guardar && tagDib){
+    tagDib.dibujos = tagDib.dibujos || [];
+    const t = +player.time().toFixed(2);
+    if (dibEditId) tagDib.dibujos = tagDib.dibujos.filter(d=>d.id!==dibEditId);
+    if (formasEd.length) tagDib.dibujos.push({id:dibEditId||uid(), t, pausa:+$("#dPausa").value, formas:formasEd});
+    tagDib.dibujos.sort((a,b)=>a.t-b.t);
+    changed(); toast(formasEd.length ? "Dibujo guardado en el clip." : "Dibujo borrado.");
+  }
+  dibujando = false; trazo = null; tagDib = null; dibEditId = null;
+  $("#stage").classList.remove("drawing"); limpiarCanvas();
+  renderDesc(); renderTab();
+}
+function posCanvas(e){ const r = cv.getBoundingClientRect(); return [Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)), Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))]; }
+cv.addEventListener("pointerdown", e=>{
+  if (!dibujando) return;
+  e.preventDefault();
+  const p = posCanvas(e);
+  if (herramienta==="texto"){
+    const txt = prompt("Texto:"); if (txt && txt.trim()){ formasEd.push({k:"texto", c:colorDib, pts:[p], txt:txt.trim()}); repintarEditor(); }
+    return;
+  }
+  cv.setPointerCapture(e.pointerId);
+  trazo = {k:herramienta, c:colorDib, pts:[p, p]};
+});
+cv.addEventListener("pointermove", e=>{
+  if (!trazo) return;
+  const p = posCanvas(e);
+  if (trazo.k==="lapiz") trazo.pts.push(p); else trazo.pts[1] = p;
+  repintarEditor();
+});
+cv.addEventListener("pointerup", ()=>{
+  if (!trazo) return;
+  const [a,b] = [trazo.pts[0], trazo.pts[trazo.pts.length-1]];
+  if (trazo.k==="lapiz" ? trazo.pts.length>2 : Math.hypot(b[0]-a[0], b[1]-a[1])>0.01) formasEd.push(trazo);
+  trazo = null; repintarEditor();
+});
+$("#drawBar").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if (b.dataset.tool){ herramienta = b.dataset.tool; document.querySelectorAll("[data-tool]").forEach(x=>x.classList.toggle("on", x===b)); }
+  else if (b.dataset.col){ colorDib = b.dataset.col; document.querySelectorAll("[data-col]").forEach(x=>x.classList.toggle("on", x===b)); }
+  else if (b.id==="dUndo"){ formasEd.pop(); repintarEditor(); }
+  else if (b.id==="dClear"){ formasEd = []; repintarEditor(); }
+  else if (b.id==="dCancel") cerrarDibujo(false);
+  else if (b.id==="dSave") cerrarDibujo(true);
+});
+
+/* ---------- captura de la pestaña (para videos de YouTube) ---------- */
+const dormirMs = ms => new Promise(r=>setTimeout(r, ms));
+function enIframeSinPermiso(){
+  if (window.top === window) return false;
+  try{ if (document.featurePolicy && !document.featurePolicy.allowsFeature("display-capture")) return true; }catch(e){}
+  return false;
+}
+function abrirAparteParaGrabar(){
+  if (confirm("Para grabar desde YouTube, Videoanálisis tiene que estar abierto en su propia pestaña.\n\n¿Lo abro en una pestaña nueva? Ahí volvé a tocar el botón.")) window.open("videoanalisis.html", "_blank");
+}
+async function iniciarCapturaPestana(){
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) throw new Error("Este navegador no permite grabar la pestaña. Usá Chrome o Edge en la compu.");
+  const opts = {video:{frameRate:30, displaySurface:"browser"}, audio:true, preferCurrentTab:true, selfBrowserSurface:"include", surfaceSwitching:"exclude", systemAudio:"exclude"};
+  let stream;
+  try{ stream = await navigator.mediaDevices.getDisplayMedia(opts); }
+  catch(e){ if (e && e.name==="NotAllowedError") throw e; opts.audio = false; stream = await navigator.mediaDevices.getDisplayMedia(opts); }
+  const track = stream.getVideoTracks()[0];
+  let recortado = false;
+  if (window.CropTarget && track.cropTo){ try{ await track.cropTo(await CropTarget.fromElement($("#stage"))); recortado = true; }catch(e){ console.warn("cropTo", e); } }
+  const sv = document.createElement("video"); sv.muted = true; sv.playsInline = true; sv.srcObject = stream;
+  await sv.play().catch(()=>{});
+  await dormirMs(400);
+  let cortado = false; track.addEventListener("ended", ()=>{ cortado = true; });
+  return {
+    stream, get cortado(){ return cortado; },
+    dibujar(g, W, H){
+      g.fillStyle="#000"; g.fillRect(0,0,W,H);
+      const vw = sv.videoWidth, vh = sv.videoHeight; if (!vw || !vh) return;
+      if (recortado){ const s=Math.min(W/vw,H/vh), dw=vw*s, dh=vh*s; g.drawImage(sv,(W-dw)/2,(H-dh)/2,dw,dh); return; }
+      const r = $("#stage").getBoundingClientRect();
+      let ox=0, oy=0, topW=window.innerWidth;
+      try{ if (window.frameElement){ const fr = window.frameElement.getBoundingClientRect(); ox=fr.left; oy=fr.top; topW = window.top.innerWidth; } }catch(e){}
+      const k = vw/topW;
+      g.drawImage(sv, (r.left+ox)*k, (r.top+oy)*k, r.width*k, r.height*k, 0, 0, W, H);
+    },
+    cerrar(){ stream.getTracks().forEach(t=>t.stop()); }
+  };
+}
+/* deja el reproductor principal listo en un clip (cambia de partido si hace falta) */
+async function prepararEnPlayer(pid){
+  if (!P || P.id!==pid) abrirProyecto(pid, true);
+  for (let i=0;i<100;i++){ if ((kind==="yt" && ytReady) || (kind==="file" && vid.readyState>=2)) return true; await dormirMs(100); }
+  return false;
+}
+function prepararPantalla(){
+  $("#stage").scrollIntoView({block:"center"});
+  try{ if (window.frameElement) window.frameElement.scrollIntoView({block:"start"}); }catch(e){}
+}
+async function grabarDesdePestana(datos, titulo, uno){
+  const usables = datos.filter(x=>x.p.video && (x.p.video.tipo==="youtube" || videoCache[x.p.id]));
+  const faltan = [...new Set(datos.filter(x=>!usables.includes(x)).map(x=>x.p.nombre))];
+  if (!usables.length) return toast("Primero cargá el video del partido.");
+  if (faltan.length && !confirm("No están cargados los videos de: "+faltan.join(", ")+".\nEsos recortes no van a salir. ¿Seguir?")) return;
+  if (!confirm("Para grabar desde YouTube, Chrome te va a pedir permiso para compartir ESTA pestaña: elegí “Compartir” (y dejá tildado “Compartir audio de la pestaña”).\n\nMientras se graba: no muevas el mouse sobre el video y no cambies de pestaña.")) return;
+  const mime = tipoGrabacion();
+  let cap;
+  try{ prepararPantalla(); cap = await iniciarCapturaPestana(); }
+  catch(e){ toast(e && e.name==="NotAllowedError" ? "No se dio permiso para grabar la pestaña." : (e.message||String(e))); return; }
+  const W=1280, H=720, c=document.createElement("canvas"); c.width=W; c.height=H; const g=c.getContext("2d");
+  const out = c.captureStream(30);
+  cap.stream.getAudioTracks().forEach(tr=>out.addTrack(tr));
+  const rec = new MediaRecorder(out, {mimeType:mime, videoBitsPerSecond:5000000});
+  const chunks=[]; rec.ondataavailable = e=>{ if(e.data && e.data.size) chunks.push(e.data); };
+  let modo="cartel", cartel=[titulo||"Recortes"];
+  const loop = setInterval(()=>{ if (modo==="cartel") textoCartel(g,W,H,cartel); else cap.dibujar(g,W,H); }, 1000/30);
+  const pm = modalProgreso(); pm.style.background = "transparent"; pm.style.alignItems = "flex-end"; pm.querySelector(".box").style.maxWidth = "420px";
+  grabando = {cancelado:false};
+  playlist = null;
+  let hecho = 0;
+  try{
+    rec.start(1000);
+    if (!uno){ cartel=[titulo, usables.length+" recorte"+(usables.length>1?"s":""), subtituloClub()]; await dormirMs(2500); }
+    for (let i=0;i<usables.length && !grabando.cancelado && !cap.cortado;i++){
+      const {p,t} = usables[i];
+      const gt = pm.querySelector("#gTxt"); if (gt) gt.textContent = `Recorte ${i+1} de ${usables.length}: ${t.nombre} · ${minLabel(p,t.t)}`;
+      const sub = [t.resultado==="pos"?"✓ Positiva":t.resultado==="neg"?"✗ Negativa":"", t.nota].filter(Boolean).join(" — ");
+      if (!uno){ cartel=[`${i+1}. ${t.nombre}`, [minLabel(p,t.t), t.jugadora].filter(Boolean).join(" · "), sub || p.nombre]; modo="cartel"; }
+      const listo = await prepararEnPlayer(p.id);
+      if (!listo) continue;
+      player.seek(t.ini); pausar(); await dormirMs(uno?900:1800);
+      modo = "video";
+      verTag(t.id, true);
+      const t0 = Date.now(), maxMs = ((t.fin-t.ini) + (t.dibujos||[]).reduce((a,d)=>a+(+d.pausa||0),0) + 15)*1000;
+      while (!grabando.cancelado && !cap.cortado && (clipFin!=null || $("#pausaDib").style.display==="block") && Date.now()-t0 < maxMs){
+        const bar = pm.querySelector("#gBar"); if (bar){ const pr = Math.min(1, Math.max(0,(player.time()-t.ini)/Math.max(0.5,t.fin-t.ini))); bar.style.width = Math.round((i+pr)/usables.length*100)+"%"; }
+        await dormirMs(60);
+      }
+      pausar(); clipFin = null; hecho++;
+      await dormirMs(250);
+    }
+    await dormirMs(300);
+  }catch(e){ console.error(e); toast("Hubo un problema grabando: "+(e.message||e)); }
+  clearInterval(loop);
+  await new Promise(r=>{ rec.onstop = r; try{ rec.stop(); }catch(e){ r(); } });
+  const cortado = cap.cortado;
+  cap.cerrar(); pm.remove(); mostrarOverlay(null);
+  const cancel = grabando.cancelado; grabando = null;
+  if (cancel){ toast("Video cancelado."); return; }
+  if (!hecho) return toast("No se pudo grabar ningún recorte.");
+  const ext = mime.includes("mp4") ? "mp4" : "webm";
+  descargar(slug(titulo||"recortes")+"."+ext, new Blob(chunks,{type:mime.split(";")[0]}), mime.split(";")[0]);
+  toast(cortado ? "Se dejó de compartir la pestaña: el video quedó cortado." : (ext==="mp4" ? "Video descargado (MP4)." : "Video descargado (WebM)."));
+}
+
+/* ---------- descargar recortes en video ---------- */
+let grabando = null;
+function tipoGrabacion(){
+  const op = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4;codecs=avc1,opus","video/mp4","video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"];
+  for (const t of op){ try{ if (window.MediaRecorder && MediaRecorder.isTypeSupported(t)) return t; }catch(e){} }
+  return "";
+}
+const vidRec = document.createElement("video"); vidRec.preload = "auto"; vidRec.playsInline = true;
+let recAudio = null;
+function audioDeRec(){
+  if (recAudio) return recAudio;
+  try{
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ac.createMediaElementSource(vidRec);
+    const dest = ac.createMediaStreamDestination();
+    src.connect(dest);               // no va a los parlantes: graba en silencio
+    recAudio = {ac, dest};
+  }catch(e){ recAudio = {ac:null, dest:null}; }
+  return recAudio;
+}
+function textoCartel(g, W, H, lineas){
+  g.fillStyle = "#042859"; g.fillRect(0,0,W,H);
+  g.fillStyle = "#C2377E"; g.fillRect(0,H-10,W,10);
+  g.textAlign = "center"; g.textBaseline = "alphabetic";
+  lineas.forEach((l,i)=>{ g.font = (i===0?"800 60px ":i===1?"700 40px ":"500 30px ")+"Georama, Barlow, Arial"; g.fillStyle = i===0?"#FFFFFF":i===1?"#CFE3F7":"#9FB3C8"; g.fillText(String(l||"").slice(0,70), W/2, H/2-60+i*70); });
+  g.textAlign = "left";
+}
+function barraInfo(g, W, H, txt, sub){
+  g.save(); g.font = "700 30px Barlow, Arial"; const w1 = g.measureText(txt).width; g.font = "500 22px Barlow, Arial"; const w2 = sub ? g.measureText(sub).width : 0;
+  const w = Math.max(w1, w2) + 36, h = sub ? 84 : 54;
+  g.globalAlpha = .82; g.fillStyle = "#04101F"; g.fillRect(24, 24, w, h); g.globalAlpha = 1;
+  g.fillStyle = "#C2377E"; g.fillRect(24, 24, 6, h);
+  g.fillStyle = "#fff"; g.font = "700 30px Barlow, Arial"; g.textBaseline = "top"; g.fillText(txt, 44, 34);
+  if (sub){ g.font = "500 22px Barlow, Arial"; g.fillStyle = "#CFE3F7"; g.fillText(sub, 44, 70); }
+  g.restore();
+}
+function modalProgreso(){
+  return modal(`<h2>Armando el video…</h2>
+    <p class="small muted" style="margin:0 0 10px">Se graba en tiempo real: dejá esta pestaña abierta y a la vista hasta que termine.</p>
+    <div style="height:10px;background:var(--field);border-radius:6px;overflow:hidden"><div id="gBar" style="height:100%;width:0;background:var(--pink)"></div></div>
+    <p id="gTxt" class="small" style="margin:8px 0 12px">Preparando…</p>
+    <div style="display:flex;justify-content:flex-end"><button class="btn danger" id="gCancel">Cancelar</button></div>`, m=>{ m.querySelector("#gCancel").onclick = ()=>{ if (grabando) grabando.cancelado = true; }; });
+}
+async function grabarVideo(items, titulo, uno){
+  if (grabando) return toast("Ya se está armando un video.");
+  const mime = tipoGrabacion();
+  if (!mime) return toast("Este navegador no puede grabar video. Probá con Chrome o Edge.");
+  const datos = items.map(it=>Object.assign({it}, infoItem(it))).filter(x=>x.t);
+  if (!datos.length) return toast("No hay recortes para el video.");
+  if (datos.some(x=>x.p.video && x.p.video.tipo==="youtube")){
+    if (enIframeSinPermiso()) return abrirAparteParaGrabar();
+    return grabarDesdePestana(datos, titulo, uno);
+  }
+  const conVideo = datos.filter(x=>videoCache[x.p.id] && x.p.video && x.p.video.tipo==="archivo");
+  const faltan = [...new Set(datos.filter(x=>!conVideo.includes(x)).map(x=>x.p.nombre))];
+  if (!conVideo.length) return toast("Para descargar el video, primero elegí el archivo del partido desde tu compu.");
+  const total = conVideo.reduce((a,x)=>a + (x.t.fin-x.t.ini) + (x.t.dibujos||[]).reduce((b,d)=>b+(+d.pausa||0),0) + (uno?0:2.2), 0);
+  if (faltan.length && !confirm("No están cargados los videos de: "+faltan.join(", ")+".\nEsos recortes no van a salir. ¿Seguir con los otros "+conVideo.length+"?")) return;
+  if (total > 600 && !confirm("El video va a durar unos "+Math.round(total/60)+" minutos y se graba en tiempo real. ¿Seguir?")) return;
+  pausar();
+  const W=1280, H=720, c = document.createElement("canvas"); c.width=W; c.height=H;
+  const g = c.getContext("2d");
+  const pm = modalProgreso();
+  grabando = {cancelado:false};
+  const {ac, dest} = audioDeRec(); if (ac && ac.state==="suspended") await ac.resume();
+  const stream = c.captureStream(30);
+  if (dest) dest.stream.getAudioTracks().forEach(tr=>stream.addTrack(tr));
+  const rec = new MediaRecorder(stream, {mimeType:mime, videoBitsPerSecond:5000000});
+  const chunks = []; rec.ondataavailable = e=>{ if (e.data && e.data.size) chunks.push(e.data); };
+  let modo = "cartel", cartel = [titulo||"Recortes"], formas = null, info = null;
+  const pintar = ()=>{
+    if (modo==="cartel") textoCartel(g, W, H, cartel);
+    else {
+      g.fillStyle="#000"; g.fillRect(0,0,W,H);
+      const vw = vidRec.videoWidth, vh = vidRec.videoHeight;
+      if (vw && vh){ const s = Math.min(W/vw, H/vh), dw=vw*s, dh=vh*s; g.drawImage(vidRec, (W-dw)/2, (H-dh)/2, dw, dh); }
+      if (formas) formas.forEach(f=>pintarForma(f, g, W, H));
+      if (info) barraInfo(g, W, H, info[0], info[1]);
+    }
+  };
+  const loop = setInterval(pintar, 1000/30);
+  const dormir = ms => new Promise(r=>setTimeout(r, ms));
+  let hecho = 0;
+  try{
+    pintar(); rec.start(1000);
+    if (!uno){ cartel = [titulo, conVideo.length+" recorte"+(conVideo.length>1?"s":""), subtituloClub()]; modo="cartel"; await dormir(2500); }
+    for (let i=0;i<conVideo.length && !grabando.cancelado;i++){
+      const {p,t} = conVideo[i];
+      const gt = pm.querySelector("#gTxt"); if (gt) gt.textContent = `Recorte ${i+1} de ${conVideo.length}: ${t.nombre} · ${minLabel(p,t.t)}`;
+      const url = videoCache[p.id];
+      if (vidRec.src !== url){ vidRec.src = url; await esperar(vidRec, "loadeddata", 10000); }
+      vidRec.currentTime = Math.max(0, t.ini); await esperar(vidRec, "seeked", 8000);
+      const linea = [t.nombre, minLabel(p,t.t), t.jugadora||(t.equipo==="propio"?EQ():(p.rival||"Rival"))].filter(Boolean).join(" · ");
+      const sub = [t.resultado==="pos"?"✓ Positiva":t.resultado==="neg"?"✗ Negativa":"", t.nota].filter(Boolean).join(" — ");
+      if (!uno){ cartel = [`${i+1}. ${t.nombre}`, [minLabel(p,t.t), t.jugadora].filter(Boolean).join(" · "), sub || p.nombre]; modo="cartel"; await dormir(1800); }
+      modo = "video"; info = [linea, sub.length>90 ? sub.slice(0,88)+"…" : sub]; formas = null;
+      const dibs = (t.dibujos||[]).slice().sort((a,b)=>a.t-b.t); const vistos = new Set();
+      await vidRec.play().catch(()=>{});
+      while (!grabando.cancelado && vidRec.currentTime < t.fin && !vidRec.ended){
+        const d = dibs.find(x=>!vistos.has(x.id) && vidRec.currentTime >= x.t-0.05);
+        if (d){
+          vistos.add(d.id); formas = d.formas;
+          if (+d.pausa>0){ vidRec.pause(); await dormir(+d.pausa*1000); formas = null; await vidRec.play().catch(()=>{}); }
+          else setTimeout(()=>{ formas=null; }, 2500);
+        }
+        const prog = (i + Math.min(1, Math.max(0,(vidRec.currentTime - t.ini)/Math.max(0.5, t.fin - t.ini)))) / conVideo.length;
+        const bar = pm.querySelector("#gBar"); if (bar) bar.style.width = Math.round(prog*100)+"%";
+        await dormir(40);
+      }
+      vidRec.pause(); formas = null; hecho++;
+    }
+    await dormir(300);
+  }catch(e){ console.error(e); toast("Hubo un problema grabando: "+(e.message||e)); }
+  clearInterval(loop);
+  await new Promise(r=>{ rec.onstop = r; try{ rec.stop(); }catch(e){ r(); } });
+  pm.remove();
+  const cancel = grabando.cancelado; grabando = null;
+  if (cancel){ toast("Video cancelado."); return; }
+  if (!hecho) return;
+  const ext = mime.includes("mp4") ? "mp4" : "webm";
+  descargar(slug(titulo||"recortes")+"."+ext, new Blob(chunks, {type:mime.split(";")[0]}), mime.split(";")[0]);
+  toast(ext==="mp4" ? "Video descargado (MP4)." : "Video descargado (WebM: se abre con Chrome o VLC).");
+}
+
+/* ---------- PDF de recortes ---------- */
+function cargarScript(src){ return new Promise((ok,err)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=()=>err(new Error("No se pudo cargar "+src)); document.head.appendChild(s); }); }
+async function jsPDFlib(){
+  if (!(window.jspdf && window.jspdf.jsPDF)) await cargarScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+  return window.jspdf.jsPDF;
+}
+const vidAux = document.createElement("video"); vidAux.muted = true; vidAux.preload = "auto"; vidAux.playsInline = true;
+function esperar(el, ev, ms){ return new Promise(res=>{ let done=false; const f=()=>{ if(done) return; done=true; el.removeEventListener(ev,f); res(true); }; el.addEventListener(ev,f); setTimeout(()=>{ if(!done){ done=true; el.removeEventListener(ev,f); res(false); } }, ms||6000); }); }
+/* captura el cuadro del video (si está cargado como archivo) + el dibujo, en 1280x720 */
+let capPDF = null;
+async function capturaClip(p, t){
+  const W=1280, H=720, c = document.createElement("canvas"); c.width=W; c.height=H;
+  const g = c.getContext("2d");
+  g.fillStyle = "#0D2038"; g.fillRect(0,0,W,H);
+  const d = (t.dibujos||[])[0];
+  const momento = d ? d.t : t.t;
+  let hayImagen = false;
+  const url = videoCache[p.id];
+  if (url && p.video && p.video.tipo==="archivo"){
+    try{
+      if (vidAux.src !== url){ vidAux.src = url; await esperar(vidAux, "loadeddata", 8000); }
+      vidAux.currentTime = Math.max(0, momento);
+      await esperar(vidAux, "seeked", 6000);
+      const vw = vidAux.videoWidth, vh = vidAux.videoHeight;
+      if (vw && vh){ const s = Math.min(W/vw, H/vh), dw = vw*s, dh = vh*s; g.drawImage(vidAux, (W-dw)/2, (H-dh)/2, dw, dh); hayImagen = true; }
+    }catch(e){ console.warn(e); }
+  }
+  if (!hayImagen && capPDF && !capPDF.cortado && p.video && p.video.tipo==="youtube"){
+    try{
+      if (await prepararEnPlayer(p.id)){
+        limpiarCanvas(); mostrarOverlay(null); clipFin = null;
+        player.seek(Math.max(0, momento)); player.play(); await dormirMs(700); pausar(); player.seek(Math.max(0, momento)); await dormirMs(1300);
+        capPDF.dibujar(g, W, H); hayImagen = true;
+      }
+    }catch(e){ console.warn(e); }
+  }
+  if (!hayImagen){
+    // fondo de cancha para que el dibujo igual se entienda
+    g.fillStyle = "#1E7A46"; g.fillRect(0,0,W,H);
+    g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 4; g.strokeRect(60,40,W-120,H-80);
+    g.beginPath(); g.moveTo(W/2,40); g.lineTo(W/2,H-40); g.stroke();
+    g.beginPath(); g.arc(W/2,H/2,90,0,Math.PI*2); g.stroke();
+    g.fillStyle = "rgba(255,255,255,.85)"; g.font = "600 26px Barlow, Arial"; g.textAlign = "center";
+    g.fillText(p.video && p.video.tipo==="youtube" ? "Video de YouTube: para incluir la imagen, aceptá compartir la pestaña" : "Elegí el archivo del partido para incluir la imagen", W/2, H-70);
+  }
+  if (d) d.formas.forEach(f=>pintarForma(f, g, W, H));
+  return {img: c.toDataURL("image/jpeg", 0.82), hayImagen};
+}
+let generandoPDF = false;
+async function descargarPDF(items, titulo, subtitulo, jugKey){
+  if (generandoPDF) return;
+  const datos = items.map(infoItem).filter(x=>x.t);
+  if (!datos.length) return toast("No hay recortes para el PDF.");
+  if (datos.length > 60 && !confirm("Son "+datos.length+" recortes. ¿Armar el PDF igual? Puede tardar un poco.")) return;
+  const hayYT = datos.some(x=>x.p.video && x.p.video.tipo==="youtube");
+  if (hayYT){
+    if (enIframeSinPermiso()){ if (!confirm("Los recortes de YouTube van a salir solo con el dibujo (sin la imagen del partido).\n\nPara que salga la imagen, abrí Videoanálisis en su propia pestaña. ¿Seguir igual?")) return abrirAparteParaGrabar(); }
+    else if (confirm("Para sacar las imágenes de YouTube, Chrome te va a pedir permiso para compartir ESTA pestaña: elegí “Compartir”.\nNo muevas el mouse sobre el video mientras se arma.\n\n(Cancelar = PDF sin imágenes de YouTube)")){
+      try{ prepararPantalla(); capPDF = await iniciarCapturaPestana(); }catch(e){ capPDF = null; toast("Sin permiso: los recortes de YouTube salen solo con el dibujo."); }
+    }
+  }
+  generandoPDF = true; setStatus("saving","Armando el PDF… 0/"+datos.length);
+  try{
+    const JsPDF = await jsPDFlib();
+    const doc = new JsPDF({unit:"mm", format:"a4"});
+    const PW = 210, M = 14, IW = 160, IH = IW*9/16, IX = (PW-IW)/2;
+    const fecha = new Date().toLocaleDateString("es-AR");
+    const sinImagen = new Set();
+    const cabecera = (primera)=>{
+      doc.setFillColor(4,40,89); doc.rect(0,0,PW,primera?34:14,"F");
+      doc.setTextColor(255,255,255);
+      if (primera){
+        doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.text(("Metodika · "+subtituloClub()).toUpperCase(), M, 9);
+        doc.setFontSize(17); doc.text(doc.splitTextToSize(String(titulo||"Recortes"), IW)[0], M, 19);
+        doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.text((subtitulo?subtitulo+" · ":"")+datos.length+" recorte"+(datos.length>1?"s":"")+" · "+fecha, M, 27);
+      } else { doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.text(String(titulo||"Recortes"), M, 9); }
+      doc.setTextColor(13,32,56);
+      return primera ? 42 : 22;
+    };
+    let y = cabecera(true);
+    if (jugKey!=null){
+      const pos = datos.filter(x=>x.t.resultado==="pos").length, neg = datos.filter(x=>x.t.resultado==="neg").length;
+      doc.setFontSize(10); doc.setFont("helvetica","bold");
+      doc.text(`${datos.length} acciones · ${pos} positivas · ${neg} negativas${pos+neg?" · "+Math.round(pos/(pos+neg)*100)+"% efectividad":""}`, M, y); y += 8;
+    }
+    for (let i=0;i<datos.length;i++){
+      const {p,t} = datos[i];
+      setStatus("saving","Armando el PDF… "+(i+1)+"/"+datos.length);
+      const lineas = [];
+      const linea1 = `${i+1}. ${t.nombre}  ·  ${minLabel(p,t.t)}  ·  ${t.equipo==="propio"?EQ():(p.rival||"Rival")}`;
+      const det = [t.jugadora, ZONA_NOMBRE[t.zona], t.resultado==="pos"?"Positiva":t.resultado==="neg"?"Negativa":""].filter(Boolean).join("  ·  ");
+      doc.setFontSize(9.5);
+      const notaL = t.nota ? doc.splitTextToSize("Nota: "+t.nota, PW-2*M) : [];
+      const alto = 6 + IH + 5 + (det?5:0) + notaL.length*4.5 + 6;
+      if (y + alto > 297-12){ doc.addPage(); y = cabecera(false); }
+      doc.setFont("helvetica","bold"); doc.setFontSize(11.5); doc.text(linea1, M, y+4);
+      doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(91,101,112);
+      doc.text(String(p.nombre||""), PW-M, y+4, {align:"right"}); doc.setTextColor(13,32,56);
+      y += 7;
+      const cap = await capturaClip(p, t);
+      if (!cap.hayImagen) sinImagen.add(p.nombre);
+      doc.addImage(cap.img, "JPEG", IX, y, IW, IH);
+      if (t.resultado){ doc.setFillColor(...(t.resultado==="pos"?[30,142,90]:[179,69,47])); doc.roundedRect(IX+IW-30, y+3, 27, 7, 2, 2, "F"); doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(8.5); doc.text(t.resultado==="pos"?"POSITIVA":"NEGATIVA", IX+IW-16.5, y+7.8, {align:"center"}); doc.setTextColor(13,32,56); }
+      y += IH + 5;
+      doc.setFontSize(9.5);
+      if (det){ doc.setFont("helvetica","bold"); doc.text(det, M, y); y += 5; }
+      if (notaL.length){ doc.setFont("helvetica","normal"); doc.text(notaL, M, y); y += notaL.length*4.5; }
+      y += 6;
+    }
+    const n = doc.getNumberOfPages();
+    for (let i=1;i<=n;i++){ doc.setPage(i); doc.setFontSize(8); doc.setTextColor(138,149,163); doc.text("Metodika · Videoanálisis", M, 290); doc.text(i+" / "+n, PW-M, 290, {align:"right"}); }
+    doc.save(slug(titulo||"recortes")+".pdf");
+    setStatus(online?"saved":"", online?"Guardado en la nube del club":"Guardado solo en este navegador");
+    if (sinImagen.size) toast("PDF listo. Sin imagen en: "+[...sinImagen].join(", ")+" (elegí el archivo del partido para incluirla).");
+    else toast("PDF descargado.");
+  }catch(e){
+    console.error(e); setStatus("err","No se pudo armar el PDF"); toast("No se pudo armar el PDF: "+(e.message||e));
+  }
+  if (capPDF){ capPDF.cerrar(); capPDF = null; }
+  generandoPDF = false;
+}
+
+/* ---------- modales ---------- */
+function modal(html, onMount){
+  const m = document.createElement("div"); m.className="modal"; m.innerHTML = `<div class="box">${html}</div>`;
+  document.body.appendChild(m);
+  m.addEventListener("mousedown", e=>{ if(e.target===m) m.remove(); });
+  if (onMount) onMount(m);
+  return m;
+}
+function abrirDatos(){
+  const opts = (PARTIDOS||[]).slice().sort((a,b)=>String(b.fechaISO||"").localeCompare(String(a.fechaISO||""))).map((p,i)=>`<option value="${i}">${esc(p.fecha||"")} · vs ${esc(p.rival||"")}${p.golesFavor!=null?" ("+p.golesFavor+"-"+p.golesContra+")":""}</option>`).join("");
+  const lista = (PARTIDOS||[]).slice().sort((a,b)=>String(b.fechaISO||"").localeCompare(String(a.fechaISO||"")));
+  modal(`<h2>Datos del partido</h2>
+    ${opts?`<label class="lbl">Elegir de los partidos cargados en Metodika</label><select class="inp" id="mPart" style="width:100%;margin-bottom:12px"><option value="">—</option>${opts}</select>`:""}
+    <div class="row2">
+      <div><label class="lbl">Nombre del análisis</label><input class="inp" id="mNom" style="width:100%" value="${esc(P.nombre)}"></div>
+      <div><label class="lbl">Rival</label><input class="inp" id="mRiv" style="width:100%" value="${esc(P.rival)}"></div>
+      <div><label class="lbl">Fecha</label><input class="inp" type="date" id="mFec" style="width:100%" value="${esc(P.fecha)}"></div>
+      <div><label class="lbl">Competencia / resultado</label><input class="inp" id="mComp" style="width:100%" value="${esc(P.competencia)}" placeholder="Ej.: AFA fecha 12 · 2-0"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="btn" id="mCanc">Cancelar</button><button class="btn solid" id="mOk">Guardar</button></div>`,
+  m=>{
+    const sel = m.querySelector("#mPart");
+    if (sel) sel.onchange = ()=>{ const p = lista[+sel.value]; if(!p) return;
+      m.querySelector("#mRiv").value = p.rival||"";
+      if (p.fechaISO) m.querySelector("#mFec").value = p.fechaISO.slice(0,10);
+      m.querySelector("#mNom").value = EQ()+" vs "+(p.rival||"")+(p.fecha?" · "+p.fecha:"");
+      m.querySelector("#mComp").value = p.golesFavor!=null ? p.golesFavor+"-"+p.golesContra : "";
+    };
+    m.querySelector("#mCanc").onclick = ()=>m.remove();
+    m.querySelector("#mOk").onclick = ()=>{
+      P.nombre = m.querySelector("#mNom").value.trim() || "Análisis sin nombre";
+      P.rival = m.querySelector("#mRiv").value.trim();
+      P.fecha = m.querySelector("#mFec").value;
+      P.competencia = m.querySelector("#mComp").value.trim();
+      $("#team .riv").textContent = P.rival || "Rival";
+      changed(); render(); m.remove();
+    };
+  });
+}
+function abrirEditor(){
+  let bs = clone(P.botones);
+  const fila = (b,i)=>`<div class="ed-row" data-i="${i}">
+      <input type="color" data-k="color" value="${esc(b.color)}">
+      <input class="inp" data-k="nombre" value="${esc(b.nombre)}" placeholder="Nombre">
+      <input class="inp" data-k="grupo" value="${esc(b.grupo)}" list="grpList" placeholder="Momento">
+      <input class="inp" data-k="tecla" value="${esc(b.tecla)}" maxlength="1" placeholder="Tecla" style="text-align:center;text-transform:uppercase">
+      <input class="inp opt" data-k="pre" type="number" min="0" max="60" value="${+b.pre||0}" title="Segundos antes">
+      <input class="inp opt" data-k="post" type="number" min="0" max="60" value="${+b.post||0}" title="Segundos después">
+      <select class="inp opt" data-k="modo"><option value="clic" ${b.modo!=="rango"?"selected":""}>Clic</option><option value="rango" ${b.modo==="rango"?"selected":""}>Inicio / fin</option></select>
+      <span class="opt" style="display:flex;gap:2px"><button class="btn sm" data-mv="-1" title="Subir">↑</button><button class="btn sm" data-mv="1" title="Bajar">↓</button></span>
+      <button class="btn sm danger" data-rm="1" title="Quitar">✕</button></div>`;
+  const m = modal(`<h2>Editar botones</h2>
+    <p class="small muted" style="margin:-4px 0 10px">Cambiá nombres, colores, teclas y cuántos segundos antes/después guarda cada botón. Los tags que ya marcaste no se borran.</p>
+    <div class="ed-row ed-head"><span></span><span>Nombre</span><span>Momento del juego</span><span>Tecla</span><span class="opt">Antes</span><span class="opt">Después</span><span class="opt">Modo</span><span class="opt">Orden</span><span></span></div>
+    <div id="edRows"></div>
+    <datalist id="grpList">${GRUPOS.map(g=>`<option value="${esc(g)}">`).join("")}</datalist>
+    <button class="btn sm" id="edAdd" style="margin-top:6px">+ Agregar botón</button>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button class="btn" id="edCanc">Cancelar</button><button class="btn solid" id="edOk">Guardar botonera</button></div>`);
+  const pintar = ()=>{ m.querySelector("#edRows").innerHTML = bs.map(fila).join(""); };
+  const leer = ()=>{ m.querySelectorAll("#edRows .ed-row").forEach(r=>{ const b = bs[+r.dataset.i]; r.querySelectorAll("[data-k]").forEach(inp=>{ let v=inp.value; if(inp.dataset.k==="tecla") v=v.toUpperCase(); if(inp.dataset.k==="pre"||inp.dataset.k==="post") v=+v||0; b[inp.dataset.k]=v; }); }); };
+  pintar();
+  m.addEventListener("click", e=>{
+    const r = e.target.closest(".ed-row");
+    if (e.target.dataset.rm){ leer(); bs.splice(+r.dataset.i,1); pintar(); }
+    else if (e.target.dataset.mv){ leer(); const i=+r.dataset.i, j=i+(+e.target.dataset.mv); if(j>=0&&j<bs.length){ [bs[i],bs[j]]=[bs[j],bs[i]]; pintar(); } }
+  });
+  m.querySelector("#edAdd").onclick = ()=>{ leer(); bs.push(B("Nueva acción","Ataque organizado","#64748B","",4,6)); pintar(); };
+  m.querySelector("#edCanc").onclick = ()=>m.remove();
+  m.querySelector("#edOk").onclick = ()=>{
+    leer();
+    const teclas = bs.map(b=>b.tecla).filter(Boolean);
+    const dup = teclas.find((t,i)=>teclas.indexOf(t)!==i);
+    if (dup){ toast("La tecla "+dup+" está repetida."); return; }
+    if (bs.some(b=>/^[ ,.+\-]$/.test(b.tecla))){ toast("Espacio, coma, punto, + y − están reservadas."); return; }
+    P.botones = bs.filter(b=>b.nombre.trim());
+    // actualizar nombre/color/grupo en tags existentes
+    P.tags.forEach(t=>{ const b = P.botones.find(x=>x.id===t.b); if(b){ t.nombre=b.nombre; t.color=b.color; t.grupo=b.grupo; } });
+    changed(); render(); m.remove(); toast("Botonera guardada.");
+  };
+}
+
+/* ---------- exportar / importar ---------- */
+function descargar(nombre, contenido, tipo){
+  const blob = contenido instanceof Blob ? contenido : new Blob([contenido], {type:tipo});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nombre;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+const slug = s => String(s||"analisis").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"").toLowerCase();
+function exportCsv(){
+  const head = ["Minuto","Periodo","Tiempo video","Inicio","Fin","Duración (s)","Acción","Momento","Equipo",J("Sg"),"Zona","Resultado","Nota"];
+  const q = v => '"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const rows = P.tags.map(t=>{ const m=minutoPartido(t.t)||{}; return [m.min||"", m.per||"", fmt(t.t), fmt(t.ini), fmt(t.fin), Math.round(t.fin-t.ini), t.nombre, t.grupo, t.equipo==="propio"?EQ():(P.rival||"Rival"), t.jugadora, ZONA_NOMBRE[t.zona]||"", t.resultado==="pos"?"Positiva":t.resultado==="neg"?"Negativa":"", t.nota].map(q).join(";"); });
+  descargar(slug(P.nombre)+"-tags.csv", "﻿"+head.map(q).join(";")+"\n"+rows.join("\n"), "text/csv;charset=utf-8");
+}
+function exportXml(){
+  const x = s => esc(s);
+  const lbl = (g,t) => t ? `<label><group>${x(g)}</group><text>${x(t)}</text></label>` : "";
+  const inst = P.tags.map((t,i)=>`  <instance><ID>${i+1}</ID><start>${t.ini.toFixed(2)}</start><end>${t.fin.toFixed(2)}</end><code>${x(t.nombre)}</code>${lbl("Equipo", t.equipo==="propio"?EQ():(P.rival||"Rival"))}${lbl(J("Sg"),t.jugadora)}${lbl("Zona",ZONA_NOMBRE[t.zona])}${lbl("Resultado",t.resultado==="pos"?"Positiva":t.resultado==="neg"?"Negativa":"")}${lbl("Momento",t.grupo)}${t.nota?`<free_text>${x(t.nota)}</free_text>`:""}</instance>`).join("\n");
+  const hex = c => { const m=String(c).replace("#",""); const r=parseInt(m.slice(0,2),16)||0,g=parseInt(m.slice(2,4),16)||0,b=parseInt(m.slice(4,6),16)||0; return `<R>${r*257}</R><G>${g*257}</G><B>${b*257}</B>`; };
+  const rows = P.botones.map(b=>`  <row><code>${x(b.nombre)}</code>${hex(b.color)}</row>`).join("\n");
+  descargar(slug(P.nombre)+".xml", `<?xml version="1.0" encoding="utf-8"?>\n<file>\n<ALL_INSTANCES>\n${inst}\n</ALL_INSTANCES>\n<ROWS>\n${rows}\n</ROWS>\n</file>\n`, "application/xml");
+}
+function exportJson(){ const d=clone(P); descargar(slug(P.nombre)+".json", JSON.stringify({metodika:"videoanalisis", version:1, proyecto:d}, null, 1), "application/json"); }
+function exportBotonera(){ descargar("botonera-metodika.json", JSON.stringify({metodika:"botonera", version:1, botones:P.botones}, null, 1), "application/json"); }
+function importar(file){
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    let d; try{ d = JSON.parse(fr.result); }catch(e){ toast("Ese archivo no es un JSON válido."); return; }
+    if (d.proyecto && Array.isArray(d.proyecto.tags)){
+      const p = d.proyecto; p.id = uid(); p.nombre = (p.nombre||"Importado")+" (importado)";
+      proyectos.unshift({id:p.id, nombre:p.nombre, fecha:p.fecha});
+      lsSet("va_p_"+p.id, JSON.stringify(p)); abrirProyecto(p.id); changed(); toast("Análisis importado.");
+    } else if (Array.isArray(d.botones)){
+      P.botones = d.botones.map(b=>Object.assign({id:uid(), pre:4, post:6, modo:"clic", grupo:"Ataque organizado", color:"#64748B", tecla:""}, b));
+      changed(); render(); toast("Botonera importada.");
+    } else toast("No reconozco ese archivo.");
+  };
+  fr.readAsText(file);
+}
+
+/* ---------- eventos ---------- */
+$("#btnArchivo").onclick = ()=>$("#fileIn").click();
+$("#bCambiarVideo").onclick = ()=>{ const yt = confirm("¿Querés usar un link de YouTube?\n\nAceptar = link de YouTube · Cancelar = archivo de tu compu"); if (yt) $("#btnYT").click(); else $("#fileIn").click(); };
+$("#fileIn").onchange = e=>{ cargarArchivo(e.target.files[0]); e.target.value=""; renderTimeline._d=0; };
+$("#btnYT").onclick = ()=>{ const u = prompt("Pegá el link del partido en YouTube:", P&&P.video&&P.video.url||""); if(u){ cargarYT(u.trim()); changed(); renderTimeline._d=0; } };
+$("#jsonIn").onchange = e=>{ if(e.target.files[0]) importar(e.target.files[0]); e.target.value=""; };
+vid.addEventListener("loadedmetadata", ()=>{ renderTimeline._d=0; intentarPendiente(); });
+$("#bPlay").onclick = ()=>{ player.paused()?player.play():player.pause(); };
+document.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>{ clipFin=null; player.seek(player.time()+(+b.dataset.skip)); });
+document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{ player.rate(+b.dataset.rate); toast("Velocidad "+b.textContent); });
+$("#bIni1").onclick = ()=>{ if(!kind) return toast("Primero cargá el video."); P.ini1 = +player.time().toFixed(1); changed(); render(); toast("Inicio del 1T marcado en "+fmt(P.ini1)); };
+$("#bIni2").onclick = ()=>{ if(!kind) return toast("Primero cargá el video."); P.ini2 = +player.time().toFixed(1); changed(); render(); toast("Inicio del 2T marcado en "+fmt(P.ini2)); };
+$("#bFull").onclick = ()=>pantallaCompleta();
+$("#bDibujar").onclick = ()=>{ const tag = P && P.tags.find(x=>x.id===selTagId); if(!tag) return toast("Primero elegí o marcá un tag."); abrirDibujo(tag); };
+$("#btnNuevo").onclick = ()=>nuevoProyecto(false);
+$("#btnDatos").onclick = ()=>abrirDatos();
+$("#btnBorrarProy").onclick = ()=>borrarProyecto();
+$("#btnEditar").onclick = ()=>abrirEditor();
+$("#selProyecto").onchange = e=>abrirProyecto(e.target.value);
+$("#team").onclick = e=>{ const b=e.target.closest("button"); if(!b) return; equipo=b.dataset.eq; render(); };
+$("#botonera").onclick = e=>{ const b=e.target.closest("[data-b]"); if(!b) return; pulsar(botonPorId(b.dataset.b)); b.blur(); };
+$("#tabs").onclick = e=>{ const b=e.target.closest("[data-t]"); if(!b) return; tabActual=b.dataset.t; lsSet("va_tab",tabActual); renderTabs(); renderTab(); };
+
+$("#descBox").addEventListener("click", e=>{
+  const tag = P.tags.find(x=>x.id===selTagId); if(!tag) return;
+  const t = e.target.closest("button,.pz"); if(!t) return;
+  if (t.id==="dVer") return verTag(tag.id);
+  if (t.id==="dDel") return borrarTag(tag.id);
+  if (t.id==="dDib") return abrirDibujo(tag);
+  if (t.id==="dDibDel"){ if(confirm("¿Borrar los dibujos de este clip?")){ tag.dibujos=[]; changed(); renderDesc(); renderTab(); limpiarCanvas(); } return; }
+  if (t.id==="dLista") return menuListas(t, [{p:P.id, id:tag.id}]);
+  if (t.id==="dMp4") return grabarVideo([{p:P.id, id:tag.id}], tag.nombre+" "+etiquetaMin(tag.t), true);
+  if (t.id==="dPdf") return descargarPDF([{p:P.id, id:tag.id}], tag.nombre+" · "+etiquetaMin(tag.t), P.nombre);
+  if (t.dataset.deq){ tag.equipo=t.dataset.deq; }
+  else if (t.dataset.res){ tag.resultado = tag.resultado===t.dataset.res ? "" : t.dataset.res; }
+  else if (t.dataset.z){ tag.zona = tag.zona===t.dataset.z ? "" : t.dataset.z; }
+  else if (t.dataset.adj){ const [k,v]=t.dataset.adj.split(":"); tag[k]=Math.max(0,+(tag[k]+(+v)).toFixed(2)); if(tag.fin<=tag.ini) tag.fin=tag.ini+1; }
+  else return;
+  changed(); renderDesc(); renderTimeline(); renderTab();
+});
+$("#descBox").addEventListener("change", e=>{
+  const tag = P.tags.find(x=>x.id===selTagId); if(!tag) return;
+  if (e.target.id==="dJug"){
+    const v = e.target.value;
+    if (e.target.tagName==="SELECT"){
+      if (v==="_txt") return;
+      const j = JUGADORAS.find(x=>String(x.num)===v);
+      tag.jugNum = j ? j.num : null; tag.jugadora = j ? j.label : "";
+    } else { tag.jugadora = v.trim(); tag.jugNum = null; }
+    changed(); renderTab();
+  }
+  if (e.target.id==="dNota"){ tag.nota = e.target.value.trim(); changed(); renderTab(); }
+});
+function borrarTag(id){
+  P.tags = P.tags.filter(x=>x.id!==id);
+  if (selTagId===id) selTagId = null;
+  changed(); renderDesc(); renderTimeline(); renderTab(); renderBotonera();
+}
+$("#tl").addEventListener("click", e=>{
+  const mk = e.target.closest("[data-tag]");
+  if (mk) return verTag(mk.dataset.tag);
+  const lane = e.target.closest(".tl-lane");
+  if (lane){ const r=lane.getBoundingClientRect(); clipFin=null; player.seek((e.clientX-r.left)/r.width*player.dur()); }
+});
+$("#tabBody").addEventListener("change", e=>{
+  if (e.target.dataset.f){ filtros[e.target.dataset.f]=e.target.value; renderTab(); }
+  if (e.target.id==="jSel"){ jugSel = e.target.value || null; renderTab(); }
+});
+$("#tabBody").addEventListener("click", e=>{
+  const t = e.target;
+  if (t.closest("[data-del]")){ e.stopPropagation(); return borrarTag(t.closest("[data-del]").dataset.del); }
+  if (t.id==="chkAll"){ const ts=tagsFiltrados(); if (t.checked) ts.forEach(x=>marcados.add(x.id)); else ts.forEach(x=>marcados.delete(x.id)); renderTab(); return; }
+  if (t.dataset.chk){ e.stopPropagation(); if (t.checked) marcados.add(t.dataset.chk); else marcados.delete(t.dataset.chk); renderTab(); return; }
+  if (t.closest("[data-li]")){ listaSel = t.closest("[data-li]").dataset.li; lsSet("va_lista", listaSel); renderTab(); return; }
+  const itb = t.closest("[data-it]");
+  if (itb){ accionItem(itb.dataset.it, +itb.dataset.idx); return; }
+  const clipJ = t.closest("[data-clip]");
+  if (clipJ){ const [pid,id]=clipJ.dataset.clip.split(":"); irAClip(pid,id,false); return; }
+  if (t.id==="jPlay" || t.id==="jPresent"){ const its = clipsDeJugadora(jugSel).map(c=>({p:c.p.id,id:c.t.id})); reproducirLista(its, t.id==="jPresent", nombreJug(jugSel)); return; }
+  if (t.id==="jLista"){ const its = clipsDeJugadora(jugSel).map(c=>({p:c.p.id,id:c.t.id})); if(!its.length) return; const l = crearLista("Clips de "+nombreJug(jugSel)); l.items = its; guardarListas(); listaSel=l.id; tabActual="listas"; renderTabs(); renderTab(); toast("Lista creada con "+its.length+" clips."); return; }
+  if (t.id==="lMp4"){ const ids = marcados.size ? P.tags.filter(x=>marcados.has(x.id)).map(x=>x.id) : tagsFiltrados().map(x=>x.id); grabarVideo(ids.map(id=>({p:P.id,id})), P.nombre); return; }
+  if (t.id==="jMp4"){ grabarVideo(clipsDeJugadora(jugSel).map(c=>({p:c.p.id,id:c.t.id})), "Clips de "+nombreJug(jugSel)); return; }
+  if (t.id==="liMp4"){ const l=LISTAS.find(x=>x.id===listaSel); if(l) grabarVideo(l.items, l.nombre); return; }
+  if (t.id==="lPdf"){ const ids = marcados.size ? P.tags.filter(x=>marcados.has(x.id)).map(x=>x.id) : tagsFiltrados().map(x=>x.id); descargarPDF(ids.map(id=>({p:P.id,id})), P.nombre, "Selección de recortes"); return; }
+  if (t.id==="jPdf"){ descargarPDF(clipsDeJugadora(jugSel).map(c=>({p:c.p.id,id:c.t.id})), nombreJug(jugSel), "Devolución individual · Videoanálisis", jugSel); return; }
+  if (t.id==="liPdf"){ const l=LISTAS.find(x=>x.id===listaSel); if(l) descargarPDF(l.items, l.nombre, "Lista de clips"); return; }
+  if (t.id==="lAddList"){ menuListas(t, [...marcados].map(id=>({p:P.id,id}))); return; }
+  if (t.id==="liNueva"){ const n=prompt("Nombre de la lista (ej.: Presión tras pérdida – charla del martes):"); if(n&&n.trim()){ const l=crearLista(n.trim()); listaSel=l.id; renderTab(); } return; }
+  if (t.id==="liRen"){ const l=LISTAS.find(x=>x.id===listaSel); if(!l) return; const n=prompt("Nuevo nombre:", l.nombre); if(n&&n.trim()){ l.nombre=n.trim(); guardarListas(); renderTab(); } return; }
+  if (t.id==="liDel"){ const l=LISTAS.find(x=>x.id===listaSel); if(!l) return; if(confirm("¿Borrar la lista “"+l.nombre+"”? Los tags no se borran.")){ LISTAS=LISTAS.filter(x=>x.id!==l.id); listaSel=null; guardarListas(); renderTab(); } return; }
+  if (t.id==="liPlay" || t.id==="liPresent"){ const l=LISTAS.find(x=>x.id===listaSel); if(l) reproducirLista(l.items, t.id==="liPresent", l.nombre); return; }
+  const row = t.closest("tr[data-row]"); if (row) return verTag(row.dataset.row);
+  switch(t.id){
+    case "fLimpiar": filtros={boton:"",equipo:"",jugadora:"",resultado:"",periodo:""}; renderTab(); break;
+    case "lPlay": reproducirLista(tagsFiltrados().map(x=>({p:P.id,id:x.id})), false); break;
+    case "lPresent": reproducirLista(tagsFiltrados().map(x=>({p:P.id,id:x.id})), true); break;
+    case "lPrev": playlist ? siguienteClip(-1) : moverSel(-1); break;
+    case "lNext": playlist ? siguienteClip(1) : moverSel(1); break;
+    case "xCsv": exportCsv(); break;
+    case "xXml": exportXml(); break;
+    case "xJson": exportJson(); break;
+    case "xBotJson": exportBotonera(); break;
+    case "xImp": $("#jsonIn").click(); break;
+    case "xPlant": plantilla = clone(P.botones); guardarPlantilla(); toast("Botonera guardada como modelo."); break;
+    case "xReset": if(confirm("¿Volver a la botonera original en este análisis? Los tags quedan.")){ const nb=botoneraDefault(); P.tags.forEach(tg=>{ const m=nb.find(b=>b.nombre===tg.nombre); if(m) tg.b=m.id; }); P.botones=nb; changed(); render(); } break;
+  }
+});
+function moverSel(dir){
+  const ts = tagsFiltrados(); if(!ts.length) return;
+  let i = ts.findIndex(x=>x.id===selTagId); i = i<0 ? 0 : Math.min(ts.length-1, Math.max(0,i+dir));
+  verTag(ts[i].id);
+}
+
+document.addEventListener("keydown", e=>{
+  if (!P) return;
+  if (e.target.matches("input,textarea,select") || document.querySelector(".modal")) return;
+  if (dibujando){
+    if (e.key==="Escape") cerrarDibujo(false);
+    else if ((e.key==="z"||e.key==="Z")) { formasEd.pop(); repintarEditor(); }
+    return;
+  }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key;
+  if (k===" "){ e.preventDefault(); player.paused()?player.play():player.pause(); return; }
+  if (k==="ArrowLeft"||k==="ArrowRight"){
+    e.preventDefault();
+    if (playlist && !e.shiftKey){ siguienteClip(k==="ArrowRight"?1:-1); return; }
+    clipFin=null; player.seek(player.time()+(k==="ArrowRight"?1:-1)*(e.shiftKey?1:5)); return;
+  }
+  if ((k==="," || k===".") && kind==="file"){ e.preventDefault(); vid.pause(); vid.currentTime += k==="."?0.04:-0.04; return; }
+  if (k==="Tab"){ e.preventDefault(); equipo = equipo==="propio"?"rival":"propio"; render(); flash(equipo==="propio"?"Taggeando: "+EQ():"Taggeando: Rival"); return; }
+  if (k==="Escape"){ if (playlist){ playlist=null; clipFin=null; mostrarOverlay(null); } return; }
+  const tag = P.tags.find(x=>x.id===selTagId);
+  if (k==="Enter" && tag){ verTag(tag.id); return; }
+  if ((k==="Delete"||k==="Backspace") && tag){ e.preventDefault(); borrarTag(tag.id); return; }
+  if ((k==="+"||k==="-") && tag){ tag.resultado = k==="+"?"pos":"neg"; changed(); renderDesc(); renderTab(); return; }
+  const b = P.botones.find(x=>x.tecla && x.tecla.toUpperCase()===k.toUpperCase());
+  if (b){ e.preventDefault(); pulsar(b); }
+});
+window.addEventListener("resize", ()=>renderTimeline());
+})();
+</script>
+</body>
+</html>
