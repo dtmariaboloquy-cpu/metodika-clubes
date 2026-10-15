@@ -925,24 +925,55 @@ function cargarJsPDF(){return window.jspdf&&window.jspdf.jsPDF?Promise.resolve(w
 async function fichaTareaPDF(t,btn){
   const txt0=btn.textContent;btn.disabled=true;btn.textContent='Armando…';
   try{
-    const JsPDF=await cargarJsPDF(),doc=new JsPDF({unit:'mm',format:'a4'}),PW=210,M=15,AW=PW-2*M;let y=0;
-    const G2=v=>G(v||'');
-    doc.setFillColor(20,20,18);doc.rect(0,0,PW,24,'F');doc.setFillColor(255,212,0);doc.rect(0,24,PW,1.6,'F');
-    doc.setTextColor(255,212,0);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('METODIKA · '+String(S.club.nombre||'').toUpperCase(),M,9);
-    doc.setTextColor(255,255,255);doc.setFontSize(16);doc.text(doc.splitTextToSize(G2(t.titulo),AW)[0],M,18);
-    y=33;doc.setTextColor(20,20,18);doc.setFontSize(9);doc.setFont('helvetica','normal');
-    const datos=[['Categoría',catTarea(t.categoria)],['Tipo',t.tipo],['Contenido',t.contenido],[J('Pl'),t.nJug],['Espacio',t.espacio],['Dificultad',t.dificultad],['Duración',t.duracion+' min']];
-    const cw=AW/4;datos.forEach(([k,v],i)=>{const x=M+(i%4)*cw,yy=y+Math.floor(i/4)*11;doc.setTextColor(120,115,105);doc.setFontSize(7.5);doc.text(String(k).toUpperCase(),x,yy);doc.setTextColor(20,20,18);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text(doc.splitTextToSize(G2(String(v||'—')),cw-3)[0],x,yy+4.5);doc.setFont('helvetica','normal')});
-    y+=24;
-    if(t.objetivo){doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text('Objetivo',M,y);doc.setFont('helvetica','normal');doc.setFontSize(10.5);const l=doc.splitTextToSize(G2(t.objetivo),AW);doc.text(l,M,y+5.5);y+=7+l.length*5}
+    const JsPDF=await cargarJsPDF(),doc=new JsPDF({unit:'mm',format:'a4'}),PW=210,PH=297,M=14,AW=PW-2*M;
+    const G2=v=>G(v||''),NEGRO=[20,20,18],AMA=[255,212,0],GRIS=[110,105,95],GRIS2=[236,233,226],LINEA=[214,209,198];
+    const club=S.club||{};
+    // ---------- encabezado ----------
+    doc.setFillColor(...NEGRO);doc.rect(0,0,PW,38,'F');doc.setFillColor(...AMA);doc.rect(0,38,PW,1.8,'F');
+    let xTit=M;
+    if(club.escudo){try{doc.addImage(club.escudo,club.escudo.includes('image/png')?'PNG':'JPEG',M,8,22,22);xTit=M+27}catch(e){}}
+    if(xTit===M){doc.setFillColor(...AMA);doc.roundedRect(M,8,22,22,3,3,'F');doc.setTextColor(...NEGRO);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(((club.nombre||'M').replace(/^(Club|Atlético|Deportivo)\s+/gi,'')[0]||'M').toUpperCase(),M+11,22.5,{align:'center'});xTit=M+27}
+    doc.setTextColor(...AMA);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text('FICHA DE TAREA',xTit,12.5,{charSpace:.6});
+    doc.setTextColor(255,255,255);doc.setFontSize(17);const tl=doc.splitTextToSize(G2(t.titulo),PW-xTit-M);doc.text(tl.slice(0,2),xTit,20);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(200,195,185);doc.text([club.nombre,club.categoria,club.temporada?'Temporada '+club.temporada:''].filter(Boolean).join('  ·  '),xTit,tl.length>1?33:28);
+    let y=47;
+    // ---------- etiquetas ----------
+    const chip=(x,txt,dest)=>{doc.setFont('helvetica','bold');doc.setFontSize(8);const w=doc.getTextWidth(txt)+6;doc.setFillColor(...(dest?AMA:GRIS2));doc.roundedRect(x,y-4.2,w,6,3,3,'F');doc.setTextColor(...NEGRO);doc.text(txt,x+3,y);return x+w+2.5};
+    let xc=M;xc=chip(xc,G2(catTarea(t.categoria)),true);xc=chip(xc,G2(t.tipo));if(t.contenido&&t.contenido!==t.tipo)chip(xc,G2(t.contenido));
+    y+=7;
+    // ---------- datos ----------
+    const dif={Baja:1,Media:2,Alta:3}[t.dificultad]||0;
+    const cajas=[['DURACIÓN',(t.duracion||'—')+' min'],[J('Pl').toUpperCase(),G2(t.nJug)||'—'],['ESPACIO',G2(t.espacio)||'—'],['DIFICULTAD',G2(t.dificultad)||'—']];
+    const cw=(AW-9)/4;cajas.forEach(([k,v],i)=>{const x=M+i*(cw+3);doc.setDrawColor(...LINEA);doc.setLineWidth(.3);doc.roundedRect(x,y,cw,17,2,2,'S');doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...GRIS);doc.text(k,x+4,y+5.5,{charSpace:.4});doc.setFontSize(13);doc.setTextColor(...NEGRO);doc.text(String(v),x+4,y+13);
+      if(k==='DIFICULTAD'){for(let q=0;q<3;q++){doc.setFillColor(...(q<dif?AMA:GRIS2));doc.rect(x+cw-16+q*4.2,y+9.5,3.4,3.4,'F')}}});
+    y+=23;
+    // ---------- objetivo ----------
+    if(t.objetivo){doc.setFillColor(255,248,214);doc.rect(M,y,AW,11,'F');doc.setFillColor(...AMA);doc.rect(M,y,1.6,11,'F');doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...GRIS);doc.text('OBJETIVO',M+5,y+4.3,{charSpace:.4});doc.setFontSize(10.5);doc.setTextColor(...NEGRO);doc.text(doc.splitTextToSize(G2(t.objetivo),AW-10)[0],M+5,y+8.8);y+=16}
+    // ---------- diagrama ----------
     const pz=S.pizarras.find(p=>p.id===t.diagrama);
-    if(pz){const [W,H]=FORMATOS[pz.formato]||[40,30],pad=Math.max(W,H)*.045,ar=(W+pad*2)/(H+pad*2),im=await svgAImagen(svgPizarra(pz,{mini:false})),cv=document.createElement('canvas');cv.width=1400;cv.height=Math.round(1400/ar);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
-      let iw=AW,ih=AW/ar;if(ih>105){ih=105;iw=ih*ar}doc.addImage(cv.toDataURL('image/jpeg',.9),'JPEG',M+(AW-iw)/2,y+2,iw,ih);y+=ih+8}
-    const bloque=(tit,cuerpo)=>{if(!cuerpo)return;if(y>262){doc.addPage();y=20}doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(20,20,18);doc.text(tit,M,y);y+=5.5;doc.setFont('helvetica','normal');doc.setFontSize(10.5);cuerpo.forEach(par=>{const l=doc.splitTextToSize(par,AW-(par.startsWith('• ')?0:0));if(y+l.length*5>285){doc.addPage();y=20}doc.text(l,M,y);y+=l.length*5+1.5});y+=3};
-    bloque('Descripción',t.descripcion?[G2(t.descripcion)]:null);
-    bloque('Consignas',(t.consignas||'').split('\n').filter(Boolean).map(c=>'• '+G2(c)));
-    if(t.video)bloque('Video',[t.video]);
-    const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(150,145,135);doc.text('Metodika Clubes · Ficha de tarea',M,292);doc.text(i+' / '+n,PW-M,292,{align:'right'})}
+    if(pz){const [W,H]=FORMATOS[pz.formato]||[40,30],pad=Math.max(W,H)*.045,ar=(W+pad*2)/(H+pad*2),im=await svgAImagen(svgPizarra(pz,{mini:false})),cv=document.createElement('canvas');cv.width=1600;cv.height=Math.round(1600/ar);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+      let ih=Math.min(90,AW/ar),iw=ih*ar;doc.addImage(cv.toDataURL('image/jpeg',.92),'JPEG',M+(AW-iw)/2,y,iw,ih);
+      doc.setFontSize(7.5);doc.setTextColor(...GRIS);doc.setFont('helvetica','normal');doc.text('Diagrama: '+G2(pz.nombre)+(pz.formato?' · '+pz.formato:''),M+(AW-iw)/2,y+ih+4);y+=ih+12}
+    // ---------- dos columnas: descripción / consignas ----------
+    const tituloSec=(x,yy,txt)=>{doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...NEGRO);doc.text(txt.toUpperCase(),x,yy,{charSpace:.5});doc.setDrawColor(...AMA);doc.setLineWidth(.8);doc.line(x,yy+1.6,x+12,yy+1.6)};
+    const colW=(AW-8)/2,xL=M,xR=M+colW+8;let yL=y,yR=y;
+    if(t.descripcion){tituloSec(xL,yL,'Descripción');yL+=7;doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(40,38,34);const l=doc.splitTextToSize(G2(t.descripcion),colW);doc.text(l,xL,yL,{lineHeightFactor:1.35});yL+=l.length*4.6+4}
+    const cons=(t.consignas||'').split('\n').filter(Boolean);
+    if(cons.length){tituloSec(xR,yR,'Consignas');yR+=7;cons.forEach((c,i)=>{doc.setFillColor(...NEGRO);doc.circle(xR+2.3,yR-1.2,2.3,'F');doc.setTextColor(...AMA);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.text(String(i+1),xR+2.3,yR-.1,{align:'center'});doc.setTextColor(40,38,34);doc.setFont('helvetica','normal');doc.setFontSize(9.5);const l=doc.splitTextToSize(G2(c),colW-8);doc.text(l,xR+7,yR,{lineHeightFactor:1.35});yR+=l.length*4.6+2.5})}
+    y=Math.max(yL,yR)+3;
+    // ---------- materiales (salen del diagrama) ----------
+    const mat={};if(pz){pz.elementos.forEach(e=>{if(e.t!=='J'&&MATERIALES[e.t]){const n=MATERIALES[e.t].n;mat[n]=(mat[n]||0)+1}});const cols=new Set(pz.elementos.filter(e=>e.t==='J'&&e.color&&e.color!=='#F08A24'&&e.color!=='hueco').map(e=>e.color));if(cols.size>1)mat['Pecheras ('+cols.size+' colores)']=''}
+    const matTxt=Object.entries(mat).map(([n,c])=>c?(c+' × '+n.toLowerCase()):n).join('   ·   ');
+    if(y>250){doc.addPage();y=20}
+    if(matTxt){tituloSec(M,y,'Materiales');y+=6.5;doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(40,38,34);const l=doc.splitTextToSize(matTxt,AW);doc.text(l,M,y);y+=l.length*4.6+4}
+    if(t.video){doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...GRIS);doc.text('Video: ',M,y);doc.setTextColor(0,90,167);doc.textWithLink(t.video.slice(0,90),M+11,y,{url:t.video});y+=7}
+    // ---------- observaciones a mano ----------
+    if(y>PH-48){doc.addPage();y=20}
+    const altoObs=Math.max(24,Math.min(46,PH-24-y));
+    {tituloSec(M,y+2,'Observaciones');y+=6;doc.setDrawColor(...LINEA);doc.setLineWidth(.3);doc.roundedRect(M,y,AW,altoObs,2,2,'S');for(let ly=y+8;ly<y+altoObs-2;ly+=7.5)doc.line(M+4,ly,M+AW-4,ly)}
+    // ---------- pie ----------
+    const n=doc.getNumberOfPages(),hoy=fFecha(iso(HOY));
+    for(let i=1;i<=n;i++){doc.setPage(i);doc.setDrawColor(...LINEA);doc.setLineWidth(.3);doc.line(M,PH-12,PW-M,PH-12);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...NEGRO);doc.text('METODIKA',M,PH-7.5,{charSpace:.6});doc.setFont('helvetica','normal');doc.setTextColor(...GRIS);doc.text('Método · Cancha · Equipo',M+21,PH-7.5);doc.text('Generada el '+hoy+'   ·   '+i+' / '+n,PW-M,PH-7.5,{align:'right'})}
     doc.save(G2(t.titulo).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase()+'.pdf');
     aviso('Ficha descargada');
   }catch(e){aviso('No se pudo armar el PDF: '+(e.message||e))}
