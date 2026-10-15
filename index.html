@@ -528,6 +528,7 @@ function clubVacio(){
 
 /* ================= NAVEGACIÓN ================= */
 const ICO={
+  charla:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/>',
   libro:'<path d="M4 5.5c2.5-1 5.5-1 8 .8v13c-2.5-1.8-5.5-1.8-8-.8z"/><path d="M20 5.5c-2.5-1-5.5-1-8 .8v13c2.5-1.8 5.5-1.8 8-.8z"/>',
   tag:'<path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8.2-8.6 8.8z"/><circle cx="8" cy="8" r="1.6"/>',
   video:'<rect x="3" y="5" width="13" height="14" rx="2"/><path d="M16 10l5-3v10l-5-3z"/><path d="M8 9.5v5l4-2.5z"/>',
@@ -543,13 +544,13 @@ const ICO={
   tienda:'<path d="M4 8h16l-1.3 12H5.3z"/><path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2"/>',
   ajustes:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>'
 };
-const RUTAS=[['inicio','Inicio'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes']];
-const ICO_R={inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',asistencia:'asist',tienda:'tienda',ajustes:'ajustes'};
+const RUTAS=[['inicio','Inicio'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes'],['sugerencia','Enviar sugerencia']];
+const ICO_R={inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',asistencia:'asist',tienda:'tienda',ajustes:'ajustes',sugerencia:'charla'};
 let ruta='inicio',param=null;
 function ir(r,p=null){ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
 function pintarMenu(){
   $('#menu').innerHTML=RUTAS.map(([r,t])=>r==='-'?'<div class="sep"></div>':`<a href="#${r}" data-r="${r}" class="${ruta===r?'activo':''}"><svg viewBox="0 0 24 24">${ICO[ICO_R[r]]}</svg>${t==='Plantel'?'Plantel':t}</a>`).join('');
-  $$('#menu a').forEach(a=>a.onclick=e=>{e.preventDefault();ir(a.dataset.r)});
+  $$('#menu a').forEach(a=>a.onclick=e=>{e.preventDefault();if(a.dataset.r==='sugerencia')return enviarSugerencia();ir(a.dataset.r)});
   const nSol=(typeof esAdmin==='function'&&esAdmin())?SOLIC.length:0;
   if(nSol){const aj=$('#menu a[data-r="ajustes"]');if(aj)aj.insertAdjacentHTML('beforeend',`<span class="chip ama" style="margin-left:auto;padding:1px 7px">${nSol}</span>`)}
   $('.pie-lat').innerHTML=(typeof MODO!=='undefined'&&MODO==='nube'&&USR)?`<div style="letter-spacing:0;color:#C9C4B8;font-size:12.5px;margin-bottom:6px;overflow-wrap:anywhere">${esc((PERFIL&&PERFIL.nombre)||USR.displayName||USR.email)}</div><span class="chip" id="estadoNube">☁ Guardado</span>`:'METODIKA CLUBES · V1';
@@ -2356,11 +2357,55 @@ VISTAS.videoanalisis=el=>{
 };
 
 /* ================= AJUSTES ================= */
+/* ================= SUGERENCIAS (prueba con compañeras/os) ================= */
+const MODULOS_SUG=[['general','General / otra'],['inicio','Inicio'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca de tareas'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['ajustes','Ajustes / ingreso']];
+function enviarSugerencia(){
+  const modAct=MODULOS_SUG.some(m=>m[0]===ruta)?ruta:'general';
+  modal('Enviar sugerencia',`<p class="sub" style="margin:0 0 12px">Contanos qué encontraste: un error, algo que no se entiende o una idea. Le llega directo a Metodika.</p>
+  <form class="form" id="fSug">
+    <label class="campo">Tipo<select name="tipo">${opts([['error','🐞 Algo no funciona'],['confuso','🤔 No se entiende'],['idea','💡 Idea o mejora'],['otro','💬 Otro comentario']],'error')}</select></label>
+    <label class="campo">Módulo<select name="modulo">${opts(MODULOS_SUG,modAct)}</select></label>
+    <label class="campo ancho">¿Qué pasó o qué propondrías?<textarea name="texto" rows="5" placeholder="Ej.: En la pizarra, al tocar el arco desde el celular no se mueve."></textarea></label>
+  </form>
+  <p class="sub" style="font-size:12px;margin:8px 0 0">Se envía junto con tu mail, el club y el tipo de dispositivo, para poder ubicar el problema.</p>
+  <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okSug">Enviar</button></div>`,{alMontar:m=>{
+    $('#okSug',m).onclick=async()=>{const d=leerForm($('#fSug',m));if(!d.texto.trim()){aviso('Escribí tu comentario.');return}
+      const disp=(innerWidth<600?'Celular':innerWidth<1000?'Tablet':'Compu')+' · '+innerWidth+'×'+innerHeight+' · '+(navigator.userAgent.match(/(Android|iPhone|iPad|Windows|Mac OS X|Linux)/)||['?'])[0];
+      const reg={tipo:d.tipo,modulo:d.modulo,texto:d.texto.trim().slice(0,3000),pantalla:ruta,dispositivo:disp,fecha:new Date().toISOString(),estado:'nueva',
+        club:(S&&S.club&&S.club.nombre)||'',clubId:(typeof CLUB!=='undefined'&&CLUB)||'',email:(typeof USR!=='undefined'&&USR&&USR.email)||'',nombre:(typeof PERFIL!=='undefined'&&PERFIL&&PERFIL.nombre)||''};
+      const b=$('#okSug',m);b.disabled=true;b.textContent='Enviando…';
+      if(typeof MODO!=='undefined'&&MODO==='nube'&&USR){try{await db.collection('sugerencias').add({...reg,uid:USR.uid});cerrarModal();aviso('¡Gracias! Tu sugerencia llegó.');return}catch(e){console.warn(e)}}
+      const tit={error:'Error',confuso:'No se entiende',idea:'Idea',otro:'Comentario'}[reg.tipo];
+      const cuerpo=`${reg.texto}\n\n— Módulo: ${(MODULOS_SUG.find(x=>x[0]===reg.modulo)||[])[1]}\n— Club: ${reg.club}\n— Dispositivo: ${reg.dispositivo}`;
+      location.href='mailto:'+CONTACTO_MAIL+'?subject='+encodeURIComponent('Metodika Clubes · '+tit)+'&body='+encodeURIComponent(cuerpo);
+      cerrarModal();aviso('Se abrió tu correo para enviar la sugerencia.')};
+  }});
+}
+let SUG_LISTA=null,SUG_FILTRO='nueva';
+async function cargarSugerencias(){try{const q=await db.collection('sugerencias').orderBy('fecha','desc').limit(300).get();SUG_LISTA=q.docs.map(d=>({id:d.id,...d.data()}))}catch(e){console.warn(e);SUG_LISTA=[]}if(ruta==='ajustes')pintar()}
+function panelSugerenciasHtml(){
+  if(SUG_LISTA===null){cargarSugerencias();return `<div class="panel" style="margin-bottom:16px"><h3>Sugerencias de quienes prueban</h3><div class="sub">Cargando…</div></div>`}
+  const ICS={error:'🐞',confuso:'🤔',idea:'💡',otro:'💬'},nModulo=k=>(MODULOS_SUG.find(x=>x[0]===k)||[,k])[1];
+  const n={nueva:SUG_LISTA.filter(x=>x.estado!=='resuelta').length,resuelta:SUG_LISTA.filter(x=>x.estado==='resuelta').length};
+  const lista=SUG_LISTA.filter(x=>SUG_FILTRO==='todas'||(SUG_FILTRO==='resuelta'?x.estado==='resuelta':x.estado!=='resuelta'));
+  return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>Sugerencias de quienes prueban <span class="chip ama">${n.nueva} pendientes</span></h3><div class="der" style="display:flex;gap:6px;flex-wrap:wrap">
+    <select id="sugF" style="width:auto">${opts([['nueva','Pendientes ('+n.nueva+')'],['resuelta','Resueltas ('+n.resuelta+')'],['todas','Todas']],SUG_FILTRO)}</select><button class="btn chico" id="sugR">↻ Actualizar</button></div></div>
+    ${lista.length?`<div class="lista">${lista.map(x=>`<div class="fila" style="align-items:flex-start;gap:12px;padding:10px 0"><span style="font-size:20px">${ICS[x.tipo]||'💬'}</span><div style="flex:1;min-width:0"><div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(x.texto)}</div>
+      <div class="sub" style="font-size:12px;margin-top:4px">${esc(nModulo(x.modulo))} · ${esc(x.nombre||x.email||'—')}${x.club?' · '+esc(x.club):''} · ${esc(x.dispositivo||'')} · ${new Date(x.fecha).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${x.email?`<a class="btn chico" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Tu sugerencia en Metodika Clubes')}">Responder</a>`:''}<button class="btn chico" data-sres="${x.id}">${x.estado==='resuelta'?'↺ Reabrir':'✓ Resuelta'}</button><button class="btn chico fantasma" data-sdel="${x.id}" aria-label="Borrar">✕</button></div></div>`).join('')}</div>`:`<div class="vacio">${SUG_FILTRO==='nueva'?'No hay sugerencias pendientes.':'Nada por acá.'}</div>`}</div>`;
+}
+function conectarSugerencias(el){
+  const f=$('#sugF',el);if(!f)return;
+  f.onchange=e=>{SUG_FILTRO=e.target.value;pintar()};
+  $('#sugR',el).onclick=()=>{SUG_LISTA=null;pintar()};
+  $$('[data-sres]',el).forEach(b=>b.onclick=async()=>{const x=SUG_LISTA.find(y=>y.id===b.dataset.sres);const nuevo=x.estado==='resuelta'?'nueva':'resuelta';try{await db.collection('sugerencias').doc(x.id).update({estado:nuevo});x.estado=nuevo;pintar()}catch(e){aviso('No se pudo actualizar.')}});
+  $$('[data-sdel]',el).forEach(b=>b.onclick=()=>confirmar('¿Borrar esta sugerencia?','No se puede deshacer.','Borrar',async()=>{try{await db.collection('sugerencias').doc(b.dataset.sdel).delete();SUG_LISTA=SUG_LISTA.filter(y=>y.id!==b.dataset.sdel);pintar()}catch(e){aviso('No se pudo borrar.')}}));
+}
 VISTAS.ajustes=el=>{
   const c=S.club;let esc0=c.escudo;
   let tema='';try{tema=localStorage.getItem('metodika_tema')||''}catch(e){}
   const nube=MODO==='nube';
-  el.innerHTML=cabecera('Configuración','Ajustes','')+(nube?panelEquipoHtml():'')+
+  el.innerHTML=cabecera('Configuración','Ajustes','')+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+
   `<div class="grilla g2" style="align-items:start"><div class="panel"><h3>Datos del club</h3><form class="form" id="fC" style="margin-top:6px">
     <div class="ancho" style="display:flex;gap:14px;align-items:center"><div class="av g" id="prevEsc">${c.escudo?`<img src="${c.escudo}" alt="">`:'?'}</div><label class="btn chico" for="escF">Subir escudo</label><input type="file" id="escF" accept="image/*" hidden></div>
     <label class="campo ancho">Nombre del club<input type="text" id="cn" name="nombre" value="${esc(c.nombre)}"></label>
@@ -2379,6 +2424,7 @@ VISTAS.ajustes=el=>{
     ${nube&&!esAdmin()?'':`<div class="panel"><h3>Empezar de nuevo</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${nube?'':'<button class="btn" id="verDemo">Cargar club de ejemplo</button>'}<button class="btn peligro" id="vaciar">Borrar todo y empezar de cero</button></div></div>`}
   </div></div>`;
   const addA=()=>{const n=agregarContenido($('#aCont').value);if(n){aviso('Concepto agregado: '+n);pintar()}};
+  conectarSugerencias(el);
   $('#aContB').onclick=addA;$('#aCont').onkeydown=e=>{if(e.key==='Enter')addA()};
   $$('[data-qc]').forEach(b=>b.onclick=()=>{const c=b.dataset.qc;if(CONT().length<=1){aviso('Tiene que quedar al menos un concepto.');return}const usos=S.tareas.filter(t=>t.contenido===c).length+S.sesiones.filter(s=>contSes(s).includes(c)).length;confirmar('¿Quitar “'+c+'”?',usos?'Se usa en '+usos+' tareas o sesiones. Esas quedan como están; solo deja de aparecer en la lista para elegir.':'Deja de aparecer en la lista para elegir.','Quitar',()=>{S.contenidos=CONT().filter(x=>x!==c);guardar();pintar()})});
   $('#escF').onchange=e=>{const f=e.target.files[0];if(f)reducirFoto(f,d=>{esc0=d;$('#prevEsc').innerHTML=`<img src="${d}" alt="">`})};
