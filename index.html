@@ -559,11 +559,13 @@ function pintarMenu(){
 }
 const VISTAS={};
 function pintar(){
+  if(typeof estadoPlan==='function'&&estadoPlan().tipo==='vencido'){pantallaPlan();return}
   pintarMenu();
   const v=$('#vista');
   const enDemoNube=typeof MODO!=='undefined'&&MODO==='demo';
   const banda=S.demo?`<div class="demo-banda"><b>Club de ejemplo</b><span>Estás viendo datos ficticios para conocer Metodika.</span><button class="btn chico" id="salirDemo">${enDemoNube?'Entrar o crear cuenta':'Empezar con mi club'}</button></div>`:'';
-  v.innerHTML=banda+'<div id="cont"></div>';
+  v.innerHTML=banda+(typeof bandaPlan==='function'?bandaPlan():'')+'<div id="cont"></div>';
+  {const vp=$('#verPlan');if(vp)vp.onclick=pantallaPlan}
   if(S.demo&&enDemoNube)$('#salirDemo').onclick=()=>location.reload();
   else if(S.demo)$('#salirDemo').onclick=()=>confirmar('¿Empezar con tu club?','Se borran los datos de ejemplo y la app queda vacía para que cargues tu plantel. La biblioteca trae 12 tareas de base para arrancar.','Empezar de cero',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Cargá los datos de tu club.')});
   (VISTAS[ruta]||VISTAS.inicio)($('#cont'));
@@ -2436,13 +2438,48 @@ function pantallaEspera(){
 
 /* ---------- Abrir el club y sincronizar ---------- */
 function cortarSubs(){subs.forEach(u=>{try{u()}catch(e){}});subs=[]}
+/* ================= PRUEBA GRATIS Y PLAN PAGO ================= */
+const DIAS_PRUEBA=30;
+let PLAN={cargado:false,pago:false,hasta:''};
+async function cargarPlan(){try{const d=await db.collection('planes').doc(CLUB).get();const v=d.exists?d.data():{};PLAN={cargado:true,pago:!!v.pago,hasta:v.hasta||''}}catch(e){PLAN={cargado:true,pago:false,hasta:''}}LECT.pago=PLAN.pago}
+function inicioPrueba(){try{if(CLUBDOC&&CLUBDOC.creado&&CLUBDOC.creado.toDate)return CLUBDOC.creado.toDate()}catch(e){}
+  if(!S.club.pruebaDesde){S.club.pruebaDesde=iso(HOY);guardar()}return deIso(S.club.pruebaDesde)}
+function estadoPlan(){
+  if(typeof MODO==='undefined'||MODO!=='nube'||!CLUB)return {tipo:'libre'};
+  if(esDuenia())return {tipo:'libre'};
+  if(!PLAN.cargado)return {tipo:'libre'};
+  if(PLAN.pago&&(!PLAN.hasta||deIso(PLAN.hasta)>=HOY))return {tipo:'pago',hasta:PLAN.hasta};
+  const fin=new Date(inicioPrueba().getTime()+DIAS_PRUEBA*864e5),quedan=Math.ceil((fin-new Date())/864e5);
+  if(quedan>0)return {tipo:'prueba',quedan,fin};
+  return {tipo:'vencido',vencioPlan:PLAN.pago};
+}
+function bandaPlan(){const e=estadoPlan();if(e.tipo!=='prueba')return '';
+  return `<div class="demo-banda" style="background:${e.quedan<=5?'#FFE3DE':'var(--amarillo)'}"><b>Prueba gratis</b><span>${e.quedan===1?'Te queda 1 día':'Te quedan '+e.quedan+' días'} para usar Metodika Clubes sin pagar.</span><button class="btn chico" id="verPlan">Ver el plan</button></div>`}
+function pantallaPlan(){
+  const e=estadoPlan(),cod=(CLUBDOC&&CLUBDOC.codigo)||'',adm=esAdmin();
+  const asunto=encodeURIComponent('Plan Metodika Clubes · '+(S.club.nombre||'')+' · código '+cod);
+  pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="max-width:480px">
+    <h1>${e.tipo==='vencido'?(e.vencioPlan?'Se venció tu plan':'Terminó tu prueba gratis'):'Plan Metodika Clubes'}</h1>
+    <p class="sub" style="margin:6px 0 14px">${e.tipo==='vencido'?'Para seguir usando la app con '+esc(S.club.nombre||'tu club')+', activá el plan. Tus datos están guardados y no se pierde nada.':'Durante la prueba podés usar todo gratis. Cuando quieras, activá el plan para seguir sin cortes.'}</p>
+    <div style="display:grid;gap:8px">
+      <a class="btn pri" href="${TIENDA}" target="_blank" rel="noopener" style="justify-content:center">Pagar el plan</a>
+      <a class="btn" href="mailto:${CONTACTO_MAIL}?subject=${asunto}&body=${encodeURIComponent('Hola! Ya pagué el plan para el club '+(S.club.nombre||'')+' (código '+cod+').')}" style="justify-content:center">Ya pagué: avisar a Metodika</a>
+      <a class="btn fantasma" href="${CONTACTO_IG}" target="_blank" rel="noopener" style="justify-content:center">Consultas por Instagram</a></div>
+    <div class="panel" style="margin-top:14px;text-align:center"><div class="sub" style="font-size:12.5px">Código de tu club (pasalo cuando pagues)</div><div style="font-size:26px;font-weight:800;letter-spacing:4px">${esc(cod||'—')}</div></div>
+    ${!adm&&e.tipo==='vencido'?'<p class="sub" style="font-size:12.5px;margin:10px 0 0">Avisale a quien administra el club.</p>':''}
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="btn chico fantasma" id="plCopia">Descargar copia de mis datos</button>${e.tipo==='vencido'?'<button class="btn chico fantasma" id="plYa">Ya me activaron: volver a entrar</button>':'<button class="btn chico" id="plVolver">← Volver a la app</button>'}<button class="btn chico fantasma" id="plSalir">Cerrar sesión</button></div></div>`);
+  $('#plCopia').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='metodika-copia-'+iso(HOY)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)};
+  const v=$('#plVolver');if(v)v.onclick=()=>{document.body.classList.remove('sin-menu');pintar()};
+  const y=$('#plYa');if(y)y.onclick=async()=>{await cargarPlan();if(estadoPlan().tipo==='vencido'){aviso('Todavía no figura activado. Si ya pagaste, puede tardar un rato.')}else{document.body.classList.remove('sin-menu');pintar();aviso('¡Plan activo!')}};
+  $('#plSalir').onclick=()=>auth.signOut();
+}
 function abrirClub(clubId,recienCreado){
-  cortarSubs();CLUB=clubId;MODO='nube';LECT.cargado=false;
+  cortarSubs();CLUB=clubId;MODO='nube';LECT.cargado=false;PLAN={cargado:false,pago:false,hasta:''};
   pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando los datos del club…</p>`);
   const ref=db.collection('clubes').doc(clubId);
   let listos={club:false,datos:false,partidos:false,pizarras:false,fotos:false};
   if(!recienCreado)S={version:1,demo:false,contenidos:[...CONT_BASE],club:{nombre:'',categoria:'',temporada:String(HOY.getFullYear()),rama:'F',escudo:'',duracionTiempo:45},jugadores:[],tareas:[],pizarras:[],microciclos:[],sesiones:[],partidos:[],asistencia:{},evaluaciones:[]};
-  const listo=k=>{if(listos[k])return;listos[k]=true;if(Object.values(listos).every(Boolean)){document.body.classList.remove('sin-menu');migrarNube();{const h=(location.hash||'').replace('#','');if(VISTAS[h])ruta=h}pintar();estadoNube('guardado')}};
+  const listo=k=>{if(listos[k])return;listos[k]=true;if(Object.values(listos).every(Boolean)){document.body.classList.remove('sin-menu');migrarNube();{const h=(location.hash||'').replace('#','');if(VISTAS[h])ruta=h}cargarPlan().then(()=>{pintar();estadoNube('guardado')})}};
   subs.push(ref.onSnapshot(d=>{
     if(!d.exists){cortarSubs();pantallaClub('El club ya no existe.');return}
     CLUBDOC=d.data();
@@ -2729,7 +2766,7 @@ async function cargarLecturas(){
   if(MODO!=='nube'){LECT.cargado=true;return}
   try{const q=await db.collection('lecturas').get();LECT.items=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.orden||0)-(b.orden||0)||String(a.titulo).localeCompare(String(b.titulo)))}
   catch(e){LECT.error=e&&e.code==='permission-denied'?'reglas':errTxt(e)}
-  try{const p=await db.collection('planes').doc(CLUB).get();LECT.pago=!!(p.exists&&p.data().pago)}catch(e){}
+  await cargarPlan();
   LECT.cargado=true;
 }
 VISTAS.lecturas=el=>{
