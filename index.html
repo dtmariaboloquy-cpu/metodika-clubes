@@ -2142,6 +2142,7 @@ function alEntrar(u){
 }
 function iniciarNube(){
   firebase.initializeApp(FB_CONFIG);auth=firebase.auth();db=firebase.firestore();
+  const conf=new URLSearchParams(location.search).get('conf');if(conf&&/^[a-z0-9]{10,40}$/.test(conf)){paginaConfirmar(conf);return}
   try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
   window.addEventListener('offline',()=>estadoNube('offline'));window.addEventListener('online',()=>estadoNube('guardado'));
   pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando…</p>`);
@@ -2226,12 +2227,12 @@ VISTAS.fixture=el=>{
 let periodoA='30';
 VISTAS.asistencia=el=>{
   if(param)return tomarAsistencia(el,param);
-  const acts=[...S.sesiones.filter(s=>deIso(s.fecha)<=HOY).map(s=>({k:'s:'+s.id,fecha:s.fecha,t:'Entrenamiento',n:s.titulo})),...S.partidos.filter(p=>deIso(p.fecha)<=HOY).map(p=>({k:'p:'+p.id,fecha:p.fecha,t:'Partido',n:'vs '+p.rival}))].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,24);
+  const lim=sumarDias(HOY,14),acts=[...S.sesiones.filter(s=>deIso(s.fecha)<=lim).map(s=>({k:'s:'+s.id,fecha:s.fecha,t:'Entrenamiento',n:s.titulo})),...S.partidos.filter(p=>deIso(p.fecha)<=lim).map(p=>({k:'p:'+p.id,fecha:p.fecha,t:'Partido',n:'vs '+p.rival}))].sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,30);
   const desde=periodoA==='30'?sumarDias(HOY,-30):null;
   const filas=ordenJ(S.jugadores).map(j=>({j,...asistJugador(j.id,desde)}));
-  el.innerHTML=cabecera('Entrenamientos y partidos','Asistencia','Tocá una actividad para tomar asistencia: presente, ausente o justificada.')+
+  el.innerHTML=cabecera('Entrenamientos y partidos','Asistencia','Tocá una actividad para tomar asistencia. En las próximas podés mandar un link para que cada '+J('sg')+' confirme si va.')+
   `<div class="grilla g2" style="grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)">
-   <div class="panel"><h3>Actividades</h3>${acts.length?`<div class="lista">${acts.map(a=>{const r=S.asistencia[a.k];const v=r?Object.values(r.reg):[];const pr=v.filter(x=>x==='P').length;return `<div class="fila click" data-k="${a.k}"><div style="min-width:78px"><b>${fFecha(a.fecha)}</b><div class="sub" style="font-size:12px">${a.t}</div></div><span style="min-width:0">${esc(a.n)}</span><div class="der">${r?`<span class="chip ${pct(pr,v.length)>=85?'ok':pct(pr,v.length)>=70?'aviso':'mal'}">${pr}/${v.length}</span>`:'<span class="chip aviso">Sin tomar</span>'}</div></div>`}).join('')}</div>`:'<div class="vacio">No hay actividades hasta hoy.</div>'}</div>
+   <div class="panel"><h3>Actividades</h3>${acts.length?`<div class="lista">${acts.map(a=>{const r=S.asistencia[a.k];const v=r?Object.values(r.reg):[];const pr=v.filter(x=>x==='P').length;return `<div class="fila click" data-k="${a.k}"><div style="min-width:78px"><b>${fFecha(a.fecha)}</b><div class="sub" style="font-size:12px">${a.t}</div></div><span style="min-width:0">${esc(a.n)}</span><div class="der">${deIso(a.fecha)>HOY?`<span class="chip ama">Próxima${r&&r.link?' · 📲':''}</span>`:r&&Object.keys(r.reg).length?`<span class="chip ${pct(pr,v.length)>=85?'ok':pct(pr,v.length)>=70?'aviso':'mal'}">${pr}/${v.length}</span>`:'<span class="chip aviso">Sin tomar</span>'}</div></div>`}).join('')}</div>`:'<div class="vacio">No hay actividades hasta hoy.</div>'}</div>
    <div class="panel"><div class="panel-cab"><h3>Resumen por ${J('sg')}</h3><div class="der"><div class="seg"><button data-per="30" class="${periodoA==='30'?'activo':''}">30 días</button><button data-per="t" class="${periodoA==='t'?'activo':''}">Temporada</button></div></div></div>
    <div class="tabla-c" style="border:0"><table><thead><tr><th>${J('Sg')}</th><th class="n">P</th><th class="n">J</th><th class="n">A</th><th>Presencia</th></tr></thead><tbody>${filas.map(f=>`<tr class="click" data-j="${f.j.id}"><td><span class="dorsal">${f.j.dorsal||'–'}</span> ${esc(f.j.nombre[0]+'. '+f.j.apellido)}</td><td class="n">${f.p}</td><td class="n">${f.jus}</td><td class="n">${f.t-f.p-f.jus}</td><td><div style="display:flex;gap:8px;align-items:center"><div class="barra" style="flex:1;min-width:60px"><i style="width:${f.pct}%;background:${f.pct>=85?'var(--verde)':f.pct>=70?'var(--ambar)':'var(--rojo)'}"></i></div><b class="num" style="min-width:38px;text-align:right">${f.t?f.pct+'%':'—'}</b></div></td></tr>`).join('')}</tbody></table></div>
    <p class="sub" style="font-size:12.5px;margin:8px 0 0">P presente · J justificada · A ausente. Verde desde 85 %, ámbar desde 70 %.</p></div></div>`;
@@ -2246,16 +2247,84 @@ function tomarAsistencia(el,k){
   const lista=ordenJ((tp==='s'?(act.jugadores&&act.jugadores.length?act.jugadores:S.jugadores.map(j=>j.id)):(act.convocados.length?act.convocados:S.jugadores.map(j=>j.id))).map(jugador).filter(Boolean));
   const cont=()=>{const v=lista.map(j=>reg.reg[j.id]);return {P:v.filter(x=>x==='P').length,A:v.filter(x=>x==='A').length,J:v.filter(x=>x==='J').length,sin:v.filter(x=>!x).length}};
   const c=cont();
-  el.innerHTML=`<button class="btn fantasma chico" id="volA" style="margin-bottom:12px">← Asistencia</button>`+cabecera((tp==='s'?'Entrenamiento':'Partido')+' · '+fFecha(act.fecha),tp==='s'?act.titulo:'vs '+act.rival,'',`<button class="btn" id="todosP">Todos presentes</button>`)+
+  el.innerHTML=`<button class="btn fantasma chico" id="volA" style="margin-bottom:12px">← Asistencia</button>`+cabecera((tp==='s'?'Entrenamiento':'Partido')+' · '+fFecha(act.fecha),tp==='s'?act.titulo:'vs '+act.rival,'',`<button class="btn pri" id="linkConf">📲 Link para confirmar</button><button class="btn" id="todosP">Todos presentes</button>`)+
+  `<div id="confBox"></div>`+
   `<div class="chips" style="margin-bottom:14px" id="resA"><span class="chip ok">${c.P} presentes</span><span class="chip aviso">${c.J} justificadas</span><span class="chip mal">${c.A} ausentes</span>${c.sin?`<span class="chip">${c.sin} sin marcar</span>`:''}</div>
   <div class="panel"><div class="lista">${lista.map(j=>`<div class="fila" style="flex-wrap:wrap">${avatar(j)}<div style="min-width:140px;flex:1"><b>${esc(j.nombre+' '+j.apellido)}</b><div class="sub" style="font-size:12.5px">#${j.dorsal||'–'} · ${esc(posTxt(j.posicion))}</div></div>
     <div class="seg" role="group" aria-label="Asistencia de ${esc(j.nombre)}">${[['P','Presente'],['J','Justificada'],['A','Ausente']].map(([v,t])=>`<button data-a="${j.id}" data-v="${v}" class="${reg.reg[j.id]===v?'activo':''}">${t}</button>`).join('')}</div>
-    <input type="text" data-o="${j.id}" value="${esc(reg.obs[j.id]||'')}" placeholder="Observación" style="max-width:220px" aria-label="Observación"></div>`).join('')}</div></div>`;
+    <span data-cr="${j.id}"></span><input type="text" data-o="${j.id}" value="${esc(reg.obs[j.id]||'')}" placeholder="Observación" style="max-width:220px" aria-label="Observación"></div>`).join('')}</div></div>`;
   const save=()=>{S.asistencia[k]=reg;guardar();const c=cont();$('#resA').innerHTML=`<span class="chip ok">${c.P} presentes</span><span class="chip aviso">${c.J} justificadas</span><span class="chip mal">${c.A} ausentes</span>${c.sin?`<span class="chip">${c.sin} sin marcar</span>`:''}`};
   $('#volA').onclick=()=>ir('asistencia');
   $('#todosP').onclick=()=>{lista.forEach(j=>reg.reg[j.id]='P');save();pintar();aviso('Todos marcados presentes')};
   $$('[data-a]',el).forEach(b=>b.onclick=()=>{reg.reg[b.dataset.a]=b.dataset.v;$$(`[data-a="${b.dataset.a}"]`,el).forEach(x=>x.classList.toggle('activo',x===b));save()});
   $$('[data-o]',el).forEach(i=>i.onchange=()=>{reg.obs[i.dataset.o]=i.value;save()});
+  $('#linkConf').onclick=()=>linkConfirmacion(k,act,tp,lista,reg,save);
+  if(reg.link&&typeof MODO!=='undefined'&&MODO==='nube')cargarRespuestas(el,k,reg,lista,save);
+}
+/* ---------- Confirmación de asistencia por link (sin cuenta) ---------- */
+function urlConf(t){return location.origin+location.pathname+'?conf='+t}
+function nombreCorto(j){return (j.nombre||'').trim().split(/\s+/)[0]+' '+((j.apellido||'').trim()[0]||'')+'.'}
+async function linkConfirmacion(k,act,tp,lista,reg,save){
+  if(typeof MODO==='undefined'||MODO!=='nube'){aviso('El link funciona cuando entrás con tu cuenta (no en el club de ejemplo).');return}
+  const tit=(tp==='s'?'Entrenamiento':'Partido')+' · '+(tp==='s'?act.titulo:'vs '+act.rival);
+  const datos={clubId:CLUB,club:S.club.nombre||'',categoria:S.club.categoria||'',rama:S.club.rama||'F',titulo:tit,fecha:act.fecha,hora:act.hora||'',lugar:act.lugar||act.condicion||'',
+    ids:lista.map(j=>j.id),jugadores:lista.map(j=>({id:j.id,n:nombreCorto(j),d:j.dorsal||''})),abierto:true,creado:new Date().toISOString(),creadoPor:USR.uid};
+  try{
+    if(!reg.link){const t=Array.from(crypto.getRandomValues(new Uint8Array(15)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');await db.collection('confirmaciones').doc(t).set(datos);reg.link=t;save()}
+    else await db.collection('confirmaciones').doc(reg.link).set(datos,{merge:true});
+  }catch(e){console.warn(e);aviso('No se pudo crear el link. Revisá que esté publicada la regla de “confirmaciones” en Firebase.');return}
+  const url=urlConf(reg.link),diaTxt=fFecha(act.fecha)+(act.hora?' · '+act.hora:'');
+  const msg=`Hola! 👋 Confirmá si venís al ${tit.toLowerCase().startsWith('partido')?'partido':'entrenamiento'} del ${diaTxt}. Tocá el link, elegí tu nombre y marcá si vas:\n${url}`;
+  modal('Link para confirmar',`<p class="sub" style="margin:0 0 12px">Mandalo al grupo. Cada ${J('sg')} toca su nombre y marca <b>Voy</b> o <b>No puedo ir</b>. No necesitan cuenta.</p>
+    <div style="display:flex;gap:8px;margin-bottom:12px"><input type="text" id="cfUrl" value="${esc(url)}" readonly style="flex:1"><button class="btn" id="cfCop">Copiar</button></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn pri" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Enviar por WhatsApp</a><a class="btn" href="mailto:?subject=${encodeURIComponent('Confirmá asistencia · '+diaTxt)}&body=${encodeURIComponent(msg)}">Enviar por mail</a></div>
+    <p class="sub" style="font-size:12.5px;margin:14px 0 0">Las respuestas aparecen al lado de cada nombre en esta pantalla.</p>
+    <div class="modal-pie"><button class="btn fantasma" id="cfCerrar">Cerrar el link (no aceptar más respuestas)</button><button class="btn pri" data-cerrar>Listo</button></div>`,{alMontar:m=>{
+      $('#cfCop',m).onclick=async()=>{try{await navigator.clipboard.writeText(url);aviso('Link copiado')}catch(e){$('#cfUrl',m).select();document.execCommand('copy');aviso('Link copiado')}};
+      $('#cfCerrar',m).onclick=async()=>{try{await db.collection('confirmaciones').doc(reg.link).update({abierto:false});cerrarModal();aviso('Link cerrado')}catch(e){aviso('No se pudo cerrar')}};
+    }});
+}
+async function cargarRespuestas(el,k,reg,lista,save){
+  let rs=[];try{const q=await db.collection('confirmaciones').doc(reg.link).collection('respuestas').get();rs=q.docs.map(d=>({id:d.id,...d.data()}))}catch(e){console.warn(e);return}
+  if(ruta!=='asistencia'||param!==k)return;
+  const voy=rs.filter(r=>r.r==='voy').length,no=rs.filter(r=>r.r==='no').length,sin=lista.length-voy-no;
+  rs.forEach(r=>{const c=$(`[data-cr="${r.id}"]`,el);if(c)c.innerHTML=r.r==='voy'?'<span class="chip ok">✓ Confirmó que va</span>':`<span class="chip mal" title="${esc(r.motivo||'')}">✗ No va${r.motivo?': '+esc(r.motivo.slice(0,40)):''}</span>`});
+  const box=$('#confBox',el);if(!box)return;
+  box.innerHTML=`<div class="panel" style="margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><b>📲 Confirmaciones:</b><span class="chip ok">${voy} van</span><span class="chip mal">${no} no van</span><span class="chip">${sin} sin responder</span>
+    <div class="der" style="display:flex;gap:8px;margin-left:auto"><button class="btn chico" id="cfAct">↻ Actualizar</button>${rs.length?'<button class="btn chico pri" id="cfPasar">Pasar a la asistencia</button>':''}</div></div>`;
+  $('#cfAct',el).onclick=()=>cargarRespuestas(el,k,reg,lista,save);
+  const p=$('#cfPasar',el);if(p)p.onclick=()=>{let n=0;rs.forEach(r=>{if(!lista.some(j=>j.id===r.id))return;if(r.r==='voy'){reg.reg[r.id]='P'}else{reg.reg[r.id]='J';if(r.motivo&&!reg.obs[r.id])reg.obs[r.id]=r.motivo}n++});save();pintar();aviso(n+' respuestas cargadas. Revisá y corregí si alguien no vino.')};
+}
+/* Página pública que abren las jugadoras/es (sin cuenta) */
+async function paginaConfirmar(t){
+  document.body.classList.add('sin-menu');
+  pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando…</p>`);
+  let d;try{const x=await db.collection('confirmaciones').doc(t).get();if(!x.exists)throw 0;d=x.data()}catch(e){pantallaCompleta(`${marcaGrande()}<div class="acc-caja"><h1>Link no válido</h1><p class="sub">Pedile a tu cuerpo técnico que te mande el link de nuevo.</p></div>`);return}
+  const G3=(f,m,x)=>d.rama==='M'?m:d.rama==='F'?f:x;
+  const pie=`<p class="sub" style="font-size:12px;text-align:center;margin-top:14px">${esc(d.club)}${d.categoria?' · '+esc(d.categoria):''} · Metodika</p>`;
+  const cab=`<div class="etq" style="color:var(--bronce)">${esc(fFecha(d.fecha))}${d.hora?' · '+esc(d.hora):''}</div><h1 style="margin:4px 0 2px">${esc(d.titulo)}</h1>`;
+  let yo='';try{yo=localStorage.getItem('conf_'+t)||''}catch(e){}
+  const elegir=()=>{
+    if(!d.abierto){pantallaCompleta(`${marcaGrande()}<div class="acc-caja">${cab}<p class="sub">El cuerpo técnico ya cerró las confirmaciones.</p></div>${pie}`);return}
+    pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="max-width:460px">${cab}<p class="sub" style="margin:8px 0 14px">Tocá tu nombre:</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">${d.jugadores.map(j=>`<button class="btn" data-yo="${esc(j.id)}" style="justify-content:flex-start;${j.id===yo?'outline:2px solid var(--tinta)':''}">${j.d?`<span class="dorsal" style="font-size:13px">${esc(j.d)}</span> `:''}${esc(j.n)}</button>`).join('')}</div></div>${pie}`);
+    $$('[data-yo]').forEach(b=>b.onclick=()=>responder(d.jugadores.find(j=>j.id===b.dataset.yo)));
+  };
+  const responder=j=>{
+    pantallaCompleta(`${marcaGrande()}<div class="acc-caja">${cab}<p style="margin:10px 0 14px;font-size:17px">Hola <b>${esc(j.n)}</b>, ¿vas a ir?</p>
+      <div style="display:grid;gap:10px"><button class="btn pri" id="cVoy" style="justify-content:center;font-size:17px;padding:14px">✅ Voy</button><button class="btn" id="cNo" style="justify-content:center;font-size:17px;padding:14px">❌ No puedo ir</button></div>
+      <div id="cMot" style="display:none;margin-top:12px"><label class="campo">Motivo (opcional)<textarea id="cMotT" rows="3" maxlength="280" placeholder="Ej.: examen, lesión, viaje…"></textarea></label><button class="btn pri" id="cNoOk" style="width:100%;justify-content:center;margin-top:8px">Enviar</button></div>
+      <button class="btn fantasma chico" id="cOtra" style="margin-top:14px">← No soy ${esc(j.n)}</button></div>${pie}`);
+    const enviar=async(r,motivo)=>{try{const o={r,fecha:new Date().toISOString(),nombre:j.n};if(motivo)o.motivo=motivo.slice(0,280);await db.collection('confirmaciones').doc(t).collection('respuestas').doc(j.id).set(o);try{localStorage.setItem('conf_'+t,j.id)}catch(e){}
+        pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="text-align:center"><div style="font-size:46px">${r==='voy'?'🙌':'👍'}</div><h1 style="margin:6px 0">¡Gracias, ${esc(j.n.split(' ')[0])}!</h1><p class="sub">${r==='voy'?'Quedó confirmado que vas.':'Le avisamos al cuerpo técnico que no podés ir.'}</p><button class="btn chico" id="cCamb" style="margin-top:12px">Cambiar mi respuesta</button></div>${pie}`);
+        $('#cCamb').onclick=()=>responder(j);
+      }catch(e){console.warn(e);aviso('No se pudo enviar. Probá de nuevo.')}};
+    $('#cVoy').onclick=()=>enviar('voy');
+    $('#cNo').onclick=()=>{$('#cMot').style.display='block';$('#cMotT').focus()};
+    $('#cNoOk').onclick=()=>enviar('no',$('#cMotT').value.trim());
+    $('#cOtra').onclick=elegir;
+  };
+  elegir();
 }
 
 /* ================= BIBLIOTECA DE LECTURA ================= */
