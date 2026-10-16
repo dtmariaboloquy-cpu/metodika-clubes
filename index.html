@@ -2453,9 +2453,12 @@ function estadoPlan(){
   if(PLAN.pago&&(!PLAN.hasta||deIso(PLAN.hasta)>=HOY))return {tipo:'pago',hasta:PLAN.hasta};
   const fin=new Date(inicioPrueba().getTime()+DIAS_PRUEBA*864e5),quedan=Math.ceil((fin-new Date())/864e5);
   if(quedan>0)return {tipo:'prueba',quedan,fin};
+  const g=S.club.gracia;if(g&&g.hasta&&deIso(g.hasta)>=HOY)return {tipo:'gracia',quedan:Math.max(1,Math.round((deIso(g.hasta)-HOY)/864e5))};
   return {tipo:'vencido',vencioPlan:PLAN.pago&&!!PLAN.hasta};
 }
-function bandaPlan(){const e=estadoPlan();if(e.tipo!=='prueba')return '';
+function bandaPlan(){const e=estadoPlan();
+  if(e.tipo==='gracia')return `<div class="demo-banda" style="background:#E3F1E8"><b>Verificando tu pago</b><span>Tenés acceso por ${e.quedan===1?'1 día más':e.quedan+' días más'} mientras Metodika activa tu plan.</span><button class="btn chico" id="verPlan">Ver el plan</button></div>`;
+  if(e.tipo!=='prueba')return '';
   return `<div class="demo-banda" style="background:${e.quedan<=5?'#FFE3DE':'var(--amarillo)'}"><b>Prueba gratis</b><span>${e.quedan===1?'Te queda 1 día':'Te quedan '+e.quedan+' días'} para usar Metodika Clubes sin pagar.</span><button class="btn chico" id="verPlan">Ver el plan</button></div>`}
 function pantallaPlan(){
   const e=estadoPlan(),cod=(CLUBDOC&&CLUBDOC.codigo)||'',adm=esAdmin();
@@ -2466,11 +2469,17 @@ function pantallaPlan(){
     <div style="display:grid;gap:8px;margin-bottom:14px">${Object.entries(PLANES).map(([k,v])=>`<div class="fila" style="border:1px solid var(--linea);border-radius:10px;padding:10px 12px"><div style="flex:1"><b>${v.n}</b><div class="sub" style="font-size:12.5px">${v.d}</div></div><div style="text-align:right;white-space:nowrap"><b>${v.precio}<span class="sub" style="font-weight:400;font-size:12px"> /año</span></b><div class="sub" style="font-size:12px">o ${v.mes} /mes</div></div></div>`).join('')}</div>
     <div style="display:grid;gap:8px">
       <a class="btn pri" href="${TIENDA}" target="_blank" rel="noopener" style="justify-content:center">Pagar el plan</a>
-      <a class="btn" href="mailto:${CONTACTO_MAIL}?subject=${asunto}&body=${encodeURIComponent('Hola! Ya pagué el plan para el club '+(S.club.nombre||'')+' (código '+cod+').')}" style="justify-content:center">Ya pagué: avisar a Metodika</a>
+      <button class="btn" id="plPague" style="justify-content:center">Ya pagué: avisar a Metodika</button>
       <a class="btn fantasma" href="${CONTACTO_IG}" target="_blank" rel="noopener" style="justify-content:center">Consultas por Instagram</a></div>
     <div class="panel" style="margin-top:14px;text-align:center"><div class="sub" style="font-size:12.5px">Código de tu club (pasalo cuando pagues)</div><div style="font-size:26px;font-weight:800;letter-spacing:4px">${esc(cod||'—')}</div></div>
     ${!adm&&e.tipo==='vencido'?'<p class="sub" style="font-size:12.5px;margin:10px 0 0">Avisale a quien administra el club.</p>':''}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="btn chico fantasma" id="plCopia">Descargar copia de mis datos</button>${e.tipo==='vencido'?'<button class="btn chico fantasma" id="plYa">Ya me activaron: volver a entrar</button>':'<button class="btn chico" id="plVolver">← Volver a la app</button>'}<button class="btn chico fantasma" id="plSalir">Cerrar sesión</button></div></div>`);
+  $('#plPague').onclick=()=>{
+    const mail='mailto:'+CONTACTO_MAIL+'?subject='+asunto+'&body='+encodeURIComponent('Hola! Ya pagué el plan para el club '+(S.club.nombre||'')+' (código '+cod+').\nPlan elegido: \nNombre y mail de quien pagó: ');
+    if(e.tipo==='vencido'&&!S.club.graciaUsada){const h=new Date(HOY);h.setDate(h.getDate()+3);S.club.gracia={hasta:iso(h),fecha:iso(HOY)};S.club.graciaUsada=true;guardar();
+      modal('¡Gracias!',`<p style="margin:0 0 12px">Ahora se abre tu correo para mandarle a Metodika el aviso con el código de tu club. <b>Mientras tanto tenés 3 días de acceso</b> para seguir usando la app.</p><div class="modal-pie"><button class="btn pri" id="grOk">Seguir usando la app</button></div>`,{alMontar:m=>{$('#grOk',m).onclick=()=>{cerrarModal();document.body.classList.remove('sin-menu');pintar()}}});
+    }else if(e.tipo==='vencido'){aviso('Ya usaste los días de gracia. Metodika activa tu plan apenas vea el aviso.')}
+    location.href=mail};
   $('#plCopia').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='metodika-copia-'+iso(HOY)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)};
   const v=$('#plVolver');if(v)v.onclick=()=>{document.body.classList.remove('sin-menu');pintar()};
   const y=$('#plYa');if(y)y.onclick=async()=>{await cargarPlan();if(estadoPlan().tipo==='vencido'){aviso('Todavía no figura activado. Si ya pagaste, puede tardar un rato.')}else{document.body.classList.remove('sin-menu');pintar();aviso('¡Plan activo!')}};
