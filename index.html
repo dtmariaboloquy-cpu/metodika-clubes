@@ -196,7 +196,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--tinta);outline:none}
 /* Partido en vivo */
 .reloj{font-family:var(--f-d);font-size:64px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:1px}
 .marcador{display:flex;align-items:center;gap:18px;justify-content:center;font-family:var(--f-d);font-weight:700}
-.marcador .eq{font-size:20px;text-transform:uppercase;text-align:center;max-width:180px}
+.marcador .eq{font-size:20px;text-transform:uppercase;text-align:center;max-width:180px;display:flex;flex-direction:column;align-items:center;gap:6px}
 .marcador .gol{font-size:54px;font-variant-numeric:tabular-nums}
 .botonera{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px}
 .bev{border:1.5px solid var(--linea);background:var(--carta);border-radius:10px;padding:12px 8px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:14px}
@@ -781,7 +781,7 @@ function filaPartidoJug(p,id){
     grec:ev.filter(e=>e.tipo==='golRival'&&iv.some(([a,b])=>e.min>=a&&e.min<=b)).length};
 }
 function cargarImagen(src){return new Promise(ok=>{if(!src)return ok(null);const im=new Image();im.onload=()=>ok(im);im.onerror=()=>ok(null);im.src=src})}
-async function fotoCircular(src){const im=await cargarImagen(src);if(!im)return null;try{const c=document.createElement('canvas'),n=420;c.width=c.height=n;const g=c.getContext('2d');const w=im.naturalWidth,h=im.naturalHeight;let lado=Math.min(w,h),sx=(w-lado)/2,sy=(h-lado)/2;if(h>w*1.1)sy=Math.round(h*.04);g.beginPath();g.arc(n/2,n/2,n/2,0,Math.PI*2);g.clip();g.drawImage(im,sx,sy,lado,lado,0,0,n,n);return c.toDataURL('image/png')}catch(e){return null}}
+async function fotoCircular(src,n=420){const im=await cargarImagen(src);if(!im)return null;try{const c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d');const w=im.naturalWidth,h=im.naturalHeight;let lado=Math.min(w,h),sx=(w-lado)/2,sy=(h-lado)/2;if(h>w*1.1)sy=Math.round(h*.04);g.beginPath();g.arc(n/2,n/2,n/2,0,Math.PI*2);g.clip();g.drawImage(im,sx,sy,lado,lado,0,0,n,n);return c.toDataURL('image/png')}catch(e){return null}}
 async function escudoPDF(src){const im=await cargarImagen(src);if(!im)return null;try{const c=document.createElement('canvas'),m=360,k=Math.max(im.naturalWidth,im.naturalHeight)/m;c.width=Math.round(im.naturalWidth/k);c.height=Math.round(im.naturalHeight/k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return {url:c.toDataURL('image/png'),ar:c.width/c.height}}catch(e){return null}}
 
 function informeJugador(j){
@@ -1336,7 +1336,7 @@ function refTacticas(pz,k,lc='#FFFFFF'){
 function distTxt(m){return (Math.round(m*10)/10).toString().replace('.',',')+' m'}
 function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=null,rectSel=null,estilo=null}={}){
   normalizar(pz);const ES=estilo||estiloPz();if(!estilo&&!mini)try{document.documentElement.style.setProperty('--cesped',ES.a)}catch(e){}
-  const [W,H]=FORMATOS[pz.formato]||[40,30],k=10,r=radio(pz.formato)*k,pad=Math.max(W,H)*.045*k;
+  const [W,H]=FORMATOS[pz.formato]||[40,30],k=10,r=radio(pz.formato)*k*(pz.escala||1),pad=Math.max(W,H)*.045*k;
   const vert=esVertical(pz.formato),largo=vert?H:W,nF=largo>=60?18:largo>=35?12:8,anF=largo/nF,fr=[];
   for(let i=Math.floor(-pad/k/anF)-1;i*anF*k<largo*k+pad;i++){if(i%2===0)continue;fr.push(vert?`<rect x="${-pad}" y="${i*anF*k}" width="${W*k+pad*2}" height="${anF*k}" fill="${ES.b}"/>`:`<rect x="${i*anF*k}" y="${-pad}" width="${anF*k}" height="${H*k+pad*2}" fill="${ES.b}"/>`)}
   const esc0=(typeof S!=='undefined'&&S.club&&S.club.escudo)||'';let logo='';
@@ -1353,7 +1353,7 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
   const fle=a=>{const f=FLECHAS[a.k]||FLECHAS.pase;return `<path d="${dFlecha(a,k,r/k)}" fill="none" stroke="${f.c}" stroke-width="${r*(a.k==='tiro'?.3:.2)}" ${a.k==='pase'?`stroke-dasharray="${r*.7} ${r*.45}"`:''} stroke-linecap="round" stroke-linejoin="round" marker-end="url(#pt-${a.k})"/>`};
   const el=e=>{const [px,py]=pos(e),x=px*k,y=py*k,c=e.color||'#fff',rot=e.rot?` transform="rotate(${e.rot} ${x} ${y})"`:'';
     switch(e.t){
-      case 'J':{const h=c==='hueco';const tx=h?'#FFFFFF':tintaSobre(c);let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`;if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}">${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
+      case 'J':{const h=c==='hueco';const tx=h?'#FFFFFF':tintaSobre(c);if(e.foto&&!h){const cid='fj'+(++_idMat);let s=`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r*1.25}" fill="rgba(0,0,0,.25)"/><clipPath id="${cid}"><circle cx="${x}" cy="${y}" r="${r*1.25}"/></clipPath><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="#ddd"/><image href="${e.foto}" x="${x-r*1.25}" y="${y-r*1.25}" width="${r*2.5}" height="${r*2.5}" clip-path="url(#${cid})" preserveAspectRatio="xMidYMin slice"/><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="none" stroke="${c}" stroke-width="${r*.22}"/>`;if(e.n!==undefined&&e.n!==''){s+=`<circle cx="${x+r*.95}" cy="${y-r*.9}" r="${r*.5}" fill="${c}" stroke="#141412" stroke-width="${r*.06}"/><text x="${x+r*.95}" y="${y-r*.9+r*.19}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${r*.55}" fill="${tx}">${esc(e.n)}</text>`}if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.15}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`;if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}">${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
       default:return dibMat(e.t,x,y,r,c,e.rot,k);
     }return ''};
   const txt=t=>`<text x="${t.x*k}" y="${t.y*k}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*(t.tam||1)}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.2}" paint-order="stroke">${esc(t.txt)}</text>`;
@@ -1828,14 +1828,400 @@ VISTAS.partido=el=>{
   const loc=p.condicion==='Local';
   el.innerHTML=`<button class="btn fantasma chico" id="volverP" style="margin-bottom:12px">← Partidos</button>
   <div class="panel" style="margin-bottom:16px"><div class="etq" style="text-align:center;margin-bottom:8px">${[esc(p.competicion),fFecha(p.fecha),esc(p.hora)].filter(Boolean).join(' · ')}</div>
-    <div class="marcador"><div class="eq">${esc(loc?S.club.nombre:p.rival)}</div><div class="gol" id="gL">${loc?g.f:g.c}</div><div class="gol tenue">–</div><div class="gol" id="gV">${loc?g.c:g.f}</div><div class="eq">${esc(loc?p.rival:S.club.nombre)}</div></div>
-    <div style="text-align:center;margin-top:6px"><span class="chip ${p.estado==='en juego'?'ama':p.estado==='finalizado'?'':''}">${p.estado==='en juego'?'En juego':p.estado==='finalizado'?'Finalizado':'Programado'}</span> <button class="btn chico fantasma" id="edP">Editar datos</button></div></div>
-  <div class="tabs" role="tablist">${[['previa','Previa'],['vivo','En vivo'],['analisis','Análisis']].map(([k,t])=>`<button role="tab" data-tab="${k}" class="${tabPartido===k?'activo':''}">${t}</button>`).join('')}</div><div id="tabP"></div>`;
+    <div class="marcador"><div class="eq">${escudoHtml(loc?S.club.escudo:p.rivalEscudo,loc?S.club.nombre:p.rival,40)}<div>${esc(loc?S.club.nombre:p.rival)}</div></div><div class="gol" id="gL">${loc?g.f:g.c}</div><div class="gol tenue">–</div><div class="gol" id="gV">${loc?g.c:g.f}</div><div class="eq">${escudoHtml(loc?p.rivalEscudo:S.club.escudo,loc?p.rival:S.club.nombre,40)}<div>${esc(loc?p.rival:S.club.nombre)}</div></div></div>
+    <div style="text-align:center;margin-top:6px"><span class="chip ${p.estado==='en juego'?'ama':p.estado==='finalizado'?'':''}">${p.estado==='en juego'?'En juego':p.estado==='finalizado'?'Finalizado':'Programado'}</span> <button class="btn chico fantasma" id="edP">Editar datos</button>${p.estado==='programado'&&deIso(p.fecha)>=HOY?` <span class="chip ama">${(()=>{const dd=Math.round((deIso(p.fecha)-HOY)/864e5);return dd===0?'¡Es hoy!':dd===1?'Falta 1 día':'Faltan '+dd+' días'})()}</span>`:''}</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px"><button class="btn chico pri" id="shP">📲 Compartir</button><button class="btn chico" id="pdfP">📄 PDF</button></div></div>
+  <div class="tabs" role="tablist">${[['previa','Convocatoria'],['datos','Datos y camisetas'],['aline','Alineación'],['rival','Rival'],['piz','Pizarras'],['cita','Citación'],['vivo','En vivo'],['analisis','Análisis']].map(([k,t])=>`<button role="tab" data-tab="${k}" class="${tabPartido===k?'activo':''}">${t}</button>`).join('')}</div><div id="tabP"></div>`;
   $('#volverP').onclick=()=>{pend=null;ir('partido')};
   $('#edP').onclick=()=>editarPartido(p);
   $$('[data-tab]',el).forEach(b=>b.onclick=()=>{tabPartido=b.dataset.tab;pend=null;pintar()});
-  ({previa:previaPartido,vivo:vivoPartido,analisis:analisisPartido})[tabPartido](el.querySelector('#tabP'),p);
+  $('#shP',el).onclick=()=>{tabPartido='cita';pintar();aviso('Revisá la citación y tocá “Compartir por WhatsApp”')};
+  $('#pdfP',el).onclick=()=>elegirPDFPartido(p);
+  ({previa:previaPartido,datos:datosPartido,aline:alineacionPartido,rival:rivalPartido,piz:pizarrasPartido,cita:citacionPartido,vivo:vivoPartido,analisis:analisisPartido}[tabPartido]||previaPartido)(el.querySelector('#tabP'),p);
 };
+/* ================= PARTIDO COMPLETO: camisetas, alineación, rival, pizarras, citación ================= */
+const DISENOS_KIT=[['lisa','Lisa'],['mitades','Mitades'],['inferior','Dos tonos'],['franja','Franja central'],['pecho','Franja pecho'],['banda','Banda'],['finas','Rayas finas'],['lateral','Franja lateral'],['cruz','Cruz'],['aspa','Aspa'],['bastones','Bastones'],['rayasAnchas','Rayas anchas'],['bandaDoble','Banda doble'],['bastonesFinos','Bastones finos'],['rayas','Rayas'],['diagonales','Diagonales'],['cuadros','Cuadros'],['cuadrosMitad','Cuadros mitad']];
+const KIT_DEF={propia:{d:'bastones',c1:'#1B2A6B',c2:'#FFFFFF',s:'#9CA3AF'},arquera:{d:'lisa',c1:'#F08A24',c2:'#141412',s:'#9CA3AF'},rival:{d:'lisa',c1:'#E23B2E',c2:'#FFFFFF',s:'#9CA3AF'}};
+let _kitN=0;
+function camisetaSVG(k,tam=90){
+  k=k||KIT_DEF.propia;const id='kc'+(++_kitN),c1=k.c1||'#fff',c2=k.c2||'#141412',sh=k.s||c1;
+  const cuerpo='M33 12 L42 8 Q50 13 58 8 L67 12 L86 22.5 Q88.5 24 88 27 L84 43 Q83.5 45 81.5 44.4 L72 41.5 L72 98 Q72 101 69 101 L31 101 Q28 101 28 98 L28 41.5 L18.5 44.4 Q16.5 45 16 43 L12 27 Q11.5 24 14 22.5 Z';
+  let pat='';const R=(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c2}"/>`;
+  switch(k.d){
+    case 'mitades':pat=R(50,0,50,120);break;
+    case 'inferior':pat=`<rect x="0" y="0" width="100" height="72" fill="${c2}"/>`;break;
+    case 'franja':pat=R(45,0,10,120);break;
+    case 'pecho':pat=R(0,33,100,13);break;
+    case 'banda':pat=`<path d="M24 12 L37 8 L76 92 L68 104 Z" fill="${c2}"/>`;break;
+    case 'finas':for(let x=36;x<66;x+=4)pat+=R(x,0,1.4,120);break;
+    case 'lateral':pat=R(37,0,8,120);break;
+    case 'cruz':pat=R(45,0,10,120)+R(0,38,100,10);break;
+    case 'aspa':pat=`<path d="M22 14 L32 10 L78 98 L68 102Z M78 14 L68 10 L22 98 L32 102Z" fill="${c2}"/>`;break;
+    case 'bastones':for(let x=35;x<70;x+=12)pat+=R(x,0,6,120);break;
+    case 'rayasAnchas':pat=R(0,40,100,9)+R(0,62,100,9);break;
+    case 'bandaDoble':pat=`<path d="M22 13 L28 10 L74 102 L68 104Z M33 9 L39 8 L80 92 L78 100Z" fill="${c2}"/>`;break;
+    case 'bastonesFinos':for(let x=31;x<72;x+=7)pat+=R(x,0,3.5,120);break;
+    case 'rayas':for(let y=18;y<101;y+=7)pat+=R(0,y,100,3.5);break;
+    case 'diagonales':for(let q=-60;q<110;q+=10)pat+=`<path d="M${q} 120 L${q+60} 0 L${q+65} 0 L${q+5} 120Z" fill="${c2}"/>`;break;
+    case 'cuadros':for(let y=10;y<101;y+=6)for(let x=4;x<100;x+=6)if(((x-4+y-10)/6)%2)pat+=R(x,y,6,6);break;
+    case 'cuadrosMitad':for(let y=10;y<101;y+=6)for(let x=52;x<100;x+=6)if(((x-52+y-10)/6)%2)pat+=R(x,y,6,6);pat+=R(50,0,2,0);break;
+  }
+  const vivo=c2===c1?tono(c1,.85):c2,lin='rgba(0,0,0,.42)';
+  return `<svg viewBox="0 0 100 120" width="${tam*100/120}" height="${tam}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="${id}"><path d="${cuerpo}"/></clipPath></defs>
+    <path d="M29.5 99 H70.5 L72 116 Q72 117.5 70.5 117.5 H53 L50 110 L47 117.5 H29.5 Q28 117.5 28 116 Z" fill="${sh}" stroke="${lin}" stroke-width="1" stroke-linejoin="round"/>
+    <path d="${cuerpo}" fill="${c1}"/><g clip-path="url(#${id})">${pat}
+      <path d="M84.6 41.8 L72 38" stroke="${vivo}" stroke-width="3" fill="none"/><path d="M15.4 41.8 L28 38" stroke="${vivo}" stroke-width="3" fill="none"/>
+      <path d="M72 41.5 V20 M28 41.5 V20" stroke="${lin}" stroke-width=".9" fill="none" opacity=".55"/></g>
+    <path d="${cuerpo}" fill="none" stroke="${lin}" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M42 8 Q50 13 58 8 L50 24 Z" fill="${tono(c1,-.25)}"/><path d="M41.5 7.8 L50 24 L58.5 7.8" fill="none" stroke="${vivo}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+function kitDe(p,cual){p.kits=p.kits||{};if(p.kits[cual])return p.kits[cual];if(cual==='rival'){const r=(S.club.rivalesKit||{})[(p.rival||'').toLowerCase()];if(r)return r}return (S.club.kits||{})[cual]||KIT_DEF[cual]}
+function editarKit(p,cual,alFin){
+  const k={...kitDe(p,cual)},tit={propia:'Camiseta de '+(S.club.nombre||'mi equipo'),arquera:'Camiseta de '+arqTxt().toLowerCase(),rival:'Camiseta de '+(p.rival||'el rival')}[cual];
+  modal(tit,`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px" id="kD">${DISENOS_KIT.map(([d,n])=>`<button type="button" class="ct" data-kd="${d}" style="padding:6px;text-align:center;font:inherit;cursor:pointer;border:2px solid ${k.d===d?'var(--tinta)':'transparent'}">${camisetaSVG({...k,d},50)}<div style="font-size:10.5px;line-height:1.1">${n}</div></button>`).join('')}</div>
+    <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:16px"><div id="kPrev">${camisetaSVG(k,130)}</div>
+      <div style="display:grid;gap:10px">${[['c1','Color principal'],['c2','Color secundario'],['s','Color del pantalón']].map(([c,t])=>`<label style="display:flex;gap:10px;align-items:center;font-size:14px"><input type="color" data-kc="${c}" value="${k[c]}" style="width:46px;height:34px;padding:2px">${t}</label>`).join('')}</div></div>
+    ${cual!=='rival'?`<label class="chip" style="margin-top:14px;cursor:pointer"><input type="checkbox" id="kClub" checked> Usarla siempre como camiseta del club</label>`:`<label class="chip" style="margin-top:14px;cursor:pointer"><input type="checkbox" id="kClub" checked> Recordarla para ${esc(p.rival||'este rival')}</label>`}
+    <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="kOk">Guardar camiseta</button></div>`,{alMontar:m=>{
+      const prev=()=>{$('#kPrev',m).innerHTML=camisetaSVG(k,130);$$('[data-kd]',m).forEach(b=>{b.style.borderColor=b.dataset.kd===k.d?'var(--tinta)':'transparent';b.firstElementChild.outerHTML=camisetaSVG({...k,d:b.dataset.kd},50)})};
+      $$('[data-kd]',m).forEach(b=>b.onclick=()=>{k.d=b.dataset.kd;prev()});
+      $$('[data-kc]',m).forEach(i=>i.oninput=()=>{k[i.dataset.kc]=i.value.toUpperCase();prev()});
+      $('#kOk',m).onclick=()=>{p.kits=p.kits||{};p.kits[cual]={...k};
+        if($('#kClub',m).checked){if(cual==='rival'){S.club.rivalesKit={...(S.club.rivalesKit||{}),[(p.rival||'').toLowerCase()]:{...k}}}else{S.club.kits={...(S.club.kits||{}),[cual]:{...k}}}}
+        guardar();cerrarModal();aviso('Camiseta guardada');if(alFin)alFin();else pintar()};
+    }});
+}
+function escudoChico(file,cb){const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),m=160,k=Math.max(im.width,im.height)/m;c.width=Math.round(im.width/Math.max(1,k));c.height=Math.round(im.height/Math.max(1,k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/png'))};im.src=fr.result};fr.readAsDataURL(file)}
+function escudoHtml(src,nombre,t=44){return src?`<img src="${src}" alt="" style="width:${t}px;height:${t}px;object-fit:contain">`:`<div style="width:${t}px;height:${t}px;border-radius:50%;background:var(--tinta);color:var(--amarillo);display:grid;place-items:center;font-weight:800;font-size:${t*.42}px">${esc(((nombre||'?').replace(/^(Club|Atlético|Deportivo)\s+/gi,'')[0]||'?').toUpperCase())}</div>`}
+
+/* ---------- Pestaña: Datos y camisetas ---------- */
+function datosPartido(el,p){
+  const loc=p.condicion==='Local';
+  el.innerHTML=`<div class="grilla g2" style="align-items:start">
+   <div class="panel"><h3>Datos del partido</h3><form class="form" id="fDP" style="margin-top:6px">
+     <label class="campo">Jornada / fecha n.º<input type="text" name="jornada" value="${esc(p.jornada||'')}" placeholder="Ej.: 20"></label>
+     <label class="campo">Condición<select name="condicion">${opts(['Local','Visitante','Neutral'],p.condicion)}</select></label>
+     <label class="campo ancho">Cancha (dirección)<input type="text" name="lugar" value="${esc(p.lugar||'')}" placeholder="Ej.: Predio Amadeo Nuccetelli, Córdoba"></label>
+     <div class="ancho" style="display:flex;gap:12px;align-items:center"><div id="escR">${escudoHtml(p.rivalEscudo,p.rival,48)}</div><label class="btn chico" for="escRF">Subir escudo de ${esc(p.rival||'el rival')}</label><input type="file" id="escRF" accept="image/*" hidden>${p.rivalEscudo?'<button type="button" class="btn chico fantasma" id="escRX">Quitar</button>':''}</div>
+   </form><div class="modal-pie" style="border:0;padding:12px 0 0"><button class="btn pri" id="gDP">Guardar datos</button></div></div>
+   <div class="panel"><h3>Camisetas del partido</h3><p class="sub" style="margin:0 0 12px;font-size:13.5px">Tocá una camiseta para cambiar el diseño y los colores.</p>
+     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">${[['propia',S.club.nombre||'Mi equipo'],['arquera',arqTxt()],['rival',p.rival||'Rival']].map(([c,t])=>`<button class="ct" data-kit="${c}" style="padding:10px 4px;font:inherit;cursor:pointer">${camisetaSVG(kitDe(p,c),86)}<div style="font-size:12.5px;font-weight:600;margin-top:4px">${esc(t)}</div></button>`).join('')}</div>
+     <p class="sub" style="font-size:12.5px;margin:12px 0 0">${loc?'Jugamos de local.':'Jugamos de visitante.'} La camiseta aparece en la citación y en el PDF.</p></div></div>`;
+  $('#gDP',el).onclick=()=>{const d=leerForm($('#fDP',el));Object.assign(p,{jornada:d.jornada.trim(),condicion:d.condicion,lugar:d.lugar.trim()});guardar();aviso('Datos guardados');pintar()};
+  $('#escRF',el).onchange=e=>{const f=e.target.files[0];if(f)escudoChico(f,u=>{p.rivalEscudo=u;guardar();pintar()})};
+  const x=$('#escRX',el);if(x)x.onclick=()=>{p.rivalEscudo='';guardar();pintar()};
+  $$('[data-kit]',el).forEach(b=>b.onclick=()=>editarKit(p,b.dataset.kit));
+}
+
+/* ---------- Pestaña: Alineación ---------- */
+function alineDe(p){
+  const f=(p.aline&&p.aline.formato)||(p.convocados.length&&p.convocados.length<=10?'7 vs 7':'11 vs 11');
+  const a=p.aline=p.aline||{formato:f,sistema:SISTEMAS[f][0],slots:[]};
+  if(!SISTEMAS[a.formato])a.formato='11 vs 11';if(!SISTEMAS[a.formato].includes(a.sistema))a.sistema=SISTEMAS[a.formato][0];
+  const n=1+a.sistema.split('-').map(Number).reduce((x,y)=>x+y,0);
+  a.slots=(a.slots||[]).slice(0,n);while(a.slots.length<n)a.slots.push(null);
+  a.slots=a.slots.map(id=>id&&p.convocados.includes(id)?id:null);
+  if(!a.slots.some(Boolean)&&p.titulares.length){const tit=ordenJ(p.titulares.map(jugador).filter(Boolean));const arq=tit.find(j=>/arquer/i.test(j.posicion||''));const resto=tit.filter(j=>j!==arq);a.slots=a.slots.map((_,i)=>i===0?(arq?arq.id:(resto.shift()||{}).id||null):((resto.shift()||{}).id||null))}
+  return a;
+}
+function posAline(f,sist,ataca){const [W,H]=FORMATOS[f],L=sist.split('-').map(Number),X=x=>ataca==='izq'?W-x:x,pts=[{x:X(W*.055),y:H/2}];
+  L.forEach((n,i)=>{const x=W*(L.length>1?.22+i*(.62/(L.length-1)):.5);for(let q=0;q<n;q++)pts.push({x:X(x),y:H*(q+1)/(n+1)})});return pts}
+function pizarraAline(p,soloRival,sinFotos,fotosMini={}){
+  const a=alineDe(p),kP=kitDe(p,'propia'),kA=kitDe(p,'arquera'),kR=kitDe(p,'rival');
+  if(soloRival){const inf=p.informe||{},s=inf.sistema||'4-4-2';return normalizar({id:'r',nombre:'Rival',formato:'11 vs 11',escala:1.6,elementos:posAline('11 vs 11',s,'izq').map((q,i)=>({id:'r'+i,t:'J',x:q.x,y:q.y,color:i===0?(kR.c2||'#141412'):kR.c1,n:i+1})),flechas:[],zonas:[],textos:[],pasos:[],lineas:[],fondo:''})}
+  const gente=a.slots.map(id=>id?jugador(id):null);
+  const el=posAline(a.formato,a.sistema,'der').map((q,i)=>({id:'a'+i,t:'J',x:q.x,y:q.y,color:i===0?kA.c1:kP.c1,n:gente[i]?(gente[i].dorsal||''):'',nombre:gente[i]?gente[i].apellido:'—',foto:gente[i]&&gente[i].foto&&!sinFotos?(fotosMini[gente[i].id]||gente[i].foto):''}));
+  return normalizar({id:'a',nombre:'Alineación',formato:a.formato,escala:1.6,elementos:el,flechas:[],zonas:[],textos:[],pasos:[],lineas:[],fondo:''});
+}
+function alineacionPartido(el,p){
+  const a=alineDe(p),conv=ordenJ(p.convocados.map(jugador).filter(Boolean));
+  if(!conv.length){el.innerHTML='<div class="vacio">Primero marcá la convocatoria en la pestaña <b>Convocatoria</b>.</div>';return}
+  const usados=new Set(a.slots.filter(Boolean)),sup=conv.filter(j=>!usados.has(j.id));
+  const lineas=a.sistema.split('-').map(Number),etq=[];etq.push(arqTxt());lineas.forEach((n,i)=>{for(let q=0;q<n;q++)etq.push(i===0?'Defensa':i===lineas.length-1?'Ataque':'Medio')});
+  el.innerHTML=`<div class="grilla g2" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start">
+    <div class="panel"><div class="filtros" style="margin-bottom:10px"><select id="alF" style="width:auto">${opts(COMPLETAS,a.formato)}</select><select id="alS" style="width:auto">${opts(SISTEMAS[a.formato].map(s=>[s,'1-'+s]),a.sistema)}</select></div>
+      <div class="cancha" style="padding:6px">${svgPizarra(pizarraAline(p),{mini:false})}</div>
+      <p class="sub" style="font-size:12.5px;margin:8px 0 0">El equipo ataca hacia la derecha.</p></div>
+    <div class="panel"><h3>Puestos</h3><div class="lista">${a.slots.map((id,i)=>`<div class="fila" style="padding:6px 0;gap:10px"><span class="chip" style="min-width:74px;justify-content:center">${etq[i]}</span><select data-slot="${i}" style="flex:1">${`<option value="">— Vacío —</option>`+conv.map(j=>`<option value="${j.id}" ${j.id===id?'selected':''}>${j.dorsal?j.dorsal+' · ':''}${esc(j.nombre+' '+j.apellido)}</option>`).join('')}</select></div>`).join('')}</div>
+      <h3 style="margin-top:16px">Suplentes (${sup.length})</h3><div class="chips">${sup.map(j=>`<span class="chip">${j.dorsal?j.dorsal+' ':''}${esc(j.nombre[0]+'. '+j.apellido)}</span>`).join('')||'<span class="sub">—</span>'}</div></div></div>`;
+  const sync=()=>{p.titulares=a.slots.filter(Boolean);guardar();pintar()};
+  $('#alF',el).onchange=e=>{a.formato=e.target.value;a.sistema=SISTEMAS[a.formato][0];sync()};
+  $('#alS',el).onchange=e=>{a.sistema=e.target.value;sync()};
+  $$('[data-slot]',el).forEach(s=>s.onchange=()=>{const i=+s.dataset.slot,v=s.value||null;if(v){const j=a.slots.indexOf(v);if(j>=0&&j!==i)a.slots[j]=a.slots[i]}a.slots[i]=v;sync()});
+}
+
+/* ---------- Pestaña: Informe del rival ---------- */
+const INF_RIVAL=[['ataque','¿Cómo atacan?',['Juego directo','Posesión elaborada','Contraataque','Juego por bandas','Mixto']],['defensa','¿Cómo defienden?',['Bloque alto','Bloque medio','Bloque bajo','Marca individual','Zonal']],['presion','¿Presionan la salida?',['Presión alta','Presión media','No presionan','Presión tras pérdida']],['salida','¿Cómo salen?',['Salida corta desde el arco','Salida larga','Mixta','Salida con 3']],['abpOf','Pelota parada ofensiva',null],['abpDef','Pelota parada defensiva',null],['fuertes','Puntos fuertes',null],['debiles','Puntos débiles',null],['claves','Jugadoras/es clave',null],['plan','Nuestro plan para el partido',null]];
+function infRivalTxt(c,t){return c==='claves'?(S.club.rama==='M'?'Jugadores clave':S.club.rama==='F'?'Jugadoras clave':'Jugadoras/es clave'):t}
+function rivalPartido(el,p){
+  const inf=p.informe=p.informe||{};
+  el.innerHTML=`<div class="grilla g2" style="grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);align-items:start">
+    <div class="panel"><h3>¿Cómo juega ${esc(p.rival||'el rival')}?</h3><select id="irS" style="width:auto;margin:6px 0 10px">${opts(SISTEMAS['11 vs 11'].map(s=>[s,'1-'+s]),inf.sistema||'4-4-2')}</select>
+      <div class="cancha" style="padding:6px">${svgPizarra(pizarraAline(p,true),{mini:true})}</div>
+      <p class="sub" style="font-size:12.5px;margin:8px 0 0">Para algo más detallado, armá una pizarra del rival en la pestaña <b>Pizarras</b>.</p></div>
+    <div class="panel"><h3>Perfil táctico</h3><form class="form" id="fIR" style="margin-top:6px">${INF_RIVAL.map(([c,t,o])=>o?`<label class="campo">${t}<select name="${c}"><option value="">—</option>${opts(o,inf[c]||'')}</select></label>`:`<label class="campo ancho">${infRivalTxt(c,t)}<textarea name="${c}" rows="2">${esc(inf[c]||'')}</textarea></label>`).join('')}</form>
+      <div class="modal-pie" style="border:0;padding:12px 0 0"><button class="btn pri" id="gIR">Guardar informe</button></div></div></div>`;
+  $('#irS',el).onchange=e=>{inf.sistema=e.target.value;guardar();pintar()};
+  $('#gIR',el).onclick=()=>{Object.assign(inf,leerForm($('#fIR',el)));guardar();aviso('Informe guardado')};
+}
+
+/* ---------- Pestaña: Pizarras del partido ---------- */
+function pizarrasPartido(el,p){
+  p.pizarras=(p.pizarras||[]).filter(id=>S.pizarras.some(z=>z.id===id));
+  const lista=p.pizarras.map(id=>S.pizarras.find(z=>z.id===id));
+  el.innerHTML=`<div class="panel"><div class="panel-cab"><h3>Pizarras y pelota parada del partido</h3><div class="der" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="ppVin">＋ Agregar de mis pizarras</button><button class="btn pri" id="ppNueva">＋ Nueva pizarra</button></div></div>
+    ${lista.length?`<div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${lista.map(z=>`<div class="ct" style="padding:8px"><div class="cancha" style="padding:4px">${svgPizarra(z,{mini:true})}</div><div style="display:flex;align-items:center;gap:6px;margin-top:6px"><b style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(z.nombre)}</b><span class="chip">${esc(z.categoria||'')}</span></div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn chico" data-ppa="${z.id}">Abrir</button><button class="btn chico fantasma" data-ppq="${z.id}">Quitar del partido</button></div></div>`).join('')}</div>`:'<div class="vacio">Todavía no hay pizarras para este partido. Podés crear una o sumar una de tus pizarras (incluidas las de pelota parada).</div>'}</div>`;
+  $('#ppNueva',el).onclick=()=>{const z=pizarraNueva('11 vs 11');z.nombre='vs '+(p.rival||'Rival');z.categoria='Partido';z.carpeta=('vs '+(p.rival||'')).trim();S.pizarras.push(z);p.pizarras.push(z.id);guardar();ir('pizarra',z.id)};
+  $$('[data-ppa]',el).forEach(b=>b.onclick=()=>ir('pizarra',b.dataset.ppa));
+  $$('[data-ppq]',el).forEach(b=>b.onclick=()=>{p.pizarras=p.pizarras.filter(x=>x!==b.dataset.ppq);guardar();pintar()});
+  $('#ppVin',el).onclick=()=>{const todas=[...S.pizarras].sort((a,b)=>(a.categoria==='ABP'?-1:0)-(b.categoria==='ABP'?-1:0));
+    modal('Agregar pizarras al partido',todas.length?`<div class="lista" style="max-height:55vh;overflow:auto">${todas.map(z=>`<label class="fila" style="cursor:pointer"><input type="checkbox" value="${z.id}" ${p.pizarras.includes(z.id)?'checked':''}><span style="flex:1">${esc(z.nombre)}</span><span class="chip">${esc(z.categoria||'')}</span></label>`).join('')}</div><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ppOk">Agregar</button></div>`:'<div class="vacio">No tenés pizarras guardadas todavía.</div>',{alMontar:m=>{const ok=$('#ppOk',m);if(ok)ok.onclick=()=>{p.pizarras=$$('input:checked',m).map(i=>i.value);guardar();cerrarModal();pintar()}}})};
+}
+
+/* ---------- Pestaña: Citación (compartir y PDF) ---------- */
+const LLEVAR=['Botines','Canilleras','Ropa de entrenamiento','Abrigo','Agua','Toalla y ojotas','Carnet / DNI','Ficha médica'];
+function citacionPartido(el,p){
+  const c=p.citacion=p.citacion||{hora:'',lugar:'',llevar:['Botines','Canilleras','Carnet / DNI','Agua'],otros:'',obs:'',incluir:{conv:true,aline:false,rival:false,piz:false}};
+  c.incluir=c.incluir||{conv:true};
+  el.innerHTML=`<div class="grilla g2" style="align-items:start">
+   <div class="panel"><h3>Citación</h3><form class="form" id="fCi" style="margin-top:6px">
+     <label class="campo">Hora de citación<input type="time" name="hora" value="${esc(c.hora||'')}"></label>
+     <label class="campo">Lugar de encuentro<input type="text" name="lugar" value="${esc(c.lugar||'')}" placeholder="Ej.: Sede del club"></label>
+     <div class="campo ancho"><span>Qué llevar</span><div class="chips" style="margin-top:6px">${LLEVAR.map(x=>`<label class="chip" style="cursor:pointer"><input type="checkbox" name="llevar" data-lista="1" value="${x}" ${c.llevar.includes(x)?'checked':''}> ${x}</label>`).join('')}</div></div>
+     <label class="campo ancho">Otros<input type="text" name="otros" value="${esc(c.otros||'')}" placeholder="Ej.: pecheras de color"></label>
+     <label class="campo ancho">Observaciones<textarea name="obs" rows="3" placeholder="Ej.: traslado en combi desde la sede">${esc(c.obs||'')}</textarea></label>
+   </form></div>
+   <div class="panel"><h3>Qué se comparte</h3><p class="sub" style="margin:0 0 10px;font-size:13.5px">Siempre van los datos del partido, la citación y la camiseta. Elegí qué más incluir en el link y en el PDF:</p>
+     <div class="lista">${[['conv','Convocatoria'],['aline','Alineación titular'],['rival','Informe del rival'],['piz','Pizarras del partido']].map(([k,t])=>`<label class="fila" style="cursor:pointer"><input type="checkbox" data-inc="${k}" ${c.incluir[k]?'checked':''}> ${t}</label>`).join('')}</div>
+     <div style="display:grid;gap:8px;margin-top:16px"><button class="btn pri" id="ciWa" style="justify-content:center">📲 Compartir por WhatsApp</button><button class="btn" id="ciPdf" style="justify-content:center">📄 Descargar PDF (citación, alineación, hoja de partido)</button><button class="btn fantasma" id="ciTxt" style="justify-content:center">Copiar como texto</button></div>
+     ${p.compartido?`<p class="sub" style="font-size:12.5px;margin:10px 0 0">Ya hay un link creado. Si cambiás algo, tocá Compartir de nuevo y se actualiza el mismo link.</p>`:''}</div></div>`;
+  const leer=()=>{const d=leerForm($('#fCi',el));Object.assign(c,{hora:d.hora,lugar:d.lugar.trim(),llevar:d.llevar||[],otros:d.otros.trim(),obs:d.obs.trim()});$$('[data-inc]',el).forEach(i=>c.incluir[i.dataset.inc]=i.checked);guardar()};
+  $$('#fCi input,#fCi textarea',el).forEach(i=>i.onchange=leer);$$('[data-inc]',el).forEach(i=>i.onchange=leer);
+  $('#ciWa',el).onclick=async()=>{leer();await compartirPartido(p,$('#ciWa',el))};
+  $('#ciPdf',el).onclick=()=>{leer();elegirPDFPartido(p)};
+  $('#ciTxt',el).onclick=async()=>{leer();const t=textoCitacion(p);try{await navigator.clipboard.writeText(t);aviso('Texto copiado: pegalo en WhatsApp')}catch(e){modal('Texto de la citación',`<textarea rows="14" style="width:100%">${esc(t)}</textarea>`)}};
+}
+function textoCitacion(p,url){
+  const c=p.citacion||{},conv=ordenJ(p.convocados.map(jugador).filter(Boolean)),k=kitDe(p,'propia'),nd=DISENOS_KIT.find(x=>x[0]===k.d);
+  let t=`⚽ *CITACIÓN · ${(S.club.nombre||'').toUpperCase()}*\n${S.club.categoria?S.club.categoria+'\n':''}\n🆚 *${p.rival}* (${(p.condicion||'').toLowerCase()})\n📅 ${fFecha(p.fecha)}${p.hora?' · '+p.hora+' h':''}${p.competicion?'\n🏆 '+p.competicion+(p.jornada?' · Fecha '+p.jornada:''):''}${p.lugar?'\n📍 '+p.lugar:''}\n`;
+  if(c.hora||c.lugar)t+=`\n🕐 *Citación:* ${c.hora?c.hora+' h':''}${c.hora&&c.lugar?' en ':''}${c.lugar||''}\n`;
+  t+=`👕 Camiseta: ${nd?nd[1].toLowerCase():''} ${nombreColor(k.c1)}${k.d!=='lisa'?' y '+nombreColor(k.c2):''}\n`;
+  const ll=[...(c.llevar||[]),...(c.otros?[c.otros]:[])];if(ll.length)t+=`🎒 Llevar: ${ll.join(', ')}\n`;
+  if(c.obs)t+=`📝 ${c.obs}\n`;
+  if((c.incluir||{}).conv&&conv.length)t+=`\n*${S.club.rama==='M'?'Convocados':S.club.rama==='F'?'Convocadas':'Convocadas/os'} (${conv.length}):*\n`+conv.map(j=>`${j.dorsal?j.dorsal+'. ':'• '}${j.nombre} ${j.apellido}`).join('\n')+'\n';
+  if(url)t+=`\nVer todo: ${url}`;
+  return t;
+}
+function nombreColor(h){if(!h)return '';const n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b=n&255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;if(mx-mn<28)return l>215?'blanco':l<60?'negro':'gris';
+  const d=mx-mn;let hu=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;hu=(hu*60+360)%360;const osc=l<90;
+  if(hu<15||hu>=345)return osc?'bordó':'rojo';if(hu<40)return 'naranja';if(hu<65)return osc?'dorado':'amarillo';if(hu<160)return osc?'verde oscuro':'verde';if(hu<200)return 'celeste';if(hu<255)return osc?'azul marino':'azul';if(hu<290)return 'violeta';return 'rosa'}
+async function fotoMini(src,n=110){const im=await cargarImagen(src);if(!im)return '';try{const c=document.createElement('canvas');c.width=c.height=n;const g=c.getContext('2d'),w=im.naturalWidth,h=im.naturalHeight,l=Math.min(w,h);g.drawImage(im,(w-l)/2,h>w*1.1?h*.04:(h-l)/2,l,l,0,0,n,n);return c.toDataURL('image/jpeg',.8)}catch(e){return ''}}
+async function datosPublicos(p){
+  const conv0=p.convocados.map(jugador).filter(Boolean),fm={};await Promise.all(conv0.filter(j=>j.foto).map(async j=>{fm[j.id]=await fotoMini(j.foto)}));
+  const c=p.citacion||{},inc=c.incluir||{},conv=ordenJ(p.convocados.map(jugador).filter(Boolean));
+  const o={clubId:CLUB,club:S.club.nombre||'',categoria:S.club.categoria||'',rama:S.club.rama||'F',escudo:S.club.escudo||'',estilo:S.club.pizarraEstilo||{},
+    rival:p.rival||'',rivalEscudo:p.rivalEscudo||'',fecha:p.fecha,hora:p.hora||'',condicion:p.condicion||'',competicion:p.competicion||'',jornada:p.jornada||'',lugar:p.lugar||'',
+    citacion:{hora:c.hora||'',lugar:c.lugar||'',llevar:[...(c.llevar||[]),...(c.otros?[c.otros]:[])],obs:c.obs||''},kits:{propia:kitDe(p,'propia'),arquera:kitDe(p,'arquera'),rival:kitDe(p,'rival')},actualizado:new Date().toISOString()};
+  if(inc.conv)o.convocados=conv.map(j=>({d:j.dorsal||'',n:j.nombre+' '+j.apellido,p:posTxt(j.posicion)||'',f:fm[j.id]||''}));
+  if(inc.aline&&p.titulares.length){const a=alineDe(p);o.aline={pz:pizarraAline(p,false,false,fm),sistema:a.sistema,sup:conv.filter(j=>!a.slots.includes(j.id)).map(j=>(j.dorsal?j.dorsal+' ':'')+j.nombre[0]+'. '+j.apellido)}}
+  if(inc.rival){const inf=p.informe||{};o.informe={sistema:inf.sistema||'',items:INF_RIVAL.filter(([k])=>inf[k]).map(([k,t])=>[infRivalTxt(k,t),inf[k]]),pz:inf.sistema?pizarraAline(p,true):null}}
+  if(inc.piz)o.pizarras=(p.pizarras||[]).map(id=>S.pizarras.find(z=>z.id===id)).filter(Boolean).slice(0,8).map(z=>JSON.parse(JSON.stringify(z)));
+  return o;
+}
+async function compartirPartido(p,btn){
+  if(typeof MODO==='undefined'||MODO!=='nube'){const t=textoCitacion(p);window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank');aviso('En el club de ejemplo se comparte solo el texto.');return}
+  const t0=btn.textContent;btn.disabled=true;btn.textContent='Preparando…';
+  try{
+    const datos=await datosPublicos(p);
+    if(!p.compartido){p.compartido=Array.from(crypto.getRandomValues(new Uint8Array(15)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');guardar()}
+    await db.collection('partidos-compartidos').doc(p.compartido).set(datos);
+    const url=location.origin+location.pathname+'?partido='+p.compartido;
+    window.open('https://wa.me/?text='+encodeURIComponent(textoCitacion(p,url)),'_blank');
+    try{await navigator.clipboard.writeText(url)}catch(e){}
+    aviso('Link listo (también quedó copiado)');
+  }catch(e){console.warn(e);aviso('No se pudo crear el link. Revisá que esté publicada la regla de “partidos-compartidos” en Firebase.')}
+  btn.disabled=false;btn.textContent=t0;
+}
+/* Página pública del partido (sin cuenta) */
+async function paginaPartido(t){
+  document.body.classList.add('sin-menu');pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando…</p>`);
+  let d;try{const x=await db.collection('partidos-compartidos').doc(t).get();if(!x.exists)throw 0;d=x.data()}catch(e){pantallaCompleta(`${marcaGrande()}<div class="acc-caja"><h1>Link no válido</h1><p class="sub">Pedile a tu cuerpo técnico que te mande el link de nuevo.</p></div>`);return}
+  S.club={...S.club,nombre:d.club,escudo:d.escudo,pizarraEstilo:d.estilo,rama:d.rama};
+  const loc=d.condicion==='Local',L=loc?[d.club,d.escudo]:[d.rival,d.rivalEscudo],V=loc?[d.rival,d.rivalEscudo]:[d.club,d.escudo];
+  const sec=(t,h)=>`<div class="panel" style="margin-top:14px"><h3>${t}</h3>${h}</div>`;
+  let h=`<div class="panel" style="text-align:center"><div class="etq">${[d.competicion,d.jornada?'Fecha '+d.jornada:''].filter(Boolean).map(esc).join(' · ')}</div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:12px 0"><div>${escudoHtml(L[1],L[0],56)}<div style="font-weight:700;margin-top:6px">${esc(L[0])}</div></div><div style="font-family:var(--f-d);font-size:26px;font-weight:700">VS</div><div>${escudoHtml(V[1],V[0],56)}<div style="font-weight:700;margin-top:6px">${esc(V[0])}</div></div></div>
+    <div style="font-size:18px;font-weight:700">${esc(fFecha(d.fecha))}${d.hora?' · '+esc(d.hora)+' h':''}</div>${d.lugar?`<div class="sub" style="margin-top:4px">📍 ${esc(d.lugar)}</div>`:''}</div>`;
+  const c=d.citacion||{};
+  h+=sec('Citación',`<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div style="text-align:center">${camisetaSVG(d.kits.propia,96)}<div class="sub" style="font-size:12px">Camiseta</div></div><div style="flex:1;min-width:180px">${c.hora||c.lugar?`<div style="font-size:17px"><b>🕐 ${esc(c.hora||'')}${c.hora?' h':''}</b>${c.lugar?' · '+esc(c.lugar):''}</div>`:''}${(c.llevar||[]).length?`<div style="margin-top:8px"><b>Llevar:</b> ${c.llevar.map(esc).join(', ')}</div>`:''}${c.obs?`<div style="margin-top:8px;white-space:pre-wrap">${esc(c.obs)}</div>`:''}</div></div>`);
+  if(d.convocados)h+=sec((d.rama==='M'?'Convocados':d.rama==='F'?'Convocadas':'Convocadas/os')+' ('+d.convocados.length+')',`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:14px 8px;text-align:center">${d.convocados.map(j=>`<div>${j.f?`<img src="${j.f}" alt="" style="width:68px;height:68px;border-radius:50%;object-fit:cover;border:2px solid var(--linea)">`:`<div style="width:68px;height:68px;margin:auto;border-radius:50%;background:var(--tinta);color:var(--amarillo);display:grid;place-items:center;font-weight:800;font-size:20px">${esc(j.n.split(' ').map(x=>x[0]).slice(0,2).join(''))}</div>`}<div style="font-size:13px;font-weight:600;margin-top:4px">${j.d?`<span class="dorsal" style="font-size:12px">${esc(j.d)}</span> `:''}${esc(j.n.split(' ').slice(-1)[0])}</div></div>`).join('')}</div>`);
+  if(d.aline)h+=sec('Alineación · 1-'+esc(d.aline.sistema),`<div class="cancha" style="padding:6px">${svgPizarra(d.aline.pz,{mini:false})}</div>${d.aline.sup.length?`<div style="margin-top:10px"><b>Suplentes:</b> ${d.aline.sup.map(esc).join(' · ')}</div>`:''}`);
+  if(d.informe)h+=sec('Cómo juega '+esc(d.rival),`${d.informe.pz?`<div class="cancha" style="padding:6px;max-width:420px">${svgPizarra(d.informe.pz,{mini:true})}</div><div class="sub" style="margin:6px 0 10px">Sistema: 1-${esc(d.informe.sistema)}</div>`:''}${d.informe.items.map(([t,v])=>`<div style="margin-top:8px"><b>${esc(t)}</b><div style="white-space:pre-wrap">${esc(v)}</div></div>`).join('')}`);
+  if(d.pizarras&&d.pizarras.length)h+=sec('Pizarras',`<div style="display:grid;gap:12px">${d.pizarras.map(z=>`<div><b>${esc(z.nombre)}</b><div class="cancha" style="padding:4px;margin-top:6px">${svgPizarra(z,{mini:true})}</div></div>`).join('')}</div>`);
+  pantallaCompleta(`${marcaGrande()}<div style="width:100%;max-width:720px;justify-self:center">${h}<p class="sub" style="font-size:12px;text-align:center;margin:16px 0">${esc(d.club)}${d.categoria?' · '+esc(d.categoria):''} · Metodika</p></div>`);
+}
+
+/* ---------- PDF del partido ---------- */
+async function svgPng(svg,ancho=900){const im=await svgAImagen(svg.includes('xmlns=')?svg:svg.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"'));const vb=/viewBox="([-\d.]+) ([-\d.]+) ([\d.]+) ([\d.]+)"/.exec(svg);const ar=vb?(+vb[3])/(+vb[4]):1;const c=document.createElement('canvas');c.width=ancho;c.height=Math.round(ancho/ar);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return {url:c.toDataURL('image/png'),ar}}
+async function partidoPDF(p){
+  const JsPDF=await cargarJsPDF(),doc=new JsPDF({unit:'mm',format:'a4'}),W=210,H=297,M=14;
+  const NEG=[20,20,18],AMA=[255,212,0],GRIS=[110,105,95],GR2=[244,242,236],LIN=[222,218,208],BL=[255,255,255];
+  const T=(sz,st,col)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz);doc.setTextColor(...(col||NEG))};
+  const d=await datosPublicos({...p,citacion:{...(p.citacion||{}),incluir:{conv:true,aline:true,rival:true,piz:true,...((p.citacion||{}).incluir||{})}}});
+  const inc=(p.citacion||{}).incluir||{conv:true};
+  const img=async(src)=>{if(!src)return null;try{const e=await escudoPDF(src);return e}catch(x){return null}};
+  const [eC,eR]=await Promise.all([img(S.club.escudo),img(p.rivalEscudo)]);
+  const escudo=(e,nombre,cx,cy,h)=>{if(e){const w=h*e.ar;try{doc.addImage(e.url,'PNG',cx-w/2,cy-h/2,w,h);return}catch(x){}}doc.setFillColor(...NEG);doc.circle(cx,cy,h/2,'F');T(h*1.4,'bold',AMA);doc.text(((nombre||'?').replace(/^(Club|Atlético|Deportivo)\s+/gi,'')[0]||'?').toUpperCase(),cx,cy+h*.18,{align:'center'})};
+  const titulo=(t,y)=>{doc.setFillColor(...NEG);doc.rect(M,y-4.6,1.8,6,'F');doc.setFillColor(...AMA);doc.rect(M+1.8,y-4.6,1,6,'F');T(12.5,'bold');doc.text(t,M+6,y);return y+7};
+  const nueva=(y,alto)=>{if(y+alto>H-18){doc.addPage();return 20}return y};
+  // encabezado
+  doc.setFillColor(...NEG);doc.rect(0,0,W,62,'F');doc.setFillColor(...AMA);doc.rect(0,62,W,1.6,'F');
+  const loc=p.condicion==='Local',A=loc?[S.club.nombre,eC]:[p.rival,eR],B=loc?[p.rival,eR]:[S.club.nombre,eC];
+  doc.setFillColor(...BL);doc.circle(52,26,13,'F');doc.circle(W-52,26,13,'F');escudo(A[1],A[0],52,26,18);escudo(B[1],B[0],W-52,26,18);
+  T(22,'bold',AMA);doc.text('VS',W/2,29,{align:'center'});
+  T(10,'bold',BL);doc.text(doc.splitTextToSize(A[0]||'',56)[0],52,47,{align:'center'});doc.text(doc.splitTextToSize(B[0]||'',56)[0],W-52,47,{align:'center'});
+  T(8,'bold',AMA);doc.text([p.competicion,p.jornada?'FECHA '+p.jornada:''].filter(Boolean).join('  ·  ').toUpperCase(),W/2,12,{align:'center',charSpace:.5});
+  T(9.5,'normal',[210,205,195]);doc.text([fFecha(p.fecha)+(p.hora?' · '+p.hora+' h':''),p.lugar].filter(Boolean).join('   ·   '),W/2,57,{align:'center',maxWidth:W-30});
+  let y=74;
+  // citación + camisetas
+  y=titulo('Citación',y);
+  const c=d.citacion;doc.setFillColor(...GR2);doc.roundedRect(M,y,W-2*M,40,2.5,2.5,'F');
+  const kits=await Promise.all(['propia','arquera'].map(k=>svgPng(camisetaSVG(d.kits[k],100),300)));
+  doc.addImage(kits[0].url,'PNG',M+4,y+3,30,30);doc.addImage(kits[1].url,'PNG',M+34,y+8,22,22);T(7,'normal',GRIS);doc.text('Camiseta',M+19,y+37,{align:'center'});doc.text(arqTxt(),M+45,y+37,{align:'center'});
+  let yy=y+9;const x0=M+62;
+  if(c.hora||c.lugar){T(13,'bold');doc.text((c.hora?c.hora+' h':'')+(c.hora&&c.lugar?' · ':'')+(c.lugar||''),x0,yy,{maxWidth:W-M-x0-4});yy+=8}
+  if(c.llevar.length){T(9,'bold');doc.text('Llevar:',x0,yy);T(9,'normal');const ls=doc.splitTextToSize(c.llevar.join(', '),W-M-x0-18);doc.text(ls,x0+13,yy);yy+=ls.length*4.4+2}
+  if(c.obs){T(9,'normal',GRIS);doc.text(doc.splitTextToSize(c.obs,W-M-x0-4).slice(0,3),x0,yy)}
+  y+=48;
+  // convocatoria
+  if(inc.conv&&d.convocados&&d.convocados.length){
+    y=nueva(y,30);y=titulo((S.club.rama==='M'?'Convocados':S.club.rama==='F'?'Convocadas':'Convocadas/os')+' ('+d.convocados.length+')',y);
+    const col=2,cw=(W-2*M-6)/col,rh=8.4,filas=Math.ceil(d.convocados.length/col);
+    const fc=await Promise.all(d.convocados.map(j=>j.f?fotoCircular(j.f,140):null));
+    d.convocados.forEach((j,i)=>{const cx=M+(i%2)*(cw+6),cy=y+Math.floor(i/2)*rh;if(Math.floor(i/2)%2===0){doc.setFillColor(...GR2);doc.rect(cx,cy,cw,rh,'F')}
+      if(fc[i]){try{doc.addImage(fc[i],'PNG',cx+1.5,cy+.9,6.6,6.6)}catch(e){}}else{doc.setFillColor(...NEG);doc.circle(cx+4.8,cy+4.2,3.3,'F');T(6,'bold',AMA);doc.text(j.n.split(' ').map(x=>x[0]).slice(0,2).join(''),cx+4.8,cy+5.2,{align:'center'})}
+      T(8.5,'bold');doc.text(String(j.d||'–'),cx+11,cy+5.4);T(8.5,'normal');doc.text(doc.splitTextToSize(j.n,cw-50)[0],cx+18,cy+5.4);T(7.5,'normal',GRIS);doc.text(doc.splitTextToSize(j.p||'',30)[0],cx+cw-2,cy+5.4,{align:'right'})});
+    y+=filas*rh+8;
+  }
+  // alineación
+  if(inc.aline&&d.aline){
+    const im=await svgPng(svgPizarra(d.aline.pz,{mini:false}),1400),w=W-2*M,h=w/im.ar;
+    y=nueva(y,h+22);y=titulo('Alineación · 1-'+d.aline.sistema,y);doc.addImage(im.url,'PNG',M,y,w,h);y+=h+4;
+    if(d.aline.sup.length){T(8.5,'bold');doc.text('Suplentes:',M,y+3);T(8.5,'normal');const ls=doc.splitTextToSize(d.aline.sup.join('  ·  '),W-2*M-18);doc.text(ls,M+17,y+3);y+=ls.length*4.2+6}
+  }
+  // rival
+  if(inc.rival&&d.informe&&(d.informe.items.length||d.informe.pz)){
+    y=nueva(y,60);y=titulo('Cómo juega '+p.rival,y);
+    if(d.informe.pz){const im=await svgPng(svgPizarra(d.informe.pz,{mini:true}),900),w=78,h=w/im.ar;doc.addImage(im.url,'PNG',M,y,w,h);T(8,'normal',GRIS);doc.text('Sistema: 1-'+d.informe.sistema,M,y+h+4)}
+    let ty=y+3;const tx=d.informe.pz?M+84:M,tw=W-M-tx;
+    d.informe.items.forEach(([t,v])=>{T(8.5,'bold');const ls=doc.splitTextToSize(String(v),tw);if(ty+ls.length*4+6>H-18){doc.addPage();ty=22}doc.text(t,tx,ty);T(8.5,'normal');doc.text(ls,tx,ty+4.2);ty+=ls.length*4+7});
+    y=Math.max(ty,y+(d.informe.pz?60:0))+4;
+  }
+  // pizarras
+  if(inc.piz&&d.pizarras&&d.pizarras.length){
+    for(let i=0;i<d.pizarras.length;i++){const z=d.pizarras[i],im=await svgPng(svgPizarra(z,{mini:true}),1200),w=W-2*M,h=Math.min(110,w/im.ar),ww=h*im.ar;
+      y=nueva(y,h+16);if(i===0)y=titulo('Pizarras',y);T(9.5,'bold');doc.text(z.nombre||'',M,y+2);doc.addImage(im.url,'PNG',M+(w-ww)/2,y+4,ww,h);y+=h+10}
+  }
+  const N=doc.internal.getNumberOfPages();for(let i=1;i<=N;i++){doc.setPage(i);doc.setDrawColor(...LIN);doc.setLineWidth(.2);doc.line(M,H-13,W-M,H-13);T(7,'normal',GRIS);doc.text('METODIKA · '+(S.club.nombre||'')+(S.club.categoria?' · '+S.club.categoria:''),M,H-8);doc.text('Página '+i+' de '+N,W-M,H-8,{align:'right'})}
+  doc.save(('partido-vs-'+(p.rival||'rival')+'-'+p.fecha).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-')+'.pdf');
+}
+/* ---------- PDFs del partido estilo planilla: citación, alineación y hoja de partido ---------- */
+function elegirPDFPartido(p){
+  modal('Descargar PDF',`<p class="sub" style="margin:0 0 12px">Elegí qué querés descargar:</p>
+    <div style="display:grid;gap:8px">${[['cit','📋 Citación','Hora y lugar de citación, convocadas con foto e información adicional'],['ali','⚽ Alineación','La cancha con el sistema, las camisetas y las suplentes'],['hoja','📝 Hoja de partido','Planilla para anotar cambios, goles, asistencias y tarjetas'],['todo','📄 Informe completo','Todo junto: citación, alineación, rival y pizarras']].map(([k,t,d])=>`<button class="btn" data-pdfk="${k}" style="justify-content:flex-start;text-align:left;padding:12px"><div><b>${t}</b><div class="sub" style="font-size:12.5px;font-weight:400">${d}</div></div></button>`).join('')}</div>`,{alMontar:m=>{
+      $$('[data-pdfk]',m).forEach(b=>b.onclick=async()=>{const k=b.dataset.pdfk;b.disabled=true;const t=b.innerHTML;b.innerHTML='<b>Armando…</b>';try{await ({cit:citacionPDF,ali:alineacionPDF,hoja:hojaPartidoPDF,todo:partidoPDF})[k](p);cerrarModal()}catch(e){console.error(e);aviso('No se pudo armar el PDF');b.disabled=false;b.innerHTML=t}});
+    }});
+}
+async function pdfBase(p){
+  const JsPDF=await cargarJsPDF(),doc=new JsPDF({unit:'mm',format:'a4'});
+  const [eC,eR]=await Promise.all([escudoPDF(S.club.escudo),escudoPDF(p.rivalEscudo)]);
+  const T=(sz,st,col)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz);doc.setTextColor(...(col||[44,48,58]))};
+  const escudo=(e,nombre,cx,cy,h)=>{if(e){const w=h*e.ar;try{doc.addImage(e.url,'PNG',cx-w/2,cy-h/2,w,h);return}catch(x){}}doc.setFillColor(20,20,18);doc.circle(cx,cy,h/2.4,'F');T(h*1.2,'bold',[255,212,0]);doc.text(((nombre||'?').replace(/^(Club|Atlético|Deportivo)\s+/gi,'')[0]||'?').toUpperCase(),cx,cy+h*.15,{align:'center'})};
+  const cab=(conHora=true)=>{const W=210,loc=p.condicion==='Local',A=loc?[S.club.nombre,eC]:[p.rival,eR],B=loc?[p.rival,eR]:[S.club.nombre,eC];
+    T(17,'bold');doc.text(p.jornada?'Jornada '+p.jornada:(p.competicion||'Partido'),W/2,18,{align:'center'});
+    escudo(A[1],A[0],48,36,20);escudo(B[1],B[0],W-48,36,20);
+    T(10.5,'normal');doc.text(doc.splitTextToSize(A[0]||'',60)[0],48,53,{align:'center'});doc.text(doc.splitTextToSize(B[0]||'',60)[0],W-48,53,{align:'center'});
+    if(conHora){T(24,'normal',[90,96,110]);doc.text(p.hora||'—',W/2,37,{align:'center'});const f=deIso(p.fecha);T(10,'normal',[120,126,140]);doc.text(String(f.getDate()).padStart(2,'0')+'/'+String(f.getMonth()+1).padStart(2,'0')+'/'+f.getFullYear(),W/2,45,{align:'center'})}
+    else{T(26,'bold',[150,150,150]);doc.text('-',W/2,39,{align:'center'})}
+    return 62};
+  const pie=()=>{const N=doc.internal.getNumberOfPages();for(let i=1;i<=N;i++){doc.setPage(i);T(7,'normal',[150,150,150]);doc.text('Metodika · '+(S.club.nombre||'')+(S.club.categoria?' · '+S.club.categoria:''),14,290);if(N>1)doc.text(i+' / '+N,196,290,{align:'right'})}};
+  const guardarComo=n=>doc.save((n+'-'+(p.rival||'rival')+'-'+p.fecha).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-')+'.pdf');
+  return {doc,T,cab,pie,guardarComo,eC};
+}
+async function citacionPDF(p){
+  const {doc,T,cab,pie,guardarComo,eC}=await pdfBase(p),W=210,M=18,c=p.citacion||{};
+  let y=cab();
+  // tabla hora / lugar
+  doc.setDrawColor(222,224,230);doc.setLineWidth(.25);doc.setFillColor(244,245,248);doc.rect(M,y,W-2*M,8,'FD');doc.rect(M,y+8,W-2*M,9,'S');doc.line(M+55,y,M+55,y+17);
+  T(8.5,'bold');doc.text('Hora de citación',M+27.5,y+5.3,{align:'center'});doc.text('Lugar de citación',M+55+(W-2*M-55)/2,y+5.3,{align:'center'});
+  T(9,'normal');doc.text(c.hora?c.hora+' h':'—',M+27.5,y+13.8,{align:'center'});doc.text(doc.splitTextToSize((c.lugar||'—').toUpperCase(),W-2*M-62)[0],M+55+(W-2*M-55)/2,y+13.8,{align:'center'});
+  y+=28;T(12,'bold');doc.text(S.club.rama==='M'?'Lista de convocados':S.club.rama==='F'?'Lista de convocadas':'Lista de convocadas/os',W/2,y,{align:'center'});y+=7;
+  const conv=ordenJ(p.convocados.map(jugador).filter(Boolean)),fotos=await Promise.all(conv.map(j=>j.foto?fotoCircular(j.foto,200):null));
+  const porFila=5,cel=(W-2*M)/porFila,rr=10.5,alto=rr*2+9;
+  conv.forEach((j,i)=>{if(i&&i%porFila===0)y+=alto;if(y+alto>255){doc.addPage();y=20}const cx=M+cel*(i%porFila)+cel/2,cy=y+rr;
+    doc.setDrawColor(200,203,210);doc.setLineWidth(.35);doc.setFillColor(238,239,243);doc.circle(cx,cy,rr+.4,'FD');
+    if(fotos[i]){try{doc.addImage(fotos[i],'PNG',cx-rr,cy-rr,rr*2,rr*2)}catch(e){}}else{T(12,'bold',[120,126,140]);doc.text(((j.nombre||' ')[0]+(j.apellido||' ')[0]).toUpperCase(),cx,cy+4,{align:'center'})}
+    T(8.5,'normal');doc.text(doc.splitTextToSize(j.apellido||j.nombre,cel-2)[0],cx,cy+rr+5,{align:'center'})});
+  y+=alto+8;if(y>238){doc.addPage();y=24}
+  // información adicional + firma
+  const info=[...(c.llevar||[]),...(c.otros?[c.otros]:[])].join(', ').toUpperCase(),obs=c.obs||'',lineas=[...(info?doc.splitTextToSize('LLEVAR: '+info,88):[]),...(obs?doc.splitTextToSize(obs,88):[])];
+  const hb=Math.max(18,lineas.length*4+12);doc.setDrawColor(222,224,230);doc.setFillColor(250,250,252);doc.roundedRect(M,y,96,hb,2,2,'FD');T(8.5,'bold');doc.text('Información adicional',M+4,y+6);T(7.5,'normal',[90,96,110]);doc.text(lineas,M+4,y+11);
+  const firma=S.club.cuerpoTecnico||(typeof PERFIL!=='undefined'&&PERFIL&&PERFIL.nombre)||'';
+  T(9.5,'normal');doc.text(firma,W-M-30,y+4,{align:'center'});
+  if(eC){try{doc.setGState&&doc.setGState(new doc.GState({opacity:.12}));doc.addImage(eC.url,'PNG',W-M-40,y+5,16*eC.ar,16);doc.setGState&&doc.setGState(new doc.GState({opacity:1}))}catch(e){}}
+  doc.setDrawColor(60,60,60);doc.setLineWidth(.3);doc.line(W-M-56,y+hb-2,W-M,y+hb-2);T(8.5,'normal');doc.text('Firma',W-M-56,y+hb-3.5);
+  pie();guardarComo('citacion');
+}
+function svgAlineVertical(p){
+  const a=alineDe(p),kP=kitDe(p,'propia'),kA=kitDe(p,'arquera'),gente=a.slots.map(id=>id?jugador(id):null);
+  const ES=estiloPz(),Wm=68,Hm=105,k=8,pad=26,VW=Wm*k+pad*2,VH=Hm*k+pad*2,X=m=>pad+m*k,lc=ES.l;
+  const L=`stroke="${lc}" stroke-width="3" fill="none"`;let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VW} ${VH}"><rect width="${VW}" height="${VH}" fill="${ES.a}"/>`;
+  for(let i=0;i<14;i++)if(i%2)s+=`<rect x="0" y="${pad+i*Hm*k/14}" width="${VW}" height="${Hm*k/14}" fill="${ES.b}"/>`;
+  const aw=40.3,ah=16.5,cw=18.3,ch=5.5;
+  s+=`<rect x="${X(0)}" y="${X(0)}" width="${Wm*k}" height="${Hm*k}" ${L}/><line x1="${X(0)}" y1="${X(0)+Hm*k/2}" x2="${X(Wm)}" y2="${X(0)+Hm*k/2}" ${L}/><circle cx="${X(Wm/2)}" cy="${X(0)+Hm*k/2}" r="${9.15*k}" ${L}/><circle cx="${X(Wm/2)}" cy="${X(0)+Hm*k/2}" r="4" fill="${lc}"/>`;
+  [0,1].forEach(b=>{const y0=b?X(Hm)-ah*k:X(0),yc=b?X(Hm)-ch*k:X(0),sy=b?X(Hm)-11*k:X(11);s+=`<rect x="${X((Wm-aw)/2)}" y="${y0}" width="${aw*k}" height="${ah*k}" ${L}/><rect x="${X((Wm-cw)/2)}" y="${yc}" width="${cw*k}" height="${ch*k}" ${L}/><circle cx="${X(Wm/2)}" cy="${sy}" r="3" fill="${lc}"/><rect x="${X(Wm/2-3.66)}" y="${b?X(Hm):X(0)-14}" width="${7.32*k}" height="14" fill="rgba(255,255,255,.35)" stroke="${lc}" stroke-width="2"/>`;
+    const t=Math.acos((ah-11)/9.15);s+=`<path d="M${X(Wm/2)+9.15*k*Math.sin(-t)} ${sy+(b?-1:1)*9.15*k*Math.cos(t)} A ${9.15*k} ${9.15*k} 0 0 ${b?1:0} ${X(Wm/2)+9.15*k*Math.sin(t)} ${sy+(b?-1:1)*9.15*k*Math.cos(t)}" ${L}/>`});
+  const pos=posAline(a.formato,a.sistema,'der'),[Wf,Hf]=FORMATOS[a.formato];
+  pos.forEach((q,i)=>{const g=gente[i],kit=i===0?kA:kP,cx=X(q.y/Hf*Wm),cy=X((1-q.x/Wf)*Hm*.94+Hm*.02),hh=70,ww=hh*100/120;
+    s+=camisetaSVG(kit,hh).replace('<svg ',`<svg x="${cx-ww/2}" y="${cy-hh/2}" `);
+    s+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" font-family="Arial" font-weight="700" font-size="20" fill="${tintaSobre(kit.c1)}" stroke="${kit.c1}" stroke-width="3" paint-order="stroke">${esc(g?(g.dorsal||''):'')}</text>`;
+    const nom=g?(g.apellido||g.nombre):'—',tw=nom.length*9+16;s+=`<rect x="${cx-tw/2}" y="${cy+hh/2-4}" width="${tw}" height="20" rx="4" fill="rgba(20,20,18,.78)"/><text x="${cx}" y="${cy+hh/2+10.5}" text-anchor="middle" font-family="Arial" font-weight="700" font-size="14" fill="#fff">${esc(nom)}</text>`});
+  return s+'</svg>';
+}
+async function alineacionPDF(p){
+  if(!p.titulares.length&&!(p.aline&&p.aline.slots&&p.aline.slots.some(Boolean))){aviso('Primero armá la alineación.');throw new Error('sin alineación')}
+  const {doc,T,cab,pie,guardarComo}=await pdfBase(p),W=210,a=alineDe(p);
+  let y=cab(false);T(10,'normal',[110,116,130]);doc.text('Sistema: 1-'+a.sistema,W/2,y,{align:'center'});y+=4;
+  const im=await svgPng(svgAlineVertical(p),1100),h=178,w=h*im.ar;doc.addImage(im.url,'PNG',(W-w)/2,y,w,h);y+=h+9;
+  const conv=ordenJ(p.convocados.map(jugador).filter(Boolean)),sup=conv.filter(j=>!a.slots.includes(j.id));
+  if(sup.length){T(11,'normal');doc.text('Suplentes',W/2,y,{align:'center'});y+=3;const kP=kitDe(p,'propia'),kA=kitDe(p,'arquera'),n=Math.min(sup.length,9),cel=Math.min(20,180/n),x0=W/2-cel*n/2;
+    for(let i=0;i<sup.length;i++){const j=sup[i],col=i%9,fila=Math.floor(i/9),kit=/arquer/i.test(j.posicion||'')?kA:kP;
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120">${camisetaSVG(kit,120).replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')}<text x="50" y="66" text-anchor="middle" font-family="Arial" font-weight="700" font-size="30" fill="${tintaSobre(kit.c1)}" stroke="${kit.c1}" stroke-width="4" paint-order="stroke">${esc(j.dorsal||'')}</text></svg>`;
+      const ic=await svgPng(svg,160),cx=x0+cel*col+cel/2,cy=y+fila*22;doc.addImage(ic.url,'PNG',cx-6,cy,12,14.4);T(6.8,'normal');doc.text(doc.splitTextToSize(j.apellido||j.nombre,cel-1)[0],cx,cy+18,{align:'center'})}}
+  pie();guardarComo('alineacion');
+}
+async function hojaPartidoPDF(p){
+  const {doc,T,cab,pie,guardarComo}=await pdfBase(p),W=210,M=12,loc=p.condicion==='Local';
+  let y=cab();y-=4;
+  const a=alineDe(p),conv=ordenJ(p.convocados.map(jugador).filter(Boolean)),tit=a.slots.map(id=>id&&jugador(id)).filter(Boolean),titIds=new Set(tit.map(j=>j.id));
+  const titOrd=[...tit].sort((x,z)=>(parseInt(x.dorsal)||99)-(parseInt(z.dorsal)||99)),sup=conv.filter(j=>!titIds.has(j.id));
+  const nuestros=[...titOrd,...sup],nTit=titOrd.length;
+  const cw=(W-2*M-6)/2,cols=[9,cw-9-6*6.2,6.2,6.2,6.2,6.2,6.2,6.2],rh=5,filas=Math.max(20,nuestros.length);
+  const icono=(i,cx,cy)=>{if(i===2){doc.setFillColor(200,30,30);doc.triangle(cx-1.6,cy-1,cx+1.6,cy-1,cx,cy+1.2,'F')}else if(i===3){doc.setFillColor(40,160,80);doc.triangle(cx-1.6,cy+1,cx+1.6,cy+1,cx,cy-1.2,'F')}else if(i===4){doc.setDrawColor(40,40,40);doc.setLineWidth(.3);doc.circle(cx,cy,1.5,'S');doc.setFillColor(40,40,40);doc.circle(cx,cy,.55,'F')}else if(i===5){T(6.5,'bold');doc.text('A',cx,cy+1.1,{align:'center'})}else if(i===6){doc.setFillColor(245,200,0);doc.rect(cx-1,cy-1.5,2,3,'F')}else if(i===7){doc.setFillColor(220,40,40);doc.rect(cx-1,cy-1.5,2,3,'F')}};
+  const tabla=(x,lista,sep)=>{let xx=x;doc.setFillColor(244,245,248);doc.setDrawColor(210,213,220);doc.setLineWidth(.2);doc.rect(x,y,cw,6,'FD');
+    ['Nº','NOMBRE'].forEach((h,i)=>{T(6.5,'bold');doc.text(h,xx+cols[i]/2,y+4,{align:'center'});xx+=cols[i]});for(let i=2;i<8;i++){icono(i,xx+cols[i]/2,y+3);xx+=cols[i]}
+    for(let r=0;r<filas;r++){const yy=y+6+r*rh;doc.setDrawColor(222,224,230);doc.rect(x,yy,cw,rh,'S');let cx=x;cols.forEach(w=>{cx+=w;doc.line(cx,yy,cx,yy+rh)});
+      const j=lista[r];if(j){T(7.5,'normal');doc.text(String(j.dorsal||''),x+cols[0]/2,yy+3.9,{align:'center'});doc.text(doc.splitTextToSize(j.apellido||j.nombre,cols[1]-2)[0],x+cols[0]+cols[1]/2,yy+3.9,{align:'center'})}
+      if(sep&&r===sep-1){doc.setDrawColor(90,96,110);doc.setLineWidth(.6);doc.line(x,yy+rh,x+cw,yy+rh);doc.setLineWidth(.2)}}};
+  const xN=loc?M:M+cw+6,xR=loc?M+cw+6:M;tabla(xN,nuestros,nTit);tabla(xR,[],0);
+  y+=6+filas*rh+9;
+  const bloque=(tit,heads,ws)=>{if(y+46>285){doc.addPage();y=20}T(10,'bold');doc.text(tit,W/2,y,{align:'center'});y+=4;
+    [M,M+cw+6].forEach(x=>{let xx=x;doc.setFillColor(244,245,248);doc.setDrawColor(210,213,220);doc.rect(x,y,cw,6,'FD');heads.forEach((h,i)=>{T(6.8,'bold');doc.text(h,xx+ws[i]/2,y+4,{align:'center'});xx+=ws[i]});
+      for(let r=0;r<6;r++){const yy=y+6+r*5.6;doc.setDrawColor(222,224,230);doc.rect(x,yy,cw,5.6,'S');let cx=x;ws.forEach(w=>{cx+=w;doc.line(cx,yy,cx,yy+5.6)})}});
+    y+=6+6*5.6+9};
+  const w3=[14,(cw-14)/2,(cw-14)/2];bloque('SUSTITUCIONES',['MIN','SALE','ENTRA'],w3);bloque('GOLES / ASISTENCIAS',['MIN','AUTOR/A','ASISTENCIA'],w3);
+  pie();guardarComo('hoja-de-partido');
+}
 function previaPartido(el,p){
   const todos=ordenJ(S.jugadores);
   el.innerHTML=`<div class="grilla g2">
@@ -2142,7 +2528,8 @@ function alEntrar(u){
 }
 function iniciarNube(){
   firebase.initializeApp(FB_CONFIG);auth=firebase.auth();db=firebase.firestore();
-  const conf=new URLSearchParams(location.search).get('conf');if(conf&&/^[a-z0-9]{10,40}$/.test(conf)){paginaConfirmar(conf);return}
+  const qs=new URLSearchParams(location.search),conf=qs.get('conf'),pc=qs.get('partido');if(conf&&/^[a-z0-9]{10,40}$/.test(conf)){paginaConfirmar(conf);return}
+  if(pc&&/^[a-z0-9]{10,40}$/.test(pc)){paginaPartido(pc);return}
   try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
   window.addEventListener('offline',()=>estadoNube('offline'));window.addEventListener('online',()=>estadoNube('guardado'));
   pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando…</p>`);
