@@ -278,6 +278,39 @@ body.sin-menu .lateral{display:none}
 .rend-fila{display:flex;align-items:center;gap:10px;padding:7px 0}.rend-fila+.rend-fila{border-top:1px dashed var(--linea)}
 .rend-fila .der{margin-left:auto;display:flex;gap:14px;align-items:center;font-variant-numeric:tabular-nums}
 @media (max-width:860px){.rend-top,.rend-bot{grid-template-columns:1fr}.rend-bot>div+div{border-left:0;border-top:1px solid var(--linea)}.rend-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.rend-kpis>div:nth-child(3){border-left:0}.rend-kpis>div:nth-child(n+3){border-top:1px solid var(--linea)}}
+/* ===== Plantel por línea + comparar ===== */
+.cj .mini{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--sub);margin-top:6px;font-variant-numeric:tabular-nums}
+.cj .mini span{white-space:nowrap}.cj .mini b{display:inline;color:var(--tinta)}
+.cj .minbar{margin-top:6px}
+.cj .minbar .lbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sub);margin-bottom:3px}
+.cj{align-items:flex-start}
+.cj>div:last-child{flex:1}
+.linea-tit{font-family:var(--f-d);font-size:20px;font-weight:700;letter-spacing:.3px;margin:22px 0 10px}
+.linea-tit:first-of-type{margin-top:4px}
+.cmp{display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;align-items:start}
+.cmp-lista{max-height:640px;overflow:auto}
+.cmp-lista h4{margin:12px 0 6px;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--sub)}
+.cmp-lista h4:first-child{margin-top:0}
+.cmp-item{display:flex;align-items:center;gap:9px;width:100%;padding:7px 8px;border:1.5px solid transparent;border-radius:8px;background:none;color:var(--tinta);font:inherit;text-align:left;cursor:pointer}
+.cmp-item:hover{background:var(--carta2)}
+.cmp-item[aria-pressed="true"]{border-color:var(--c);background:var(--carta2)}
+.cmp-item .box{width:18px;height:18px;border-radius:5px;border:2px solid var(--linea);flex:none;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:800}
+.cmp-item[aria-pressed="true"] .box{background:var(--c);border-color:var(--c)}
+.cmp-item[disabled]{opacity:.45;cursor:not-allowed}
+.cmp-item small{color:var(--sub);display:block;font-size:12px}
+.cmp-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.cmp-chips>*{max-width:100%}.cmp-chip{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--c);border-radius:10px;padding:5px 6px 5px 12px;font-weight:700;background:var(--carta)}
+.cmp-chip button{background:none;border:0;color:var(--sub);cursor:pointer;font-size:17px;line-height:1;padding:0 4px}
+.cmp-radar svg{display:block;width:100%;max-width:520px;margin:0 auto;height:auto}
+.cmp-radar text{font-family:var(--f-t);font-size:12px;fill:var(--tinta);font-weight:600}
+.cmp-ley{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;font-size:13px;color:var(--sub)}
+.cmp-ley i{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--c);margin-right:6px;vertical-align:-1px}
+.cmp-tabla{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.cmp-tabla th,.cmp-tabla td{padding:8px;border-bottom:1px solid var(--linea);text-align:center}
+.cmp-tabla th:first-child,.cmp-tabla td:first-child{text-align:left;color:var(--sub);font-weight:600}
+.cmp-tabla .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:5px}
+.cmp-tabla td.mejor{font-weight:800}
+@media (max-width:980px){.cmp{grid-template-columns:minmax(0,1fr)}.cmp-lista{max-height:260px}}
 </style>
 
 <div class="app">
@@ -775,21 +808,90 @@ VISTAS.inicio=el=>{
 };
 
 /* ================= PLANTEL ================= */
-let filtroPos='',filtroCat='';
+let filtroPos='',filtroCat='',cmpSel=[];
 VISTAS.plantel=el=>{
+  if(param==='comparar')return vistaComparar(el);
   if(param&&jugador(param))return perfilJugador(el,jugador(param));
   const cats=[...new Set(S.jugadores.map(j=>j.categoria).filter(Boolean))];
   const lista=ordenJ(S.jugadores.filter(j=>(!filtroPos||j.posicion===filtroPos)&&(!filtroCat||j.categoria===filtroCat)));
-  el.innerHTML=cabecera(S.jugadores.length+' '+J('pl'),'Plantel','',`<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
+  const minTot=minutosEquipo();
+  el.innerHTML=cabecera(S.jugadores.length+' '+J('pl'),'Plantel','',`${S.jugadores.length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${S.jugadores.length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
   `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
    <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select></div>`+
-  (lista.length?`<div class="cartas-j">${lista.map(j=>{const a=asistJugador(j.id);return `<button class="cj" data-id="${j.id}">${avatar(j)}<div style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small><span class="dorsal" style="font-size:14px">${j.dorsal||'–'}</span> ${esc(posTxt(j.posicion))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div></div></button>`}).join('')}</div>`:`<div class="vacio">Todavía no cargaste ${J('pl')}.<br><button class="btn pri" style="margin-top:12px" id="nuevaJ2">＋ Agregar ${J('sg')}</button></div>`);
+  (lista.length?(()=>{const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj" data-id="${j.id}">${avatar(j)}<div style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small><span class="dorsal" style="font-size:14px">${j.dorsal||'–'}</span> ${esc(posTxt(j.posicion))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
+    if(filtroPos)return `<div class="cartas-j">${lista.map(carta).join('')}</div>`;
+    return LINEAS.map(([k])=>{const g=lista.filter(j=>lineaDe(j)===k);return g.length?`<h2 class="linea-tit">${g.length} ${esc(nombreLinea(k,g.length))}</h2><div class="cartas-j">${g.map(carta).join('')}</div>`:''}).join('')})():`<div class="vacio">Todavía no cargaste ${J('pl')}.<br><button class="btn pri" style="margin-top:12px" id="nuevaJ2">＋ Agregar ${J('sg')}</button></div>`);
   $('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
   $('#fCat').onchange=e=>{filtroCat=e.target.value;pintar()};
   $('#nuevaJ').onclick=()=>editarJugador();
+  const cb=$('#cmpJ');if(cb)cb.onclick=()=>{if(!cmpSel.filter(id=>jugador(id)).length)cmpSel=ordenJ(S.jugadores).map(j=>({j,m:statsJugador(j.id).min})).sort((a,b)=>b.m-a.m).slice(0,2).map(o=>o.j.id);ir('plantel','comparar')};
+  const tp=$('#tablaPdf');if(tp)tp.onclick=()=>tablaJugadoresPDF().catch(()=>aviso('No se pudo generar el PDF.'));
+  const tx=$('#tablaXls');if(tx)tx.onclick=()=>tablaJugadoresExcel().catch(()=>aviso('No se pudo generar el Excel.'));
   const n2=$('#nuevaJ2');if(n2)n2.onclick=()=>editarJugador();
   $$('.cj',el).forEach(b=>b.onclick=()=>ir('plantel',b.dataset.id));
 };
+/* ================= PLANTEL POR LÍNEA, COMPARAR Y TABLA ================= */
+const LINEAS=[['ARQ'],['DEF'],['MED'],['DEL'],['SIN']];
+function lineaDe(j){const p=j.posicion||'';return /arquer/i.test(p)?'ARQ':/volante|medio/i.test(p)?'MED':/central|lateral|defens/i.test(p)?'DEF':/delanter|extremo/i.test(p)?'DEL':'SIN'}
+function nombreLinea(k,n){const pl=n!==1;const t={ARQ:gRama(pl?'arqueras':'arquera',pl?'arqueros':'arquero',pl?'arqueras/os':'arquera/o'),DEF:gRama(pl?'defensoras':'defensora',pl?'defensores':'defensor',pl?'defensoras/es':'defensora/or'),MED:gRama(pl?'mediocampistas':'mediocampista',pl?'mediocampistas':'mediocampista',pl?'mediocampistas':'mediocampista'),DEL:gRama(pl?'delanteras':'delantera',pl?'delanteros':'delantero',pl?'delanteras/os':'delantera/o'),SIN:'sin posición'};return t[k]}
+function minutosEquipo(){return S.partidos.filter(p=>p.estado!=='programado').reduce((a,p)=>a+minutoFinal(p),0)}
+function evalProm(id){const ev=evalsJugador(id);return ev.length?+(prom(ev.map(promEval))).toFixed(1):null}
+function datosJugador(j,minTot){const st=statsJugador(j.id),a=asistJugador(j.id);return {st,asis:a.t?a.pct:null,pm:minTot?Math.round(100*st.min/minTot):0,ev:evalProm(j.id)}}
+const CMP_COL=['#2F6FD6','#E08A1E','#2E8B57','#C2417A'];
+function radarSVG(ejes,series){ // ejes:[nombre], series:[{color,vals:[0..1]}]
+  const W=520,H=400,cx=W/2,cy=H/2+4,R=140,n=ejes.length,ang=i=>-Math.PI/2+i*2*Math.PI/n,pt=(i,r)=>[cx+Math.cos(ang(i))*R*r,cy+Math.sin(ang(i))*R*r];
+  let g='';[.25,.5,.75,1].forEach(r=>{g+=`<polygon points="${ejes.map((_,i)=>pt(i,r).join(',')).join(' ')}" fill="none" stroke="var(--linea)"/>`});
+  ejes.forEach((e,i)=>{const [x,y]=pt(i,1),[lx,ly]=pt(i,1.17),c=Math.cos(ang(i));g+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--linea)"/><text x="${lx}" y="${ly+4}" text-anchor="${Math.abs(c)<.2?'middle':c>0?'start':'end'}">${esc(e)}</text>`});
+  series.forEach(s=>{const ps=s.vals.map((v,i)=>pt(i,Math.max(0,Math.min(1,v))));g+=`<polygon points="${ps.map(p=>p.join(',')).join(' ')}" fill="${s.color}" fill-opacity=".14" stroke="${s.color}" stroke-width="2.2" stroke-linejoin="round"/>`+ps.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="${s.color}"><title>${esc(s.nombre)}</title></circle>`).join('')});
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Radar comparativo">${g}</svg>`;
+}
+function vistaComparar(el){
+  cmpSel=cmpSel.filter(id=>jugador(id));
+  const minTot=minutosEquipo(),sel=cmpSel.map(jugador),color=j=>CMP_COL[cmpSel.indexOf(j.id)],lleno=cmpSel.length>=4;
+  const D={};S.jugadores.forEach(j=>D[j.id]=datosJugador(j,minTot));
+  const lista=LINEAS.map(([k])=>{const g=ordenJ(S.jugadores.filter(j=>lineaDe(j)===k));return g.length?`<h4>${esc(nombreLinea(k,2))}</h4>`+g.map(j=>{const on=cmpSel.includes(j.id);return `<button class="cmp-item" data-cmp="${j.id}" aria-pressed="${on}" ${!on&&lleno?'disabled':''} style="--c:${on?color(j):'var(--linea)'}"><span class="box">${on?'✓':''}</span><span><b>${esc(j.apellido||j.nombre)}</b><small>#${j.dorsal||'–'} · ${D[j.id].st.pj} PJ · ${D[j.id].st.min}′</small></span></button>`}).join(''):''}).join('');
+  const filas=[['Evaluación promedio',j=>D[j.id].ev,0,v=>v.toFixed(1)],['Minutos',j=>D[j.id].st.min,0,v=>v+'′'],['Partidos jugados',j=>D[j.id].st.pj],['% de minutos',j=>D[j.id].pm,0,v=>v+'%'],['Goles',j=>D[j.id].st.gol],['Asistencias',j=>D[j.id].st.asis],['Recuperaciones',j=>D[j.id].st.rec],['Pérdidas',j=>D[j.id].st.per,1],['Faltas',j=>D[j.id].st.fal,1],['Amarillas',j=>D[j.id].st.ama,1],['Rojas',j=>D[j.id].st.roj,1],['Asistencia a entrenamientos',j=>D[j.id].asis,0,v=>v+'%']];
+  const tabla=`<table class="cmp-tabla"><thead><tr><th>Dato</th>${sel.map(j=>`<th style="--c:${color(j)}"><span class="dot"></span>${esc(j.apellido||j.nombre)}</th>`).join('')}</tr></thead><tbody>${filas.map(([t,fn,menos,fmt])=>{const vals=sel.map(fn),nums=vals.filter(v=>typeof v==='number'),m=nums.length>1?(menos?Math.min(...nums):Math.max(...nums)):null,uni=m!=null&&nums.filter(v=>v===m).length<nums.length;return `<tr><td>${t}</td>${vals.map(v=>`<td class="${uni&&v===m?'mejor':''}">${v==null?'—':(fmt?fmt(v):v)}</td>`).join('')}</tr>`}).join('')}</tbody></table><p class="sub" style="font-size:12.5px;margin:8px 0 0">En negrita, el mejor dato de cada fila (en pérdidas, faltas y tarjetas, el más bajo).</p>`;
+  const ejes=[['Evaluación',j=>D[j.id].ev||0,()=>10],['Minutos',j=>D[j.id].st.min],['Partidos',j=>D[j.id].st.pj],['Goles',j=>D[j.id].st.gol],['Asistencias',j=>D[j.id].st.asis],['Recuperaciones',j=>D[j.id].st.rec],['Asist. entrenam.',j=>D[j.id].asis||0,()=>100]];
+  const maxDe=(fn,mx)=>mx?mx():Math.max(1,...S.jugadores.map(fn));
+  const radar=radarSVG(ejes.map(e=>e[0]),sel.map(j=>({nombre:j.apellido||j.nombre,color:color(j),vals:ejes.map(([,fn,mx])=>fn(j)/maxDe(fn,mx))})));
+  el.innerHTML=`<button class="btn fantasma chico" id="volver" style="margin-bottom:12px">← Plantel</button>`+cabecera('Plantel','Comparar '+J('pl'),`Elegí de 2 a 4 ${J('pl')} para comparar sus datos de la temporada.`)+
+  `<div class="cmp"><div class="panel cmp-lista">${lista}</div><div>
+    <div class="cmp-chips">${sel.map(j=>`<span class="cmp-chip" style="--c:${color(j)}">${esc(j.apellido||j.nombre)} <span class="sub" style="font-weight:600">#${j.dorsal||'–'}</span><button data-quitar="${j.id}" aria-label="Quitar">×</button></span>`).join('')}${sel.length<4?`<span class="sub" style="align-self:center;font-size:13px">${sel.length<2?'Elegí al menos 2 de la lista':'Podés sumar hasta '+(4-sel.length)+' más'}</span>`:''}</div>
+    ${sel.length>=2?`<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>En qué se destaca cada ${J('sg')}</h3></div><p class="sub" style="margin:-6px 0 6px;font-size:13px">Cada eje compara contra el mejor dato del plantel (borde = 100%).</p><div class="cmp-radar">${radar}</div><div class="cmp-ley">${sel.map(j=>`<span style="--c:${color(j)}"><i></i>${esc(j.apellido||j.nombre)}</span>`).join('')}</div></div><div class="panel" style="overflow-x:auto">${tabla}</div>`:`<div class="panel"><div class="vacio">Elegí al menos 2 ${J('pl')} de la lista para ver la comparación.</div></div>`}
+  </div></div>`;
+  $('#volver').onclick=()=>ir('plantel');
+  $$('[data-cmp]',el).forEach(b=>b.onclick=()=>{const id=b.dataset.cmp,i=cmpSel.indexOf(id);if(i>=0)cmpSel.splice(i,1);else if(cmpSel.length<4)cmpSel.push(id);else return aviso('Podés comparar hasta 4.');const y=window.scrollY;pintar();window.scrollTo(0,y)});
+  $$('[data-quitar]',el).forEach(b=>b.onclick=()=>{cmpSel=cmpSel.filter(x=>x!==b.dataset.quitar);const y=window.scrollY;pintar();window.scrollTo(0,y)});
+}
+function filasTabla(){
+  const minTot=minutosEquipo();
+  return LINEAS.flatMap(([k])=>ordenJ(S.jugadores.filter(j=>lineaDe(j)===k))).map(j=>{const d=datosJugador(j,minTot);return {j,d,linea:lineaDe(j)}});
+}
+async function tablaJugadoresPDF(){
+  const JsPDF=await cargarJsPDF(),doc=new JsPDF({unit:'mm',format:'a4'}),W=210,H=297,M=14;
+  const T=(sz,st,col)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz);doc.setTextColor(...(col||[33,33,30]))};
+  const club=S.club||{};
+  doc.setFillColor(20,20,18);doc.rect(0,0,W,26,'F');doc.setFillColor(255,212,0);doc.rect(0,26,W,1.2,'F');
+  T(8,'bold',[201,163,0]);doc.text(((club.nombre||'')+' · '+(club.categoria||'')+' · Temporada '+(club.temporada||'')).toUpperCase(),M,9);
+  T(15,'bold',[255,255,255]);doc.text('Tabla de '+J('pl'),M,19);
+  const cols=[['N°',10],[J('Sg'),40],['Pos',13],['PJ',11],['Min',15],['%Min',14],['G',10],['A',10],['Rec',12],['TA',10],['TR',10],['Eval',13],['Asist',14]];
+  let y=36;const head=()=>{doc.setFillColor(20,20,18);doc.rect(M,y,182,7,'F');T(8.5,'bold',[255,255,255]);let x=M;cols.forEach(([h,w])=>{doc.text(h,x+2,y+4.8);x+=w});y+=7};
+  head();
+  filasTabla().forEach((r,i)=>{if(y>H-18){doc.addPage();y=16;head()}if(i%2){doc.setFillColor(244,242,236);doc.rect(M,y,182,7,'F')}T(8.5);const j=r.j,d=r.d;
+    const v=[j.dorsal||'–',(j.apellido||'')+(j.nombre?', '+j.nombre[0]+'.':''),r.linea==='SIN'?'—':r.linea,d.st.pj,d.st.min,d.pm+'%',d.st.gol,d.st.asis,d.st.rec,d.st.ama,d.st.roj,d.ev!=null?d.ev.toFixed(1):'—',d.asis!=null?d.asis+'%':'—'];
+    let x=M;v.forEach((c,k)=>{doc.text(String(c),x+2,y+4.8);x+=cols[k][1]});y+=7});
+  const N=doc.internal.getNumberOfPages();for(let i=1;i<=N;i++){doc.setPage(i);T(7,'normal',[150,150,150]);doc.text('Metodika · '+(club.nombre||'')+' · generado el '+fFecha(iso(HOY)),M,H-8);doc.text('Página '+i+' de '+N,W-M,H-8,{align:'right'})}
+  doc.save('tabla-'+J('pl')+'.pdf');
+}
+function cargarXLSX(){return window.XLSX?Promise.resolve(window.XLSX):new Promise((ok,mal)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>window.XLSX?ok(window.XLSX):mal();s.onerror=mal;document.head.appendChild(s)})}
+async function tablaJugadoresExcel(){
+  const X=await cargarXLSX();
+  const aoa=[['Dorsal','Apellido','Nombre','Posición','Categoría','Partidos jugados','Minutos','% minutos','Goles','Asistencias','Recuperaciones','Pérdidas','Faltas','Amarillas','Rojas','Evaluación promedio','Asistencia a entrenamientos (%)']];
+  filasTabla().forEach(({j,d})=>aoa.push([j.dorsal||'',j.apellido||'',j.nombre||'',posTxt(j.posicion)||'',j.categoria||'',d.st.pj,d.st.min,d.pm,d.st.gol,d.st.asis,d.st.rec,d.st.per,d.st.fal,d.st.ama,d.st.roj,d.ev!=null?d.ev:'',d.asis!=null?d.asis:'']));
+  const ws=X.utils.aoa_to_sheet(aoa);ws['!cols']=aoa[0].map((h,i)=>({wch:i===1?16:Math.max(9,String(h).length+2)}));
+  const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,J('Pl'));X.writeFile(wb,'tabla-'+J('pl')+'.xlsx');
+}
 function perfilJugador(el,j){
   const st=statsJugador(j.id),a=asistJugador(j.id),ev=evalsJugador(j.id),ult=ev[ev.length-1];
   const edad=j.nacimiento?Math.floor((HOY-deIso(j.nacimiento))/31557600000):'';
