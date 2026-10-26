@@ -312,6 +312,13 @@ body.sin-menu .lateral{display:none}
 .cmp-tabla .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:5px}
 .cmp-tabla td.mejor{font-weight:800}
 @media (max-width:980px){.cmp{grid-template-columns:minmax(0,1fr)}.cmp-lista{max-height:260px}}
+.ct-w{display:flex;flex-direction:column}
+.ct-w .ct{border-bottom-left-radius:0;border-bottom-right-radius:0;flex:1}
+.ct-acc{display:flex;align-items:center;gap:8px;border:1px solid var(--linea);border-top:0;border-radius:0 0 var(--r) var(--r);background:var(--carta2);padding:6px 8px;font-size:12.5px}
+.ct-acc .sub{flex:1;min-width:0}
+.ct-acc button{border:1px solid var(--linea);background:var(--carta);border-radius:7px;padding:4px 10px;font:inherit;font-weight:600;cursor:pointer;color:var(--tinta)}
+.ct-acc button[data-fav]{font-size:16px;line-height:1;padding:3px 8px;color:var(--tenue)}
+.ct-acc button[data-fav].on{color:var(--ambar);border-color:var(--ambar)}
 </style>
 
 <div class="app">
@@ -1277,7 +1284,9 @@ function verSesion(id){
 }
 
 /* ================= BIBLIOTECA ================= */
-let fB={cat:'',obj:'',nj:'',esp:'',cont:'',dif:'',tipo:'',q:''};
+let fB={cat:'',obj:'',nj:'',esp:'',cont:'',dif:'',tipo:'',q:'',ver:'',orden:''};
+function usosTarea(id){return S.sesiones.filter(x=>(x.tareas||[]).some(y=>y.tareaId===id)).length}
+function clonarTarea(t){const c=JSON.parse(JSON.stringify(t));c.id=uid();delete c.base;delete c.fav;c.titulo=t.titulo+' (copia)';S.tareas.push(c);guardar();aviso('Tarea clonada: ahora podés cambiarla');editarTarea(c)}
 function rangoJ(n){n=parseInt(n)||0;return n<=6?'1–6':n<=12?'7–12':n<=18?'13–18':'19+'}
 function adminCategorias(){
   const pint=m=>{const ex=S.club.categoriasExtra||[];$('#caL',m).innerHTML=CATEG_TAREA.map(c=>`<div class="fila" style="padding:6px 0"><span style="flex:1">${esc(c)}</span><span class="chip">Base</span></div>`).join('')+ex.map(c=>{const usos=S.tareas.filter(t=>t.categoria===c).length;return `<div class="fila" style="padding:6px 0"><span style="flex:1"><b>${esc(c)}</b></span><span class="chip ama">Propia${usos?' · '+usos+' tareas':''}</span><button class="btn chico fantasma" data-cdel="${esc(c)}" ${usos?'disabled title="Tiene tareas: cambiales la categoría primero"':''}>Borrar</button></div>`}).join('');
@@ -1290,18 +1299,25 @@ function adminCategorias(){
 }
 VISTAS.biblioteca=el=>{
   const objs=[...new Set(S.tareas.map(t=>t.objetivo).filter(Boolean))].sort();
-  const lista=S.tareas.filter(t=>(!fB.cat||t.categoria===fB.cat)&&(!fB.obj||t.objetivo===fB.obj)&&(!fB.nj||rangoJ(t.nJug)===fB.nj)&&(!fB.esp||t.espacio===fB.esp)&&(!fB.cont||t.contenido===fB.cont)&&(!fB.dif||t.dificultad===fB.dif)&&(!fB.tipo||t.tipo===fB.tipo)&&(!fB.q||(t.titulo+' '+t.descripcion).toLowerCase().includes(fB.q.toLowerCase())));
+  const lista=S.tareas.filter(t=>(!fB.cat||t.categoria===fB.cat)&&(!fB.obj||t.objetivo===fB.obj)&&(!fB.nj||rangoJ(t.nJug)===fB.nj)&&(!fB.esp||t.espacio===fB.esp)&&(!fB.cont||t.contenido===fB.cont)&&(!fB.dif||t.dificultad===fB.dif)&&(!fB.tipo||t.tipo===fB.tipo)&&(!fB.q||(t.titulo+' '+t.descripcion).toLowerCase().includes(fB.q.toLowerCase()))&&(fB.ver!=='mias'||!t.base)&&(fB.ver!=='fav'||t.fav));
+  const usos={};S.tareas.forEach(t=>usos[t.id]=usosTarea(t.id));
+  if(fB.orden==='usadas')lista.sort((a,b)=>usos[b.id]-usos[a.id]);
+  const nFav=S.tareas.filter(t=>t.fav).length,nMias=S.tareas.filter(t=>!t.base).length;
   const sel=(id,label,arr,v)=>`<select id="${id}" style="width:auto" aria-label="${label}"><option value="">${label}</option>${opts(arr,v)}</select>`;
   el.innerHTML=cabecera(S.tareas.length+' tareas','Biblioteca de tareas','Cada tarea tiene diagrama, descripción, consignas y video. Usalas para armar las sesiones.',`<button class="btn pri" id="nT">＋ Nueva tarea</button>`)+
-  `<div class="filtros"><input type="search" id="fq" placeholder="Buscar…" value="${esc(fB.q)}" style="width:200px">
+  `<div class="filtros" style="margin-bottom:10px"><div class="seg">${[['','Todas ('+S.tareas.length+')'],['mias','Creadas por mí ('+nMias+')'],['fav','★ Favoritas ('+nFav+')']].map(([v,t])=>`<button data-ver="${v}" class="${fB.ver===v?'activo':''}" aria-pressed="${fB.ver===v}">${t}</button>`).join('')}</div><select id="ford" style="width:auto" aria-label="Ordenar"><option value="">Orden de la biblioteca</option><option value="usadas" ${fB.orden==='usadas'?'selected':''}>Más usadas en sesiones</option></select></div><div class="filtros"><input type="search" id="fq" placeholder="Buscar…" value="${esc(fB.q)}" style="width:200px">
    ${sel('fcat','Momento del juego',CATEG(),fB.cat)}${sel('fobj','Objetivo',objs,fB.obj)}${sel('fnj','Nº de '+J('pl'),['1–6','7–12','13–18','19+'],fB.nj)}${sel('fesp','Espacio',ESPACIOS,fB.esp)}${sel('fcont','Contenido',CONT(),fB.cont)}${sel('fdif','Dificultad',DIFICULTAD,fB.dif)}${sel('ftipo','Tipo de tarea',TIPOS_TAREA,fB.tipo)}
-   <button class="btn chico" id="catAdm" title="Crear o borrar categorías propias">＋ Categoría</button>${Object.values(fB).some(Boolean)?'<button class="btn chico fantasma" id="limpF">Limpiar filtros</button>':''}</div>`+
-  (lista.length?`<div class="cartas-t">${lista.map(t=>{const pz=S.pizarras.find(p=>p.id===t.diagrama);return `<button class="ct" data-t="${t.id}" style="text-align:left;padding:0;font:inherit;color:inherit"><div class="mini">${pz?svgPizarra(pz,{mini:true}):`<svg viewBox="0 0 160 100"><rect width="160" height="100" fill="var(--cesped)"/><rect x="8" y="8" width="144" height="84" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/><text x="80" y="54" text-anchor="middle" style="fill:rgba(255,255,255,.75);font-size:9px;letter-spacing:1.5px">SIN DIAGRAMA</text></svg>`}</div><div class="cuerpo"><h3>${esc(t.titulo)}</h3><div class="sub" style="font-size:13.5px">${esc(t.objetivo)}</div><div class="chips" style="margin-top:auto"><span class="chip ama">${esc(catTarea(t.categoria))}</span><span class="chip">${esc(t.tipo)}</span><span class="chip">${esc(t.nJug)} ${J('pl')}</span><span class="chip">${t.duracion}′</span><span class="chip">${esc(t.dificultad)}</span></div></div></button>`}).join('')}</div>`:'<div class="vacio">No hay tareas con esos filtros.</div>');
+   <button class="btn chico" id="catAdm" title="Crear o borrar categorías propias">＋ Categoría</button>${['cat','obj','nj','esp','cont','dif','tipo','q','orden'].some(k=>fB[k])?'<button class="btn chico fantasma" id="limpF">Limpiar filtros</button>':''}</div>`+
+  (lista.length?`<div class="cartas-t">${lista.map(t=>{const pz=S.pizarras.find(p=>p.id===t.diagrama);return `<div class="ct-w"><button class="ct" data-t="${t.id}" style="text-align:left;padding:0;font:inherit;color:inherit"><div class="mini">${pz?svgPizarra(pz,{mini:true}):`<svg viewBox="0 0 160 100"><rect width="160" height="100" fill="var(--cesped)"/><rect x="8" y="8" width="144" height="84" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/><text x="80" y="54" text-anchor="middle" style="fill:rgba(255,255,255,.75);font-size:9px;letter-spacing:1.5px">SIN DIAGRAMA</text></svg>`}</div><div class="cuerpo"><h3>${esc(t.titulo)}</h3><div class="sub" style="font-size:13.5px">${esc(t.objetivo)}</div><div class="chips" style="margin-top:auto"><span class="chip ama">${esc(catTarea(t.categoria))}</span><span class="chip">${esc(t.tipo)}</span><span class="chip">${esc(t.nJug)} ${J('pl')}</span><span class="chip">${t.duracion}′</span><span class="chip">${esc(t.dificultad)}</span></div></div></button><div class="ct-acc"><button data-fav="${t.id}" class="${t.fav?'on':''}" aria-pressed="${!!t.fav}" title="${t.fav?'Quitar de favoritas':'Marcar como favorita'}">${t.fav?'★':'☆'}</button><span class="sub">${usos[t.id]?'Usada en '+usos[t.id]+' '+(usos[t.id]===1?'sesión':'sesiones'):'Sin usar todavía'}${t.base?'':' · <b style="color:var(--bronce)">Tuya</b>'}</span><button data-clon="${t.id}">Clonar</button></div></div>`}).join('')}</div>`:`<div class="vacio">${fB.ver==='fav'?'Todavía no marcaste favoritas. Tocá la ☆ de cualquier tarea.':fB.ver==='mias'?'Todavía no creaste ni clonaste tareas.':'No hay tareas con esos filtros.'}</div>`);
   const map={fcat:'cat',fobj:'obj',fnj:'nj',fesp:'esp',fcont:'cont',fdif:'dif',ftipo:'tipo'};
   Object.entries(map).forEach(([id,k])=>$('#'+id).onchange=e=>{fB[k]=e.target.value;pintar()});
   $('#fq').onchange=e=>{fB.q=e.target.value;pintar()};
+  $('#ford').onchange=e=>{fB.orden=e.target.value;pintar()};
+  $$('[data-ver]',el).forEach(b=>b.onclick=()=>{fB.ver=b.dataset.ver;pintar()});
+  $$('[data-fav]',el).forEach(b=>b.onclick=()=>{const t=tarea(b.dataset.fav);if(!t)return;t.fav=!t.fav;guardar();const y=window.scrollY;pintar();window.scrollTo(0,y)});
+  $$('[data-clon]',el).forEach(b=>b.onclick=()=>{const t=tarea(b.dataset.clon);if(t)clonarTarea(t)});
   $('#catAdm').onclick=adminCategorias;
-  const lf=$('#limpF');if(lf)lf.onclick=()=>{fB={cat:'',obj:'',nj:'',esp:'',cont:'',dif:'',tipo:'',q:''};pintar()};
+  const lf=$('#limpF');if(lf)lf.onclick=()=>{fB={cat:'',obj:'',nj:'',esp:'',cont:'',dif:'',tipo:'',q:'',ver:fB.ver,orden:''};pintar()};
   $('#nT').onclick=()=>editarTarea();
   $$('[data-t]',el).forEach(b=>b.onclick=()=>verTarea(b.dataset.t));
 };
@@ -1314,10 +1330,11 @@ function verTarea(id){
   <h3 style="margin:18px 0 6px">Descripción</h3><p style="margin:0">${esc(t.descripcion)}</p>
   <h3 style="margin:18px 0 6px">Consignas</h3><ul style="margin:0;padding-left:20px">${(t.consignas||'').split('\n').filter(Boolean).map(c=>`<li>${esc(c)}</li>`).join('')||'<li class="tenue">Sin consignas.</li>'}</ul>
   <h3 style="margin:18px 0 6px">Video</h3>${t.video?`<a class="btn chico" href="${esc(t.video)}" target="_blank" rel="noopener">▶ Ver video</a>`:'<span class="tenue">Sin video cargado.</span>'}
-  <div class="modal-pie"><button class="btn peligro" id="bT" style="margin-right:auto">Eliminar</button><button class="btn" id="pdfT">Ficha PDF</button><button class="btn" id="dupT">Duplicar</button><button class="btn pri" id="eT">Editar</button></div>`,{ancho:true,alMontar:m=>{
+  <div class="modal-pie"><button class="btn peligro" id="bT" style="margin-right:auto">Eliminar</button><button class="btn" id="pdfT">Ficha PDF</button><button class="btn" id="favT">${t.fav?'★ Favorita':'☆ Favorita'}</button><button class="btn" id="dupT">Clonar</button><button class="btn pri" id="eT">Editar</button></div>`,{ancho:true,alMontar:m=>{
     $('#eT',m).onclick=()=>{cerrarModal();editarTarea(t)};
     $('#pdfT',m).onclick=()=>fichaTareaPDF(t,$('#pdfT',m));
-    $('#dupT',m).onclick=()=>{const c={...t,id:uid(),titulo:t.titulo+' (copia)'};S.tareas.push(c);guardar();cerrarModal();aviso('Tarea duplicada');pintar()};
+    $('#favT',m).onclick=()=>{t.fav=!t.fav;guardar();$('#favT',m).textContent=t.fav?'★ Favorita':'☆ Favorita';pintar()};
+    $('#dupT',m).onclick=()=>{cerrarModal();clonarTarea(t);pintar()};
     $('#bT',m).onclick=()=>confirmar('¿Eliminar la tarea?','Se quita de la biblioteca. Las sesiones que la usan la muestran como eliminada.','Eliminar',()=>{S.tareas=S.tareas.filter(x=>x.id!==t.id);guardar();pintar()});
   }});
 }
