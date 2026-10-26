@@ -319,6 +319,18 @@ body.sin-menu .lateral{display:none}
 .ct-acc button{border:1px solid var(--linea);background:var(--carta);border-radius:7px;padding:4px 10px;font:inherit;font-weight:600;cursor:pointer;color:var(--tinta)}
 .ct-acc button[data-fav]{font-size:16px;line-height:1;padding:3px 8px;color:var(--tenue)}
 .ct-acc button[data-fav].on{color:var(--ambar);border-color:var(--ambar)}
+.av-sub{margin:-4px 0 10px;font-size:12.5px}
+.av-fila{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--linea)}
+.av-fila>div:first-child{flex:1;min-width:0}.av-fila .etq{display:block}
+.av-fila small{display:block;color:var(--sub);font-size:12px}
+.av-num{display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+.av-dif{font-weight:700;font-size:12.5px;border-radius:99px;padding:2px 8px;background:var(--carta2);color:var(--sub);white-space:nowrap;font-variant-numeric:tabular-nums}
+.av-dif.mas{background:var(--verde-t);color:var(--verde)}.av-dif.menos{background:var(--rojo-t);color:var(--rojo)}
+.av-rachas{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px}
+.av-racha{background:var(--carta2);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.av-racha span{font-size:12px;color:var(--sub);font-weight:600;line-height:1.25}
+.av-racha b{font-family:var(--f-d);font-size:30px;line-height:1.05}
+.av-racha small{font-size:12px;color:var(--sub)}
 </style>
 
 <div class="app">
@@ -960,11 +972,56 @@ function perfilJugador(el,j){
       ${ult?`<div style="display:flex;align-items:center;gap:12px"><div class="dato">${promEval(ult).toFixed(1)}</div><div class="sub" style="font-size:13px">Promedio al ${fFecha(ult.fecha)}</div></div><div style="margin-top:8px">${sparkline(ev.map(x=>+promEval(x).toFixed(1)),{w:220,h:48})}</div>`:'<div class="vacio">Sin evaluaciones.</div>'}</div>
   </div>
   ${ev.length?`<div class="panel" style="margin-bottom:16px"><h3>Evolución por dimensión</h3><div class="grilla g4" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">${DIM_EVAL.map(([c,t])=>`<div><div class="etq">${t}</div><div style="display:flex;align-items:center;gap:8px"><span class="dato" style="font-size:26px">${ult[c]}</span>${sparkline(ev.map(x=>+x[c]),{w:120,h:36})}</div></div>`).join('')}</div></div>`:''}
+  ${analisisAvanzado(j)}
   <div class="panel"><h3>Observaciones</h3><p style="margin:0;white-space:pre-wrap" class="${j.obs?'':'tenue'}">${esc(j.obs||'Sin observaciones.')}</p></div>`;
   $('#volver').onclick=()=>ir('plantel');
   $('#editJ').onclick=()=>editarJugador(j);
   $('#infJ').onclick=()=>informeJugador(j);
   $('#evalJ').onclick=()=>editarEvaluacion(null,j.id);
+}
+/* ================= ANÁLISIS AVANZADO DEL/LA JUGADOR/A ================= */
+function analisisAvanzado(j){
+  const fin=S.partidos.filter(p=>p.estado==='finalizado').sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha)));
+  const pts=p=>p.golesF>p.golesC?3:p.golesF===p.golesC?1:0;
+  const masMenos=(p,id)=>{const iv=intervalosJug(p,id);const en=m=>iv.some(([a,b])=>m>=a&&m<=b);let f=0,c=0;(p.eventos||[]).forEach(e=>{if(e.tipo==='gol'&&en(e.min))f++;if(e.tipo==='golRival'&&en(e.min))c++});return f-c};
+  const jugo=fin.filter(p=>minutosJugados(p,j.id)>0);
+  const fmt=v=>v.toFixed(1).replace('.',','),prom=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+  const dif=d=>`<span class="av-dif ${d>0.05?'mas':d<-0.05?'menos':''}">${d>0?'+':d<0?'−':'±'}${fmt(Math.abs(d))}</span>`;
+  const sg=J('sg'),pl=J('pl');
+  if(jugo.length<3)return `<div class="panel" style="margin-bottom:16px"><h3>Análisis avanzado</h3><div class="vacio">Hace falta que juegue al menos 3 partidos finalizados para ver este análisis.</div></div>`;
+  const media=prom(jugo.map(pts));
+  // Dónde rinde mejor (puntos del equipo por partido cuando juega)
+  const grupos=[];const ag=(t,fn)=>{const g={};jugo.forEach(p=>{const k=fn(p);if(k)(g[k]=g[k]||[]).push(pts(p))});Object.entries(g).forEach(([k,v])=>{if(v.length>=2)grupos.push({t,k,n:v.length,m:prom(v)})})};
+  ag('Lugar',p=>p.condicion);ag('Rol',p=>p.titulares.includes(j.id)?'Titular':'Suplente');ag('Competición',p=>p.competicion);
+  const donde=grupos.filter(g=>!(g.t==='Competición'&&grupos.filter(x=>x.t==='Competición').length<2)).sort((a,b)=>(b.m-media)-(a.m-media));
+  // Con quién (puntos por partido con y sin la/el compañera/o)
+  const comp=S.jugadores.filter(o=>o.id!==j.id).map(o=>{const con=[],sin=[];jugo.forEach(p=>(minutosJugados(p,o.id)>0?con:sin).push(pts(p)));return {o,con,sin,d:con.length>=2&&sin.length>=1?prom(con)-prom(sin):null}}).filter(x=>x.d!=null);
+  const mejor=comp.filter(x=>x.d>0.05).sort((a,b)=>b.d-a.d).slice(0,3),peor=comp.filter(x=>x.d<-0.05).sort((a,b)=>a.d-b.d).slice(0,3);
+  const filaC=x=>`<div class="av-fila"><div><b>${esc(x.o.apellido||x.o.nombre)}</b> <span class="sub">#${x.o.dorsal||'–'}</span><small>con ${fmt(prom(x.con))} pts (${x.con.length}) · sin ${fmt(prom(x.sin))} pts (${x.sin.length})</small></div>${dif(x.d)}</div>`;
+  // Rachas
+  const racha=(l,ok)=>{let a=0,m=0;l.forEach(x=>{if(ok(x)){a++;m=Math.max(m,a)}else a=0});return {a,m}};
+  const rMin=racha(fin,p=>minutosJugados(p,j.id)>0);
+  const rGA=racha(jugo,p=>(p.eventos||[]).some(e=>e.tipo==='gol'&&(e.jug===j.id||e.jug2===j.id)));
+  const rInv=racha(jugo,p=>p.golesF>=p.golesC);
+  const pm=jugo.map(p=>masMenos(p,j.id)),pmTot=pm.reduce((a,b)=>a+b,0);
+  const tarj=(t,r)=>`<div class="av-racha"><span>${t}</span><b>${r.a}</b><small>Mejor: ${r.m}</small></div>`;
+  // Puesto en el plantel
+  const st={};S.jugadores.forEach(o=>st[o.id]=statsJugador(o.id));
+  const pos=(fn,filtro)=>{const l=S.jugadores.filter(filtro||(()=>true)),v=fn(j);return {p:1+l.filter(o=>fn(o)>v).length,de:l.length}};
+  const ev=o=>{const e=evalsJugador(o.id);return e.length?prom(e.map(promEval)):0};
+  const puestos=[['Evaluación',pos(ev,o=>ev(o)>0)],['Minutos',pos(o=>st[o.id].min)],['Goles',pos(o=>st[o.id].gol)],['Asistencias',pos(o=>st[o.id].asis)],['Recuperaciones',pos(o=>st[o.id].rec)]];
+  return `<div class="grilla g2" style="margin-bottom:16px">
+    <div class="panel"><h3>Dónde rinde mejor</h3><p class="sub av-sub">Puntos del equipo por partido cuando juega, comparados con su media (${fmt(media)} pts).</p>
+      ${donde.length?donde.map(g=>`<div class="av-fila"><div><span class="etq">${esc(g.t)}</span><b>${esc(g.k)}</b><small>${g.n} partidos</small></div><div class="av-num"><b>${fmt(g.m)}</b>${dif(g.m-media)}</div></div>`).join(''):'<div class="vacio">Todavía no hay suficientes partidos para comparar.</div>'}
+      <div class="av-fila"><div><span class="etq">Con ${gRama('ella','él','ella/él')} en cancha</span><b>Diferencia de gol</b><small>goles a favor menos goles en contra mientras juega</small></div><div class="av-num"><b>${pmTot>0?'+':''}${pmTot}</b></div></div>
+    </div>
+    <div class="panel"><h3>Con quién rinde mejor</h3><p class="sub av-sub">Puntos del equipo cuando juega con cada ${gRama('compañera','compañero','compañera/o')} y cuando no.</p>
+      ${mejor.length?`<div class="etq" style="margin-top:4px">Mejor con</div>${mejor.map(filaC).join('')}`:''}${peor.length?`<div class="etq" style="margin-top:10px">Peor con</div>${peor.map(filaC).join('')}`:''}
+      ${!mejor.length&&!peor.length?'<div class="vacio">No hay diferencias claras todavía.</div>':''}
+    </div>
+    <div class="panel"><h3>Rachas</h3><p class="sub av-sub">Número grande: racha actual.</p><div class="av-rachas">${tarj('Partidos seguidos con minutos',rMin)}${tarj('Partidos seguidos con gol o asistencia',rGA)}${tarj('Partidos seguidos sin perder',rInv)}</div></div>
+    <div class="panel"><h3>Puesto en el plantel</h3><p class="sub av-sub">Dónde se ubica entre ${gRama('todas las jugadoras','todos los jugadores','todo el plantel')}.</p><div class="av-rachas">${puestos.map(([t,r])=>`<div class="av-racha"><span>${t}</span><b>#${r.p}</b><small>de ${r.de}</small></div>`).join('')}</div></div>
+  </div>`;
 }
 /* ================= INFORME DE TEMPORADA (PDF por jugador/a) ================= */
 function gRama(f,m,x){const r=S.club.rama;return r==='F'?f:r==='M'?m:x}
