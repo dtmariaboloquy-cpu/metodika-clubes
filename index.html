@@ -260,6 +260,24 @@ body.sin-menu .lateral{display:none}
   h1{font-size:28px}
   .reloj{font-size:48px}
 }
+/* ===== Panel de rendimiento (Inicio) ===== */
+.rend-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:22px;align-items:start}
+.rend-bal{font-family:var(--f-d);font-size:44px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.rend-bal .v{color:var(--verde)}.rend-bal .e{color:var(--ambar)}.rend-bal .d{color:var(--rojo)}
+.rend-barra{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--carta2);margin:10px 0 6px}
+.rend-barra span{display:block;height:100%}
+.rend-ult{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.rend-ult .it{display:flex;align-items:center;gap:7px;border:1px solid var(--linea);border-radius:99px;padding:4px 10px 4px 5px;font-size:13px;background:var(--carta)}
+.rend-ult .res{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;border-radius:99px;padding:2px 8px;font-size:12.5px}
+.rend-ult .res.v{background:var(--verde-t);color:var(--verde)}.rend-ult .res.e{background:var(--ambar-t);color:var(--ambar)}.rend-ult .res.d{background:var(--rojo-t);color:var(--rojo)}
+.rend-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--linea);border-bottom:1px solid var(--linea);margin:18px -4px 0}
+.rend-kpis>div{padding:14px 12px}.rend-kpis>div+div{border-left:1px solid var(--linea)}
+.rend-kpis .dato{font-size:30px}
+.rend-bot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0}
+.rend-bot>div{padding:14px 12px}.rend-bot>div+div{border-left:1px solid var(--linea)}
+.rend-fila{display:flex;align-items:center;gap:10px;padding:7px 0}.rend-fila+.rend-fila{border-top:1px dashed var(--linea)}
+.rend-fila .der{margin-left:auto;display:flex;gap:14px;align-items:center;font-variant-numeric:tabular-nums}
+@media (max-width:860px){.rend-top,.rend-bot{grid-template-columns:1fr}.rend-bot>div+div{border-left:0;border-top:1px solid var(--linea)}.rend-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.rend-kpis>div:nth-child(3){border-left:0}.rend-kpis>div:nth-child(n+3){border-top:1px solid var(--linea)}}
 </style>
 
 <div class="app">
@@ -664,6 +682,43 @@ function barras(items,{h=150,color='var(--tinta)',unidad=''}={}){ // items [{et,
     items.map((it,i)=>{const cx=34+paso*i+paso/2,y=esc2(it.v);return `<g><rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${Math.max(0,h-24-y)}" rx="4" fill="${it.color||color}"><title>${esc(it.tip||it.et+': '+it.v+unidad)}</title></rect><text x="${cx}" y="${y-5}" text-anchor="middle" style="fill:var(--tinta);font-weight:600">${it.v}</text><text x="${cx}" y="${h-8}" text-anchor="middle">${esc(it.et)}</text></g>`}).join('')+
     `</svg></div>`;
 }
+/* ================= PANEL DE RENDIMIENTO ================= */
+function panelRendimiento(){
+  const jug=S.partidos.filter(x=>x.estado==='finalizado').sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha)));
+  if(!jug.length)return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>Rendimiento de la temporada</h3></div><div class="vacio">Todavía no hay partidos finalizados. Cuando cargues el primero, acá vas a ver el balance, los últimos resultados y más.</div></div>`;
+  const res=x=>x.golesF>x.golesC?'v':x.golesF<x.golesC?'d':'e';
+  const cuenta=arr=>{const o={v:0,e:0,d:0,gf:0,gc:0,n:arr.length};arr.forEach(x=>{o[res(x)]++;o.gf+=+x.golesF||0;o.gc+=+x.golesC||0});return o};
+  const t=cuenta(jug),pts=t.v*3+t.e,ppp=(pts/t.n).toFixed(2).replace('.',','),dif=t.gf-t.gc;
+  const vallas=jug.filter(x=>!(+x.golesC>0)).length;
+  let ama=0,roj=0;jug.forEach(x=>(x.eventos||[]).forEach(ev=>{if(ev.tipo==='tarjeta'){ev.color==='roja'?roj++:ama++}}));
+  const w=n=>(100*n/t.n).toFixed(1)+'%';
+  const ult=jug.slice(-5);
+  const loc=cuenta(jug.filter(x=>x.condicion==='Local')),vis=cuenta(jug.filter(x=>x.condicion==='Visitante'));
+  const fila=(ico,tit,o)=>`<div class="rend-fila"><span aria-hidden="true">${ico}</span><div><b>${tit}</b><div class="sub" style="font-size:12.5px">${o.n} partido${o.n===1?'':'s'}</div></div><div class="der"><span><b style="color:var(--verde)">${o.v}V</b> <b style="color:var(--ambar)">${o.e}E</b> <b style="color:var(--rojo)">${o.d}D</b></span><span class="sub">${o.gf}–${o.gc}</span></div></div>`;
+  const conDif=jug.map(x=>({x,d:(+x.golesF||0)-(+x.golesC||0)}));
+  const mejor=conDif.filter(o=>o.d>0).sort((a,b)=>b.d-a.d||b.x.golesF-a.x.golesF)[0],peor=conDif.filter(o=>o.d<0).sort((a,b)=>a.d-b.d)[0];
+  const extremo=(tit,o,cl)=>`<div class="rend-fila"><b>${tit}</b><div class="der">${o?`<span class="res ${cl}" style="white-space:nowrap;font-weight:700;border-radius:99px;padding:2px 8px;font-size:12.5px;background:var(--${cl==='v'?'verde':'rojo'}-t);color:var(--${cl==='v'?'verde':'rojo'})">${o.x.golesF}–${o.x.golesC}</span>${escudoHtml(o.x.rivalEscudo,o.x.rival,20)}<span>${esc(o.x.rival)}</span>`:'<span class="tenue">—</span>'}</div></div>`;
+  return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>Rendimiento de la temporada</h3><span class="sub" style="margin-left:auto">${t.n} partido${t.n===1?'':'s'} jugado${t.n===1?'':'s'}</span></div>
+    <div class="rend-top">
+      <div><div class="etq">Balance</div>
+        <div class="rend-bal"><span class="v">${t.v}V</span> <span class="e">${t.e}E</span> <span class="d">${t.d}D</span></div>
+        <div class="rend-barra" role="img" aria-label="${t.v} ganados, ${t.e} empatados, ${t.d} perdidos"><span style="width:${w(t.v)};background:var(--verde)"></span><span style="width:${w(t.e)};background:var(--ambar)"></span><span style="width:${w(t.d)};background:var(--rojo)"></span></div>
+        <div class="sub" style="font-size:13.5px">${pts} puntos · ${ppp} por partido</div></div>
+      <div><div class="etq">Últimos ${ult.length} partidos · el más reciente a la derecha</div>
+        <div class="rend-ult">${ult.map(x=>`<span class="it" title="${esc(fFecha(x.fecha))} · ${esc(x.condicion||'')}"><span class="res ${res(x)}">${x.golesF}–${x.golesC}</span>${escudoHtml(x.rivalEscudo,x.rival,20)}<span>${esc(x.rival)}</span></span>`).join('')}</div></div>
+    </div>
+    <div class="rend-kpis">
+      <div><div class="etq">Goles</div><div class="dato"><span style="color:var(--verde)">${t.gf}</span> – <span style="color:var(--rojo)">${t.gc}</span></div><div class="sub" style="font-size:12.5px">${dif>=0?'+':''}${dif} de diferencia</div></div>
+      <div><div class="etq">Vallas invictas</div><div class="dato">${vallas}</div><div class="sub" style="font-size:12.5px">${vallas} de ${t.n} partidos</div></div>
+      <div><div class="etq">Tarjetas</div><div class="dato">${ama+roj}</div><div class="sub" style="font-size:12.5px">${ama} amarilla${ama===1?'':'s'} · ${roj} roja${roj===1?'':'s'}</div></div>
+      <div><div class="etq">Promedio de gol</div><div class="dato">${(t.gf/t.n).toFixed(1).replace('.',',')}</div><div class="sub" style="font-size:12.5px">a favor por partido · ${(t.gc/t.n).toFixed(1).replace('.',',')} en contra</div></div>
+    </div>
+    <div class="rend-bot">
+      <div>${fila('🏠','Como local',loc)}${fila('🚌','Como visitante',vis)}</div>
+      <div>${extremo('Mayor victoria',mejor,'v')}${extremo('Mayor derrota',peor,'d')}</div>
+    </div>
+  </div>`;
+}
 /* ================= INICIO ================= */
 VISTAS.inicio=el=>{
   const s=proximaSesion(),p=proximoPartido();
@@ -676,7 +731,7 @@ VISTAS.inicio=el=>{
   const g=jugados.filter(x=>x.golesF>x.golesC).length,e=jugados.filter(x=>x.golesF===x.golesC).length,pe=jugados.length-g-e;
   const nombre=S.club.nombre;
   el.innerHTML=cabecera(S.club.categoria+' · Temporada '+S.club.temporada,nombre,`Hoy es ${fFecha(iso(HOY))}.`)+
-  `<div class="grilla g3" style="margin-bottom:16px">
+  `<div class="grilla g2" style="margin-bottom:16px">
     <div class="panel"><div class="panel-cab"><h3>Próximo entrenamiento</h3></div>${s?`
       <div class="dato" style="font-size:28px">${fFecha(s.fecha)} · ${esc(s.hora||'')}</div>
       <p style="margin:8px 0 4px;font-weight:600">${esc(s.titulo)}</p><p class="sub" style="margin:0 0 12px">${esc(s.objetivo)}</p>
@@ -687,16 +742,8 @@ VISTAS.inicio=el=>{
       <p style="margin:8px 0 4px;font-weight:600">vs ${esc(p.rival)}</p><p class="sub" style="margin:0 0 12px">${esc(p.competicion)} · ${esc(p.condicion)}</p>
       <div class="chips" style="margin-bottom:12px"><span class="chip ${p.convocados.length?'ok':'aviso'}">${p.convocados.length?p.convocados.length+' '+(S.club.rama==='F'?'convocadas':S.club.rama==='M'?'convocados':'convocadas/os'):'Convocatoria pendiente'}</span></div>
       <button class="btn chico" data-par="${p.id}">Ir al partido</button>`:`<div class="vacio">No hay partidos programados.<br><button class="btn chico" style="margin-top:10px" data-ir="fixture">Cargar fixture</button></div>`}</div>
-    <div class="panel"><div class="panel-cab"><h3>Temporada</h3></div>
-      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px">
-        <div><div class="etq">Jugados</div><div class="dato">${jugados.length}</div></div>
-        <div><div class="etq">Ganados</div><div class="dato" style="color:var(--verde)">${g}</div></div>
-        <div><div class="etq">Empates</div><div class="dato">${e}</div></div>
-        <div><div class="etq">Perdidos</div><div class="dato" style="color:var(--rojo)">${pe}</div></div>
-      </div>
-      <div class="chips">${jugados.slice(-5).map(x=>`<span class="chip ${x.golesF>x.golesC?'ok':x.golesF<x.golesC?'mal':''}" title="vs ${esc(x.rival)}">${x.golesF}-${x.golesC}</span>`).join('')||'<span class="tenue">Todavía no hay partidos jugados.</span>'}</div>
-    </div>
   </div>
+  ${panelRendimiento()}
   <div class="grilla g2" style="margin-bottom:16px">
     <div class="panel"><div class="panel-cab"><h3>Asistencia a entrenamientos</h3><span class="chip ${media>=85?'ok':media>=70?'aviso':'mal'}" style="margin-left:auto">${pctSes.length?media+'% promedio · últimos 30 días':'Sin registros'}</span></div>
       ${barras(pctSes,{unidad:'%',color:'var(--verde)'})}
