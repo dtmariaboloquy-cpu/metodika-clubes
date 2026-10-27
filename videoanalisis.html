@@ -180,6 +180,8 @@ table.t tr:hover td{background:var(--field)}
 .drawbar .sw.on{border-color:#fff;box-shadow:0 0 0 2px #fff}
 .drawbar select{background:#0D2038;color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;font-size:12px;padding:3px}
 .drawbar .ok{background:#1E8E5A;border-color:#1E8E5A}
+.drawbar button:disabled{opacity:.35;cursor:default}
+.stage.drawing.mov #cv{cursor:move}
 .drawbar .vs{width:1px;height:20px;background:rgba(255,255,255,.25);margin:0 2px}
 .drawhint{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:4;background:rgba(4,16,31,.85);color:#fff;font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;display:none}
 .stage.drawing .drawhint{display:block}
@@ -234,6 +236,7 @@ table.t tr:hover td{background:var(--field)}
         <canvas id="cv"></canvas>
         <div class="drawhint">Pausado · dibujá sobre la imagen. Se va a ver cuando reproduzcas este clip.</div>
         <div class="drawbar" id="drawBar">
+          <button data-tool="mover" title="Mover, agrandar o achicar un dibujo">✥ Mover</button>
           <button data-tool="flecha" class="on" title="Flecha (pase / movimiento)">➝ Flecha</button>
           <button data-tool="punteada" title="Flecha punteada (desmarque / conducción)">⇢ Punteada</button>
           <button data-tool="linea" title="Línea (líneas del equipo)">— Línea</button>
@@ -248,7 +251,15 @@ table.t tr:hover td{background:var(--field)}
           <button class="sw" data-col="#38BDF8" style="background:#38BDF8" title="Celeste"></button>
           <button class="sw" data-col="#22C55E" style="background:#22C55E" title="Verde"></button>
           <span class="vs"></span>
-          <button id="dUndo" title="Deshacer">↶</button>
+          <select id="dGrosor" title="Grosor de la línea"><option value="0.6">Fino</option><option value="1" selected>Normal</option><option value="1.6">Grueso</option></select>
+          <span class="vs"></span>
+          <button class="selb" id="dSmall" title="Achicar el dibujo elegido (tecla -)" disabled>－ Chico</button>
+          <button class="selb" id="dBig" title="Agrandar el dibujo elegido (tecla +)" disabled>＋ Grande</button>
+          <button class="selb" id="dDup" title="Duplicar el dibujo elegido (Ctrl+D)" disabled>⧉ Copiar</button>
+          <button class="selb" id="dDel" title="Borrar el dibujo elegido (Supr)" disabled>🗑 Borrar</button>
+          <span class="vs"></span>
+          <button id="dUndo" title="Deshacer (Ctrl+Z)">↶</button>
+          <button id="dRedo" title="Rehacer (Ctrl+Y)" disabled>↷</button>
           <button id="dClear" title="Borrar todo el dibujo">Limpiar</button>
           <select id="dPausa" title="Cuántos segundos se frena el clip mostrando el dibujo"><option value="3">Pausa 3 s</option><option value="5" selected>Pausa 5 s</option><option value="8">Pausa 8 s</option><option value="12">Pausa 12 s</option><option value="0">Sin pausa</option></select>
           <button id="dCancel">Cancelar</button>
@@ -466,14 +477,29 @@ function getDb(){
   try{ if (typeof firebase==="undefined") return null; if(!firebase.apps.length) firebase.initializeApp(window.MTK_FIREBASE_CONFIG); db = firebase.firestore(); }catch(e){ db=null; }
   return db;
 }
+/* Firestore no acepta listas dentro de listas (ej. los puntos de los dibujos): se guardan envueltas y se desenvuelven al leer */
+function aNube(v, enLista){
+  if (Array.isArray(v)){ const a = v.map(x=>aNube(x, true)); return enLista ? {__a:a} : a; }
+  if (v && typeof v==="object"){ const o = {}; for (const k in v) if (v[k]!==undefined) o[k] = aNube(v[k], false); return o; }
+  return v;
+}
+function desdeNube(v){
+  if (Array.isArray(v)) return v.map(desdeNube);
+  if (v && typeof v==="object"){
+    if (Object.keys(v).length===1 && Array.isArray(v.__a)) return v.__a.map(desdeNube);
+    const o = {}; for (const k in v) o[k] = desdeNube(v[k]); return o;
+  }
+  return v;
+}
+let pendientesNube = [];
 const BASE = () => "clubes/" + CLUB_ID + "/";
 function refProy(id){ return MODO_DB==="col" ? getDb().doc(BASE()+"videoanalisis/"+id) : getDb().doc(BASE()+"datos/va_p_"+id); }
 function refCfg(n){ return MODO_DB==="col" ? getDb().doc(BASE()+"videoanalisis-config/"+n) : getDb().doc(BASE()+"datos/va_cfg_"+n); }
 async function listarProyectos(){
-  if (MODO_DB==="col"){ const q = await getDb().collection(BASE()+"videoanalisis").get(); return q.docs.map(x=>({id:x.id, data:x.data()})); }
+  if (MODO_DB==="col"){ const q = await getDb().collection(BASE()+"videoanalisis").get(); return q.docs.map(x=>({id:x.id, data:desdeNube(x.data())})); }
   const FP = firebase.firestore.FieldPath.documentId();
   const q = await getDb().collection(BASE()+"datos").where(FP, ">=", "va_p_").where(FP, "<", "va_p_~").get();
-  return q.docs.map(x=>({id:x.id.slice(5), data:x.data()}));
+  return q.docs.map(x=>({id:x.id.slice(5), data:desdeNube(x.data())}));
 }
 function guardarLocal(){
   if (!P) return;
@@ -496,11 +522,11 @@ async function guardarNube(){
   if (!P || !online) return;
   try{
     const data = clone(P); delete data._videoUrl;
-    await refProy(P.id).set(data);
+    await refProy(P.id).set(aNube(data));
     setStatus("saved","Guardado en la nube del club");
   }catch(e){
     console.error(e);
-    setStatus("err","No se pudo guardar en la nube — quedó guardado en este navegador");
+    setStatus("err","No se pudo guardar en la nube — quedó guardado en esta compu y se vuelve a intentar");
   }
 }
 let listasTimer = null;
@@ -508,7 +534,7 @@ function guardarListas(){
   lsSet("va_listas", JSON.stringify(LISTAS));
   if (!online) return;
   clearTimeout(listasTimer);
-  listasTimer = setTimeout(async ()=>{ try{ await refCfg("listas").set({listas:LISTAS, actualizado:new Date().toISOString()}); }catch(e){ console.error(e); setStatus("err","No se pudieron guardar las listas en la nube"); } }, 700);
+  listasTimer = setTimeout(async ()=>{ try{ await refCfg("listas").set({listas:aNube(LISTAS), actualizado:new Date().toISOString()}); }catch(e){ console.error(e); setStatus("err","No se pudieron guardar las listas en la nube"); } }, 700);
 }
 function getProyecto(pid){
   if (P && P.id===pid) return P;
@@ -516,7 +542,7 @@ function getProyecto(pid){
 }
 async function guardarPlantilla(){
   lsSet("va_plantilla", JSON.stringify(plantilla));
-  if (online){ try{ await refCfg("botonera").set({botones:plantilla, actualizado:new Date().toISOString()}); }catch(e){ console.error(e); } }
+  if (online){ try{ await refCfg("botonera").set({botones:aNube(plantilla), actualizado:new Date().toISOString()}); }catch(e){ console.error(e); } }
 }
 
 async function iniciar(){
@@ -534,11 +560,19 @@ async function iniciar(){
       // unir con locales que no estén en la nube
       const ids = new Set(nube.map(x=>x.id));
       proyectos.filter(x=>!ids.has(x.id)).forEach(x=>nube.push(x));
-      nube.forEach(x=>{ if (x._data){ lsSet("va_p_"+x.id, JSON.stringify(x._data)); delete x._data; } });
+      nube.forEach(x=>{ if (x._data){
+        let loc = null; try{ loc = JSON.parse(lsGet("va_p_"+x.id)||"null"); }catch(e){}
+        // si en esta compu hay una versión más nueva (por ej. no se pudo subir), se conserva y se vuelve a subir
+        if (loc && String(loc.actualizado||"") > String(x._data.actualizado||"")) pendientesNube.push(x.id);
+        else lsSet("va_p_"+x.id, JSON.stringify(x._data));
+        delete x._data; } });
+      proyectos.filter(x=>!ids.has(x.id)).forEach(x=>pendientesNube.push(x.id));
       proyectos = nube;
       online = true;
-      try{ const c = await refCfg("botonera").get(); if (c.exists && c.data().botones) plantilla = c.data().botones; }catch(e){}
-      try{ const l = await refCfg("listas").get(); if (l.exists && Array.isArray(l.data().listas)) { LISTAS = l.data().listas; lsSet("va_listas", JSON.stringify(LISTAS)); } }catch(e){}
+      for (const pid of pendientesNube){ try{ const lp = JSON.parse(lsGet("va_p_"+pid)||"null"); if (lp){ delete lp._videoUrl; await refProy(pid).set(aNube(lp)); } }catch(e){ console.warn(e); } }
+      pendientesNube = [];
+      try{ const c = await refCfg("botonera").get(); if (c.exists && c.data().botones) plantilla = desdeNube(c.data().botones); }catch(e){}
+      try{ const l = await refCfg("listas").get(); if (l.exists && Array.isArray(l.data().listas)) { LISTAS = desdeNube(l.data().listas); lsSet("va_listas", JSON.stringify(LISTAS)); } }catch(e){}
       setStatus("saved","Conectado a la nube del club");
     }catch(e){
       console.warn("Firestore no disponible:", e);
@@ -1116,7 +1150,8 @@ function accionItem(acc, i){
 
 /* ---------- dibujo sobre el clip ---------- */
 const cv = $("#cv"), ctx = cv.getContext("2d"), ctxCv = ctx;
-let dibujando = false, herramienta = "flecha", colorDib = "#FFD60A", formasEd = [], trazo = null, tagDib = null, dibEditId = null;
+let dibujando = false, herramienta = "flecha", colorDib = "#FFD60A", grosorDib = 1, formasEd = [], trazo = null, tagDib = null, dibEditId = null;
+let selIdx = -1, arrastre = null, histAtras = [], histAdelante = [];
 function ajustarCanvas(){
   const st = $("#stage"), dpr = window.devicePixelRatio||1;
   cv.width = Math.round(st.clientWidth*dpr); cv.height = Math.round(st.clientHeight*dpr);
@@ -1132,18 +1167,18 @@ function flechaPunta(x1,y1,x2,y2,tam,ctx){
   ctx.closePath(); ctx.fill();
 }
 function pintarForma(f, c2, W2, H2){
-  const ctx = c2 || ctxCv, W = W2 || cv.width, H = H2 || cv.height, k = W/1000;
+  const ctx = c2 || ctxCv, W = W2 || cv.width, H = H2 || cv.height, k = W/1000, g = f.g||1;
   const pts = f.pts.map(p=>[p[0]*W, p[1]*H]);
   ctx.save();
-  ctx.strokeStyle = f.c; ctx.fillStyle = f.c; ctx.lineWidth = Math.max(2, 4*k); ctx.lineCap="round"; ctx.lineJoin="round";
+  ctx.strokeStyle = f.c; ctx.fillStyle = f.c; ctx.lineWidth = Math.max(2, 4*k*g); ctx.lineCap="round"; ctx.lineJoin="round";
   ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = 4*k;
   const [a,b] = [pts[0], pts[pts.length-1]];
   if (f.k==="flecha" || f.k==="punteada" || f.k==="linea"){
     if (f.k==="punteada") ctx.setLineDash([14*k, 10*k]);
     ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
     ctx.setLineDash([]);
-    if (f.k!=="linea") flechaPunta(a[0],a[1],b[0],b[1], 22*k, ctx);
-    if (f.k==="linea"){ [a,b].forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],6*k,0,Math.PI*2); ctx.fill(); }); }
+    if (f.k!=="linea") flechaPunta(a[0],a[1],b[0],b[1], 22*k*(0.7+0.3*g), ctx);
+    if (f.k==="linea"){ [a,b].forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],6*k*Math.max(1,g),0,Math.PI*2); ctx.fill(); }); }
   } else if (f.k==="circulo"){
     const rx = Math.max(10*k, Math.hypot(b[0]-a[0], b[1]-a[1])), ry = rx*0.42;
     ctx.beginPath(); ctx.ellipse(a[0], a[1], rx, ry, 0, 0, Math.PI*2); ctx.stroke();
@@ -1154,7 +1189,7 @@ function pintarForma(f, c2, W2, H2){
   } else if (f.k==="lapiz"){
     ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.stroke();
   } else if (f.k==="texto"){
-    const fs = Math.round(30*k);
+    const fs = Math.round(30*k*(f.s||1));
     ctx.font = `800 ${fs}px Barlow, Arial, sans-serif`; ctx.textBaseline="middle";
     const w = ctx.measureText(f.txt).width;
     ctx.shadowBlur = 0; ctx.globalAlpha=.75; ctx.fillStyle="#04101F"; ctx.fillRect(a[0]-8*k, a[1]-fs*0.75, w+16*k, fs*1.5);
@@ -1163,7 +1198,89 @@ function pintarForma(f, c2, W2, H2){
   ctx.restore();
 }
 function pintarFormas(formas){ limpiarCanvas(); (formas||[]).forEach(f=>pintarForma(f)); }
-function repintarEditor(){ pintarFormas(trazo ? formasEd.concat([trazo]) : formasEd); }
+
+/* --- selección: mover, agrandar, achicar --- */
+function dprDib(){ return window.devicePixelRatio||1; }
+function bboxPx(f){
+  const W=cv.width, H=cv.height, k=W/1000, pts=f.pts.map(p=>[p[0]*W, p[1]*H]);
+  if (f.k==="circulo"){
+    const a=pts[0], b=pts[pts.length-1], rx=Math.max(10*k, Math.hypot(b[0]-a[0], b[1]-a[1])), ry=rx*0.42;
+    return [a[0]-rx, a[1]-ry, a[0]+rx, a[1]+ry];
+  }
+  if (f.k==="texto"){
+    const fs=Math.round(30*k*(f.s||1)); ctx.save(); ctx.font=`800 ${fs}px Barlow, Arial, sans-serif`;
+    const w=ctx.measureText(f.txt).width; ctx.restore(); const a=pts[0];
+    return [a[0]-8*k, a[1]-fs*0.75, a[0]+w+8*k, a[1]+fs*0.75];
+  }
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+}
+function distSeg(P,a,b){
+  const dx=b[0]-a[0], dy=b[1]-a[1], l=dx*dx+dy*dy;
+  let t = l ? ((P[0]-a[0])*dx+(P[1]-a[1])*dy)/l : 0; t=Math.max(0,Math.min(1,t));
+  return Math.hypot(P[0]-(a[0]+t*dx), P[1]-(a[1]+t*dy));
+}
+function tocaForma(f,P){
+  const W=cv.width, H=cv.height, tol=14*dprDib()*Math.max(1,f.g||1), pts=f.pts.map(p=>[p[0]*W, p[1]*H]);
+  if (f.k==="flecha"||f.k==="punteada"||f.k==="linea") return distSeg(P,pts[0],pts[pts.length-1])<tol;
+  if (f.k==="lapiz"){ for(let i=1;i<pts.length;i++) if(distSeg(P,pts[i-1],pts[i])<tol) return true; return false; }
+  const b=bboxPx(f), m=tol/2;
+  return P[0]>=b[0]-m && P[0]<=b[2]+m && P[1]>=b[1]-m && P[1]<=b[3]+m;
+}
+function manijas(f){
+  const W=cv.width, H=cv.height, px=q=>[q[0]*W, q[1]*H];
+  if (f.k==="flecha"||f.k==="punteada"||f.k==="linea"||f.k==="zona") return [{id:0, p:px(f.pts[0])}, {id:1, p:px(f.pts[f.pts.length-1])}];
+  const b=bboxPx(f);
+  if (f.k==="circulo") return [{id:"r", p:[b[2], (b[1]+b[3])/2]}];
+  return [{id:"esc", p:[b[2], b[3]]}];
+}
+function aplicarManija(f,o,id,p,P){
+  if (id===0) f.pts[0]=p;
+  else if (id===1) f.pts[f.pts.length-1]=p;
+  else if (id==="r") f.pts=[o.pts[0], p];
+  else {
+    const b=bboxPx(o), d0=Math.hypot(b[2]-b[0], b[3]-b[1])||1, fac=Math.max(0.15, Math.hypot(P[0]-b[0], P[1]-b[1])/d0);
+    if (f.k==="texto") f.s=Math.min(5, Math.max(0.4, (o.s||1)*fac));
+    else { const ox=b[0]/cv.width, oy=b[1]/cv.height; f.pts=o.pts.map(q=>[ox+(q[0]-ox)*fac, oy+(q[1]-oy)*fac]); }
+  }
+}
+function escalarForma(f,fac){
+  if (f.k==="texto"){ f.s=Math.min(5, Math.max(0.4, (f.s||1)*fac)); return; }
+  let c;
+  if (f.k==="circulo") c=f.pts[0];
+  else { const xs=f.pts.map(q=>q[0]), ys=f.pts.map(q=>q[1]); c=[(Math.min(...xs)+Math.max(...xs))/2, (Math.min(...ys)+Math.max(...ys))/2]; }
+  f.pts=f.pts.map(q=>[c[0]+(q[0]-c[0])*fac, c[1]+(q[1]-c[1])*fac]);
+}
+function pintarSeleccion(){
+  const f=formasEd[selIdx]; if(!f) return;
+  const d=dprDib(), b=bboxPx(f), m=6*d;
+  ctx.save(); ctx.strokeStyle="#fff"; ctx.lineWidth=1.5*d; ctx.setLineDash([6*d,4*d]);
+  ctx.strokeRect(b[0]-m, b[1]-m, b[2]-b[0]+2*m, b[3]-b[1]+2*m); ctx.setLineDash([]);
+  manijas(f).forEach(h=>{ const r=7*d; ctx.fillStyle="#fff"; ctx.strokeStyle="#0D2038"; ctx.lineWidth=2*d;
+    ctx.fillRect(h.p[0]-r, h.p[1]-r, 2*r, 2*r); ctx.strokeRect(h.p[0]-r, h.p[1]-r, 2*r, 2*r); });
+  ctx.restore();
+}
+function repintarEditor(){ pintarFormas(trazo ? formasEd.concat([trazo]) : formasEd); if (herramienta==="mover") pintarSeleccion(); }
+
+/* --- deshacer / rehacer --- */
+function actBotonesSel(){ const hay = herramienta==="mover" && !!formasEd[selIdx]; document.querySelectorAll("#drawBar .selb").forEach(x=>x.disabled=!hay); }
+function actBotonesHist(){ $("#dUndo").disabled=!histAtras.length; $("#dRedo").disabled=!histAdelante.length; actBotonesSel(); }
+function histGuardar(){ histAtras.push(clone(formasEd)); if(histAtras.length>80) histAtras.shift(); histAdelante=[]; actBotonesHist(); }
+function deshacer(){ if(!histAtras.length) return; histAdelante.push(clone(formasEd)); formasEd=histAtras.pop(); selIdx=-1; repintarEditor(); actBotonesHist(); }
+function rehacer(){ if(!histAdelante.length) return; histAtras.push(clone(formasEd)); formasEd=histAdelante.pop(); selIdx=-1; repintarEditor(); actBotonesHist(); }
+function conSel(fn){
+  const f=formasEd[selIdx];
+  if (herramienta!=="mover" || !f){ toast("Elegí ✥ Mover y tocá un dibujo."); return; }
+  histGuardar(); fn(f); repintarEditor(); actBotonesHist();
+}
+function duplicarSel(){ conSel(f=>{ const c=clone(f); c.pts=c.pts.map(q=>[Math.min(1,q[0]+0.03), Math.min(1,q[1]+0.03)]); formasEd.push(c); selIdx=formasEd.length-1; }); }
+function borrarSel(){ conSel(()=>{ formasEd.splice(selIdx,1); selIdx=-1; }); }
+function actualizarHint(){
+  $(".drawhint").textContent = herramienta==="mover"
+    ? "Mover · tocá un dibujo y arrastralo. El cuadradito blanco lo agranda o achica. Doble clic en un texto para cambiarlo."
+    : "Pausado · dibujá sobre la imagen. Se va a ver cuando reproduzcas este clip.";
+}
+
 function abrirDibujo(tag){
   if (!kind) return toast("Primero cargá el video.");
   playlist = null; clipFin = null; pausar();
@@ -1174,12 +1291,14 @@ function abrirDibujo(tag){
   const ex = (tag.dibujos||[]).find(d=>Math.abs(d.t-tt)<0.6);
   dibEditId = ex ? ex.id : null;
   formasEd = ex ? clone(ex.formas) : [];
+  selIdx = -1; arrastre = null; histAtras = []; histAdelante = [];
   $("#dPausa").value = ex ? String(ex.pausa) : "5";
   dibujando = true; $("#stage").classList.add("drawing");
-  mostrarOverlay(null); ajustarCanvas(); repintarEditor();
+  mostrarOverlay(null); ajustarCanvas(); repintarEditor(); actBotonesHist(); actualizarHint();
   if (kind==="yt") toast("Con YouTube: pausá en el momento justo antes de dibujar.");
 }
 function cerrarDibujo(guardar){
+  selIdx = -1; arrastre = null;
   if (guardar && tagDib){
     tagDib.dibujos = tagDib.dibujos || [];
     const t = +player.time().toFixed(2);
@@ -1196,34 +1315,83 @@ function posCanvas(e){ const r = cv.getBoundingClientRect(); return [Math.min(1,
 cv.addEventListener("pointerdown", e=>{
   if (!dibujando) return;
   e.preventDefault();
-  const p = posCanvas(e);
+  const p = posCanvas(e), P = [p[0]*cv.width, p[1]*cv.height];
+  if (herramienta==="mover"){
+    let f = formasEd[selIdx], man = null;
+    if (f) man = manijas(f).find(h=>Math.hypot(h.p[0]-P[0], h.p[1]-P[1]) < 16*dprDib()) || null;
+    if (!man){ selIdx = -1; for (let i=formasEd.length-1;i>=0;i--) if (tocaForma(formasEd[i],P)){ selIdx=i; break; } f = formasEd[selIdx]; }
+    if (f){ cv.setPointerCapture(e.pointerId); arrastre = {id: man ? man.id : null, ini:p, o:clone(f), antes:clone(formasEd), movio:false}; }
+    repintarEditor(); actBotonesSel();
+    return;
+  }
   if (herramienta==="texto"){
-    const txt = prompt("Texto:"); if (txt && txt.trim()){ formasEd.push({k:"texto", c:colorDib, pts:[p], txt:txt.trim()}); repintarEditor(); }
+    const txt = prompt("Texto:"); if (txt && txt.trim()){ histGuardar(); formasEd.push({k:"texto", c:colorDib, pts:[p], txt:txt.trim()}); repintarEditor(); }
     return;
   }
   cv.setPointerCapture(e.pointerId);
   trazo = {k:herramienta, c:colorDib, pts:[p, p]};
+  if (grosorDib!==1) trazo.g = grosorDib;
 });
 cv.addEventListener("pointermove", e=>{
+  if (arrastre){
+    const f = formasEd[selIdx]; if (!f) return;
+    const p = posCanvas(e), P = [p[0]*cv.width, p[1]*cv.height];
+    if (arrastre.id===null){ const dx=p[0]-arrastre.ini[0], dy=p[1]-arrastre.ini[1]; f.pts = arrastre.o.pts.map(q=>[q[0]+dx, q[1]+dy]); }
+    else aplicarManija(f, arrastre.o, arrastre.id, p, P);
+    arrastre.movio = true; repintarEditor();
+    return;
+  }
   if (!trazo) return;
   const p = posCanvas(e);
   if (trazo.k==="lapiz") trazo.pts.push(p); else trazo.pts[1] = p;
   repintarEditor();
 });
-cv.addEventListener("pointerup", ()=>{
+function finPuntero(){
+  if (arrastre){
+    if (arrastre.movio){ histAtras.push(arrastre.antes); if(histAtras.length>80) histAtras.shift(); histAdelante=[]; }
+    arrastre = null; actBotonesHist();
+    return;
+  }
   if (!trazo) return;
   const [a,b] = [trazo.pts[0], trazo.pts[trazo.pts.length-1]];
-  if (trazo.k==="lapiz" ? trazo.pts.length>2 : Math.hypot(b[0]-a[0], b[1]-a[1])>0.01) formasEd.push(trazo);
+  if (trazo.k==="lapiz" ? trazo.pts.length>2 : Math.hypot(b[0]-a[0], b[1]-a[1])>0.01){ const t2 = trazo; trazo = null; histGuardar(); formasEd.push(t2); }
   trazo = null; repintarEditor();
+}
+cv.addEventListener("pointerup", finPuntero);
+cv.addEventListener("pointercancel", finPuntero);
+cv.addEventListener("dblclick", ()=>{
+  if (!dibujando || herramienta!=="mover") return;
+  const f = formasEd[selIdx]; if (!f || f.k!=="texto") return;
+  const txt = prompt("Cambiar texto:", f.txt);
+  if (txt && txt.trim() && txt.trim()!==f.txt){ histGuardar(); f.txt = txt.trim(); repintarEditor(); }
 });
 $("#drawBar").addEventListener("click", e=>{
-  const b = e.target.closest("button"); if(!b) return;
-  if (b.dataset.tool){ herramienta = b.dataset.tool; document.querySelectorAll("[data-tool]").forEach(x=>x.classList.toggle("on", x===b)); }
-  else if (b.dataset.col){ colorDib = b.dataset.col; document.querySelectorAll("[data-col]").forEach(x=>x.classList.toggle("on", x===b)); }
-  else if (b.id==="dUndo"){ formasEd.pop(); repintarEditor(); }
-  else if (b.id==="dClear"){ formasEd = []; repintarEditor(); }
+  const b = e.target.closest("button"); if(!b || b.disabled) return;
+  if (b.dataset.tool){
+    herramienta = b.dataset.tool; document.querySelectorAll("[data-tool]").forEach(x=>x.classList.toggle("on", x===b));
+    if (herramienta!=="mover") selIdx = -1;
+    $("#stage").classList.toggle("mov", herramienta==="mover");
+    actualizarHint(); repintarEditor(); actBotonesSel();
+  }
+  else if (b.dataset.col){
+    colorDib = b.dataset.col; document.querySelectorAll("[data-col]").forEach(x=>x.classList.toggle("on", x===b));
+    const f = herramienta==="mover" && formasEd[selIdx];
+    if (f && f.c!==colorDib){ histGuardar(); f.c = colorDib; repintarEditor(); }
+  }
+  else if (b.id==="dUndo") deshacer();
+  else if (b.id==="dRedo") rehacer();
+  else if (b.id==="dBig") conSel(f=>escalarForma(f, 1.15));
+  else if (b.id==="dSmall") conSel(f=>escalarForma(f, 1/1.15));
+  else if (b.id==="dDup") duplicarSel();
+  else if (b.id==="dDel") borrarSel();
+  else if (b.id==="dClear"){ if (formasEd.length){ histGuardar(); formasEd = []; selIdx = -1; repintarEditor(); actBotonesHist(); } }
   else if (b.id==="dCancel") cerrarDibujo(false);
   else if (b.id==="dSave") cerrarDibujo(true);
+});
+$("#dGrosor").addEventListener("change", e=>{
+  grosorDib = +e.target.value;
+  const f = herramienta==="mover" && formasEd[selIdx];
+  if (f){ histGuardar(); if (grosorDib===1) delete f.g; else f.g = grosorDib; repintarEditor(); }
 });
 
 /* ---------- captura de la pestaña (para videos de YouTube) ---------- */
@@ -1813,8 +1981,21 @@ document.addEventListener("keydown", e=>{
   if (!P) return;
   if (e.target.matches("input,textarea,select") || document.querySelector(".modal")) return;
   if (dibujando){
-    if (e.key==="Escape") cerrarDibujo(false);
-    else if ((e.key==="z"||e.key==="Z")) { formasEd.pop(); repintarEditor(); }
+    const k = e.key, mod = e.ctrlKey || e.metaKey, haySel = herramienta==="mover" && !!formasEd[selIdx];
+    if (k==="Escape"){ if (selIdx>=0){ selIdx=-1; repintarEditor(); actBotonesSel(); } else cerrarDibujo(false); }
+    else if ((k==="z"||k==="Z") && !e.shiftKey){ e.preventDefault(); deshacer(); }
+    else if (k==="y"||k==="Y"||((k==="z"||k==="Z") && e.shiftKey)){ e.preventDefault(); rehacer(); }
+    else if (haySel){
+      if (k==="Delete"||k==="Backspace"){ e.preventDefault(); borrarSel(); }
+      else if (k==="+"||k==="="){ e.preventDefault(); conSel(f=>escalarForma(f, 1.15)); }
+      else if (k==="-"){ e.preventDefault(); conSel(f=>escalarForma(f, 1/1.15)); }
+      else if ((k==="d"||k==="D") && mod){ e.preventDefault(); duplicarSel(); }
+      else if (k.startsWith("Arrow")){
+        e.preventDefault(); const s = e.shiftKey ? 0.02 : 0.005;
+        const dx = k==="ArrowLeft" ? -s : k==="ArrowRight" ? s : 0, dy = k==="ArrowUp" ? -s : k==="ArrowDown" ? s : 0;
+        conSel(f=>{ f.pts = f.pts.map(q=>[q[0]+dx, q[1]+dy]); });
+      }
+    }
     return;
   }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
