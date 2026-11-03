@@ -669,6 +669,7 @@ function pintar(){
   const banda=S.demo?`<div class="demo-banda"><b>Club de ejemplo</b><span>Estás viendo datos ficticios para conocer Metodika.</span><button class="btn chico" id="salirDemo">${enDemoNube?'Entrar o crear cuenta':'Empezar con mi club'}</button></div>`:'';
   v.innerHTML=banda+(typeof bandaPlan==='function'?bandaPlan():'')+'<div id="cont"></div>';
   {const vp=$('#verPlan');if(vp)vp.onclick=pantallaPlan}
+  if(typeof bienvenidaPrueba==='function')bienvenidaPrueba();
   if(S.demo&&enDemoNube)$('#salirDemo').onclick=()=>location.reload();
   else if(S.demo)$('#salirDemo').onclick=()=>confirmar('¿Empezar con tu club?','Se borran los datos de ejemplo y la app queda vacía para que cargues tu plantel. La biblioteca trae 12 tareas de base para arrancar.','Empezar de cero',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Cargá los datos de tu club.')});
   (VISTAS[ruta]||VISTAS.inicio)($('#cont'));
@@ -2722,7 +2723,9 @@ function pantallaEspera(){
 /* ---------- Abrir el club y sincronizar ---------- */
 function cortarSubs(){subs.forEach(u=>{try{u()}catch(e){}});subs=[]}
 /* ================= PRUEBA GRATIS Y PLAN PAGO ================= */
-const DIAS_PRUEBA=30;
+const DIAS_PRUEBA=7;
+const CAMBIO_PRUEBA=new Date('2026-11-04T00:00:00-03:00'); /* los clubes creados antes de esta fecha mantienen 30 días */
+function diasPrueba(){try{return inicioPrueba()<CAMBIO_PRUEBA?30:DIAS_PRUEBA}catch(e){return DIAS_PRUEBA}}
 const PLANES={dt:{n:'DT y PF',max:2,precio:'$50.000',mes:'$15.000',d:'Hasta 2 personas (por ejemplo DT y preparador/a físico/a)'},ct:{n:'Cuerpo técnico',max:5,precio:'$70.000',mes:'$30.000',d:'Hasta 5 personas'},club:{n:'Club',max:0,precio:'$100.000',mes:'$50.000',d:'Sin límite de personas: todos los cuerpos técnicos'}};
 let PLAN={cargado:false,pago:false,hasta:'',tipo:''};
 function limitePersonas(){const e=estadoPlan();if(e.tipo!=='pago')return 0;const t=PLANES[PLAN.tipo||'club'];return t?t.max:0}
@@ -2734,10 +2737,20 @@ function estadoPlan(){
   if(esDuenia())return {tipo:'libre'};
   if(!PLAN.cargado)return {tipo:'libre'};
   if(PLAN.pago&&(!PLAN.hasta||deIso(PLAN.hasta)>=HOY))return {tipo:'pago',hasta:PLAN.hasta};
-  const fin=new Date(inicioPrueba().getTime()+DIAS_PRUEBA*864e5),quedan=Math.ceil((fin-new Date())/864e5);
+  const fin=new Date(inicioPrueba().getTime()+diasPrueba()*864e5),quedan=Math.ceil((fin-new Date())/864e5);
   if(quedan>0)return {tipo:'prueba',quedan,fin};
   const g=S.club.gracia;if(g&&g.hasta&&deIso(g.hasta)>=HOY)return {tipo:'gracia',quedan:Math.max(1,Math.round((deIso(g.hasta)-HOY)/864e5))};
   return {tipo:'vencido',vencioPlan:PLAN.pago&&!!PLAN.hasta};
+}
+function bienvenidaPrueba(){
+  const e=estadoPlan();if(e.tipo!=='prueba'||!USR||$('#capaModal').innerHTML)return;
+  const k='mk_bienvenida_'+USR.uid+'_'+CLUB;try{if(localStorage.getItem(k))return;localStorage.setItem(k,'1')}catch(x){}
+  const tot=diasPrueba();
+  modal('¡Bienvenido/a a Metodika Clubes!',`<div style="text-align:center;padding:4px 0 6px"><div style="font-size:44px;line-height:1">⚽</div>
+    <h3 style="margin:10px 0 6px">Tenés ${tot} días gratis</h3>
+    <p class="sub" style="margin:0 0 12px">Durante la prueba podés usar todo: plantel, partidos, minutos, tareas, videoanálisis y más.<br>${e.quedan===tot?'':'Te quedan <b>'+(e.quedan===1?'1 día':e.quedan+' días')+'</b>. '}Cuando termine, activá un plan para seguir. Tus datos no se pierden.</p></div>
+    <div class="modal-pie"><button class="btn" id="bvPlan">Ver los planes</button><button class="btn pri" data-cerrar>Empezar a usarla</button></div>`,
+    {alMontar:m=>{$('#bvPlan',m).onclick=()=>{cerrarModal();pantallaPlan()}}});
 }
 function bandaPlan(){const e=estadoPlan();
   if(e.tipo==='gracia')return `<div class="demo-banda" style="background:#E3F1E8"><b>Verificando tu pago</b><span>Tenés acceso por ${e.quedan===1?'1 día más':e.quedan+' días más'} mientras Metodika activa tu plan.</span><button class="btn chico" id="verPlan">Ver el plan</button></div>`;
