@@ -2726,7 +2726,7 @@ function cortarSubs(){subs.forEach(u=>{try{u()}catch(e){}});subs=[]}
 const DIAS_PRUEBA=7;
 const CAMBIO_PRUEBA=new Date('2026-11-04T00:00:00-03:00'); /* los clubes creados antes de esta fecha mantienen 30 días */
 function diasPrueba(){try{return inicioPrueba()<CAMBIO_PRUEBA?30:DIAS_PRUEBA}catch(e){return DIAS_PRUEBA}}
-const PLANES={dt:{n:'DT y PF',max:2,precio:'$50.000',mes:'$15.000',d:'Hasta 2 personas (por ejemplo DT y preparador/a físico/a)'},ct:{n:'Cuerpo técnico',max:5,precio:'$70.000',mes:'$30.000',d:'Hasta 5 personas'},club:{n:'Club',max:0,precio:'$100.000',mes:'$50.000',d:'Sin límite de personas: todos los cuerpos técnicos'}};
+const PLANES={dt:{n:'DT y PF',max:2,precio:'$180.000',mes:'$20.000',d:'Hasta 2 personas (por ejemplo DT y preparador/a físico/a)'},ct:{n:'Cuerpo técnico',max:5,precio:'$360.000',mes:'$40.000',d:'Hasta 5 personas'},club:{n:'Club',max:0,precio:'$1.080.000',mes:'$120.000',d:'Todas las categorías del club, sin límite de personas'}};
 let PLAN={cargado:false,pago:false,hasta:'',tipo:''};
 function limitePersonas(){const e=estadoPlan();if(e.tipo!=='pago')return 0;const t=PLANES[PLAN.tipo||'club'];return t?t.max:0}
 async function cargarPlan(){try{const d=await db.collection('planes').doc(CLUB).get();const v=d.exists?d.data():{};PLAN={cargado:true,pago:!!v.pago,hasta:v.hasta||'',tipo:v.tipo||'club'}}catch(e){PLAN={cargado:true,pago:false,hasta:'',tipo:''}}LECT.pago=PLAN.pago}
