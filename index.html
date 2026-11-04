@@ -1511,19 +1511,30 @@ function editarTarea(t,op={}){
 const FORMATOS={'11 vs 11':[105,68],'9 vs 9':[72,50],'8 vs 8':[64,44],'7 vs 7':[55,35],'5 vs 5':[40,20],'Medio campo':[40,34],'Área reducida':[20,16]};
 const COMPLETAS=['11 vs 11','9 vs 9','8 vs 8','7 vs 7','5 vs 5'];
 const SISTEMAS={'11 vs 11':['4-4-2','4-3-3','4-2-3-1','3-5-2','5-3-2','3-4-3'],'9 vs 9':['3-3-2','3-2-3','4-3-1','3-4-1'],'8 vs 8':['3-3-1','3-2-2','2-3-2','3-1-3'],'7 vs 7':['2-3-1','3-2-1','3-1-2','2-1-2-1'],'5 vs 5':['2-2','1-2-1','2-1-1']};
-const CATEG_PZ=['Entrenamiento','Partido','Estrategia','ABP'];
+const CATEG_PZ=['Entrenamiento','Partido','Estrategia','ABP','Rival'];
 const PALETA=['#FFD400','#FFFFFF','#E23B2E','#2F6FDB','#141412','#4FB3E8','#F08A24','#3FA34D','#8E44AD','hueco'];
+const PALETA_J=['club',...PALETA];
+const DISENOS_CAM=[['lisa','Lisa'],['bastones','A bastones (verticales)'],['rayas','Rayas horizontales'],['banda','Banda cruzada']];
+function camisetaClub(){const c=(typeof S!=='undefined'&&S&&S.club&&S.club.camiseta)||{};return {t:DISENOS_CAM.some(d=>d[0]===c.t)?c.t:'bastones',c1:/^#[0-9a-fA-F]{6}$/.test(c.c1||'')?c.c1:'#1B3A8C',c2:/^#[0-9a-fA-F]{6}$/.test(c.c2||'')?c.c2:'#FFFFFF'}}
+function cssCamiseta(cam){cam=cam||camisetaClub();const{t,c1,c2}=cam;if(t==='lisa')return c1;if(t==='bastones')return `repeating-linear-gradient(90deg,${c1} 0 25%,${c2} 25% 50%)`;if(t==='rayas')return `repeating-linear-gradient(0deg,${c1} 0 25%,${c2} 25% 50%)`;return `linear-gradient(45deg,${c1} 0 40%,${c2} 40% 60%,${c1} 60%)`}
+function defsCamiseta(){const {t,c1,c2}=camisetaClub();let d='';
+  if(t==='bastones')d=`<rect width="1" height="1" fill="${c1}"/><rect x=".25" width=".25" height="1" fill="${c2}"/><rect x=".75" width=".25" height="1" fill="${c2}"/>`;
+  else if(t==='rayas')d=`<rect width="1" height="1" fill="${c1}"/><rect y=".25" width="1" height=".25" fill="${c2}"/><rect y=".75" width="1" height=".25" fill="${c2}"/>`;
+  else if(t==='banda')d=`<rect width="1" height="1" fill="${c1}"/><path d="M0 .22L.22 0L1 .78L.78 1Z" fill="${c2}"/>`;
+  else d=`<rect width="1" height="1" fill="${c1}"/>`;
+  return `<pattern id="camClub" patternContentUnits="objectBoundingBox" width="1" height="1">${d}</pattern>`}
+function swBg(c){return c==='hueco'?'background:transparent;border:2px dashed var(--sub)':c==='club'?'background:'+cssCamiseta()+';border:2px solid var(--tinta)':'background:'+c}
 const MATERIALES={O:{n:'Cono',c:'#FF7A1A',rot:false},D:{n:'Disco',c:'#FFD400',rot:false},R:{n:'Aro',c:'#E23B2E',rot:false},V:{n:'Valla',c:'#F08A24',rot:true},H:{n:'Pechera',c:'#3FA34D',rot:false},E:{n:'Escalera',c:'#FFD400',rot:true},N:{n:'Mini arco',c:'#FFFFFF',rot:true},G:{n:'Arco',c:'#FFFFFF',rot:true},P:{n:'Pelota',c:'#FFFFFF',rot:false},S:{n:'Pica',c:'#E23B2E',rot:false},M:{n:'Maniquí',c:'#2F6FDB',rot:false}};
 const FLECHAS={pase:{n:'Pase',c:'#FFFFFF'},mov:{n:'Movimiento',c:'#FFD400'},cond:{n:'Conducción',c:'#FFFFFF'},tiro:{n:'Remate',c:'#E23B2E'}};
 function radio(f){const [w,h]=FORMATOS[f]||[40,30];const base=Math.max(.55,Math.min(1.7,Math.max(w,h)*.02));const vw=window.innerWidth||1200;return base*(vw<600?1.6:vw<1000?1.25:1)} // piezas más grandes en celular y tablet para tocarlas con el dedo
 function tintaSobre(hex){if(!hex||hex==='hueco')return '#FFFFFF';const n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return (r*299+g*587+b*114)/1000>150?'#141412':'#FFFFFF'}
 function normalizar(pz){
-  if(pz._v===2){pz.lineas=pz.lineas||[];pz.fondo=pz.fondo||'';return pz}
+  if(pz._v===2){pz.lineas=pz.lineas||[];pz.fondo=pz.fondo||'';pz.notas=pz.notas||[];return pz}
   const mapa={A:'#FFD400',B:'#FFFFFF',K:'#F08A24',C:'#4FB3E8'};
   pz.elementos=(pz.elementos||[]).map(e=>{const o={...e,id:e.id||uid()};if(mapa[e.t]){o.color=mapa[e.t];o.t='J'}if(!o.color&&MATERIALES[o.t])o.color=MATERIALES[o.t].c;return o});
   pz.flechas=(pz.flechas||[]).map(a=>({...a,id:a.id||uid(),fr:a.fr||0}));
   pz.zonas=(pz.zonas||[]).map(z=>({forma:'rect',color:'#FFD400',...z,id:z.id||uid()}));
-  pz.textos=pz.textos||[];pz.pasos=pz.pasos||[];pz.lineas=pz.lineas||[];pz.fondo=pz.fondo||'';pz.categoria=pz.categoria||'Entrenamiento';pz.carpeta=pz.carpeta||'';pz._v=2;
+  pz.textos=pz.textos||[];pz.pasos=pz.pasos||[];pz.lineas=pz.lineas||[];pz.notas=pz.notas||[];pz.fondo=pz.fondo||'';pz.categoria=pz.categoria||'Entrenamiento';pz.carpeta=pz.carpeta||'';pz._v=2;
   return pz;
 }
 function posEn(pz,e,fr,over){if(over&&over[e.id])return over[e.id];let p=[e.x,e.y];for(let i=0;i<fr&&i<pz.pasos.length;i++){const q=pz.pasos[i].pos[e.id];if(q)p=q}return p}
@@ -1643,9 +1654,9 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
       const fs=Math.min(r*.72,Math.max(r*.42,z.w*k/lab.length*1.6));s+=`<text x="${(z.x+z.w/2)*k}" y="${(z.forma==='circ'?z.y+z.h/2:z.y)*k+fs*1.3}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${fs}" fill="#fff" stroke="rgba(0,0,0,.55)" stroke-width="${fs*.22}" paint-order="stroke">${lab}</text>`}
     return s};
   const fle=a=>{const f=FLECHAS[a.k]||FLECHAS.pase;return `<path d="${dFlecha(a,k,r/k)}" fill="none" stroke="${f.c}" stroke-width="${r*(a.k==='tiro'?.3:.2)}" ${a.k==='pase'?`stroke-dasharray="${r*.7} ${r*.45}"`:''} stroke-linecap="round" stroke-linejoin="round" marker-end="url(#pt-${a.k})"/>`};
-  const el=e=>{const [px,py]=pos(e),x=px*k,y=py*k,c=e.color||'#fff',rot=e.rot?` transform="rotate(${e.rot} ${x} ${y})"`:'';
+  const el=e=>{const [px,py]=pos(e),x=px*k,y=py*k,c=e.color==='club'&&e.foto?camisetaClub().c1:(e.color||'#fff'),rot=e.rot?` transform="rotate(${e.rot} ${x} ${y})"`:'';
     switch(e.t){
-      case 'J':{const h=c==='hueco';const tx=h?'#FFFFFF':tintaSobre(c);if(e.foto&&!h){const cid='fj'+(++_idMat);let s=`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r*1.25}" fill="rgba(0,0,0,.25)"/><clipPath id="${cid}"><circle cx="${x}" cy="${y}" r="${r*1.25}"/></clipPath><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="#ddd"/><image href="${e.foto}" x="${x-r*1.25}" y="${y-r*1.25}" width="${r*2.5}" height="${r*2.5}" clip-path="url(#${cid})" preserveAspectRatio="xMidYMin slice"/><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="none" stroke="${c}" stroke-width="${r*.22}"/>`;if(e.n!==undefined&&e.n!==''){s+=`<circle cx="${x+r*.95}" cy="${y-r*.9}" r="${r*.5}" fill="${c}" stroke="#141412" stroke-width="${r*.06}"/><text x="${x+r*.95}" y="${y-r*.9+r*.19}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${r*.55}" fill="${tx}">${esc(e.n)}</text>`}if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.15}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`;if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}">${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
+      case 'J':{const h=c==='hueco',club=c==='club',cam=club?camisetaClub():null;const tx=h||club?'#FFFFFF':tintaSobre(c);if(e.foto&&!h){const cid='fj'+(++_idMat);let s=`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r*1.25}" fill="rgba(0,0,0,.25)"/><clipPath id="${cid}"><circle cx="${x}" cy="${y}" r="${r*1.25}"/></clipPath><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="#ddd"/><image href="${e.foto}" x="${x-r*1.25}" y="${y-r*1.25}" width="${r*2.5}" height="${r*2.5}" clip-path="url(#${cid})" preserveAspectRatio="xMidYMin slice"/><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="none" stroke="${c}" stroke-width="${r*.22}"/>`;if(e.n!==undefined&&e.n!==''){s+=`<circle cx="${x+r*.95}" cy="${y-r*.9}" r="${r*.5}" fill="${c}" stroke="#141412" stroke-width="${r*.06}"/><text x="${x+r*.95}" y="${y-r*.9+r*.19}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${r*.55}" fill="${tx}">${esc(e.n)}</text>`}if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.15}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':club?(cam.t==='lisa'?cam.c1:'url(#camClub)'):c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`;if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}"${club||(!h&&tx==='#FFFFFF')?` stroke="#141412" stroke-width="${r*.2}" paint-order="stroke"`:''}>${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
       default:return dibMat(e.t,x,y,r,c,e.rot,k);
     }return ''};
   const txt=t=>`<text x="${t.x*k}" y="${t.y*k}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*(t.tam||1)}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.2}" paint-order="stroke">${esc(t.txt)}</text>`;
@@ -1665,11 +1676,45 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
     return o}).join('');
   if(multi&&multi.size&&!mini)pz.elementos.filter(e=>multi.has(e.id)).forEach(e=>{const [x,y]=pos(e);hl+=`<circle cx="${x*k}" cy="${y*k}" r="${r*1.55}" fill="none" stroke="#4FB3E8" stroke-width="${r*.14}" stroke-dasharray="${r*.35} ${r*.25}"/>`});
   if(rectSel)hl+=`<rect x="${Math.min(rectSel.x1,rectSel.x2)*k}" y="${Math.min(rectSel.y1,rectSel.y2)*k}" width="${Math.abs(rectSel.x2-rectSel.x1)*k}" height="${Math.abs(rectSel.y2-rectSel.y1)*k}" fill="rgba(79,179,232,.12)" stroke="#4FB3E8" stroke-width="${r*.08}" stroke-dasharray="${r*.3} ${r*.2}"/>`;
-  return `<svg viewBox="${-pad} ${-pad} ${W*k+pad*2} ${H*k+pad*2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama ${esc(pz.nombre||'')}"><defs>${mk}${DEFS_MAT}<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient><pattern id="${pid}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="${ES.l}" fill-opacity=".1"/><path d="M0 0L5 5M5 0L0 5" stroke="${ES.l}" stroke-opacity=".55" stroke-width=".6"/></pattern></defs>
+  const extra=mini?'':svgBloque(pz,pos,k,r,W,H)+svgNota(pz,over?frame+1:frame,k,W,H);
+  return `<svg viewBox="${-pad} ${-pad} ${W*k+pad*2} ${H*k+pad*2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama ${esc(pz.nombre||'')}"><defs>${mk}${DEFS_MAT}${defsCamiseta()}<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient><pattern id="${pid}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="${ES.l}" fill-opacity=".1"/><path d="M0 0L5 5M5 0L0 5" stroke="${ES.l}" stroke-opacity=".55" stroke-width=".6"/></pattern></defs>
     <rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="${ES.a}"/>${fr.join('')}${vig}${logo}${lineasCancha(pz.formato,k,ES.l,pid)}${refTacticas(pz,k,ES.l)}
-    ${pz.zonas.map(zon).join('')}${lineasSvg}${flechasV.map(fle).join('')}${previa?fle(previa):''}${pz.elementos.filter(e=>e.t!=='J'&&e.t!=='P').map(el).join('')}${pz.elementos.filter(e=>e.t==='J').map(el).join('')}${pz.elementos.filter(e=>e.t==='P').map(el).join('')}${pz.textos.map(txt).join('')}${hl}</svg>`;
+    ${pz.zonas.map(zon).join('')}${lineasSvg}${flechasV.map(fle).join('')}${previa?fle(previa):''}${pz.elementos.filter(e=>e.t!=='J'&&e.t!=='P').map(el).join('')}${pz.elementos.filter(e=>e.t==='J').map(el).join('')}${pz.elementos.filter(e=>e.t==='P').map(el).join('')}${pz.textos.map(txt).join('')}${extra}${hl}</svg>`;
 }
 
+
+/* ---------- Consigna de cada paso (se ve en la cancha, el video y el link) ---------- */
+function svgNota(pz,i,k,W,H){
+  const t=((pz.notas||[])[i]||'').trim();if(!t)return '';
+  const fs=Math.max(W,H)*k*.03,txt=t.length>90?t.slice(0,88)+'…':t,w=Math.min(W*k*.96,txt.length*fs*.56+fs*1.4),h=fs*1.75,x=W*k/2-w/2,y=H*k-h-fs*.5;
+  return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${fs*.35}" fill="#141412" fill-opacity=".82"/><rect x="${x}" y="${y}" width="${fs*.3}" height="${h}" fill="#FFD400"/><text x="${W*k/2+fs*.15}" y="${y+h/2+fs*.36}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${fs}" fill="#FFFFFF">${esc(txt)}</text></g>`;
+}
+/* ---------- Medición del bloque: largo, ancho y distancia entre líneas ---------- */
+function svgBloque(pz,pos,k,r,W,H){
+  const b=pz.bloque;if(!b||!b.color)return '';
+  const vert=esVertical(pz.formato);
+  const js=pz.elementos.filter(e=>e.t==='J'&&e.color===b.color).map(e=>pos(e));
+  if(js.length<3)return '';
+  const L=p=>vert?p[1]:p[0],A=p=>vert?p[0]:p[1];
+  const ls=js.map(L),as=js.map(A),l0=Math.min(...ls),l1=Math.max(...ls),a0=Math.min(...as),a1=Math.max(...as);
+  // líneas: se agrupan por su posición a lo largo de la cancha (si hay más de 4 m de diferencia, es otra línea)
+  const ord=[...js].sort((p,q)=>L(p)-L(q)),grupos=[];ord.forEach(p=>{const g=grupos[grupos.length-1];if(g&&L(p)-g.ult<=4){g.v.push(L(p));g.ult=L(p)}else grupos.push({v:[L(p)],ult:L(p)})});
+  const med=grupos.map(g=>g.v.reduce((s,v)=>s+v,0)/g.v.length);
+  const fs=Math.max(W,H)*k*.026,st=`stroke="#FFFFFF" stroke-width="${r*.1}" stroke-dasharray="${r*.45} ${r*.3}" fill="none"`,m=r*1.3;
+  const etq=(x,y,t)=>`<text x="${x}" y="${y}" text-anchor="middle" font-family="Barlow,Arial" font-weight="800" font-size="${fs}" fill="#FFD400" stroke="rgba(0,0,0,.75)" stroke-width="${fs*.26}" paint-order="stroke">${t}</text>`;
+  const X=(l,a)=>vert?[a*k,l*k]:[l*k,a*k];
+  let s='';
+  // caja del bloque
+  const [bx0,by0]=X(l0,a0),[bx1,by1]=X(l1,a1),x0=Math.min(bx0,bx1)-m,y0=Math.min(by0,by1)-m,bw=Math.abs(bx1-bx0)+m*2,bh=Math.abs(by1-by0)+m*2;
+  s+=`<rect x="${x0}" y="${y0}" width="${bw}" height="${bh}" fill="#FFD400" fill-opacity=".07" ${st} stroke-opacity=".9" rx="${r*.4}"/>`;
+  // línea media de cada línea del equipo
+  med.forEach(v=>{const [p1x,p1y]=X(v,a0),[p2x,p2y]=X(v,a1);s+=`<line x1="${vert?p1x-m:p1x}" y1="${vert?p1y:p1y-m}" x2="${vert?p2x+m:p2x}" y2="${vert?p2y:p2y+m}" stroke="#FFD400" stroke-opacity=".55" stroke-width="${r*.08}"/>`});
+  // distancias entre líneas (al costado del bloque)
+  for(let i=1;i<med.length;i++){const c=(med[i-1]+med[i])/2,d=med[i]-med[i-1];const [cx,cy]=X(c,a1);s+=etq(vert?cx+m-fs*2.2:cx,vert?cy+fs*.35:cy+m-fs*.7,distTxt(d))}
+  const lab='Largo '+distTxt(l1-l0)+' · Ancho '+distTxt(a1-a0);
+  s+=etq(x0+bw/2,y0-fs*.6,lab);
+  return s;
+}
 /* ---------- Editor ---------- */
 let MULTI=new Set(),UNIR_A=null;
 let PZ=null,herr='mover',hist=[],FR=0,SEL=null,colorJ='#FFD400',colorZ='#FFFFFF',animando=null,fCatPz='',fCarpeta='';
@@ -1704,15 +1749,16 @@ VISTAS.pizarra=el=>{
     <select id="pzCat" style="width:auto" aria-label="Categoría">${opts(CATEG_PZ,PZ.categoria)}</select>
     <input type="text" id="pzCarpeta" value="${esc(PZ.carpeta)}" list="dlCarp" placeholder="Carpeta (opcional)" style="max-width:190px" aria-label="Carpeta"><datalist id="dlCarp">${carpetas.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
     <select id="pzFondo" style="width:auto" aria-label="Referencias tácticas">${opts(FONDOS,PZ.fondo)}</select>
-    <button class="btn chico" id="pzCfg" title="Diseño de la cancha: césped, colores y escudo">⚙ Cancha</button>
+    <button class="btn chico" id="pzCfg" title="Diseño de la cancha y camiseta del club">⚙ Cancha y camiseta</button>
     <button class="btn chico" id="pzEsp" title="Dar vuelta la cancha de izquierda a derecha">⇆ Espejar</button>
+    <button class="btn chico ${PZ.bloque?'ama':''}" id="pzBloque" title="Medir largo, ancho y distancia entre líneas de un equipo">📏 Medir bloque</button>
     <label class="chip" style="cursor:pointer"><input type="checkbox" id="pzDist" ${PZ.verDist!==false?'checked':''}> Ver metros</label>
     <button class="btn chico" id="pzDeshacer" ${hist.length?'':'disabled'}>↶ Deshacer</button><button class="btn chico fantasma" id="pzLimpiar">Vaciar cancha</button></div>
   <div class="piz-wrap">
     <div class="herr">
       <div class="etq">Herramientas</div><div class="hg">${bHerr('mover','Mover y editar')}${bHerr('lazo','Elegir varias')}${bHerr('unir','Unir y medir')}${bHerr('texto','Texto')}${bHerr('borrar','Borrar')}</div>
       <div class="etq">${J('Pl')}</div><div class="hg">${bHerr('J',J('Sg'))}<button id="pzEquipo" title="Agregar equipo completo"><svg class="ico" viewBox="0 0 24 24"><circle cx="7" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="17" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="12" cy="16" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/></svg><span>Equipo completo</span></button></div>
-      <div class="colores" aria-label="Color de camiseta">${PALETA.map(c=>`<button class="sw ${colorJ===c?'activo':''}" data-cj="${c}" title="${c==='hueco'?'Sin relleno':c}" style="${c==='hueco'?'background:transparent;border:2px dashed var(--sub)':'background:'+c}"></button>`).join('')}</div>
+      <div class="colores" aria-label="Color de camiseta">${PALETA_J.map(c=>`<button class="sw ${colorJ===c?'activo':''}" data-cj="${c}" title="${c==='hueco'?'Sin relleno':c==='club'?'Camiseta del club':c}" style="${swBg(c)}"></button>`).join('')}</div>
       <div class="etq">Materiales</div><div class="hg g3h">${['P','O','D','R','V','H','E','N','G','S','M'].map(m=>bHerr(m,MATERIALES[m].n)).join('')}</div>
       <div class="etq">Flechas</div><div class="hg g2h">${Object.entries(FLECHAS).map(([k2,v])=>bHerr(k2,v.n)).join('')}</div>
       <div class="etq">Zonas</div><div class="hg g3h">${bHerr('rect','Rectángulo')}${bHerr('cuad','Cuadrado')}${bHerr('circ','Círculo')}</div>
@@ -1721,7 +1767,9 @@ VISTAS.pizarra=el=>{
     <div style="min-width:0">
       <div class="pasos"><button class="btn chico" id="frAnt" ${FR?'':'disabled'} aria-label="Paso anterior">◀</button><b class="num">Paso ${FR+1} de ${PZ.pasos.length+1}</b><button class="btn chico" id="frSig" ${FR<PZ.pasos.length?'':'disabled'} aria-label="Paso siguiente">▶</button>
         <button class="btn chico" id="frNuevo">＋ Paso</button>${FR>0?'<button class="btn chico fantasma" id="frQuitar">Quitar este paso</button>':''}
-        <button class="btn chico ${PZ.pasos.length?'ama':''}" id="frPlay" ${PZ.pasos.length?'':'disabled'} style="margin-left:auto">▶ Reproducir jugada</button></div>
+        <select id="pzVel" style="width:auto;margin-left:auto" aria-label="Velocidad de la animación" ${PZ.pasos.length?'':'disabled'}>${opts([['1.7','🐢 Lenta'],['1','Normal'],['0.6','⚡ Rápida']],String(PZ.vel||1))}</select>
+        <button class="btn chico ${PZ.pasos.length?'ama':''}" id="frPlay" ${PZ.pasos.length?'':'disabled'}>▶ Reproducir jugada</button></div>
+      <div style="display:flex;gap:6px;align-items:center;margin:0 0 8px"><input type="text" id="pzNota" maxlength="90" value="${esc((PZ.notas||[])[FR]||'')}" placeholder="Consigna del paso ${FR+1} (opcional). Ej.: La 6 fija al central" aria-label="Consigna de este paso" style="flex:1;min-width:0"></div>
       <p class="sub ayuda-tira" style="display:none;font-size:12px;margin:0 0 6px">Deslizá la barra de herramientas para ver todas. Tocá la cancha para ubicar y arrastrá con el dedo para mover.</p><div class="cancha" id="cancha">${svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI})}</div>
       <p class="sub" style="font-size:12.5px;margin:6px 0 0">${PZ.pasos.length?'En cada paso mové a las '+J('pl')+' a su nueva posición. Las flechas se dibujan por paso.':'Para animar una jugada: ubicá las piezas, tocá “＋ Paso” y mové a las '+J('pl')+' a su nueva posición.'}</p>
       <div id="panelSel"></div>
@@ -1751,11 +1799,14 @@ VISTAS.pizarra=el=>{
   $('#pzPres').onclick=presentar;
   $('#pzVid').onclick=exportarVideoPizarra;
   $('#pzShare').onclick=compartirJugada;
+  $('#pzBloque').onclick=medirBloque;
+  $('#pzVel').onchange=e=>{PZ.vel=+e.target.value||1};
+  {const pn=$('#pzNota');let snapNota=false;pn.oninput=e=>{if(!snapNota){snap();snapNota=true}PZ.notas=PZ.notas||[];PZ.notas[FR]=e.target.value;redibujar()};pn.onblur=()=>{snapNota=false}}
   $('#pzTarea').onclick=pasarATarea;
   $('#frAnt').onclick=()=>{FR=Math.max(0,FR-1);SEL=null;pintar()};
   $('#frSig').onclick=()=>{FR=Math.min(PZ.pasos.length,FR+1);SEL=null;pintar()};
-  $('#frNuevo').onclick=()=>{snap();PZ.pasos.splice(FR,0,{pos:{}});FR++;SEL=null;pintar();aviso('Paso '+(FR+1)+': mové a las '+J('pl'))};
-  const fq=$('#frQuitar');if(fq)fq.onclick=()=>{snap();PZ.pasos.splice(FR-1,1);PZ.flechas=PZ.flechas.filter(a=>(a.fr||0)!==FR).map(a=>((a.fr||0)>FR?{...a,fr:a.fr-1}:a));FR--;SEL=null;pintar()};
+  $('#frNuevo').onclick=()=>{snap();PZ.pasos.splice(FR,0,{pos:{}});FR++;PZ.notas=PZ.notas||[];while(PZ.notas.length<FR)PZ.notas.push('');PZ.notas.splice(FR,0,'');SEL=null;pintar();aviso('Paso '+(FR+1)+': mové a las '+J('pl'))};
+  const fq=$('#frQuitar');if(fq)fq.onclick=()=>{snap();PZ.pasos.splice(FR-1,1);if(PZ.notas&&PZ.notas.length>FR)PZ.notas.splice(FR,1);PZ.flechas=PZ.flechas.filter(a=>(a.fr||0)!==FR).map(a=>((a.fr||0)>FR?{...a,fr:a.fr-1}:a));FR--;SEL=null;pintar()};
   $('#frPlay').onclick=()=>animando?pararAnim(true):reproducir();
   $$('[data-fcp]',el).forEach(b=>b.onclick=()=>{fCatPz=b.dataset.fcp;pintar()});
   const fc=$('#fCarp');if(fc)fc.onchange=e=>{fCarpeta=e.target.value;pintar()};
@@ -1764,7 +1815,7 @@ VISTAS.pizarra=el=>{
   conectarCancha();pintarSel();
 };
 function configCancha(){
-  const e0=estiloPz();let T={tipo:e0.tipo,lineas:e0.l,logo:e0.logo,op:e0.op,tam:e0.tam};const hayEsc=!!S.club.escudo;
+  const e0=estiloPz();let T={tipo:e0.tipo,lineas:e0.l,logo:e0.logo,op:e0.op,tam:e0.tam};const hayEsc=!!S.club.escudo;const CAM={...camisetaClub()};
   const vacio=normalizar({formato:'11 vs 11',elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],fondo:''});
   const est=()=>{const b=ESTILOS_CANCHA[T.tipo];return {tipo:T.tipo,...b,l:T.lineas||b.l,logo:T.logo,op:T.op,tam:T.tam}};
   modal('Diseño de la cancha',`<p class="sub" style="margin:0 0 10px">Se aplica a todas las pizarras, fichas PDF y videos del club.</p>
@@ -1777,6 +1828,10 @@ function configCancha(){
         ${hayEsc?'':'<p class="sub" style="margin:0;font-size:12px">Para usarlo, subí el escudo en Ajustes → Datos del club.</p>'}
         <label>Opacidad del escudo <b id="ccOpV">${T.op}%</b><input type="range" id="ccOp" style="width:100%;display:block" min="0" max="40" value="${T.op}"></label>
         <label>Tamaño del escudo <b id="ccTamV">${T.tam}%</b><input type="range" id="ccTam" style="width:100%;display:block" min="15" max="95" value="${T.tam}"></label>
+        <div style="border-top:1px solid var(--linea);padding-top:12px"><div class="etq" style="margin-bottom:6px">Camiseta del club</div>
+          <label>Diseño<select id="ccCamT" style="width:100%;margin-top:4px">${opts(DISENOS_CAM,CAM.t)}</select></label>
+          <div style="display:flex;gap:12px;align-items:center;margin-top:8px"><label>Color 1<input type="color" id="ccCam1" value="${CAM.c1}" style="width:48px;height:34px;padding:2px;display:block"></label><label>Color 2<input type="color" id="ccCam2" value="${CAM.c2}" style="width:48px;height:34px;padding:2px;display:block"></label><span id="ccCamV" style="width:42px;height:42px;border-radius:50%;border:2px solid #141412;display:inline-block;margin-left:auto"></span></div>
+          <p class="sub" style="margin:6px 0 0;font-size:12px">En la pizarra elegí el primer color de la paleta para usarla.</p></div>
       </div>
       <div class="cancha" id="ccPrev" style="padding:6px"></div>
     </div>
@@ -1788,7 +1843,9 @@ function configCancha(){
       $('#ccLogo',m).onchange=e=>{T.logo=e.target.checked;prev()};
       $('#ccOp',m).oninput=e=>{T.op=+e.target.value;prev()};
       $('#ccTam',m).oninput=e=>{T.tam=+e.target.value;prev()};
-      $('#ccOk',m).onclick=()=>{S.club.pizarraEstilo={...T,lineas:T.lineas===ESTILOS_CANCHA[T.tipo].l?'':T.lineas};guardar();cerrarModal();aviso('Diseño de cancha guardado');pintar()};
+      const camV=()=>{$('#ccCamV',m).style.background=cssCamiseta(CAM)};camV();
+      $('#ccCamT',m).onchange=e=>{CAM.t=e.target.value;camV()};$('#ccCam1',m).oninput=e=>{CAM.c1=e.target.value.toUpperCase();camV()};$('#ccCam2',m).oninput=e=>{CAM.c2=e.target.value.toUpperCase();camV()};
+      $('#ccOk',m).onclick=()=>{S.club.camiseta={...CAM};S.club.pizarraEstilo={...T,lineas:T.lineas===ESTILOS_CANCHA[T.tipo].l?'':T.lineas};guardar();cerrarModal();aviso('Diseño de cancha guardado');pintar()};
       prev()}});
 }
 function snap(){hist.push(JSON.parse(JSON.stringify(PZ)));if(hist.length>50)hist.shift();const d=$('#pzDeshacer');if(d)d.disabled=false}
@@ -1800,7 +1857,7 @@ function pintarSel(){
     const ids=[...MULTI];
     box.innerHTML=`<div class="panel" style="margin-top:12px"><div class="panel-cab"><div><div class="etq">Seleccionadas</div><h3 style="margin-top:2px">${ids.length} piezas</h3></div><div class="der"><button class="btn chico fantasma" id="mX">Listo</button></div></div>
       <p class="sub" style="margin:0 0 8px;font-size:13px">Arrastrá cualquiera de las marcadas para mover el bloque entero.</p>
-      <div class="colores">${PALETA.map(c=>`<button class="sw" data-mc="${c}" style="${c==='hueco'?'background:transparent;border:2px dashed var(--sub)':'background:'+c}" title="${c}"></button>`).join('')}</div>
+      <div class="colores">${PALETA_J.map(c=>`<button class="sw" data-mc="${c}" style="${swBg(c)}" title="${c}"></button>`).join('')}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn chico" id="mDup">Duplicar</button><button class="btn chico" id="mUnir">Unir en línea</button><button class="btn chico peligro" id="mDel">Eliminar</button></div></div>`;
     $('#mX',box).onclick=()=>{MULTI.clear();redibujar();pintarSel()};
     $('#mDel',box).onclick=()=>{snap();PZ.elementos=PZ.elementos.filter(e=>!MULTI.has(e.id));PZ.lineas=PZ.lineas.filter(l=>!MULTI.has(l.a)&&!MULTI.has(l.b));PZ.pasos.forEach(p=>ids.forEach(id=>delete p.pos[id]));MULTI.clear();redibujar();pintarSel()};
@@ -1814,7 +1871,7 @@ function pintarSel(){
     box.innerHTML=`<div class="panel" style="margin-top:12px"><div class="panel-cab"><div><div class="etq">Línea</div><h3 style="margin-top:2px">${distTxt(Math.hypot(x2-x1,y2-y1))}</h3></div><div class="der"><button class="btn chico fantasma" id="selX">Listo</button></div></div><div class="colores">${['#FFD400','#FFFFFF','#E23B2E','#4FB3E8'].map(c=>`<button class="sw ${(l.c||'#FFD400')===c?'activo':''}" data-lc="${c}" style="background:${c}"></button>`).join('')}</div><button class="btn chico peligro" id="selDel" style="margin-top:8px">Eliminar</button></div>`;
     $('#selX',box).onclick=()=>{SEL=null;redibujar();pintarSel()};$('#selDel',box).onclick=borrarSel;
     $$('[data-lc]',box).forEach(b=>b.onclick=()=>{snap();l.c=b.dataset.lc;redibujar();pintarSel()});return}
-  const colores=(actual,attr)=>`<div class="colores">${PALETA.filter(c=>attr==='J'||c!=='hueco').map(c=>`<button class="sw ${actual===c?'activo':''}" data-sc="${c}" style="${c==='hueco'?'background:transparent;border:2px dashed var(--sub)':'background:'+c}" title="${c}"></button>`).join('')}</div>`;
+  const colores=(actual,attr)=>`<div class="colores">${(attr==='J'?PALETA_J:PALETA).filter(c=>attr==='J'||c!=='hueco').map(c=>`<button class="sw ${actual===c?'activo':''}" data-sc="${c}" style="${swBg(c)}" title="${c}"></button>`).join('')}</div>`;
   let h='',tit='';
   if(SEL.tipo==='el'){const e=PZ.elementos.find(x=>x.id===SEL.id);if(!e){SEL=null;return pintarSel()}
     if(e.t==='J'){tit=J('Sg');const pl=ordenJ(S.jugadores);
@@ -1932,7 +1989,7 @@ function agregarEquipo(){
   modal('Agregar equipo completo',`<form class="form" id="fEq">
     <label class="campo">Sistema<select id="eqS" name="sistema">${opts(sist,sist[0])}</select></label>
     <label class="campo">Ataca hacia<select id="eqL" name="lado">${opts([['der','La derecha →'],['izq','← La izquierda']],'der')}</select></label>
-    <div class="campo ancho">Color de camiseta<div class="colores" id="eqC">${PALETA.map(c=>`<button type="button" class="sw ${colorJ===c?'activo':''}" data-c="${c}" style="${c==='hueco'?'background:transparent;border:2px dashed var(--sub)':'background:'+c}"></button>`).join('')}</div></div>
+    <div class="campo ancho">Color de camiseta<div class="colores" id="eqC">${PALETA_J.map(c=>`<button type="button" class="sw ${colorJ===c?'activo':''}" data-c="${c}" style="${swBg(c)}"></button>`).join('')}</div></div>
     <label class="campo ancho" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="eqArq" name="arq" checked> ${arqTxt()} con camiseta naranja</label>
     <label class="campo ancho">Nombres<select id="eqN" name="nombres"><option value="">Solo números</option>${S.jugadores.length?`<option value="plantel">Nombres y dorsales del plantel</option>`:''}${hayTit?`<option value="partido">Titulares del próximo partido (vs ${esc(prox.rival)})</option>`:''}</select></label>
     <div class="ancho" style="border-top:1px solid var(--linea);padding-top:10px"><label style="display:flex;align-items:center;gap:8px;font-weight:600"><input type="checkbox" id="eqR" name="rival"> Sumar el rival enfrentado</label></div>
@@ -1964,6 +2021,24 @@ function espejar(){
   redibujar();aviso('Cancha espejada');
 }
 /* Plantillas de pelota parada (medio campo, el arco arriba). Amarillo: nuestro equipo · Blanco: rival */
+const PLANTILLAS_ENT=(()=>{const Y='#FFD400',B='#FFFFFF',C='#E23B2E',A='#F08A24';return [
+  ['Rondo 4 vs 2 · 10×10 m','Área reducida','Rondo',()=>({el:[{t:'O',x:5,y:3},{t:'O',x:15,y:3},{t:'O',x:5,y:13},{t:'O',x:15,y:13},{t:'J',x:10,y:3,color:Y,n:1},{t:'J',x:15,y:8,color:Y,n:2},{t:'J',x:10,y:13,color:Y,n:3},{t:'J',x:5,y:8,color:Y,n:4},{t:'J',x:9,y:7,color:B,n:1},{t:'J',x:11.5,y:9.5,color:B,n:2},{t:'P',x:10.8,y:3.7}],
+    fl:[{x1:10,y1:3,x2:15,y2:8,k:'pase'},{x1:15,y1:8,x2:10,y2:13,k:'pase'}],zo:[{x:5,y:3,w:10,h:10,color:Y}]})],
+  ['Rondo 6 vs 3 · 15×15 m','Área reducida','Rondo',()=>({el:[{t:'J',x:6,y:.5,color:Y,n:1},{t:'J',x:14,y:.5,color:Y,n:2},{t:'J',x:17.5,y:8,color:Y,n:3},{t:'J',x:14,y:15.5,color:Y,n:4},{t:'J',x:6,y:15.5,color:Y,n:5},{t:'J',x:2.5,y:8,color:Y,n:6},{t:'J',x:8,y:6,color:B,n:1},{t:'J',x:12.5,y:7,color:B,n:2},{t:'J',x:10,y:11,color:B,n:3},{t:'P',x:6.8,y:1.2}],
+    fl:[{x1:6,y1:.5,x2:17.5,y2:8,k:'pase',cx:13,cy:3.2},{x1:10,y1:11,x2:7.5,y2:13.5,k:'mov'}],zo:[{x:2.5,y:.5,w:15,h:15,color:Y}]})],
+  ['Juego de posición 4 vs 4 + 3 comodines','Medio campo','Juego de posición',()=>({el:[{t:'J',x:12,y:10,color:Y,n:1},{t:'J',x:28,y:10,color:Y,n:2},{t:'J',x:12,y:24,color:Y,n:3},{t:'J',x:28,y:24,color:Y,n:4},{t:'J',x:16,y:14,color:B,n:1},{t:'J',x:24,y:13.5,color:B,n:2},{t:'J',x:16.5,y:20.5,color:B,n:3},{t:'J',x:24,y:21,color:B,n:4},{t:'J',x:20,y:4.5,color:C,n:'C'},{t:'J',x:20,y:29.5,color:C,n:'C'},{t:'J',x:20,y:17,color:C,n:'C'},{t:'P',x:20.8,y:29}],
+    fl:[{x1:20,y1:29.5,x2:12,y2:24,k:'pase'},{x1:12,y1:24,x2:20,y2:17,k:'pase'},{x1:20,y1:17,x2:20,y2:4.5,k:'pase'}],zo:[{x:5,y:4.5,w:30,h:25,color:Y}],tx:[{x:20,y:32.6,txt:'Comodines con el equipo con pelota · máx. 2 toques',tam:.8}]})],
+  ['Reducido 4 vs 4 con mini arcos','Medio campo','Juego reducido',()=>({el:[{t:'N',x:13,y:8},{t:'N',x:27,y:8},{t:'N',x:13,y:28,rot:180},{t:'N',x:27,y:28,rot:180},{t:'J',x:11,y:24,color:Y,n:1},{t:'J',x:29,y:24,color:Y,n:2},{t:'J',x:15,y:19,color:Y,n:3},{t:'J',x:25,y:19.5,color:Y,n:4},{t:'J',x:11,y:12,color:B,n:1},{t:'J',x:29,y:12,color:B,n:2},{t:'J',x:17,y:15,color:B,n:3},{t:'J',x:23.5,y:15.5,color:B,n:4},{t:'P',x:15.8,y:19.6}],
+    fl:[{x1:15,y1:19,x2:25,y2:19.5,k:'pase'},{x1:11,y1:24,x2:9,y2:15,k:'mov'}],zo:[{x:5,y:8,w:30,h:20,color:Y}],tx:[{x:20,y:31.5,txt:'Gol en cualquiera de los dos mini arcos',tam:.8}]})],
+  ['Oleadas 3 vs 2 + arquera/o','Medio campo','Oleadas',()=>({el:[{t:'O',x:8,y:30},{t:'O',x:32,y:30},{t:'J',x:20,y:1.4,color:A,n:1},{t:'J',x:15,y:14,color:B,n:2},{t:'J',x:25,y:14,color:B,n:6},{t:'J',x:10,y:26,color:Y,n:7},{t:'J',x:20,y:28,color:Y,n:9},{t:'J',x:30,y:26,color:Y,n:11},{t:'P',x:20.8,y:28.6}],
+    fl:[{x1:20,y1:28,x2:20,y2:20,k:'cond'},{x1:10,y1:26,x2:12,y2:12,k:'mov'},{x1:30,y1:26,x2:28,y2:12,k:'mov'}],tx:[{x:20,y:32.6,txt:'Terminar en menos de 8 segundos',tam:.8}]})],
+  ['Finalización · centro y remate','Medio campo','Finalización',()=>({el:[{t:'O',x:36,y:14},{t:'J',x:20,y:1.4,color:A,n:1},{t:'J',x:18,y:7,color:B,n:2},{t:'J',x:23,y:8,color:B,n:6},{t:'J',x:36,y:8,color:Y,n:7},{t:'J',x:17,y:16,color:Y,n:9},{t:'J',x:24,y:18,color:Y,n:10},{t:'P',x:36.4,y:8.8}],
+    fl:[{x1:36,y1:8,x2:18,y2:5,k:'pase',cx:27,cy:3.5},{x1:17,y1:16,x2:16.5,y2:5.5,k:'mov'},{x1:24,y1:18,x2:23,y2:9.5,k:'mov'}],tx:[{x:20,y:32.6,txt:'Atacar primer palo, segundo palo y punto penal',tam:.8}]})],
+  ['Partido condicionado 7 vs 7 en tercios','7 vs 7','Partido condicionado',()=>({fo:'tercios',el:[{t:'J',x:2,y:17.5,color:A,n:1},{t:'J',x:12,y:8,color:Y,n:2},{t:'J',x:12,y:27,color:Y,n:3},{t:'J',x:19,y:17.5,color:Y,n:5},{t:'J',x:28,y:8,color:Y,n:7},{t:'J',x:28,y:27,color:Y,n:8},{t:'J',x:38,y:17.5,color:Y,n:9},{t:'J',x:53,y:17.5,color:'#141412',n:1},{t:'J',x:43,y:11,color:B,n:2},{t:'J',x:43,y:24,color:B,n:3},{t:'J',x:34,y:17.5,color:B,n:5},{t:'J',x:24,y:13,color:B,n:7},{t:'J',x:24,y:22,color:B,n:8},{t:'J',x:16,y:21.5,color:B,n:9},{t:'P',x:19.8,y:18.3}],
+    fl:[{x1:19,y1:17.5,x2:28,y2:8,k:'pase'},{x1:38,y1:17.5,x2:44,y2:15,k:'mov'}],tx:[{x:27.5,y:33.6,txt:'En el último tercio: máximo 2 toques',tam:.8}]})],
+  ['Transición · presión tras pérdida 5 vs 5','Medio campo','Juego reducido',()=>({el:[{t:'J',x:20,y:16,color:B,n:8},{t:'J',x:10,y:10,color:B,n:6},{t:'J',x:30,y:10,color:B,n:10},{t:'J',x:12,y:25,color:B,n:2},{t:'J',x:28,y:25,color:B,n:3},{t:'J',x:17,y:13.5,color:Y,n:5},{t:'J',x:23.5,y:13,color:Y,n:8},{t:'J',x:20,y:20.5,color:Y,n:6},{t:'J',x:9,y:21,color:Y,n:2},{t:'J',x:31,y:21,color:Y,n:3},{t:'P',x:20.8,y:16.6}],
+    fl:[{x1:17,y1:13.5,x2:18.8,y2:15.2,k:'mov'},{x1:23.5,y1:13,x2:21.4,y2:15,k:'mov'},{x1:20,y1:20.5,x2:20,y2:17.8,k:'mov'},{x1:9,y1:21,x2:12,y2:19,k:'mov'},{x1:31,y1:21,x2:28,y2:19,k:'mov'}],zo:[{x:2.5,y:4,w:35,h:25,color:Y}],tx:[{x:20,y:32,txt:'Al perder: 5 segundos de presión',tam:.8}]})]
+]})();
 const PLANTILLAS_ABP=[
   ['Córner ofensivo · primer y segundo palo',()=>({el:[{t:'P',x:39.3,y:.7},{t:'J',x:39.5,y:-.6,color:'#FFD400',n:7},{t:'J',x:17,y:12,color:'#FFD400',n:9},{t:'J',x:21,y:13,color:'#FFD400',n:4},{t:'J',x:25,y:12.5,color:'#FFD400',n:5},{t:'J',x:14,y:15,color:'#FFD400',n:8},{t:'J',x:20,y:20,color:'#FFD400',n:10},{t:'J',x:19,y:1,color:'#141412',n:1},{t:'J',x:16,y:4,color:'#FFFFFF',n:2},{t:'J',x:20,y:4.5,color:'#FFFFFF',n:3},{t:'J',x:24,y:4,color:'#FFFFFF',n:4},{t:'J',x:18,y:9,color:'#FFFFFF',n:5},{t:'J',x:23,y:9,color:'#FFFFFF',n:6},{t:'J',x:33,y:3,color:'#FFFFFF',n:7}],
     fl:[{x1:39.3,y1:.7,x2:18,y2:4.5,k:'pase',cx:30,cy:-1},{x1:17,y1:12,x2:16.5,y2:4,k:'mov'},{x1:21,y1:13,x2:23,y2:3,k:'mov'},{x1:25,y1:12.5,x2:27,y2:6,k:'mov'},{x1:14,y1:15,x2:12,y2:8,k:'mov'}],tx:[{x:20,y:31,txt:'Bloqueo a la marca del cabezazo principal',tam:.8}]})],
@@ -1978,14 +2053,22 @@ const PLANTILLAS_ABP=[
   ['Saque de arco · salida corta',()=>({el:[{t:'P',x:20,y:2.6},{t:'J',x:20,y:1.4,color:'#F08A24',n:1},{t:'J',x:9,y:5,color:'#FFD400',n:2},{t:'J',x:31,y:5,color:'#FFD400',n:6},{t:'J',x:20,y:12,color:'#FFD400',n:5},{t:'J',x:3,y:13,color:'#FFD400',n:3},{t:'J',x:37,y:13,color:'#FFD400',n:4},{t:'J',x:14,y:9,color:'#FFFFFF',n:9},{t:'J',x:26,y:9,color:'#FFFFFF',n:10},{t:'J',x:20,y:17,color:'#FFFFFF',n:8}],
     fl:[{x1:20,y1:2.6,x2:9,y2:5,k:'pase'},{x1:9,y1:5,x2:3,y2:13,k:'pase'},{x1:20,y1:12,x2:16,y2:16,k:'mov'}],tx:[{x:20,y:31,txt:'Centrales abiertas y la volante por detrás de la presión',tam:.8}]})]
 ];
+let tabPlant='ent';
+function armarPlantilla(formato,d){const pz=pizarraNueva(formato);pz.elementos=d.el.map(e=>({id:uid(),...e}));pz.flechas=(d.fl||[]).map(a=>({id:uid(),fr:0,...a}));pz.zonas=(d.zo||[]).map(z=>({id:uid(),forma:'rect',...z}));pz.textos=(d.tx||[]).map(t=>({id:uid(),...t}));if(d.fo)pz.fondo=d.fo;return pz}
 function plantillasABP(){
-  modal('Plantillas de pelota parada',`<p class="sub" style="margin:0 0 12px">Elegí una y ajustala a tu equipo. Se abre como un ejercicio nuevo (no borra el actual si ya lo guardaste).</p><div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${PLANTILLAS_ABP.map(([n,f],i)=>{const d=f(),pz=pizarraNueva('Medio campo');pz.elementos=d.el.map(e=>({id:uid(),...e}));pz.flechas=(d.fl||[]).map(a=>({id:uid(),fr:0,...a}));pz.zonas=(d.zo||[]).map(z=>({id:uid(),forma:'rect',...z}));return `<button class="ct" data-pl="${i}" style="text-align:left;padding:0;font:inherit;color:inherit"><div class="mini">${svgPizarra(pz,{mini:true})}</div><div class="cuerpo" style="padding:9px 10px"><b style="font-size:14px">${esc(n)}</b></div></button>`}).join('')}</div>`,{ancho:true,alMontar:m=>{
-    $$('[data-pl]',m).forEach(b=>b.onclick=()=>{const [n,f]=PLANTILLAS_ABP[+b.dataset.pl],d=f();PZ=pizarraNueva('Medio campo');PZ.nombre=n;PZ.categoria='ABP';PZ.elementos=d.el.map(e=>({id:uid(),...e}));PZ.flechas=(d.fl||[]).map(a=>({id:uid(),fr:0,...a}));PZ.zonas=(d.zo||[]).map(z=>({id:uid(),forma:'rect',...z}));PZ.textos=(d.tx||[]).map(t=>({id:uid(),...t}));hist=[];FR=0;SEL=null;MULTI.clear();cerrarModal();herr='mover';pintar();aviso('Plantilla cargada: ajustala y tocá Guardar')});
-  }});
+  const lista=()=>tabPlant==='ent'?PLANTILLAS_ENT.map(([n,f,tipo,fn])=>({n,f,cat:'Entrenamiento',sub:tipo,fn})):PLANTILLAS_ABP.map(([n,fn])=>({n,f:'Medio campo',cat:'ABP',sub:'Pelota parada',fn}));
+  const cuerpo=()=>`<div class="seg" style="margin-bottom:12px"><button data-tp="ent" class="${tabPlant==='ent'?'activo':''}">Entrenamiento</button><button data-tp="abp" class="${tabPlant==='abp'?'activo':''}">Pelota parada</button></div><p class="sub" style="margin:0 0 12px">Elegí una y ajustala a tu equipo. Se abre como un ejercicio nuevo (no borra el actual si ya lo guardaste).</p><div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${lista().map((p,i)=>`<button class="ct" data-pl="${i}" style="text-align:left;padding:0;font:inherit;color:inherit"><div class="mini">${svgPizarra(armarPlantilla(p.f,p.fn()),{mini:true})}</div><div class="cuerpo" style="padding:9px 10px;gap:4px"><b style="font-size:14px">${esc(p.n)}</b><span class="sub" style="font-size:12px">${esc(p.sub)} · ${esc(p.f)}</span></div></button>`).join('')}</div>`;
+  const conectar=m=>{
+    $$('[data-tp]',m).forEach(b=>b.onclick=()=>{tabPlant=b.dataset.tp;m.querySelector('#plCuerpo').innerHTML=cuerpo();conectar(m)});
+    $$('[data-pl]',m).forEach(b=>b.onclick=()=>{const p=lista()[+b.dataset.pl];PZ=armarPlantilla(p.f,p.fn());PZ.nombre=p.n;PZ.categoria=p.cat;hist=[];FR=0;SEL=null;MULTI.clear();cerrarModal();herr='mover';pintar();aviso('Plantilla cargada: ajustala y tocá Guardar')});
+  };
+  modal('Plantillas',`<div id="plCuerpo">${cuerpo()}</div>`,{ancho:true,alMontar:conectar});
 }
 /* Estado de la animación en un instante (para presentar y para el video) */
 const ANIM_DUR=1100,ANIM_PAUSA=350;
-function estadoAnim(pz,t){const N=pz.pasos.length,ciclo=ANIM_DUR+ANIM_PAUSA;if(!N||t>=N*ciclo)return {seg:N,over:null,fin:true};const seg=Math.floor(t/ciclo),f=Math.min(1,(t-seg*ciclo)/ANIM_DUR),e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2,over={};pz.elementos.forEach(el=>{const a=posEn(pz,el,seg),b=posEn(pz,el,seg+1);over[el.id]=[a[0]+(b[0]-a[0])*e,a[1]+(b[1]-a[1])*e]});return {seg,over,fin:false}}
+function tiemposAnim(pz){const v=+pz.vel||1,N=pz.pasos.length,o=[];for(let i=0;i<N;i++){const nota=((pz.notas||[])[i+1]||'').trim();o.push({mov:ANIM_DUR*v,pausa:ANIM_PAUSA*v+(nota?Math.min(2600,700+nota.length*35)*v:0)})}return o}
+function duracionAnim(pz){return tiemposAnim(pz).reduce((s,x)=>s+x.mov+x.pausa,0)}
+function estadoAnim(pz,t){const N=pz.pasos.length;if(!N)return {seg:N,over:null,fin:true};const ts=tiemposAnim(pz);let seg=0,acc=0;while(seg<N&&t>=acc+ts[seg].mov+ts[seg].pausa){acc+=ts[seg].mov+ts[seg].pausa;seg++}if(seg>=N)return {seg:N,over:null,fin:true};const f=Math.min(1,(t-acc)/ts[seg].mov),e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2,over={};pz.elementos.forEach(el=>{const a=posEn(pz,el,seg),b=posEn(pz,el,seg+1);over[el.id]=[a[0]+(b[0]-a[0])*e,a[1]+(b[1]-a[1])*e]});return {seg,over,fin:false}}
 /* Modo presentación: pantalla completa, pasos y dibujo a mano alzada */
 function presentar(){
   pararAnim();
@@ -2025,30 +2108,39 @@ function presentar(){
 /* Video de la jugada (MP4 cuando el navegador lo permite) */
 function tipoVideo(){for(const t of ['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm']){try{if(window.MediaRecorder&&MediaRecorder.isTypeSupported(t))return t}catch(e){}}return ''}
 function svgAImagen(txt){return new Promise((ok,mal)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=mal;im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(txt)})}
-async function exportarVideoPizarra(){
-  const mime=tipoVideo();if(!mime){aviso('Este navegador no puede generar video. Probá con Chrome o Edge.');return}
+function exportarVideoPizarra(){
+  modal('Video de la jugada',`<p class="sub" style="margin:0 0 14px">Se arma en tiempo real con la animación de los pasos${(PZ.notas||[]).some(t=>(t||'').trim())?' y las consignas':''}.</p>
+    <div class="grilla g2" style="gap:12px"><button class="ct" id="vSin" style="padding:16px;text-align:left;font:inherit;color:inherit"><b style="font-size:16px">🎬 Solo la jugada</b><span class="sub" style="display:block;margin-top:4px;font-size:13px">Video sin sonido.</span></button>
+    <button class="ct" id="vVoz" style="padding:16px;text-align:left;font:inherit;color:inherit"><b style="font-size:16px">🎙 Con mi voz</b><span class="sub" style="display:block;margin-top:4px;font-size:13px">Hablás mientras ves la jugada y tu explicación queda grabada en el video. Te va a pedir permiso para el micrófono.</span></button></div>
+    <p class="sub" style="margin:12px 0 0;font-size:12.5px">Consejo: para explicar con calma, elegí la velocidad 🐢 Lenta antes de grabar.</p>`,{ancho:true,alMontar:m=>{$('#vSin',m).onclick=()=>{cerrarModal();grabarVideoPizarra(false)};$('#vVoz',m).onclick=()=>{cerrarModal();grabarVideoPizarra(true)}}});
+}
+function tipoVideoAudio(){for(const t of ['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm']){try{if(window.MediaRecorder&&MediaRecorder.isTypeSupported(t))return t}catch(e){}}return ''}
+async function grabarVideoPizarra(conVoz){
+  const mime=conVoz?tipoVideoAudio():tipoVideo();if(!mime){aviso('Este navegador no puede generar video. Probá con Chrome o Edge.');return}
   if(!PZ.pasos.length&&!confirm('Este ejercicio no tiene pasos: el video va a mostrar la imagen fija unos segundos. ¿Seguir?'))return;
   const pz=JSON.parse(JSON.stringify(PZ));pararAnim();
   const [W,H]=FORMATOS[pz.formato],pad=Math.max(W,H)*.045,ar=(W+pad*2)/(H+pad*2);
   let CW=1280,CH=Math.round(1280/ar);if(CH>1280){CH=1280;CW=Math.round(1280*ar)}CW+=CW%2;CH+=CH%2;
   const c=document.createElement('canvas');c.width=CW;c.height=CH;const g=c.getContext('2d');
   let stream=c.captureStream(0),track=stream.getVideoTracks()[0];if(!track.requestFrame){stream=c.captureStream(30);track=stream.getVideoTracks()[0]}
+  let mic=null;if(conVoz){try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});mic.getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){aviso('No se pudo usar el micrófono. Revisá el permiso del navegador.');return}}
   const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});const partes=[];rec.ondataavailable=e=>{if(e.data&&e.data.size)partes.push(e.data)};
   let cancel=false;
-  modal('Generando video',`<p class="sub" style="margin:0 0 10px">Se arma en tiempo real: dejá esta pantalla abierta.</p><div class="barra"><i id="vbar" style="width:0%"></i></div><div class="modal-pie"><button class="btn peligro" id="vcan">Cancelar</button></div>`,{alMontar:m=>$('#vcan',m).onclick=()=>{cancel=true}});
+  modal(conVoz?'🎙 Grabando con tu voz':'Generando video',`<p class="sub" style="margin:0 0 10px">${conVoz?'Cuando termine la cuenta regresiva, explicá la jugada mientras la ves. Se graba tu voz con el video.':'Se arma en tiempo real: dejá esta pantalla abierta.'}</p><div id="vprev" style="margin-bottom:10px"></div><div class="barra"><i id="vbar" style="width:0%"></i></div><div class="modal-pie"><button class="btn peligro" id="vcan">Cancelar</button></div>`,{ancho:true,alMontar:m=>$('#vcan',m).onclick=()=>{cancel=true}});
+  {const vp=$('#vprev');if(vp){c.style.cssText='width:100%;max-height:52vh;object-fit:contain;border-radius:8px;display:block;background:#141412';vp.appendChild(c)}}
   const cartel=(tit,sub)=>{g.fillStyle='#141412';g.fillRect(0,0,CW,CH);g.fillStyle='#FFD400';g.fillRect(0,CH-14,CW,14);g.textAlign='center';g.fillStyle='#fff';g.font='800 '+Math.round(CW*.05)+'px "Barlow Condensed",Arial';g.fillText(tit.toUpperCase().slice(0,40),CW/2,CH/2);g.fillStyle='#CFC8B8';g.font='600 '+Math.round(CW*.024)+'px Barlow,Arial';g.fillText(sub,CW/2,CH/2+CW*.045)};
-  const N=pz.pasos.length,intro=1800,total=intro+(N?N*(ANIM_DUR+ANIM_PAUSA):2500)+1200,fps=30;
+  const N=pz.pasos.length,intro=conVoz?3600:1800,total=intro+(N?duracionAnim(pz):2500)+(conVoz?2600:1500),fps=30;
   rec.start(500);const t0=performance.now();let i=0;
   while(!cancel){
     const t=i*1000/fps;if(t>total)break;
-    if(t<intro)cartel(pz.nombre||'Ejercicio',[S.club.nombre,'Metodika'].filter(Boolean).join(' · '));
+    if(t<intro)cartel(pz.nombre||'Ejercicio',conVoz&&intro-t>600?'🎙 Arranca en '+Math.ceil((intro-600-t)/1000):[S.club.nombre,'Metodika'].filter(Boolean).join(' · '));
     else{const st=estadoAnim(pz,t-intro);const im=await svgAImagen(svgPizarra(pz,{frame:st.fin?N:st.seg,over:st.over}));g.drawImage(im,0,0,CW,CH)}
     const espera=t0+t-performance.now();if(espera>0)await new Promise(r=>setTimeout(r,espera));
     if(track.requestFrame)track.requestFrame();
     const b=$('#vbar');if(b)b.style.width=Math.round(t/total*100)+'%';
     i++;
   }
-  await new Promise(r=>{rec.onstop=r;rec.stop()});cerrarModal();
+  await new Promise(r=>{rec.onstop=r;rec.stop()});if(mic)mic.getTracks().forEach(t=>t.stop());cerrarModal();
   if(cancel){aviso('Video cancelado');return}
   const ext=mime.includes('mp4')?'mp4':'webm',blob=new Blob(partes,{type:mime.split(';')[0]}),a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download=(pz.nombre||'jugada').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase()+'.'+ext;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800);
@@ -2076,15 +2168,13 @@ function pararAnim(repintarTodo){if(animando){cancelAnimationFrame(animando);ani
 function reproducir(){
   const N=PZ.pasos.length;if(!N)return;SEL=null;pintarSel();
   const btn=$('#frPlay');if(btn)btn.textContent='■ Detener';
-  const dur=1100,pausa=350,t0=performance.now();
+  const t0=performance.now();
   const paso=now=>{
-    const t=now-t0,seg=Math.floor(t/(dur+pausa));
-    if(seg>=N){animando=null;FR=N;pintar();return}
-    const f=Math.min(1,(t-seg*(dur+pausa))/dur),e=f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2,over={};
-    PZ.elementos.forEach(el=>{const a=posEn(PZ,el,seg),b=posEn(PZ,el,seg+1);over[el.id]=[a[0]+(b[0]-a[0])*e,a[1]+(b[1]-a[1])*e]});
+    const st=estadoAnim(PZ,now-t0);
+    if(st.fin){animando=null;FR=N;pintar();return}
     const c=$('#cancha');if(!c){animando=null;return}
-    c.innerHTML=svgPizarra(PZ,{frame:seg,over});
-    const lbl=$('.pasos b');if(lbl)lbl.textContent='Paso '+(seg+1)+' → '+(seg+2)+' de '+(N+1);
+    c.innerHTML=svgPizarra(PZ,{frame:st.seg,over:st.over});
+    const lbl=$('.pasos b');if(lbl)lbl.textContent='Paso '+(st.seg+1)+' → '+(st.seg+2)+' de '+(N+1);
     animando=requestAnimationFrame(paso);
   };
   animando=requestAnimationFrame(paso);
@@ -2129,6 +2219,16 @@ async function exportarPng(){
       $$('[data-fi]',m).forEach(b=>b.onclick=()=>{fmtImg=b.dataset.fi;$$('[data-fi]',m).forEach(x=>x.classList.toggle('activo',x===b));url=render(fmtImg);$('#fiImg',m).src=url;const a=$('#fiDesc',m);a.href=url;a.download=nom+sufijo(fmtImg)+'.png'});
     }});
 }
+/* ---------- Medir el bloque ---------- */
+function medirBloque(){
+  if(PZ.bloque){snap();delete PZ.bloque;pintar();aviso('Medición del bloque apagada');return}
+  const cnt={};PZ.elementos.filter(e=>e.t==='J'&&e.color&&e.color!=='hueco').forEach(e=>cnt[e.color]=(cnt[e.color]||0)+1);
+  const cols=Object.entries(cnt).filter(([c,n])=>n>=3&&c!=='#F08A24').sort((a,b)=>b[1]-a[1]);
+  if(!cols.length){aviso('Necesitás al menos 3 '+J('pl')+' del mismo color. Probá con “Equipo completo”.');return}
+  const elegir=c=>{snap();PZ.bloque={color:c};pintar();aviso('Mové a '+J('pl')+' y la medición se actualiza sola')};
+  if(cols.length===1){elegir(cols[0][0]);return}
+  modal('Medir el bloque',`<p class="sub" style="margin:0 0 12px">¿Qué equipo querés medir? Se muestra el largo, el ancho y la distancia entre líneas. La arquera/o (camiseta naranja) no se cuenta.</p><div style="display:flex;gap:10px;flex-wrap:wrap">${cols.map(([c,n])=>`<button class="btn" data-bq="${c}" style="gap:8px"><span class="sw" style="${swBg(c)};width:22px;height:22px;display:inline-block;border-radius:50%;border:1px solid #888"></span>${n} ${J('pl')}</button>`).join('')}</div>`,{alMontar:m=>$$('[data-bq]',m).forEach(b=>b.onclick=()=>{cerrarModal();elegir(b.dataset.bq)})});
+}
 /* ---------- 1. De la pizarra a la tarea y a la sesión ---------- */
 function guardarPZActual(){const ni=$('#pzNombre');PZ.nombre=(ni&&ni.value.trim())||PZ.nombre||'Ejercicio';const c=JSON.parse(JSON.stringify(PZ));const i=S.pizarras.findIndex(p=>p.id===PZ.id);if(i>=0)S.pizarras[i]=c;else S.pizarras.push(c);guardar()}
 function pasarATarea(){
@@ -2158,7 +2258,7 @@ function b64u(b){let s='';for(let i=0;i<b.length;i+=8192)s+=String.fromCharCode.
 function desB64u(t){const s=atob(t.replace(/-/g,'+').replace(/_/g,'/'));const b=new Uint8Array(s.length);for(let i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b}
 async function codificarJugada(pz){
   const e0=S.club.pizarraEstilo||{};
-  const d={v:1,n:pz.nombre||'',f:pz.formato,fo:pz.fondo||'',vd:pz.verDist!==false,es:pz.escala||1,e:pz.elementos.map(({foto,...e})=>e),a:pz.flechas,z:pz.zonas,t:pz.textos,p:pz.pasos,l:pz.lineas||[],c:S.club.nombre||'',r:S.club.rama||'',st:e0.tipo||'',lc:e0.lineas||''};
+  const d={v:1,n:pz.nombre||'',f:pz.formato,fo:pz.fondo||'',vd:pz.verDist!==false,es:pz.escala||1,e:pz.elementos.map(({foto,...e})=>e),a:pz.flechas,z:pz.zonas,t:pz.textos,p:pz.pasos,l:pz.lineas||[],no:pz.notas||[],ve:pz.vel||1,bq:pz.bloque||null,cam:camisetaClub(),c:S.club.nombre||'',r:S.club.rama||'',st:e0.tipo||'',lc:e0.lineas||''};
   const bytes=new TextEncoder().encode(JSON.stringify(d));
   if(window.CompressionStream){const st=new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));return 'z'+b64u(new Uint8Array(await new Response(st).arrayBuffer()))}
   return 'j'+b64u(bytes);
@@ -2171,7 +2271,7 @@ async function decodificarJugada(code){
 // Todo lo que llega por el link se revisa campo por campo antes de dibujarlo
 function limpiarJugada(d){
   const num=(v,a=-400,b=400)=>{v=+v;return isFinite(v)?Math.max(a,Math.min(b,v)):0};
-  const col=v=>typeof v==='string'&&/^(#[0-9a-fA-F]{3,8}|hueco)$/.test(v)?v:undefined;
+  const col=v=>typeof v==='string'&&/^(#[0-9a-fA-F]{3,8}|hueco|club)$/.test(v)?v:undefined;
   const sid=v=>String(v==null?'':v).replace(/[^\w-]/g,'').slice(0,40)||'x';
   const str=(v,n)=>v==null?'':String(v).slice(0,n);
   const arr=v=>Array.isArray(v)?v.slice(0,400):[];
@@ -2182,7 +2282,9 @@ function limpiarJugada(d){
   pz.textos=arr(d.t).filter(Boolean).map(t=>({id:sid(t.id),x:num(t.x),y:num(t.y),txt:str(t.txt,120),tam:num(t.tam,.3,4)||1}));
   pz.pasos=arr(d.p).slice(0,60).map(p=>{const pos={};if(p&&p.pos&&typeof p.pos==='object')Object.keys(p.pos).slice(0,200).forEach(k=>{const q=p.pos[k];if(Array.isArray(q))pos[sid(k)]=[num(q[0]),num(q[1])]});return {pos}});
   pz.lineas=arr(d.l).filter(Boolean).map(l=>{const o={id:sid(l.id),a:sid(l.a),b:sid(l.b)};const c=col(l.c);if(c)o.c=c;return o});
-  return {pz,club:str(d.c,60),rama:['F','M','X'].includes(d.r)?d.r:'',estilo:ESTILOS_CANCHA[d.st]?d.st:'',lineas:col(d.lc)||''};
+  pz.notas=arr(d.no).slice(0,61).map(t=>str(t,90));pz.vel=[.6,1,1.7].includes(+d.ve)?+d.ve:1;if(d.bq&&col(d.bq.color))pz.bloque={color:col(d.bq.color)};
+  const hx=v=>typeof v==='string'&&/^#[0-9a-fA-F]{6}$/.test(v)?v:undefined;const cam=d.cam&&typeof d.cam==='object'?{t:str(d.cam.t,12),c1:hx(d.cam.c1),c2:hx(d.cam.c2)}:null;
+  return {pz,cam,club:str(d.c,60),rama:['F','M','X'].includes(d.r)?d.r:'',estilo:ESTILOS_CANCHA[d.st]?d.st:'',lineas:col(d.lc)||''};
 }
 async function compartirJugada(){
   const btn=$('#pzShare');if(btn)btn.disabled=true;
@@ -2202,7 +2304,7 @@ async function compartirJugada(){
 async function paginaJugada(code){
   document.body.classList.add('sin-menu');
   let d;try{if(!/^[zj][A-Za-z0-9_-]{4,}$/.test(code))throw 0;d=await decodificarJugada(code)}catch(e){pantallaCompleta(`${marcaGrande()}<div class="acc-caja"><h1>Link no válido</h1><p class="sub">Pedile a tu cuerpo técnico que te mande el link de nuevo.</p></div>`);return}
-  S.club={...S.club,nombre:d.club,escudo:'',rama:d.rama||S.club.rama,pizarraEstilo:{tipo:d.estilo||'cesped',lineas:d.lineas,logo:false}};
+  S.club={...S.club,nombre:d.club,escudo:'',rama:d.rama||S.club.rama,camiseta:d.cam||S.club.camiseta,pizarraEstilo:{tipo:d.estilo||'cesped',lineas:d.lineas,logo:false}};
   const pz=d.pz,N=pz.pasos.length;let fr=0,anim=null;
   pantallaCompleta(`${marcaGrande()}<div class="panel" style="width:100%;max-width:1100px;text-align:left">${d.club?`<div class="etq">${esc(d.club)}</div>`:''}<h1 style="margin:4px 0 12px">${esc(pz.nombre)}</h1>
     <div class="cancha" id="pjC" style="padding:6px"></div>
@@ -3283,8 +3385,40 @@ VISTAS.tienda=el=>{
 /* ================= ANÁLISIS DE RIVAL ================= */
 VISTAS.analisis=el=>{
   el.innerHTML=cabecera('Video y scouting','Análisis de rival','Mirá el video del rival, capturá recortes, dibujales encima y armá el plan de partido. Después lo presentás en pantalla grande o lo descargás en PDF.',`<a class="btn" href="analisis.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
-  `<iframe class="analisis-frame" src="analisis.html" title="Análisis de rival" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>`;
+  `<iframe class="analisis-frame" src="analisis.html" title="Análisis de rival" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>`+panelJugadasRival();
+  conectarJugadasRival(el);
 };
+/* ---------- 7. Jugadas del rival en la pizarra ---------- */
+function panelJugadasRival(){
+  const jr=S.pizarras.filter(p=>p.categoria==='Rival');
+  const porRival={};jr.forEach(p=>{const k=p.carpeta||'Sin rival';(porRival[k]=porRival[k]||[]).push(p)});
+  return `<div class="panel" style="margin-top:16px"><div class="panel-cab"><h3>Jugadas del rival en la pizarra</h3><span class="chip">${jr.length}</span><div class="der"><button class="btn pri" id="jrNueva">＋ Nueva jugada del rival</button></div></div>
+    <p class="sub" style="margin:0 0 12px;font-size:13.5px">Dibujá cómo juega el rival: salida, pelota parada, presión. Quedan guardadas en la pizarra (categoría “Rival”) y en la pestaña Pizarras del partido.</p>
+    ${jr.length?Object.entries(porRival).map(([k,l])=>`<div class="etq" style="margin:10px 0 6px">${esc(k)}</div><div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${l.map(z=>`<div class="ct" style="padding:8px"><div class="cancha" style="padding:4px">${svgPizarra(z,{mini:true})}</div><b style="display:block;margin-top:6px;font-size:14px">${esc(z.nombre)}</b><div style="display:flex;gap:6px;margin-top:6px"><button class="btn chico" data-jra="${z.id}">Abrir</button></div></div>`).join('')}</div>`).join(''):'<div class="vacio">Todavía no hay jugadas del rival.</div>'}</div>`;
+}
+function conectarJugadasRival(el){
+  $$('[data-jra]',el).forEach(b=>b.onclick=()=>ir('pizarra',b.dataset.jra));
+  $('#jrNueva',el).onclick=()=>{
+    const ps=[...S.partidos].filter(p=>p.rival).sort((a,b)=>(a.estado==='finalizado')-(b.estado==='finalizado')||a.fecha.localeCompare(b.fecha));
+    const TIPOS=[['Salida desde el fondo','11 vs 11'],['Presión alta','11 vs 11'],['Ataque posicional','11 vs 11'],['Córner a favor del rival','Medio campo'],['Tiro libre del rival','Medio campo'],['Otra jugada','11 vs 11']];
+    modal('Nueva jugada del rival',`<form class="form" id="fJR">
+      <label class="campo ancho">Partido<select id="jrP">${ps.length?ps.map(p=>`<option value="${p.id}">vs ${esc(p.rival)} · ${esc(fFecha(p.fecha))}${p.estado==='finalizado'?' (jugado)':''}</option>`).join(''):''}<option value="">Sin partido (escribo el rival)</option></select></label>
+      <label class="campo ancho" id="jrRW" ${ps.length?'hidden':''}>Rival<input type="text" id="jrR" placeholder="Nombre del rival"></label>
+      <label class="campo ancho">¿Qué jugada?<select id="jrT">${TIPOS.map(([n],i)=>`<option value="${i}">${esc(n)}</option>`).join('')}</select></label>
+      <label class="campo ancho" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="jrEq" checked> Cargar al rival con su sistema (después lo ajustás)</label>
+      <label class="campo">Sistema del rival<select id="jrS">${opts(SISTEMAS['11 vs 11'],SISTEMAS['11 vs 11'][0])}</select></label>
+    </form><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="jrOk">Abrir en la pizarra</button></div>`,{alMontar:m=>{
+      const sp=$('#jrP',m);sp.onchange=()=>{$('#jrRW',m).hidden=!!sp.value};
+      $('#jrOk',m).onclick=()=>{
+        const p=S.partidos.find(x=>x.id===sp.value),rival=(p?p.rival:$('#jrR',m).value.trim())||'Rival',[tn,f]=TIPOS[+$('#jrT',m).value];
+        const z=pizarraNueva(f);z.nombre=rival+' · '+tn;z.categoria='Rival';z.carpeta='vs '+rival;
+        if($('#jrEq',m).checked&&f==='11 vs 11'){const sis=$('#jrS',m).value;const lineas=sis.split('-').map(Number);const [W,H]=FORMATOS[f];
+          z.elementos.push({id:uid(),t:'J',x:W-3,y:H/2,color:'#141412',n:1});
+          let n=2;lineas.forEach((cant,li)=>{const x=W-3-(W/2-6)*(li+1)/lineas.length;for(let i=0;i<cant;i++){z.elementos.push({id:uid(),t:'J',x,y:H*(i+1)/(cant+1),color:'#FFFFFF',n:n++})}});}
+        S.pizarras.push(z);if(p){p.pizarras=p.pizarras||[];p.pizarras.push(z.id)}guardar();cerrarModal();ir('pizarra',z.id);aviso('Jugada del rival creada: dibujala y tocá Guardar')};
+    }});
+  };
+}
 
 VISTAS.videoanalisis=el=>{
   el.innerHTML=cabecera('Video y tagging','Videoanálisis','Taggeá el partido con la botonera, sumá quién hizo cada acción, la zona y si salió bien o mal, dibujá sobre los clips y armá listas, videos y PDF para el plantel.',`<a class="btn" href="videoanalisis.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
