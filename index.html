@@ -754,9 +754,11 @@ function panelCarga(){
   const sem=[];for(let i=5;i>=0;i--){const d0=sumarDias(HOY,-6-7*i),d1=sumarDias(HOY,1-7*i);sem.push({et:i?'-'+i+' sem':'Esta sem.',v:Math.round(cargaEquipoEntre(d0,d1))})}
   const eq=acwr(cargaEquipoEntre),[tEq,cEq,dEq]=estadoCarga(eq.r);
   const alertas=SJ().map(j=>{const a=acwr((d0,d1)=>cargaJugadorEntre(j.id,d0,d1));return {j,...a}}).filter(x=>x.cr>0&&x.r!=null&&(x.r>1.5||x.r<.6)).sort((a,b)=>b.r-a.r).slice(0,8);
+  const hace3=sumarDias(HOY,-3),bienAl=[];SS().filter(s=>s.bienestar&&deIso(s.fecha)>=hace3).sort((a,b)=>b.fecha.localeCompare(a.fecha)).forEach(s=>Object.entries(s.bienestar).forEach(([k,v])=>{const j=jugador(k),a=alertasBien(v);if(j&&a.length&&!bienAl.some(x=>x.j.id===k))bienAl.push({j,a,f:s.fecha})}));
   if(!sem.some(x=>x.v))return '';
   return `<div class="grilla g2" style="margin-bottom:16px"><div class="panel"><div class="panel-cab"><h3>Carga de entrenamiento</h3><span class="chip ${cEq}" style="margin-left:auto" title="${esc(dEq)}">${eq.r!=null?'Relación '+eq.r.toFixed(2).replace('.',',')+' · '+tEq:tEq}</span></div>${barras(sem,{unidad:' UA',color:'var(--bronce)'})}<p class="sub" style="font-size:12.5px;margin:8px 0 0">Carga = RPE × minutos de cada sesión. La relación compara esta semana con el promedio de las últimas 4 (ideal entre 0,8 y 1,3).</p></div>
     <div class="panel"><div class="panel-cab"><h3>Alertas de carga</h3><span class="chip ${alertas.length?'aviso':'ok'}" style="margin-left:auto">${alertas.length?alertas.length+' para mirar':'Sin alertas'}</span></div>
+      ${bienAl.length?`<div style="background:#FFE3DE;border-radius:8px;padding:8px 10px;font-size:13.5px;margin-bottom:10px"><b>Bienestar (últimos días)</b><br>${bienAl.map(x=>'⚠ '+esc(x.j.nombre+' '+x.j.apellido)+': '+esc(x.a.join(', '))+' <span class="sub">('+fCorta(x.f)+')</span>').join('<br>')}</div>`:''}
       ${alertas.length?`<div class="lista">${alertas.map(x=>`<div class="fila click" data-jug="${x.j.id}">${avatar(x.j)}<div style="flex:1;min-width:0"><b>${esc(x.j.nombre+' '+x.j.apellido)}</b><div class="sub" style="font-size:13px">${x.r>1.5?'Subió mucho la carga esta semana':'Bajó mucho la carga: cuidado al volver'}</div></div><span class="chip ${x.r>1.5?'mal':'aviso'}">${x.r.toFixed(2).replace('.',',')}</span></div>`).join('')}</div>`:'<div class="vacio">Nadie subió ni bajó la carga de golpe esta semana.</div>'}
       <p class="sub" style="font-size:12.5px;margin:8px 0 0">Se calcula con la asistencia, el RPE de cada sesión y los minutos de partido${SS().some(s=>s.rpeReal)?' (y el RPE que cargan '+J('pl')+')':''}.</p></div></div>`;
 }
@@ -1465,7 +1467,9 @@ function verSesion(id){
   <p style="margin:0 0 14px"><b>Objetivo:</b> ${esc(s.objetivo||'—')}</p>
   <div class="lista">${s.tareas.map((t,i)=>{const ta=tarea(t.tareaId);if(!ta)return '';const pz=S.pizarras.find(p=>p.id===ta.diagrama);return `<div class="fila" style="align-items:flex-start"><span class="min">${i+1}</span><div style="flex:1;min-width:0"><b>${esc(ta.titulo)}</b> <span class="sub">· ${t.min} min</span><div class="chips" style="margin:6px 0"><span class="chip">${esc(catTarea(ta.categoria))}</span><span class="chip">${esc(ta.tipo)}</span><span class="chip">${esc(ta.nJug)} ${J('pl')}</span></div><div class="sub" style="font-size:14px">${esc(ta.descripcion)}</div></div>${pz?`<div style="width:140px;flex:none;background:var(--cesped);border-radius:6px;padding:4px">${svgPizarra(pz,{mini:true})}</div>`:''}</div>`}).join('')||'<div class="vacio">Sin tareas.</div>'}</div>
   ${s.obs?`<p style="margin-top:14px"><b>Observaciones:</b> ${esc(s.obs)}</p>`:''}
+  ${bloqueRPE(s)}
   <div class="modal-pie"><button class="btn" id="asS">Tomar asistencia</button><button class="btn pri" id="edS">Editar</button></div>`,{ancho:true,alMontar:x=>{
+    conectarRPE(s,x);
     $('#edS',x).onclick=()=>{cerrarModal();editarSesion(s)};
     $('#asS',x).onclick=()=>{cerrarModal();ir('asistencia','s:'+s.id)};
   }});
@@ -2662,6 +2666,87 @@ async function compartirPartido(p,btn){
   }catch(e){console.warn(e);aviso('No se pudo crear el link. Revisá que esté publicada la regla de “partidos-compartidos” en Firebase.')}
   btn.disabled=false;btn.textContent=t0;
 }
+
+/* ================= RPE Y BIENESTAR DESDE EL CELULAR ================= */
+const RPE_TXT=['Reposo','Muy, muy fácil','Fácil','Moderado','Algo duro','Duro','Duro +','Muy duro','Muy duro +','Casi máximo','Máximo'];
+const BIEN=[['sueno','¿Cómo dormiste?',['Muy mal','Mal','Normal','Bien','Muy bien'],false],['fatiga','¿Qué tan cansada/o estás?',['Nada','Poco','Normal','Bastante','Muchísimo'],true],['dolor','¿Dolor muscular?',['Sin dolor','Poco','Algo','Bastante','Mucho'],true],['animo','¿Cómo está tu ánimo?',['Muy bajo','Bajo','Normal','Bueno','Muy bueno'],false]];
+function colRPE(v){return v>=9?'#C0392B':v>=7?'#E67E22':v>=5?'#E0B800':v>=3?'#7FB800':'#3FA34D'}
+function alertasBien(b){const a=[];if(!b)return a;if(b.dolor>=4)a.push('dolor muscular');if(b.fatiga>=5)a.push('mucho cansancio');if(b.sueno<=1)a.push('durmió muy mal');if(b.animo<=1)a.push('ánimo muy bajo');return a}
+function bloqueRPE(s){
+  const r=s.rpeReal||{},b=s.bienestar||{},ids=Object.keys(r),tot=(s.jugadores||[]).length;
+  const prom=ids.length?Math.round(10*ids.reduce((t,k)=>t+(+r[k]||0),0)/ids.length)/10:null;
+  const al=Object.entries(b).map(([k,v])=>({j:jugador(k),a:alertasBien(v)})).filter(x=>x.j&&x.a.length);
+  return `<div class="panel" style="margin-top:16px;padding:14px"><div class="panel-cab" style="margin-bottom:8px"><h3 style="font-size:17px">RPE y bienestar ${J('pl')==='jugadores'?'de los jugadores':J('pl')==='jugadoras'?'de las jugadoras':'del plantel'}</h3>${ids.length?`<span class="chip ok" style="margin-left:auto">${ids.length} de ${tot} respondieron</span>`:''}</div>
+    ${ids.length?`<div class="chips" style="margin-bottom:8px"><span class="chip" style="background:${colRPE(prom)};color:${prom>=7||prom<3?'#fff':'#141412'}">RPE promedio ${String(prom).replace('.',',')}</span><span class="chip">RPE planificado ${s.rpe}</span><span class="chip">Carga real ${Math.round(durSesion(s)*prom)} UA</span></div>
+      <div class="chips">${ids.map(k=>{const j=jugador(k);return j?`<span class="chip"><b style="color:${colRPE(r[k])}">${r[k]}</b>&nbsp;${esc(j.nombre[0]+'. '+j.apellido)}</span>`:''}).join('')}</div>
+      ${Object.entries(b).filter(([k,v])=>v&&v.obs&&jugador(k)).length?`<div style="background:var(--carta2);border-radius:8px;padding:8px 10px;font-size:13.5px;margin-top:10px">${Object.entries(b).filter(([k,v])=>v&&v.obs&&jugador(k)).map(([k,v])=>'💬 <b>'+esc(jugador(k).nombre+' '+jugador(k).apellido)+'</b>: '+esc(v.obs)).join('<br>')}</div>`:''}
+      ${al.length?`<div style="background:#FFE3DE;border-radius:8px;padding:8px 10px;font-size:13.5px;margin-top:10px">${al.map(x=>'⚠ <b>'+esc(x.j.nombre+' '+x.j.apellido)+'</b>: '+esc(x.a.join(', '))).join('<br>')}</div>`:''}`
+    :`<p class="sub" style="margin:0 0 8px;font-size:13.5px">Mandá un link por WhatsApp: cada ${J('sg')} toca su nombre y carga cómo sintió el entrenamiento (RPE 0 a 10), cómo durmió, el cansancio, el dolor y el ánimo. Tarda 20 segundos y no necesita cuenta.</p>`}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn chico pri" id="rpePedir">📲 ${s.rpeLink?'Volver a mandar el link':'Pedir RPE por WhatsApp'}</button>${s.rpeLink?'<button class="btn chico" id="rpeTraer">⟳ Traer respuestas</button><button class="btn chico fantasma" id="rpeCerrar">Cerrar el link</button>':''}</div></div>`;
+}
+function conectarRPE(s,x){
+  const b1=$('#rpePedir',x);if(b1)b1.onclick=()=>pedirRPE(s,b1);
+  const b2=$('#rpeTraer',x);if(b2)b2.onclick=()=>traerRPE(s,b2);
+  const b3=$('#rpeCerrar',x);if(b3)b3.onclick=async()=>{try{await db.collection('cargas').doc(s.rpeLink).update({abierto:false});aviso('Link cerrado: ya no se pueden cargar respuestas')}catch(e){aviso('No se pudo cerrar')}};
+}
+async function pedirRPE(s,btn){
+  if(typeof MODO==='undefined'||MODO!=='nube'){aviso('Esto funciona con tu club en la nube (no en el club de ejemplo).');return}
+  const js=(s.jugadores||[]).map(jugador).filter(Boolean);if(!js.length){aviso('La sesión no tiene '+J('pl')+' citadas/os.');return}
+  const t0=btn.textContent;btn.disabled=true;btn.textContent='Preparando…';
+  try{
+    const datos={clubId:CLUB,club:S.club.nombre||'',categoria:catNombre(s.cat)||'',rama:ramaDe(s.cat)||'F',titulo:s.titulo||'Entrenamiento',fecha:s.fecha,hora:s.hora||'',abierto:true,ids:js.map(j=>j.id),jugadores:ordenJ(js).map(j=>({id:j.id,n:j.nombre+' '+j.apellido,d:j.dorsal?String(j.dorsal):''}))};
+    if(!s.rpeLink){s.rpeLink=Array.from(crypto.getRandomValues(new Uint8Array(15)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');guardar()}
+    await db.collection('cargas').doc(s.rpeLink).set(datos);
+    const url=location.origin+location.pathname+'?rpe='+s.rpeLink;
+    const txt='🏃 *'+(s.titulo||'Entrenamiento')+'* · '+fFecha(s.fecha)+'\nContanos cómo te sentiste en el entrenamiento (tarda 20 segundos):\n'+url;
+    window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');try{await navigator.clipboard.writeText(url)}catch(e){}
+    aviso('Link listo (también quedó copiado)');
+  }catch(e){console.warn(e);aviso('No se pudo crear el link. Revisá que esté publicada la regla de “cargas” en Firebase.')}
+  btn.disabled=false;btn.textContent=t0;
+}
+async function traerRPE(s,btn){
+  const t0=btn.textContent;btn.disabled=true;btn.textContent='Trayendo…';
+  try{const q=await db.collection('cargas').doc(s.rpeLink).collection('respuestas').get();const r={},b={};
+    q.docs.forEach(d=>{const v=d.data();if(typeof v.rpe==='number')r[d.id]=v.rpe;b[d.id]={sueno:v.sueno,fatiga:v.fatiga,dolor:v.dolor,animo:v.animo,obs:v.obs||''}});
+    s.rpeReal=r;s.bienestar=b;guardar();aviso(q.size?q.size+(q.size===1?' respuesta':' respuestas'):'Todavía no respondió nadie');cerrarModal();verSesion(s.id);
+  }catch(e){console.warn(e);aviso('No se pudieron traer las respuestas.');btn.disabled=false;btn.textContent=t0}
+}
+/* Página pública para cargar el RPE (sin cuenta) */
+async function paginaRPE(t){
+  document.body.classList.add('sin-menu');
+  pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando…</p>`);
+  let d;try{const x=await db.collection('cargas').doc(t).get();if(!x.exists)throw 0;d=x.data()}catch(e){pantallaCompleta(`${marcaGrande()}<div class="acc-caja"><h1>Link no válido</h1><p class="sub">Pedile a tu cuerpo técnico que te mande el link de nuevo.</p></div>`);return}
+  const pie=`<p class="sub" style="font-size:12px;text-align:center;margin-top:14px">${esc(d.club)}${d.categoria?' · '+esc(d.categoria):''} · Metodika</p>`;
+  const cab=`<div class="etq" style="color:var(--bronce)">${esc(fFecha(d.fecha))}${d.hora?' · '+esc(d.hora):''}</div><h1 style="margin:4px 0 2px">${esc(d.titulo)}</h1>`;
+  const gen=(f,m,x)=>d.rama==='M'?m:d.rama==='F'?f:x;
+  let yo='';try{yo=localStorage.getItem('rpe_yo_'+d.clubId)||''}catch(e){}
+  const elegir=()=>{
+    if(!d.abierto){pantallaCompleta(`${marcaGrande()}<div class="acc-caja">${cab}<p class="sub">El cuerpo técnico ya cerró este registro.</p></div>${pie}`);return}
+    pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="max-width:460px">${cab}<p class="sub" style="margin:8px 0 14px">Tocá tu nombre:</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px">${d.jugadores.map(j=>`<button class="btn" data-yo="${esc(j.id)}" style="justify-content:flex-start;${j.id===yo?'outline:2px solid var(--tinta)':''}">${j.d?`<span class="dorsal" style="font-size:13px">${esc(j.d)}</span> `:''}${esc(j.n)}</button>`).join('')}</div></div>${pie}`);
+    $$('[data-yo]').forEach(b=>b.onclick=()=>cargar(d.jugadores.find(j=>j.id===b.dataset.yo)));
+  };
+  const cargar=j=>{
+    const R={rpe:null,sueno:null,fatiga:null,dolor:null,animo:null};
+    pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="max-width:480px">${cab}<p style="margin:10px 0 4px;font-size:17px">Hola <b>${esc(j.n.split(' ')[0])}</b> 👋</p>
+      <h3 style="margin:14px 0 4px">¿Qué tan duro fue el entrenamiento?</h3><p class="sub" style="margin:0 0 10px;font-size:13.5px">0 = nada de esfuerzo · 10 = el máximo que podés dar</p>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px">${RPE_TXT.map((tx,i)=>`<button class="btn" data-rpe="${i}" style="flex-direction:column;justify-content:center;padding:8px 2px;gap:0;border-bottom:4px solid ${colRPE(i)}"><b style="font-size:20px">${i}</b></button>`).join('')}</div>
+      <p id="rpeLab" class="sub" style="text-align:center;margin:6px 0 0;min-height:20px;font-weight:600"></p>
+      ${BIEN.map(([k,q,ops])=>`<h3 style="margin:16px 0 6px;font-size:16px">${q.replace('cansada/o',gen('cansada','cansado','cansada/o'))}</h3><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">${ops.map((o,i)=>`<button class="btn" data-b="${k}" data-v="${i+1}" style="justify-content:center;padding:8px 2px;font-size:12.5px;line-height:1.2;text-align:center;white-space:normal">${o}</button>`).join('')}</div>`).join('')}
+      <label class="campo" style="margin-top:16px">¿Algo para contarle al cuerpo técnico? (opcional)<textarea id="rpeObs" rows="2" maxlength="280"></textarea></label>
+      <button class="btn pri" id="rpeOk" style="width:100%;justify-content:center;margin-top:14px;font-size:17px;padding:14px" disabled>Enviar</button>
+      <button class="btn fantasma chico" id="rpeOtra" style="margin-top:12px">← No soy ${esc(j.n)}</button></div>${pie}`);
+    const listo=()=>{$('#rpeOk').disabled=Object.values(R).some(v=>v==null)};
+    $$('[data-rpe]').forEach(b=>b.onclick=()=>{R.rpe=+b.dataset.rpe;$$('[data-rpe]').forEach(x=>{const on=x===b;x.style.background=on?colRPE(R.rpe):'';x.style.color=on?'#fff':''});$('#rpeLab').textContent=R.rpe+' · '+RPE_TXT[R.rpe];listo()});
+    $$('[data-b]').forEach(b=>b.onclick=()=>{R[b.dataset.b]=+b.dataset.v;$$(`[data-b="${b.dataset.b}"]`).forEach(x=>{const on=x===b;x.style.background=on?'var(--tinta)':'';x.style.color=on?'var(--carta)':''});listo()});
+    $('#rpeOtra').onclick=elegir;
+    $('#rpeOk').onclick=async()=>{const bt=$('#rpeOk');bt.disabled=true;bt.textContent='Enviando…';
+      try{const o={...R,fecha:new Date().toISOString(),nombre:j.n};const ob=$('#rpeObs').value.trim();if(ob)o.obs=ob.slice(0,280);await db.collection('cargas').doc(t).collection('respuestas').doc(j.id).set(o);try{localStorage.setItem('rpe_yo_'+d.clubId,j.id)}catch(e){}
+        pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="text-align:center"><div style="font-size:46px">💪</div><h1 style="margin:6px 0">¡Gracias, ${esc(j.n.split(' ')[0])}!</h1><p class="sub">Ya le llegó al cuerpo técnico.</p><button class="btn chico" id="rpeCamb" style="margin-top:12px">Cambiar mi respuesta</button></div>${pie}`);$('#rpeCamb').onclick=()=>cargar(j);
+      }catch(e){console.warn(e);bt.disabled=false;bt.textContent='Enviar';aviso('No se pudo enviar. Probá de nuevo.')}};
+  };
+  elegir();
+}
 /* Página pública del partido (sin cuenta) */
 async function paginaPartido(t){
   document.body.classList.add('sin-menu');pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando…</p>`);
@@ -3217,6 +3302,7 @@ function iniciarNube(){
   firebase.initializeApp(FB_CONFIG);auth=firebase.auth();db=firebase.firestore();
   const qs=new URLSearchParams(location.search),conf=qs.get('conf'),pc=qs.get('partido');if(conf&&/^[a-z0-9]{10,40}$/.test(conf)){paginaConfirmar(conf);return}
   if(pc&&/^[a-z0-9]{10,40}$/.test(pc)){paginaPartido(pc);return}
+  {const rp=qs.get('rpe');if(rp&&/^[a-z0-9]{10,40}$/.test(rp)){paginaRPE(rp);return}}
   try{db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
   window.addEventListener('offline',()=>estadoNube('offline'));window.addEventListener('online',()=>estadoNube('guardado'));
   pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando…</p>`);
