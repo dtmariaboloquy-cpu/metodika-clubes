@@ -710,6 +710,24 @@ const ordenJ=a=>[...a].sort((x,y)=>(x.dorsal||99)-(y.dorsal||99));
 /* ================= CÁLCULOS ================= */
 function durSesion(s){return s.tareas.reduce((a,t)=>a+(+t.min||0),0)}
 function cargaSesion(s){return durSesion(s)*(+s.rpe||0)}
+/* ---------- Carga semanal y alertas (relación aguda:crónica) ---------- */
+const RPE_PARTIDO=8;
+function cargaJugadorEntre(id,d0,d1){let c=0;
+  S.sesiones.forEach(s=>{const f=deIso(s.fecha);if(f<d0||f>=d1)return;const a=S.asistencia['s:'+s.id];const r=a&&a.reg[id];const rpe=s.rpeReal&&s.rpeReal[id]!=null?+s.rpeReal[id]:+s.rpe||0;if(r==='P'||(!a&&(s.jugadores||[]).includes(id)))c+=durSesion(s)*rpe});
+  S.partidos.forEach(p=>{if(p.estado!=='finalizado')return;const f=deIso(p.fecha);if(f<d0||f>=d1)return;c+=minutosJugados(p,id)*RPE_PARTIDO});return c}
+function cargaEquipoEntre(d0,d1){let c=0;S.sesiones.forEach(s=>{const f=deIso(s.fecha);if(f>=d0&&f<d1)c+=cargaSesion(s)});return c}
+function acwr(fn){const hoy1=sumarDias(HOY,1),ag=fn(sumarDias(HOY,-6),hoy1),cr=fn(sumarDias(HOY,-27),hoy1)/4;return {ag,cr,r:cr?ag/cr:null}}
+function estadoCarga(r){if(r==null)return ['Sin datos','',''];if(r>1.5)return ['Riesgo: subió mucho','mal','La carga de esta semana es más de 1,5 veces el promedio del último mes.'];if(r>1.3)return ['Alta','aviso','Un poco por encima de lo habitual.'];if(r<.8)return ['Baja','aviso','Por debajo de lo habitual: cuidado al volver a cargar.'];return ['Óptima','ok','Dentro de lo esperado.']}
+function panelCarga(){
+  const sem=[];for(let i=5;i>=0;i--){const d0=sumarDias(HOY,-6-7*i),d1=sumarDias(HOY,1-7*i);sem.push({et:i?'-'+i+' sem':'Esta sem.',v:Math.round(cargaEquipoEntre(d0,d1))})}
+  const eq=acwr(cargaEquipoEntre),[tEq,cEq,dEq]=estadoCarga(eq.r);
+  const alertas=S.jugadores.map(j=>{const a=acwr((d0,d1)=>cargaJugadorEntre(j.id,d0,d1));return {j,...a}}).filter(x=>x.cr>0&&x.r!=null&&(x.r>1.5||x.r<.6)).sort((a,b)=>b.r-a.r).slice(0,8);
+  if(!sem.some(x=>x.v))return '';
+  return `<div class="grilla g2" style="margin-bottom:16px"><div class="panel"><div class="panel-cab"><h3>Carga de entrenamiento</h3><span class="chip ${cEq}" style="margin-left:auto" title="${esc(dEq)}">${eq.r!=null?'Relación '+eq.r.toFixed(2).replace('.',',')+' · '+tEq:tEq}</span></div>${barras(sem,{unidad:' UA',color:'var(--bronce)'})}<p class="sub" style="font-size:12.5px;margin:8px 0 0">Carga = RPE × minutos de cada sesión. La relación compara esta semana con el promedio de las últimas 4 (ideal entre 0,8 y 1,3).</p></div>
+    <div class="panel"><div class="panel-cab"><h3>Alertas de carga</h3><span class="chip ${alertas.length?'aviso':'ok'}" style="margin-left:auto">${alertas.length?alertas.length+' para mirar':'Sin alertas'}</span></div>
+      ${alertas.length?`<div class="lista">${alertas.map(x=>`<div class="fila click" data-jug="${x.j.id}">${avatar(x.j)}<div style="flex:1;min-width:0"><b>${esc(x.j.nombre+' '+x.j.apellido)}</b><div class="sub" style="font-size:13px">${x.r>1.5?'Subió mucho la carga esta semana':'Bajó mucho la carga: cuidado al volver'}</div></div><span class="chip ${x.r>1.5?'mal':'aviso'}">${x.r.toFixed(2).replace('.',',')}</span></div>`).join('')}</div>`:'<div class="vacio">Nadie subió ni bajó la carga de golpe esta semana.</div>'}
+      <p class="sub" style="font-size:12.5px;margin:8px 0 0">Se calcula con la asistencia, el RPE de cada sesión y los minutos de partido${S.sesiones.some(s=>s.rpeReal)?' (y el RPE que cargan '+J('pl')+')':''}.</p></div></div>`;
+}
 function proximaSesion(){return [...S.sesiones].filter(s=>deIso(s.fecha)>=HOY).sort((a,b)=>a.fecha.localeCompare(b.fecha))[0]}
 function proximoPartido(){return [...S.partidos].filter(p=>p.estado!=='finalizado'&&deIso(p.fecha)>=HOY).sort((a,b)=>a.fecha.localeCompare(b.fecha))[0]}
 function asistJugador(id,desde){
@@ -814,6 +832,22 @@ function panelRendimiento(){
   </div>`;
 }
 /* ================= INICIO ================= */
+function pasosGuia(){
+  const miembros=(typeof CLUBDOC!=='undefined'&&CLUBDOC&&CLUBDOC.miembros)?Object.keys(CLUBDOC.miembros).length:1;
+  return [
+    ['club','Poné el nombre y el escudo del club',!!S.club.escudo,'ajustes'],
+    ['plantel','Cargá el plantel (podés importarlo desde Excel)',S.jugadores.length>=5,'plantel'],
+    ['sesion','Armá tu primera sesión de entrenamiento',S.sesiones.length>0,'planificacion'],
+    ['tarea','Creá una tarea propia en la pizarra o la Biblioteca',S.tareas.some(t=>!t.base),'pizarra'],
+    ['equipo','Invitá a tu cuerpo técnico con el código del club',miembros>1,'ajustes']];
+}
+function panelGuia(){
+  if(typeof MODO==='undefined'||MODO!=='nube'||S.club.guiaOculta)return '';
+  const ps=pasosGuia(),hechos=ps.filter(x=>x[2]).length;if(hechos===ps.length)return '';
+  return `<div class="panel" style="margin-bottom:16px;border:2px solid var(--amarillo)"><div class="panel-cab"><h3>Primeros pasos en Metodika</h3><span class="chip ama">${hechos} de ${ps.length}</span><div class="der"><button class="btn chico fantasma" id="guiaOcultar">Ocultar</button></div></div>
+    <div class="barra" style="margin:0 0 12px"><i style="width:${Math.round(100*hechos/ps.length)}%;background:var(--verde)"></i></div>
+    <div class="lista">${ps.map(([k,t,ok,r],i)=>`<div class="fila" style="padding:8px 0"><span style="width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;background:${ok?'var(--verde)':'var(--carta2)'};color:${ok?'#fff':'var(--tinta)'}">${ok?'✓':i+1}</span><span style="flex:1;${ok?'text-decoration:line-through;color:var(--sub)':''}">${t}</span>${ok?'':`<button class="btn chico" data-guia="${r}">Ir</button>`}</div>`).join('')}</div></div>`;
+}
 VISTAS.inicio=el=>{
   const s=proximaSesion(),p=proximoPartido();
   const hace30=sumarDias(HOY,-30);
@@ -824,7 +858,7 @@ VISTAS.inicio=el=>{
   const jugados=S.partidos.filter(x=>x.estado==='finalizado');
   const g=jugados.filter(x=>x.golesF>x.golesC).length,e=jugados.filter(x=>x.golesF===x.golesC).length,pe=jugados.length-g-e;
   const nombre=S.club.nombre;
-  el.innerHTML=cabecera(S.club.categoria+' · Temporada '+S.club.temporada,nombre,`Hoy es ${fFecha(iso(HOY))}.`)+
+  el.innerHTML=cabecera(S.club.categoria+' · Temporada '+S.club.temporada,nombre,`Hoy es ${fFecha(iso(HOY))}.`)+panelGuia()+
   `<div class="grilla g2" style="margin-bottom:16px">
     <div class="panel"><div class="panel-cab"><h3>Próximo entrenamiento</h3></div>${s?`
       <div class="dato" style="font-size:28px">${fFecha(s.fecha)} · ${esc(s.hora||'')}</div>
@@ -838,6 +872,7 @@ VISTAS.inicio=el=>{
       <button class="btn chico" data-par="${p.id}">Ir al partido</button>`:`<div class="vacio">No hay partidos programados.<br><button class="btn chico" style="margin-top:10px" data-ir="fixture">Cargar fixture</button></div>`}</div>
   </div>
   ${panelRendimiento()}
+  ${panelCarga()}
   <div class="grilla g2" style="margin-bottom:16px">
     <div class="panel"><div class="panel-cab"><h3>Asistencia a entrenamientos</h3><span class="chip ${media>=85?'ok':media>=70?'aviso':'mal'}" style="margin-left:auto">${pctSes.length?media+'% promedio · últimos 30 días':'Sin registros'}</span></div>
       ${barras(pctSes,{unidad:'%',color:'var(--verde)'})}
@@ -863,6 +898,9 @@ VISTAS.inicio=el=>{
   </div>`;
   $$('[data-ir]',el).forEach(b=>b.onclick=()=>ir(b.dataset.ir));
   $$('[data-ses]',el).forEach(b=>b.onclick=()=>verSesion(b.dataset.ses));
+  $$('[data-guia]',el).forEach(b=>b.onclick=()=>ir(b.dataset.guia));
+  {const go=$('#guiaOcultar',el);if(go)go.onclick=()=>{S.club.guiaOculta=true;guardar();pintar()}}
+  $$('[data-jug]',el).forEach(b=>{if(!b.onclick)b.onclick=()=>ir('plantel',b.dataset.jug)});
   const rfp=()=>{const y=window.scrollY;pintar();window.scrollTo(0,y)};
   $$('[data-rf]',el).forEach(b=>b.onclick=()=>{rendF[b.dataset.rf]=b.dataset.v;rfp()});
   $$('[data-rfsel]',el).forEach(x=>x.onchange=()=>{rendF[x.dataset.rfsel]=x.value;rfp()});
@@ -880,7 +918,7 @@ VISTAS.plantel=el=>{
   const cats=[...new Set(S.jugadores.map(j=>j.categoria).filter(Boolean))];
   const lista=ordenJ(S.jugadores.filter(j=>(!filtroPos||j.posicion===filtroPos)&&(!filtroCat||j.categoria===filtroCat)));
   const minTot=minutosEquipo();
-  el.innerHTML=cabecera(S.jugadores.length+' '+J('pl'),'Plantel','',`${S.jugadores.length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${S.jugadores.length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
+  el.innerHTML=cabecera(S.jugadores.length+' '+J('pl'),'Plantel','',`${S.jugadores.length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${S.jugadores.length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button><button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
   `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
    <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select></div>`+
   (lista.length?(()=>{const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj" data-id="${j.id}">${avatar(j)}<div style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small><span class="dorsal" style="font-size:14px">${j.dorsal||'–'}</span> ${esc(posTxt(j.posicion))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
@@ -889,6 +927,7 @@ VISTAS.plantel=el=>{
   $('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
   $('#fCat').onchange=e=>{filtroCat=e.target.value;pintar()};
   $('#nuevaJ').onclick=()=>editarJugador();
+  $('#impJ').onclick=importarPlantel;
   const cb=$('#cmpJ');if(cb)cb.onclick=()=>{if(!cmpSel.filter(id=>jugador(id)).length)cmpSel=ordenJ(S.jugadores).map(j=>({j,m:statsJugador(j.id).min})).sort((a,b)=>b.m-a.m).slice(0,2).map(o=>o.j.id);ir('plantel','comparar')};
   const tp=$('#tablaPdf');if(tp)tp.onclick=()=>tablaJugadoresPDF().catch(()=>aviso('No se pudo generar el PDF.'));
   const tx=$('#tablaXls');if(tx)tx.onclick=()=>tablaJugadoresExcel().catch(()=>aviso('No se pudo generar el Excel.'));
@@ -950,6 +989,36 @@ async function tablaJugadoresPDF(){
   doc.save('tabla-'+J('pl')+'.pdf');
 }
 function cargarXLSX(){return window.XLSX?Promise.resolve(window.XLSX):new Promise((ok,mal)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>window.XLSX?ok(window.XLSX):mal();s.onerror=mal;document.head.appendChild(s)})}
+/* ---------- Importar el plantel desde Excel ---------- */
+const COLS_IMP=['Nombre','Apellido','Dorsal','Posición','Categoría','Nacimiento (dd/mm/aaaa)','Pie','Altura (cm)'];
+async function plantillaPlantel(){const X=await cargarXLSX();const ej=S.club.rama==='M'?['Juan','Pérez',10,'Volante central',S.club.categoria||'','15/03/2008','Derecho',172]:['Sofía','Gómez',10,'Volante central',S.club.categoria||'','15/03/2008','Derecho',165];
+  const ws=X.utils.aoa_to_sheet([COLS_IMP,ej]);ws['!cols']=COLS_IMP.map(h=>({wch:Math.max(12,h.length+2)}));const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,'Plantel');X.writeFile(wb,'plantilla-plantel-metodika.xlsx')}
+function posDesdeTexto(t){t=String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');if(!t)return POSICIONES[3];
+  const m=[[/arquer|portero|golero|^arq/,0],[/central|zaguer|defensor central|^dfc/,1],[/lateral|carrilero/,2],[/volante central|mediocentro|pivote|^5$/,3],[/interno|interna|volante|medio/,4],[/extrem|punta|wing|ala/,5],[/delanter|centrodelanter|^9$/,6]];for(const [r,i] of m)if(r.test(t))return POSICIONES[i];return POSICIONES[3]}
+function fechaDesde(v,X){if(v==null||v==='')return '';if(typeof v==='number'){const d=X.SSF.parse_date_code(v);if(d)return d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0')}
+  const t=String(v).trim();let m=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=y>30?1900:2000;return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}m=t.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
+function importarPlantel(){
+  modal('Importar el plantel desde Excel',`<p style="margin:0 0 10px">Cargá a todo el plantel de una vez. Sirve un Excel o un CSV con una fila por ${J('sg')}.</p>
+    <ol class="sub" style="margin:0 0 14px;padding-left:20px;line-height:1.6"><li>Descargá la plantilla y completala (Nombre y Apellido son obligatorios).</li><li>Subila acá. Antes de guardar vas a ver la lista.</li></ol>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="ipPl">⬇ Descargar plantilla</button><label class="btn pri" for="ipF">⬆ Elegir archivo</label><input type="file" id="ipF" accept=".xlsx,.xls,.csv" hidden></div>
+    <div id="ipPrev" style="margin-top:14px"></div>`,{ancho:true,alMontar:m=>{
+      $('#ipPl',m).onclick=()=>plantillaPlantel().catch(()=>aviso('No se pudo generar la plantilla. Revisá la conexión.'));
+      $('#ipF',m).onchange=async e=>{const f=e.target.files[0];if(!f)return;const box=$('#ipPrev',m);box.innerHTML='<p class="sub">Leyendo…</p>';
+        try{const X=await cargarXLSX();const wb=X.read(await f.arrayBuffer(),{type:'array'});const filas=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+          const norm=k=>String(k).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+          const get=(r,...ks)=>{for(const k of Object.keys(r)){const n=norm(k);if(ks.some(x=>n.startsWith(x)))return r[k]}return ''};
+          const existe=new Set(S.jugadores.map(j=>norm(j.nombre+' '+j.apellido)));
+          const nuevos=[],rep=[];filas.forEach(r=>{let nom=String(get(r,'nombre')).trim(),ape=String(get(r,'apellido')).trim();if(!ape&&nom.includes(' ')){const pz=nom.split(/\s+/);ape=pz.pop();nom=pz.join(' ')}if(!nom||!ape)return;
+            const j={id:uid(),nombre:nom,apellido:ape,dorsal:+get(r,'dorsal','numero','nro','camiseta')||'',posicion:posDesdeTexto(get(r,'posicion','puesto')),categoria:String(get(r,'categoria')).trim()||S.club.categoria||'',nacimiento:fechaDesde(get(r,'nacimiento','fecha de nac','fecha nac'),X),pie:/izq/i.test(get(r,'pie'))?'Izquierdo':/amb/i.test(get(r,'pie'))?'Ambidiestro':'Derecho',altura:+get(r,'altura')||'',foto:'',obs:''};
+            (existe.has(norm(nom+' '+ape))?rep:nuevos).push(j)});
+          if(!nuevos.length){box.innerHTML=`<div class="vacio">${rep.length?'Todas las personas del archivo ya están en el plantel.':'No encontré filas con Nombre y Apellido. Usá la plantilla.'}</div>`;return}
+          box.innerHTML=`<div class="panel" style="padding:12px"><b>${nuevos.length} ${nuevos.length===1?J('sg'):J('pl')} para agregar</b>${rep.length?` <span class="sub">· ${rep.length} ya estaban y se saltean</span>`:''}
+            <div class="lista" style="max-height:38vh;overflow:auto;margin-top:8px">${nuevos.map(j=>`<div class="fila" style="padding:6px 0"><span class="dorsal" style="min-width:28px">${j.dorsal||'–'}</span><b style="flex:1">${esc(j.nombre+' '+j.apellido)}</b><span class="sub" style="font-size:13px">${esc(posTxt(j.posicion))}${j.nacimiento?' · '+esc(fFecha(j.nacimiento)):''}</span></div>`).join('')}</div></div>
+            <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ipOk">Agregar al plantel</button></div>`;
+          $('#ipOk',m).onclick=()=>{S.jugadores.push(...nuevos);guardar();cerrarModal();aviso(nuevos.length+' '+(nuevos.length===1?J('sg'):J('pl'))+' '+(nuevos.length===1?'agregada/o':'agregadas/os'));pintar()};
+        }catch(x){console.warn(x);box.innerHTML='<div class="vacio">No pude leer el archivo. Probá guardarlo como .xlsx o .csv.</div>'}};
+    }});
+}
 async function tablaJugadoresExcel(){
   const X=await cargarXLSX();
   const aoa=[['Dorsal','Apellido','Nombre','Posición','Categoría','Partidos jugados','Minutos','% minutos','Goles','Asistencias','Recuperaciones','Pérdidas','Faltas','Amarillas','Rojas','Evaluación promedio','Asistencia a entrenamientos (%)']];
