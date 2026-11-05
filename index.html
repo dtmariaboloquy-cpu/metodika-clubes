@@ -178,7 +178,43 @@ input:focus,select:focus,textarea:focus{border-color:var(--tinta);outline:none}
 .ct h3{font-size:18px}
 
 /* Pizarra */
-.piz-wrap{display:grid;grid-template-columns:236px minmax(0,1fr);gap:16px;align-items:start}
+.piz-wrap{display:flex;flex-direction:column;gap:8px;min-width:0}
+.pz-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.pz-top #pzNombre{max-width:260px;flex:1 1 180px}
+.pz-acc{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.pz-opc{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--carta);border:1px solid var(--linea);border-radius:10px;padding:10px;margin-bottom:10px}
+.pz-bar{display:flex;gap:4px;align-items:center;background:var(--negro);border-radius:12px;padding:5px;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:6}
+.pz-bar::-webkit-scrollbar{display:none}
+.pz-bar>button{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:62px;border:0;background:transparent;color:#E9E6DD;border-radius:9px;padding:6px 6px;font:600 11px/1.1 Barlow,Arial,sans-serif;cursor:pointer;flex:none}
+.pz-bar>button .ico{width:22px;height:22px}
+.pz-bar>button:hover{background:rgba(255,255,255,.08)}
+.pz-bar>button.activo{background:#FFD400;color:#141412}
+.pz-bar>button:disabled{opacity:.35;cursor:default}
+.pz-bar .sep{width:1px;align-self:stretch;background:rgba(255,255,255,.18);margin:4px 3px;flex:none}
+.pz-bar .flechita{font-size:9px;opacity:.7}
+.pz-tray{background:var(--carta);border:1px solid var(--linea);border-radius:12px;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.pz-tray .tray-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:6px}
+.pz-tray .tray-g button{display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid var(--linea);background:var(--carta2,#fff);border-radius:10px;padding:8px 4px;font:600 11.5px/1.15 Barlow,Arial,sans-serif;cursor:pointer;text-align:center;color:var(--tinta)}
+.pz-tray .tray-g button.activo{border-color:var(--tinta);box-shadow:inset 0 0 0 1px var(--tinta)}
+.pz-tray .tray-g .ico{width:28px;height:28px}
+.pz-tray .etq{margin:0 0 6px}
+.cancha-box{position:relative;min-width:0}
+.pz-burb{position:absolute;z-index:8;transform:translate(-50%,calc(-100% - 14px));background:#141412;color:#fff;border-radius:12px;padding:5px;display:flex;flex-direction:column;gap:5px;box-shadow:0 8px 24px rgba(0,0,0,.35);max-width:min(94vw,520px)}
+.pz-burb .fila{display:flex;gap:3px;align-items:center;flex-wrap:wrap;justify-content:center}
+.pz-burb button{min-width:34px;height:34px;border:0;border-radius:8px;background:transparent;color:#fff;font:700 15px/1 Barlow,Arial,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 7px;gap:4px}
+.pz-burb button:hover{background:rgba(255,255,255,.12)}
+.pz-burb button.activo{background:#FFD400;color:#141412}
+.pz-burb button.rojo{color:#FF8A80}
+.pz-burb .pt{width:18px;height:18px;border-radius:50%;border:2px solid #fff;display:inline-block}
+.pz-burb .sw{width:26px;height:26px;border-color:rgba(255,255,255,.4)}
+.pz-burb .val{font:600 12px Barlow,Arial;opacity:.75;min-width:30px;text-align:center}
+.pz-burb::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:7px solid transparent;border-bottom:0;border-top-color:#141412}
+.pz-burb.abajo{transform:translate(-50%,14px)}
+.pz-burb.abajo::after{bottom:auto;top:-7px;border-top:0;border-bottom:7px solid #141412}
+.piz-full{position:fixed;inset:0;z-index:60;background:var(--fondo,#ECE9E1);padding:8px;overflow:auto}
+.piz-full .cancha svg{max-height:calc(100vh - 150px)}
+body.pz-fs{overflow:hidden}
+.pz-opc[hidden],.pz-tray[hidden],.pz-burb[hidden]{display:none!important}
 .herr .etq{margin-top:8px}
 .hg{display:grid;grid-template-columns:1fr;gap:5px}
 .hg.g2h{grid-template-columns:1fr 1fr}
@@ -195,7 +231,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--tinta);outline:none}
 .herr button.activo{background:var(--negro);border-color:var(--negro);color:#fff}
 .herr .ico{width:22px;height:22px;flex:none}
 .cancha{background:var(--cesped);border-radius:var(--r);padding:10px;touch-action:none}
-.cancha svg{display:block;width:100%;height:auto;max-height:72vh;user-select:none}
+.cancha svg{display:block;width:100%;height:auto;max-height:80vh;user-select:none}
 @media(max-width:700px){.cfg-cancha{grid-template-columns:1fr!important}}
 
 /* Partido en vivo */
@@ -250,7 +286,6 @@ body.sin-menu .lateral{display:none}
   main{padding-inline:16px;padding-block:18px 60px}
   .g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}
   .form{grid-template-columns:minmax(0,1fr)}
-  .piz-wrap{grid-template-columns:minmax(0,1fr)}
   /* Pizarra en celular y tablet vertical: herramientas en una tira deslizable arriba de la cancha */
   .herr{flex-direction:row;overflow-x:auto;gap:6px;padding:2px 2px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
   .herr .etq{display:none}
@@ -259,7 +294,11 @@ body.sin-menu .lateral{display:none}
   .herr .colores{flex-wrap:nowrap;align-items:center;margin:0 4px}
   .herr .sw{width:30px;height:30px}
   .cancha{padding:4px}
-  .cancha svg{max-height:62vh}
+  .cancha svg{max-height:70vh}
+  .pz-bar>button{min-width:56px;padding:6px 4px}
+  .pz-acc{flex-wrap:nowrap;overflow-x:auto;margin-left:0;width:100%;scrollbar-width:none;padding-bottom:2px}
+  .pz-acc .btn{padding:6px 9px;font-size:13px;flex:none}
+  .pz-burb button{min-width:38px;height:38px}
   .cartas-pz{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important}
   .ayuda-tira{display:block!important}
   h1{font-size:28px}
@@ -681,7 +720,7 @@ const ICO={
 const RUTAS=[['inicio','Inicio'],['coordinacion','Coordinación'],['metodologia','Metodología'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes'],['sugerencia','Enviar sugerencia']];
 const ICO_R={coordinacion:'coord',metodologia:'metod',inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',asistencia:'asist',tienda:'tienda',ajustes:'ajustes',sugerencia:'charla'};
 let ruta='inicio',param=null;
-function ir(r,p=null){ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
+function ir(r,p=null){if(r!=='pizarra'&&typeof PZ_FULL!=='undefined'&&PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs')}ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
 function pintarMenu(){
   $('#menu').innerHTML=RUTAS.filter(([r])=>r!=='coordinacion'||(miRol()==='coord'&&cats().length>1)).map(([r,t])=>r==='-'?'<div class="sep"></div>':`<a href="#${r}" data-r="${r}" class="${ruta===r?'activo':''}"><svg viewBox="0 0 24 24">${ICO[ICO_R[r]]}</svg>${t==='Plantel'?'Plantel':t}</a>`).join('');
   $$('#menu a').forEach(a=>a.onclick=e=>{e.preventDefault();if(a.dataset.r==='sugerencia')return enviarSugerencia();ir(a.dataset.r)});
@@ -1751,27 +1790,30 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
   if(ES.logo&&esc0&&ES.op>0){const t=Math.min(W,H)*k*ES.tam/100;logo=`<image href="${esc0.replace(/"/g,'%22')}" x="${W*k/2-t/2}" y="${H*k/2-t/2}" width="${t}" height="${t}" opacity="${ES.op/100}" preserveAspectRatio="xMidYMid meet"/>`}
   const pid='redArco'+ES.tipo+(ES.l||'').replace('#','');
   const vig=ES.tipo==='blanca'?'':`<rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="url(#vig)"/>`;
-  const mk=Object.entries(FLECHAS).map(([key,v])=>`<marker id="pt-${key}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="3.6" markerHeight="3.6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${v.c}"/></marker>`).join('');
+  const colF=a=>a.c||(FLECHAS[a.k]||FLECHAS.pase).c,mkId=c=>'pt'+String(c).replace(/[^0-9a-zA-Z]/g,'');
+  const mk=[...new Set([...Object.values(FLECHAS).map(v=>v.c),...pz.flechas.map(colF),...(previa?[colF(previa)]:[])])].map(c=>`<marker id="${mkId(c)}" viewBox="0 0 10 10" refX="6.5" refY="5" markerWidth="3.4" markerHeight="3.4" orient="auto-start-reverse"><path d="M0 .6L10 5L0 9.4L2.6 5z" fill="${c}" stroke="${c}" stroke-width=".6" stroke-linejoin="round"/></marker>`).join('');
   const pos=e=>posEn(pz,e,frame,over);
-  const zon=z=>{const c=z.color||'#FFD400',sw=r*.12;let s=z.forma==='circ'?`<ellipse cx="${(z.x+z.w/2)*k}" cy="${(z.y+z.h/2)*k}" rx="${z.w/2*k}" ry="${z.h/2*k}"`:`<rect x="${z.x*k}" y="${z.y*k}" width="${z.w*k}" height="${z.h*k}"`;
-    s+=` fill="${c}" fill-opacity=".17" stroke="${c}" stroke-width="${sw}" stroke-dasharray="${r*.5} ${r*.3}"/>`;
+  const zon=z=>{const c=z.color||'#FFD400',sw=r*.12;let s=z.forma==='circ'?`<ellipse cx="${(z.x+z.w/2)*k}" cy="${(z.y+z.h/2)*k}" rx="${z.w/2*k}" ry="${z.h/2*k}"`:`<rect x="${z.x*k}" y="${z.y*k}" width="${z.w*k}" height="${z.h*k}" rx="${r*.25}"`;
+    s+=` fill="${c}" fill-opacity="${z.op??.17}" stroke="${c}" stroke-width="${sw}" stroke-dasharray="${r*.5} ${r*.3}"/>`;
     if(!mini){const jug=pz.elementos.filter(e=>e.t==='J'&&dentroZona(z,...pos(e))).length,a=areaZona(z);const fm=v=>{const t=Math.round(v*10)/10;return Number.isInteger(t)?String(t):t.toFixed(1).replace('.',',')};const lab=(z.forma==='circ'?`Ø ${fm(z.w)}×${fm(z.h)} m`:`${fm(z.w)}×${fm(z.h)} m`)+` · ${Math.round(a)} m²`+(jug?` · ${Math.round(a/jug)} m²/jug.`:'');
       const fs=Math.min(r*.72,Math.max(r*.42,z.w*k/lab.length*1.6));s+=`<text x="${(z.x+z.w/2)*k}" y="${(z.forma==='circ'?z.y+z.h/2:z.y)*k+fs*1.3}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${fs}" fill="#fff" stroke="rgba(0,0,0,.55)" stroke-width="${fs*.22}" paint-order="stroke">${lab}</text>`}
     return s};
-  const fle=a=>{const f=FLECHAS[a.k]||FLECHAS.pase;return `<path d="${dFlecha(a,k,r/k)}" fill="none" stroke="${f.c}" stroke-width="${r*(a.k==='tiro'?.3:.2)}" ${a.k==='pase'?`stroke-dasharray="${r*.7} ${r*.45}"`:''} stroke-linecap="round" stroke-linejoin="round" marker-end="url(#pt-${a.k})"/>`};
-  const el=e=>{const [px,py]=pos(e),x=px*k,y=py*k,c=e.color==='club'&&e.foto?camisetaClub().c1:(e.color||'#fff'),rot=e.rot?` transform="rotate(${e.rot} ${x} ${y})"`:'';
+  const fle=a=>{const c=colF(a),w=r*(a.k==='tiro'?.3:.2)*(a.g||1),tr=a.d||(a.k==='pase'?'dash':'solid'),da=tr==='dash'?`stroke-dasharray="${w*3.4} ${w*2.2}"`:tr==='dot'?`stroke-dasharray="${w*.05} ${w*1.9}"`:'',d=dFlecha(a,k,r/k);
+    return `<path d="${d}" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="${w*1.25}" ${da} stroke-linecap="round" stroke-linejoin="round" transform="translate(${r*.06} ${r*.08})"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" ${da} stroke-linecap="round" stroke-linejoin="round" ${a.sp?'':`marker-end="url(#${mkId(c)})"`}/>`};
+  const el=e=>elR(e,r*(e.s||1));const elR=(e,r)=>{const [px,py]=pos(e),x=px*k,y=py*k,c=e.color==='club'&&e.foto?camisetaClub().c1:(e.color||'#fff'),rot=e.rot?` transform="rotate(${e.rot} ${x} ${y})"`:'';
     switch(e.t){
-      case 'J':{const h=c==='hueco',club=c==='club',cam=club?camisetaClub():null;const tx=h||club?'#FFFFFF':tintaSobre(c);if(e.foto&&!h){const cid='fj'+(++_idMat);let s=`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r*1.25}" fill="rgba(0,0,0,.25)"/><clipPath id="${cid}"><circle cx="${x}" cy="${y}" r="${r*1.25}"/></clipPath><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="#ddd"/><image href="${e.foto}" x="${x-r*1.25}" y="${y-r*1.25}" width="${r*2.5}" height="${r*2.5}" clip-path="url(#${cid})" preserveAspectRatio="xMidYMin slice"/><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="none" stroke="${c}" stroke-width="${r*.22}"/>`;if(e.n!==undefined&&e.n!==''){s+=`<circle cx="${x+r*.95}" cy="${y-r*.9}" r="${r*.5}" fill="${c}" stroke="#141412" stroke-width="${r*.06}"/><text x="${x+r*.95}" y="${y-r*.9+r*.19}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${r*.55}" fill="${tx}">${esc(e.n)}</text>`}if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.15}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':club?(cam.t==='lisa'?cam.c1:'url(#camClub)'):c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`;if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}"${club||(!h&&tx==='#FFFFFF')?` stroke="#141412" stroke-width="${r*.2}" paint-order="stroke"`:''}>${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
+      case 'J':{const h=c==='hueco',club=c==='club',cam=club?camisetaClub():null;const tx=h||club?'#FFFFFF':tintaSobre(c);if(e.foto&&!h){const cid='fj'+(++_idMat);let s=`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r*1.25}" fill="rgba(0,0,0,.25)"/><clipPath id="${cid}"><circle cx="${x}" cy="${y}" r="${r*1.25}"/></clipPath><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="#ddd"/><image href="${e.foto}" x="${x-r*1.25}" y="${y-r*1.25}" width="${r*2.5}" height="${r*2.5}" clip-path="url(#${cid})" preserveAspectRatio="xMidYMin slice"/><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="none" stroke="${c}" stroke-width="${r*.22}"/>`;if(e.n!==undefined&&e.n!==''){s+=`<circle cx="${x+r*.95}" cy="${y-r*.9}" r="${r*.5}" fill="${c}" stroke="#141412" stroke-width="${r*.06}"/><text x="${x+r*.95}" y="${y-r*.9+r*.19}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${r*.55}" fill="${tx}">${esc(e.n)}</text>`}if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.15}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':club?(cam.t==='lisa'?cam.c1:'url(#camClub)'):c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`+(h?'':`<circle cx="${x}" cy="${y}" r="${r*.94}" fill="url(#gJug)"/>`);if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}"${club||(!h&&tx==='#FFFFFF')?` stroke="#141412" stroke-width="${r*.2}" paint-order="stroke"`:''}>${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}
       default:return dibMat(e.t,x,y,r,c,e.rot,k);
     }return ''};
-  const txt=t=>`<text x="${t.x*k}" y="${t.y*k}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*(t.tam||1)}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.2}" paint-order="stroke">${esc(t.txt)}</text>`;
+  const txt=t=>{const fs=r*(t.tam||1),c=t.c||'#FFFFFF';let o='';if(t.bg){const w=Math.max(1,String(t.txt).length)*fs*.56+fs*.9,h=fs*1.45;o+=`<rect x="${t.x*k-w/2}" y="${t.y*k-fs*1.05}" width="${w}" height="${h}" rx="${fs*.28}" fill="${t.bg===true?'#141412':t.bg}" fill-opacity=".86"/>`}
+    return o+`<text x="${t.x*k}" y="${t.y*k}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${fs}" fill="${c}" ${t.bg?'':`stroke="${tintaSobre(c)==='#141412'?'rgba(0,0,0,.6)':'rgba(255,255,255,.7)'}" stroke-width="${r*.2}" paint-order="stroke"`}>${esc(t.txt)}</text>`};
   // resaltado de la selección y manijas
   let hl='';
   if(sel&&!mini){const hs=r*.55,man=(x,y,col='#FFD400')=>`<rect x="${x*k-hs/2}" y="${y*k-hs/2}" width="${hs}" height="${hs}" fill="${col}" stroke="#141412" stroke-width="${r*.08}"/>`;
-    if(sel.tipo==='el'){const e=pz.elementos.find(x=>x.id===sel.id);if(e){const [x,y]=pos(e);hl=`<circle cx="${x*k}" cy="${y*k}" r="${r*1.55}" fill="none" stroke="#FFD400" stroke-width="${r*.12}" stroke-dasharray="${r*.35} ${r*.25}"/>`}}
+    if(sel.tipo==='el'){const e=pz.elementos.find(x=>x.id===sel.id);if(e){const [x,y]=pos(e),rs=r*(e.s||1)*(e.t==='E'?2.8:e.t==='G'?2.6:1.55);hl=`<circle cx="${x*k}" cy="${y*k}" r="${rs}" fill="rgba(255,212,0,.10)" stroke="#FFD400" stroke-width="${r*.12}" stroke-dasharray="${r*.35} ${r*.25}"/>`}}
     if(sel.tipo==='zo'){const z=pz.zonas.find(x=>x.id===sel.id);if(z)hl=`<rect x="${z.x*k}" y="${z.y*k}" width="${z.w*k}" height="${z.h*k}" fill="none" stroke="#FFD400" stroke-width="${r*.08}"/>`+man(z.x+z.w,z.y+z.h)}
     if(sel.tipo==='fl'){const a=pz.flechas.find(x=>x.id===sel.id);if(a){const [mx,my]=puntoCurva(a,.5);hl=man(a.x1,a.y1,'#fff')+man(a.x2,a.y2,'#fff')+`<circle cx="${mx*k}" cy="${my*k}" r="${hs*.62}" fill="#FFD400" stroke="#141412" stroke-width="${r*.08}"/>`}}
-    if(sel.tipo==='tx'){const t=pz.textos.find(x=>x.id===sel.id);if(t){const w=t.txt.length*r*(t.tam||1)*.3;hl=`<rect x="${t.x*k-w-r*.3}" y="${t.y*k-r*(t.tam||1)}" width="${w*2+r*.6}" height="${r*(t.tam||1)*1.3}" fill="none" stroke="#FFD400" stroke-width="${r*.08}" stroke-dasharray="${r*.3} ${r*.2}"/>`}}
+    if(sel.tipo==='tx'){const t=pz.textos.find(x=>x.id===sel.id);if(t){const w=t.txt.length*r*(t.tam||1)*.3+(t.bg?r*(t.tam||1)*.4:0);hl=`<rect x="${t.x*k-w-r*.3}" y="${t.y*k-r*(t.tam||1)}" width="${w*2+r*.6}" height="${r*(t.tam||1)*1.3}" fill="none" stroke="#FFD400" stroke-width="${r*.08}" stroke-dasharray="${r*.3} ${r*.2}"/>`}}
   }
   const flechasV=pz.flechas.filter(a=>(a.fr||0)===frame);
   const lineasSvg=(pz.lineas||[]).map(l=>{const ea=pz.elementos.find(e=>e.id===l.a),eb=pz.elementos.find(e=>e.id===l.b);if(!ea||!eb)return '';const [x1,y1]=pos(ea),[x2,y2]=pos(eb);
@@ -1782,7 +1824,7 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
   if(multi&&multi.size&&!mini)pz.elementos.filter(e=>multi.has(e.id)).forEach(e=>{const [x,y]=pos(e);hl+=`<circle cx="${x*k}" cy="${y*k}" r="${r*1.55}" fill="none" stroke="#4FB3E8" stroke-width="${r*.14}" stroke-dasharray="${r*.35} ${r*.25}"/>`});
   if(rectSel)hl+=`<rect x="${Math.min(rectSel.x1,rectSel.x2)*k}" y="${Math.min(rectSel.y1,rectSel.y2)*k}" width="${Math.abs(rectSel.x2-rectSel.x1)*k}" height="${Math.abs(rectSel.y2-rectSel.y1)*k}" fill="rgba(79,179,232,.12)" stroke="#4FB3E8" stroke-width="${r*.08}" stroke-dasharray="${r*.3} ${r*.2}"/>`;
   const extra=mini?'':svgBloque(pz,pos,k,r,W,H)+svgNota(pz,over?frame+1:frame,k,W,H);
-  return `<svg viewBox="${-pad} ${-pad} ${W*k+pad*2} ${H*k+pad*2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama ${esc(pz.nombre||'')}"><defs>${mk}${DEFS_MAT}${defsCamiseta()}<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient><pattern id="${pid}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="${ES.l}" fill-opacity=".1"/><path d="M0 0L5 5M5 0L0 5" stroke="${ES.l}" stroke-opacity=".55" stroke-width=".6"/></pattern></defs>
+  return `<svg viewBox="${-pad} ${-pad} ${W*k+pad*2} ${H*k+pad*2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama ${esc(pz.nombre||'')}"><defs>${mk}${DEFS_MAT}${defsCamiseta()}<radialGradient id="gJug" cx=".35" cy=".28" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient><radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient><pattern id="${pid}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="${ES.l}" fill-opacity=".1"/><path d="M0 0L5 5M5 0L0 5" stroke="${ES.l}" stroke-opacity=".55" stroke-width=".6"/></pattern></defs>
     <rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="${ES.a}"/>${fr.join('')}${vig}${logo}${lineasCancha(pz.formato,k,ES.l,pid)}${refTacticas(pz,k,ES.l)}
     ${pz.zonas.map(zon).join('')}${lineasSvg}${flechasV.map(fle).join('')}${previa?fle(previa):''}${pz.elementos.filter(e=>e.t!=='J'&&e.t!=='P').map(el).join('')}${pz.elementos.filter(e=>e.t==='J').map(el).join('')}${pz.elementos.filter(e=>e.t==='P').map(el).join('')}${pz.textos.map(txt).join('')}${extra}${hl}</svg>`;
 }
@@ -1822,6 +1864,7 @@ function svgBloque(pz,pos,k,r,W,H){
 }
 /* ---------- Editor ---------- */
 let MULTI=new Set(),UNIR_A=null;
+let PZ_FULL=false,PZ_OPC=false,TRAY=null,fut=[];
 let PZ=null,herr='mover',hist=[],FR=0,SEL=null,colorJ='#FFD400',colorZ='#FFFFFF',animando=null,fCatPz='',fCarpeta='';
 function pizarraNueva(f='11 vs 11'){return normalizar({id:uid(),nombre:'Nuevo ejercicio',formato:f,categoria:'Entrenamiento',carpeta:'',elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],fondo:''})}
 const ICOS_H={
@@ -1848,9 +1891,10 @@ VISTAS.pizarra=el=>{
   normalizar(PZ);
   const carpetas=[...new Set(S.pizarras.map(p=>normalizar(p).carpeta).filter(Boolean))].sort();
   const guardadas=S.pizarras.filter(p=>(!fCatPz||p.categoria===fCatPz)&&(!fCarpeta||p.carpeta===fCarpeta));
-  el.innerHTML=cabecera('Diseño de tareas y jugadas','Pizarra táctica','Elegí una herramienta y tocá la cancha. Con “Mover” seleccionás, arrastrás y editás cada pieza.',`<button class="btn" id="pzNueva">Nueva</button><button class="btn" id="pzPlant">Plantillas</button><button class="btn" id="pzPres">▶ Presentar</button><button class="btn" id="pzVid">🎬 Video</button><button class="btn" id="pzPng">Imagen / Redes</button><button class="btn" id="pzShare">📲 Compartir</button><button class="btn" id="pzTarea">📋 Pasar a tarea</button><button class="btn pri" id="pzGuardar">Guardar</button>`)+
-  `<div class="filtros"><input type="text" id="pzNombre" value="${esc(PZ.nombre)}" style="max-width:240px" aria-label="Nombre del ejercicio">
-    <select id="pzFormato" style="width:auto" aria-label="Cancha">${opts(Object.keys(FORMATOS),PZ.formato)}</select>
+  el.innerHTML=cabecera('Diseño de tareas y jugadas','Pizarra táctica','',`<button class="btn pri" id="pzGuardar">Guardar</button>`)+
+  `<div class="pz-top"><input type="text" id="pzNombre" value="${esc(PZ.nombre)}" aria-label="Nombre del ejercicio"><select id="pzFormato" style="width:auto" aria-label="Cancha">${opts(Object.keys(FORMATOS),PZ.formato)}</select>
+    <div class="pz-acc"><button class="btn chico" id="pzNueva">Nueva</button><button class="btn chico" id="pzPlant">Plantillas</button><button class="btn chico" id="pzPres">▶ Presentar</button><button class="btn chico" id="pzVid">🎬 Video</button><button class="btn chico" id="pzPng">Imagen / Redes</button><button class="btn chico" id="pzShare">📲 Compartir</button><button class="btn chico" id="pzTarea">📋 Pasar a tarea</button><button class="btn chico ${PZ_OPC?'ama':''}" id="pzOpcB">⚙ Opciones</button></div></div>
+  <div class="pz-opc" id="pzOpc" ${PZ_OPC?'':'hidden'}>
     <select id="pzCat" style="width:auto" aria-label="Categoría">${opts(CATEG_PZ,PZ.categoria)}</select>
     <input type="text" id="pzCarpeta" value="${esc(PZ.carpeta)}" list="dlCarp" placeholder="Carpeta (opcional)" style="max-width:190px" aria-label="Carpeta"><datalist id="dlCarp">${carpetas.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
     <select id="pzFondo" style="width:auto" aria-label="Referencias tácticas">${opts(FONDOS,PZ.fondo)}</select>
@@ -1858,40 +1902,28 @@ VISTAS.pizarra=el=>{
     <button class="btn chico" id="pzEsp" title="Dar vuelta la cancha de izquierda a derecha">⇆ Espejar</button>
     <button class="btn chico ${PZ.bloque?'ama':''}" id="pzBloque" title="Medir largo, ancho y distancia entre líneas de un equipo">📏 Medir bloque</button>
     <label class="chip" style="cursor:pointer"><input type="checkbox" id="pzDist" ${PZ.verDist!==false?'checked':''}> Ver metros</label>
-    <button class="btn chico" id="pzDeshacer" ${hist.length?'':'disabled'}>↶ Deshacer</button><button class="btn chico fantasma" id="pzLimpiar">Vaciar cancha</button></div>
-  <div class="piz-wrap">
-    <div class="herr">
-      <div class="etq">Herramientas</div><div class="hg">${bHerr('mover','Mover y editar')}${bHerr('lazo','Elegir varias')}${bHerr('unir','Unir y medir')}${bHerr('texto','Texto')}${bHerr('borrar','Borrar')}</div>
-      <div class="etq">${J('Pl')}</div><div class="hg">${bHerr('J',J('Sg'))}<button id="pzEquipo" title="Agregar equipo completo"><svg class="ico" viewBox="0 0 24 24"><circle cx="7" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="17" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="12" cy="16" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/></svg><span>Equipo completo</span></button></div>
-      <div class="colores" aria-label="Color de camiseta">${PALETA_J.map(c=>`<button class="sw ${colorJ===c?'activo':''}" data-cj="${c}" title="${c==='hueco'?'Sin relleno':c==='club'?'Camiseta del club':c}" style="${swBg(c)}"></button>`).join('')}</div>
-      <div class="etq">Materiales</div><div class="hg g3h">${['P','O','D','R','V','H','E','N','G','S','M'].map(m=>bHerr(m,MATERIALES[m].n)).join('')}</div>
-      <div class="etq">Flechas</div><div class="hg g2h">${Object.entries(FLECHAS).map(([k2,v])=>bHerr(k2,v.n)).join('')}</div>
-      <div class="etq">Zonas</div><div class="hg g3h">${bHerr('rect','Rectángulo')}${bHerr('cuad','Cuadrado')}${bHerr('circ','Círculo')}</div>
-      <div class="colores" aria-label="Color de la zona">${PALETA.filter(c=>c!=='hueco').map(c=>`<button class="sw ${colorZ===c?'activo':''}" data-cz="${c}" title="Zona de color ${c}" style="background:${c}"></button>`).join('')}</div>
-    </div>
-    <div style="min-width:0">
-      <div class="pasos"><button class="btn chico" id="frAnt" ${FR?'':'disabled'} aria-label="Paso anterior">◀</button><b class="num">Paso ${FR+1} de ${PZ.pasos.length+1}</b><button class="btn chico" id="frSig" ${FR<PZ.pasos.length?'':'disabled'} aria-label="Paso siguiente">▶</button>
-        <button class="btn chico" id="frNuevo">＋ Paso</button>${FR>0?'<button class="btn chico fantasma" id="frQuitar">Quitar este paso</button>':''}
-        <select id="pzVel" style="width:auto;margin-left:auto" aria-label="Velocidad de la animación" ${PZ.pasos.length?'':'disabled'}>${opts([['1.7','🐢 Lenta'],['1','Normal'],['0.6','⚡ Rápida']],String(PZ.vel||1))}</select>
-        <button class="btn chico ${PZ.pasos.length?'ama':''}" id="frPlay" ${PZ.pasos.length?'':'disabled'}>▶ Reproducir jugada</button></div>
-      <div style="display:flex;gap:6px;align-items:center;margin:0 0 8px"><input type="text" id="pzNota" maxlength="90" value="${esc((PZ.notas||[])[FR]||'')}" placeholder="Consigna del paso ${FR+1} (opcional). Ej.: La 6 fija al central" aria-label="Consigna de este paso" style="flex:1;min-width:0"></div>
-      <p class="sub ayuda-tira" style="display:none;font-size:12px;margin:0 0 6px">Deslizá la barra de herramientas para ver todas. Tocá la cancha para ubicar y arrastrá con el dedo para mover.</p><div class="cancha" id="cancha">${svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI})}</div>
-      <p class="sub" style="font-size:12.5px;margin:6px 0 0">${PZ.pasos.length?'En cada paso mové a las '+J('pl')+' a su nueva posición. Las flechas se dibujan por paso.':'Para animar una jugada: ubicá las piezas, tocá “＋ Paso” y mové a las '+J('pl')+' a su nueva posición.'}</p>
-      <div id="panelSel"></div>
-    </div>
+    <button class="btn chico fantasma" id="pzLimpiar">Vaciar cancha</button></div>
+  <div class="piz-wrap ${PZ_FULL?'piz-full':''}" id="pizWrap">
+    ${barraPizarra()}
+    <div class="pz-tray" id="pzTray" hidden></div>
+    <div class="cancha-box"><div class="cancha" id="cancha">${svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI})}</div><div class="pz-burb" id="pzBurb" hidden></div></div>
+    <div class="pasos" style="margin:4px 0 0"><button class="btn chico" id="frAnt" ${FR?'':'disabled'} aria-label="Paso anterior">◀</button><b class="num">Paso ${FR+1} de ${PZ.pasos.length+1}</b><button class="btn chico" id="frSig" ${FR<PZ.pasos.length?'':'disabled'} aria-label="Paso siguiente">▶</button>
+      <button class="btn chico" id="frNuevo">＋ Paso</button>${FR>0?'<button class="btn chico fantasma" id="frQuitar">Quitar este paso</button>':''}
+      <input type="text" id="pzNota" maxlength="90" value="${esc((PZ.notas||[])[FR]||'')}" placeholder="Consigna del paso ${FR+1} (opcional)" aria-label="Consigna de este paso" style="flex:1;min-width:160px">
+      <select id="pzVel" style="width:auto" aria-label="Velocidad de la animación" ${PZ.pasos.length?'':'disabled'}>${opts([['1.7','🐢 Lenta'],['1','Normal'],['0.6','⚡ Rápida']],String(PZ.vel||1))}</select>
+      <button class="btn chico ${PZ.pasos.length?'ama':''}" id="frPlay" ${PZ.pasos.length?'':'disabled'}>▶ Reproducir jugada</button></div>
+    <p class="sub" style="font-size:12.5px;margin:2px 0 0">${PZ.pasos.length?'En cada paso mové a las '+J('pl')+' a su nueva posición. Las flechas se dibujan por paso.':'Tocá una pieza para editarla: aparece un menú con color, tamaño, duplicar y borrar. Para animar una jugada usá “＋ Paso”.'}</p>
+    <div id="panelSel"></div>
   </div>
   <div class="panel" style="margin-top:16px"><div class="panel-cab"><h3>Ejercicios guardados</h3><span class="chip">${S.pizarras.length}</span>
     <div class="der"><div class="seg">${[['','Todos'],...CATEG_PZ.map(c=>[c,c])].map(([v,t])=>`<button data-fcp="${esc(v)}" class="${fCatPz===v?'activo':''}">${t}</button>`).join('')}</div>${carpetas.length?`<select id="fCarp" style="width:auto" aria-label="Carpeta"><option value="">Todas las carpetas</option>${opts(carpetas,fCarpeta)}</select>`:''}</div></div>
   ${guardadas.length?`<div class="cartas-t cartas-pz" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">${guardadas.map(p=>`<div class="ct"><div class="mini">${svgPizarra(p,{mini:true})}</div><div class="cuerpo" style="padding:9px 10px;gap:5px"><b style="font-size:14px;line-height:1.2">${esc(p.nombre)}</b><div class="chips"><span class="chip">${esc(p.categoria)}</span>${p.carpeta?`<span class="chip">📁 ${esc(p.carpeta)}</span>`:''}${p.pasos.length?`<span class="chip ama">${p.pasos.length+1} pasos</span>`:''}</div><span class="sub" style="font-size:12px">${esc(p.formato)}</span><div style="display:flex;gap:4px;margin-top:auto"><button class="btn chico" data-abrir="${p.id}">Abrir</button><button class="btn chico fantasma" data-borrarpz="${p.id}" aria-label="Eliminar">✕</button></div></div></div>`).join('')}</div>`:'<div class="vacio">No hay ejercicios guardados en esta categoría.</div>'}</div>`;
-  $$('[data-h]',el).forEach(b=>b.onclick=()=>{herr=b.dataset.h;UNIR_A=null;$$('[data-h]',el).forEach(x=>x.classList.toggle('activo',x===b));if(herr!=='mover'){SEL=null}if(herr!=='lazo')MULTI.clear();redibujar();pintarSel();if(herr==='unir')aviso('Tocá una pieza y después otra para unirlas y ver la distancia');if(herr==='lazo')aviso('Arrastrá un rectángulo para elegir varias piezas y después movelas juntas')});
-  $$('[data-cj]',el).forEach(b=>b.onclick=()=>{colorJ=b.dataset.cj;herr='J';if(SEL&&SEL.tipo==='el'){const e=PZ.elementos.find(x=>x.id===SEL.id);if(e&&e.t==='J'){snap();e.color=colorJ}}pintar()});
-  $$('[data-cz]',el).forEach(b=>b.onclick=()=>{colorZ=b.dataset.cz;if(SEL&&SEL.tipo==='zo'){const z=PZ.zonas.find(x=>x.id===SEL.id);if(z){snap();z.color=colorZ}}else if(!['rect','cuad','circ'].includes(herr))herr='rect';pintar()});
-  $('#pzEquipo').onclick=agregarEquipo;
+  conectarBarra(el);
+  $('#pzOpcB').onclick=()=>{PZ_OPC=!PZ_OPC;$('#pzOpc').hidden=!PZ_OPC;$('#pzOpcB').classList.toggle('ama',PZ_OPC)};
   $('#pzNombre').oninput=e=>PZ.nombre=e.target.value;
   $('#pzCat').onchange=e=>PZ.categoria=e.target.value;
   $('#pzCarpeta').oninput=e=>PZ.carpeta=e.target.value.trim();
   $('#pzFormato').onchange=e=>{snap();PZ.formato=e.target.value;pintar()};
-  $('#pzDeshacer').onclick=()=>{if(hist.length){PZ=hist.pop();if(FR>PZ.pasos.length)FR=PZ.pasos.length;SEL=null;pintar()}};
   $('#pzLimpiar').onclick=()=>{snap();Object.assign(PZ,{elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[]});FR=0;SEL=null;MULTI.clear();pintar()};
   $('#pzNueva').onclick=()=>{PZ=pizarraNueva(PZ.formato);hist=[];FR=0;SEL=null;pintar()};
   $('#pzGuardar').onclick=()=>{PZ.nombre=$('#pzNombre').value.trim()||'Ejercicio';const c=JSON.parse(JSON.stringify(PZ));const i=S.pizarras.findIndex(p=>p.id===PZ.id);if(i>=0)S.pizarras[i]=c;else S.pizarras.push(c);guardar();aviso('Ejercicio guardado');pintar()};
@@ -1953,11 +1985,119 @@ function configCancha(){
       $('#ccOk',m).onclick=()=>{S.club.camiseta={...CAM};S.club.pizarraEstilo={...T,lineas:T.lineas===ESTILOS_CANCHA[T.tipo].l?'':T.lineas};guardar();cerrarModal();aviso('Diseño de cancha guardado');pintar()};
       prev()}});
 }
-function snap(){hist.push(JSON.parse(JSON.stringify(PZ)));if(hist.length>50)hist.shift();const d=$('#pzDeshacer');if(d)d.disabled=false}
-function redibujar(){const c=$('#cancha');if(!c)return;c.innerHTML=svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI});conectarCancha();const d=$('#pzDeshacer');if(d)d.disabled=!hist.length}
+function snap(){hist.push(JSON.parse(JSON.stringify(PZ)));if(hist.length>60)hist.shift();fut=[];const d=$('#pzDeshacer');if(d)d.disabled=false;const f=$('#pzRehacer');if(f)f.disabled=true}
+function redibujar(){const c=$('#cancha');if(!c)return;c.innerHTML=svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI});conectarCancha();const d=$('#pzDeshacer');if(d)d.disabled=!hist.length;const f=$('#pzRehacer');if(f)f.disabled=!fut.length;pintarBurbuja()}
+function deshacer(){if(!hist.length)return;fut.push(JSON.parse(JSON.stringify(PZ)));PZ=hist.pop();if(FR>PZ.pasos.length)FR=PZ.pasos.length;SEL=null;MULTI.clear();pintar()}
+function rehacer(){if(!fut.length)return;hist.push(JSON.parse(JSON.stringify(PZ)));PZ=fut.pop();if(FR>PZ.pasos.length)FR=PZ.pasos.length;SEL=null;MULTI.clear();pintar()}
+/* ---------- Barra de herramientas con bandejas ---------- */
+const GRUPOS_H={jug:['J'],mat:['P','O','D','R','V','H','E','N','G','S','M'],fle:Object.keys(FLECHAS),zon:['rect','cuad','circ'],mas:['lazo','unir','borrar']};
+function grupoDe(h){return Object.keys(GRUPOS_H).find(g=>GRUPOS_H[g].includes(h))}
+function icoH(k){return ICO_MAT[k]?icoMat(k):typeof ICOS_H[k]==='function'?ICOS_H[k](colorJ):ICOS_H[k]}
+function barraPizarra(){
+  const g=grupoDe(herr),bt=(id,ico,txt,act,extra='')=>`<button id="${id}" class="${act?'activo':''}" ${extra}><svg class="ico" viewBox="0 0 24 24">${ico}</svg><span>${txt}</span></button>`;
+  const icoG=(grp,def)=>g===grp?icoH(herr):icoH(def);
+  return `<div class="pz-bar" role="toolbar" aria-label="Herramientas de la pizarra">
+    ${bt('tbMover',ICOS_H.mover,'Mover',herr==='mover','data-h="mover"')}
+    ${bt('tbJug',ICOS_H.J(colorJ),J('Pl')+' <span class="flechita">▾</span>',g==='jug','data-tray="jug"')}
+    ${bt('tbMat',icoG('mat','O'),'Materiales <span class="flechita">▾</span>',g==='mat','data-tray="mat"')}
+    ${bt('tbFle',icoG('fle','pase'),'Flechas <span class="flechita">▾</span>',g==='fle','data-tray="fle"')}
+    ${bt('tbZon',icoG('zon','rect'),'Zonas <span class="flechita">▾</span>',g==='zon','data-tray="zon"')}
+    ${bt('tbTx',ICOS_H.texto,'Texto',herr==='texto','data-h="texto"')}
+    ${bt('tbMas',g==='mas'?icoH(herr):'<circle cx="5" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="19" cy="12" r="2" fill="currentColor"/>',g==='mas'?(herr==='lazo'?'Varias':herr==='unir'?'Medir':'Borrar'):'Más <span class="flechita">▾</span>',g==='mas','data-tray="mas"')}
+    <span class="sep"></span>
+    <button id="pzDeshacer" ${hist.length?'':'disabled'} title="Deshacer (Ctrl+Z)"><svg class="ico" viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h11a5 5 0 010 10h-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Deshacer</span></button>
+    <button id="pzRehacer" ${fut.length?'':'disabled'} title="Rehacer (Ctrl+Y)"><svg class="ico" viewBox="0 0 24 24"><path d="M15 7l5 5-5 5M20 12H9a5 5 0 000 10h3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rehacer</span></button>
+    <button id="pzFull" title="Pantalla completa"><svg class="ico" viewBox="0 0 24 24">${PZ_FULL?'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" stroke="currentColor" stroke-width="2" fill="none"/>':'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="2" fill="none"/>'}</svg><span>${PZ_FULL?'Salir':'Pantalla'}</span></button>
+  </div>`}
+function elegirHerr(h){herr=h;UNIR_A=null;if(h!=='mover')SEL=null;if(h!=='lazo')MULTI.clear();cerrarTray();
+  const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document);redibujar();pintarSel();
+  if(h==='unir')aviso('Tocá una pieza y después otra para unirlas y ver la distancia');if(h==='lazo')aviso('Arrastrá un rectángulo para elegir varias piezas y después movelas juntas')}
+function cerrarTray(){TRAY=null;const t=$('#pzTray');if(t){t.hidden=true;t.innerHTML=''}$$('.pz-bar [data-tray]').forEach(b=>b.classList.toggle('abierto',false))}
+function abrirTray(g){const t=$('#pzTray');if(!t)return;if(TRAY===g){cerrarTray();return}TRAY=g;
+  const it=GRUPOS_H[g].map(k=>{const n=k==='J'?J('Sg'):MATERIALES[k]?MATERIALES[k].n:FLECHAS[k]?FLECHAS[k].n:{rect:'Rectángulo',cuad:'Cuadrado',circ:'Círculo',lazo:'Elegir varias',unir:'Unir y medir',borrar:'Borrar'}[k];return `<button data-th="${k}" class="${herr===k?'activo':''}"><svg class="ico" viewBox="0 0 24 24">${icoH(k)}</svg>${esc(n)}</button>`}).join('');
+  let h=`<div class="tray-g">${it}${g==='jug'?`<button id="pzEquipo"><svg class="ico" viewBox="0 0 24 24"><circle cx="7" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="17" cy="8" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/><circle cx="12" cy="16" r="3" fill="${colorJ==='hueco'?'none':colorJ}" stroke="currentColor"/></svg>Equipo completo</button>`:''}</div>`;
+  if(g==='jug')h+=`<div class="etq" style="margin-top:10px">Color de camiseta</div><div class="colores">${PALETA_J.map(c=>`<button class="sw ${colorJ===c?'activo':''}" data-tcj="${c}" title="${c==='hueco'?'Sin relleno':c==='club'?'Camiseta del club':c}" style="${swBg(c)}"></button>`).join('')}</div>`;
+  if(g==='zon')h+=`<div class="etq" style="margin-top:10px">Color de la zona</div><div class="colores">${PALETA.filter(c=>c!=='hueco').map(c=>`<button class="sw ${colorZ===c?'activo':''}" data-tcz="${c}" style="background:${c}"></button>`).join('')}</div>`;
+  if(g==='fle')h+=`<p class="sub" style="margin:8px 0 0;font-size:12.5px">Arrastrá en la cancha para dibujarla. Después tocala para cambiarle color, grosor o curva.</p>`;
+  t.innerHTML=h;t.hidden=false;
+  $$('[data-th]',t).forEach(b=>b.onclick=()=>elegirHerr(b.dataset.th));
+  $$('[data-tcj]',t).forEach(b=>b.onclick=()=>{colorJ=b.dataset.tcj;herr='J';TRAY=null;abrirTray('jug');const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document)});
+  $$('[data-tcz]',t).forEach(b=>b.onclick=()=>{colorZ=b.dataset.tcz;if(!['rect','cuad','circ'].includes(herr))herr='rect';TRAY=null;abrirTray('zon');const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document)});
+  const eq=$('#pzEquipo',t);if(eq)eq.onclick=()=>{cerrarTray();agregarEquipo()};
+}
+function conectarBarra(root){
+  $$('.pz-bar [data-h]',root).forEach(b=>b.onclick=()=>elegirHerr(b.dataset.h));
+  $$('.pz-bar [data-tray]',root).forEach(b=>b.onclick=()=>abrirTray(b.dataset.tray));
+  const d=$('#pzDeshacer');if(d)d.onclick=deshacer;const f=$('#pzRehacer');if(f)f.onclick=rehacer;
+  const fu=$('#pzFull');if(fu)fu.onclick=()=>{PZ_FULL=!PZ_FULL;document.body.classList.toggle('pz-fs',PZ_FULL);pintar()};
+}
+/* ---------- Menú flotante de la pieza elegida ---------- */
+let BURB_COL=false;
+function objSel(){if(!SEL)return null;const f={el:'elementos',zo:'zonas',fl:'flechas',tx:'textos',ln:'lineas'}[SEL.tipo];return f?PZ[f].find(x=>x.id===SEL.id):null}
+function anclaSel(o){const k=10;
+  if(SEL.tipo==='el'){const [x,y]=posEn(PZ,o,FR),rr=radio(PZ.formato)*(o.s||1)*(o.t==='E'?2.8:o.t==='G'?1.8:1.4);return [x,y-rr,y+rr]}
+  if(SEL.tipo==='zo')return [o.x+o.w/2,o.y,o.y+o.h];
+  if(SEL.tipo==='fl'){const ys=[o.y1,o.y2,puntoCurva(o,.5)[1]];const [mx]=puntoCurva(o,.5);return [mx,Math.min(...ys),Math.max(...ys)]}
+  if(SEL.tipo==='tx'){const rr=radio(PZ.formato)*(o.tam||1);return [o.x,o.y-rr*1.2,o.y+rr*.4]}
+  if(SEL.tipo==='ln'){const a=PZ.elementos.find(e=>e.id===o.a),b=PZ.elementos.find(e=>e.id===o.b);if(!a||!b)return null;const [x1,y1]=posEn(PZ,a,FR),[x2,y2]=posEn(PZ,b,FR);return [(x1+x2)/2,Math.min(y1,y2),Math.max(y1,y2)]}
+  return null}
+function pintarBurbuja(){
+  const bu=$('#pzBurb'),svg=$('#cancha svg');if(!bu||!svg)return;
+  const o=objSel();if(!o||herr==='lazo'||animando){bu.hidden=true;BURB_COL=false;return}
+  const an=anclaSel(o);if(!an){bu.hidden=true;return}
+  const ico=(t,acc,tit,cls='')=>`<button data-b="${acc}" title="${tit}" class="${cls}">${t}</button>`;
+  const sw=(c,acc,act)=>`<button class="sw ${act?'activo':''}" data-bc="${c}" data-b="${acc}" style="${swBg(c)}" title="${c}"></button>`;
+  let f1='',col='',tam='';const D=ico('⧉','dup','Duplicar (Ctrl+D)'),X=ico('🗑','del','Eliminar (Supr)','rojo');
+  const colActual=SEL.tipo==='fl'?(o.c||FLECHAS[o.k].c):SEL.tipo==='tx'?(o.c||'#FFFFFF'):SEL.tipo==='ln'?(o.c||'#FFD400'):o.color||'#FFFFFF';
+  const bCol=`<button data-b="col" title="Color" class="${BURB_COL?'activo':''}"><span class="pt" style="${swBg(colActual)}"></span></button>`;
+  const pal=SEL.tipo==='el'&&o.t==='J'?PALETA_J:PALETA.filter(c=>c!=='hueco');
+  if(SEL.tipo==='el'){const esJ=o.t==='J',m=MATERIALES[o.t];
+    tam=`${ico('−','menos','Achicar')}<span class="val">${Math.round((o.s||1)*100)}%</span>${ico('+','mas','Agrandar')}`;
+    f1=`${o.t!=='P'?bCol:''}${tam}${!esJ?ico('⟳','rot','Girar 45°'):''}${esJ?ico('#','edit','Número y nombre'):''}${D}${X}`}
+  if(SEL.tipo==='fl'){
+    f1=`${Object.entries(FLECHAS).map(([k2,v])=>`<button data-b="tipo" data-bk="${k2}" title="${v.n}" class="${o.k===k2?'activo':''}"><svg viewBox="0 0 24 24" width="20" height="20">${ICOS_H[k2]}</svg></button>`).join('')}${bCol}`;
+    const tr=o.d||(o.k==='pase'?'dash':'solid');
+    col=`${ico('−','menos','Más fina')}<span class="val">${Math.round((o.g||1)*100)}%</span>${ico('+','mas','Más gruesa')}${ico(`<svg viewBox="0 0 24 12" width="26" height="13"><line x1="2" y1="6" x2="22" y2="6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" ${tr==='dash'?'stroke-dasharray="5 4"':tr==='dot'?'stroke-dasharray="0.1 4.5"':''}/></svg>`,'trazo','Trazo: continuo, cortado o punteado')}${ico(o.sp?'—':'➝','punta','Con o sin punta')}${ico('⌒','recta',o.cx!=null?'Enderezar':'Para curvarla arrastrá el punto amarillo')}${X}`}
+  if(SEL.tipo==='zo')f1=`${bCol}${ico('◐','op','Relleno: suave, fuerte o sin relleno')}${ico('↔','edit','Medidas exactas')}${D}${X}`;
+  if(SEL.tipo==='tx')f1=`${bCol}${ico('−','menos','Más chico')}${ico('+','mas','Más grande')}${ico('▣','fondo','Con o sin fondo')}${ico('✎','edit','Editar texto')}${D}${X}`;
+  if(SEL.tipo==='ln')f1=`${bCol}${X}`;
+  let filaCol='';if(BURB_COL)filaCol=`<div class="fila">${(SEL.tipo==='fl'||SEL.tipo==='tx'?[...pal,'#141412'].filter((c,i,a)=>a.indexOf(c)===i):pal).map(c=>sw(c,'setcol',c===colActual)).join('')}</div>`;
+  bu.innerHTML=`<div class="fila">${f1}</div>${col?`<div class="fila">${col}</div>`:''}${filaCol}`;bu.hidden=false;
+  // ubicar arriba de la pieza (o abajo si no entra)
+  const box=bu.parentElement.getBoundingClientRect(),M=svg.getScreenCTM(),pt=svg.createSVGPoint(),k=10;
+  const aPant=(x,y)=>{pt.x=x*k;pt.y=y*k;const q=pt.matrixTransform(M);return [q.x-box.left,q.y-box.top]};
+  const [sx,sy]=aPant(an[0],an[1]),[,sy2]=aPant(an[0],an[2]);
+  const bw=bu.offsetWidth,bh=bu.offsetHeight,abajo=sy-bh-18<0;
+  bu.classList.toggle('abajo',abajo);
+  bu.style.left=Math.max(bw/2+4,Math.min(box.width-bw/2-4,sx))+'px';bu.style.top=(abajo?Math.min(sy2,box.height-bh-20):sy)+'px';
+  $$('[data-b]',bu).forEach(b=>b.onclick=ev=>{ev.stopPropagation();accionBurbuja(b.dataset.b,b)});
+}
+function accionBurbuja(a,b){
+  const o=objSel();if(!o)return;
+  if(a==='col'){BURB_COL=!BURB_COL;pintarBurbuja();return}
+  if(a==='del'){BURB_COL=false;borrarSel();return}
+  if(a==='edit'){if(SEL.tipo==='tx'){const v=prompt('Texto',o.txt);if(v!=null&&v.trim()){snap();o.txt=v.trim();redibujar()}return}const p=$('#panelSel');if(p){pintarSel();p.scrollIntoView({behavior:'smooth',block:'center'});const i=$('input',p);if(i)setTimeout(()=>i.focus(),350)}return}
+  if(a==='dup'){duplicarSel();return}
+  snap();
+  if(a==='setcol'){const c=b.dataset.bc;if(SEL.tipo==='el'){o.color=c;if(o.t==='J')colorJ=c}else if(SEL.tipo==='zo'){o.color=c;colorZ=c}else o.c=c}
+  if(a==='menos'||a==='mas'){const d=a==='mas'?1:-1;if(SEL.tipo==='el')o.s=Math.round(Math.max(.5,Math.min(2.5,(o.s||1)+d*.15))*100)/100;else if(SEL.tipo==='fl')o.g=Math.round(Math.max(.4,Math.min(3,(o.g||1)+d*.2))*100)/100;else if(SEL.tipo==='tx')o.tam=Math.round(Math.max(.5,Math.min(4,(o.tam||1)+d*.25))*100)/100}
+  if(a==='rot')o.rot=((o.rot||0)+45)%360;
+  if(a==='tipo'){o.k=b.dataset.bk;delete o.d}
+  if(a==='trazo'){const tr=o.d||(o.k==='pase'?'dash':'solid');o.d=tr==='solid'?'dash':tr==='dash'?'dot':'solid'}
+  if(a==='punta')o.sp=!o.sp;
+  if(a==='recta'){if(o.cx!=null){delete o.cx;delete o.cy}else{const mx=(o.x1+o.x2)/2,my=(o.y1+o.y2)/2,L=Math.hypot(o.x2-o.x1,o.y2-o.y1)||1;o.cx=mx-(o.y2-o.y1)/L*L*.18;o.cy=my+(o.x2-o.x1)/L*L*.18}}
+  if(a==='op'){const v=o.op??.17;o.op=v===.17?.35:v===.35?0:.17}
+  if(a==='fondo')o.bg=!o.bg;
+  redibujar();pintarSel()}
+function duplicarSel(){if(!SEL)return;snap();const d=radio(PZ.formato)*2.4;
+  if(SEL.tipo==='el'){const e=PZ.elementos.find(x=>x.id===SEL.id);if(!e)return;const [x,y]=posEn(PZ,e,FR);const c={...e,id:uid(),x:x+d,y};if(c.t==='J'&&c.n!==undefined&&c.n!=='')c.n=PZ.elementos.filter(z=>z.t==='J'&&z.color===c.color).length+1;PZ.elementos.push(c);SEL={tipo:'el',id:c.id}}
+  else if(SEL.tipo==='zo'){const z=PZ.zonas.find(x=>x.id===SEL.id);const c={...z,id:uid(),x:z.x+2,y:z.y+2};PZ.zonas.push(c);SEL={tipo:'zo',id:c.id}}
+  else if(SEL.tipo==='tx'){const t=PZ.textos.find(x=>x.id===SEL.id);const c={...t,id:uid(),y:t.y+radio(PZ.formato)*(t.tam||1)*1.6};PZ.textos.push(c);SEL={tipo:'tx',id:c.id}}
+  else if(SEL.tipo==='fl'){const a=PZ.flechas.find(x=>x.id===SEL.id);const c={...a,id:uid(),y1:a.y1+d,y2:a.y2+d};if(c.cy!=null)c.cy+=d;PZ.flechas.push(c);SEL={tipo:'fl',id:c.id}}
+  redibujar();pintarSel()}
 function setPos(e,x,y){if(FR===0){e.x=x;e.y=y}else{PZ.pasos[FR-1].pos[e.id]=[x,y]}}
 function pintarSel(){
-  const box=$('#panelSel');if(!box)return;
+  const box=$('#panelSel');if(!box)return;setTimeout(pintarBurbuja,0);
   if(!SEL&&MULTI.size){
     const ids=[...MULTI];
     box.innerHTML=`<div class="panel" style="margin-top:12px"><div class="panel-cab"><div><div class="etq">Seleccionadas</div><h3 style="margin-top:2px">${ids.length} piezas</h3></div><div class="der"><button class="btn chico fantasma" id="mX">Listo</button></div></div>
@@ -2005,8 +2145,19 @@ function pintarSel(){
   if(q('txV'))q('txV').oninput=e=>{PZ.textos.find(x=>x.id===SEL.id).txt=e.target.value;redibujar()};
   if(q('txT'))q('txT').onchange=e=>{PZ.textos.find(x=>x.id===SEL.id).tam=+e.target.value;redibujar()};
 }
-function borrarSel(){if(!SEL)return;snap();const f={el:'elementos',zo:'zonas',fl:'flechas',tx:'textos',ln:'lineas'}[SEL.tipo];PZ[f]=PZ[f].filter(x=>x.id!==SEL.id);if(SEL.tipo==='el'){PZ.pasos.forEach(p=>delete p.pos[SEL.id]);PZ.lineas=PZ.lineas.filter(l=>l.a!==SEL.id&&l.b!==SEL.id)}SEL=null;redibujar();pintarSel()}
-document.addEventListener('keydown',e=>{if(ruta!=='pizarra'||!SEL)return;if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();borrarSel()}});
+function borrarSel(){if(!SEL)return;snap();const f={el:'elementos',zo:'zonas',fl:'flechas',tx:'textos',ln:'lineas'}[SEL.tipo];PZ[f]=PZ[f].filter(x=>x.id!==SEL.id);if(SEL.tipo==='el'){PZ.pasos.forEach(p=>delete p.pos[SEL.id]);PZ.lineas=PZ.lineas.filter(l=>l.a!==SEL.id&&l.b!==SEL.id)}SEL=null;BURB_COL=false;redibujar();pintarSel()}
+document.addEventListener('keydown',e=>{if(ruta!=='pizarra')return;if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+  const c=e.ctrlKey||e.metaKey,kk=e.key.toLowerCase();
+  if(c&&kk==='z'&&!e.shiftKey){e.preventDefault();deshacer();return}
+  if(c&&(kk==='y'||(kk==='z'&&e.shiftKey))){e.preventDefault();rehacer();return}
+  if(e.key==='Escape'){if(TRAY){cerrarTray();return}if(SEL||MULTI.size){SEL=null;MULTI.clear();redibujar();pintarSel();return}if(PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs');pintar()}return}
+  if(!SEL)return;
+  if(c&&kk==='d'){e.preventDefault();duplicarSel();return}
+  if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();borrarSel();return}
+  const mv={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+  if(mv){e.preventDefault();const st=e.shiftKey?2:.5,o=objSel();if(!o)return;snap();const dx=mv[0]*st,dy=mv[1]*st;
+    if(SEL.tipo==='el'){const [x,y]=posEn(PZ,o,FR);setPos(o,x+dx,y+dy)}else if(SEL.tipo==='fl'){o.x1+=dx;o.x2+=dx;o.y1+=dy;o.y2+=dy;if(o.cx!=null){o.cx+=dx;o.cy+=dy}}else if(o.x!=null){o.x+=dx;o.y+=dy}
+    redibujar()}});
 function conectarCancha(){
   const svg=$('#cancha svg');if(!svg)return;
   const k=10,r=radio(PZ.formato);
@@ -2019,7 +2170,7 @@ function conectarCancha(){
       if(SEL.tipo==='zo'){const z=PZ.zonas.find(x=>x.id===SEL.id);if(z&&d(z.x+z.w,z.y+z.h)<r*1.1)return {t:'zoRes',o:z}}
       if(SEL.tipo==='fl'){const a=PZ.flechas.find(x=>x.id===SEL.id);if(a){const [mx,my]=puntoCurva(a,.5);if(d(mx,my)<r*1.1)return {t:'flMid',o:a};if(d(a.x1,a.y1)<r)return {t:'flA',o:a};if(d(a.x2,a.y2)<r)return {t:'flB',o:a}}}
     }
-    let best=null,bd=1e9;PZ.elementos.forEach(e=>{const [x,y]=posEn(PZ,e,FR);const dd=d(x,y);const lim=e.t==='E'?r*2.6:e.t==='G'?3.7:r*1.5;if(dd<lim&&dd<bd){bd=dd;best=e}});if(best)return {t:'el',o:best};
+    let best=null,bd=1e9;PZ.elementos.forEach(e=>{const [x,y]=posEn(PZ,e,FR);const dd=d(x,y);const lim=(e.t==='E'?r*2.6:e.t==='G'?3.7:r*1.5)*(e.s||1);if(dd<lim&&dd<bd){bd=dd;best=e}});if(best)return {t:'el',o:best};
     for(const t of [...PZ.textos].reverse()){const w=t.txt.length*r*(t.tam||1)*.32+r*.4;if(Math.abs(p.x-t.x)<w&&p.y<t.y+r*.3&&p.y>t.y-r*(t.tam||1))return {t:'tx',o:t}}
     for(const l of PZ.lineas){const ea=PZ.elementos.find(e=>e.id===l.a),eb=PZ.elementos.find(e=>e.id===l.b);if(!ea||!eb)continue;const [x1,y1]=posEn(PZ,ea,FR),[x2,y2]=posEn(PZ,eb,FR),L2=(x2-x1)**2+(y2-y1)**2||1,tt=Math.max(0,Math.min(1,((p.x-x1)*(x2-x1)+(p.y-y1)*(y2-y1))/L2));if(d(x1+tt*(x2-x1),y1+tt*(y2-y1))<r*.6)return {t:'ln',o:l}}
     for(const a of PZ.flechas.filter(a=>(a.fr||0)===FR)){for(let i=0;i<=20;i++){const [x,y]=puntoCurva(a,i/20);if(d(x,y)<r*.8)return {t:'fl',o:a}}}
@@ -2028,7 +2179,10 @@ function conectarCancha(){
   };
   svg.onpointerdown=ev=>{
     if(animando)return;
-    ev.preventDefault();const p=pto(ev);svg.setPointerCapture(ev.pointerId);
+    ev.preventDefault();const p=pto(ev);svg.setPointerCapture(ev.pointerId);if(TRAY)cerrarTray();
+    // con una herramienta de colocar, tocar justo una pieza existente la elige (así se puede editar sin cambiar de herramienta)
+    if(herr!=='mover'&&herr!=='borrar'&&herr!=='unir'&&herr!=='lazo'&&!FLECHAS[herr]&&!['rect','cuad','circ'].includes(herr)){const h0=hits(p);if(h0&&h0.t==='el'){const [x0,y0]=posEn(PZ,h0.o,FR);if(Math.hypot(x0-p.x,y0-p.y)<r*.9*(h0.o.s||1)){herr='mover';const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document)}}}
+    {const bu=$('#pzBurb');if(bu)bu.hidden=true}
     if(herr==='mover'){
       const h=hits(p);
       if(!h){if(SEL){SEL=null;repintar();pintarSel()}return}
@@ -2055,7 +2209,7 @@ function conectarCancha(){
     snap();const e={id:uid(),t:herr,x:p.x,y:p.y};
     if(herr==='J'){e.color=colorJ;e.n=PZ.elementos.filter(x=>x.t==='J'&&x.color===colorJ).length+1}
     else if(MATERIALES[herr])e.color=MATERIALES[herr].c;
-    PZ.elementos.push(e);redibujar();
+    PZ.elementos.push(e);SEL={tipo:'el',id:e.id};redibujar();pintarSel();
   };
   svg.onpointermove=ev=>{
     if(!drag)return;const p=pto(ev);
@@ -2076,8 +2230,10 @@ function conectarCancha(){
     if(!drag)return;const p=pto(ev),d=drag;drag=null;
     if(d.t==='lazo'){const x1=Math.min(d.x,p.x),x2=Math.max(d.x,p.x),y1=Math.min(d.y,p.y),y2=Math.max(d.y,p.y);PZ.elementos.forEach(e=>{const [x,y]=posEn(PZ,e,FR);if(x>=x1&&x<=x2&&y>=y1&&y<=y2)MULTI.add(e.id)});redibujar();pintarSel();if(MULTI.size)aviso(MULTI.size+' piezas elegidas: arrastralas para moverlas juntas');return}
     if(d.t==='grupo'){redibujar();pintarSel();return}
-    if(d.t==='nfl'&&Math.hypot(p.x-d.x1,p.y-d.y1)>r){snap();const a={id:uid(),x1:d.x1,y1:d.y1,x2:p.x,y2:p.y,k:herr,fr:FR};PZ.flechas.push(a)}
-    if(d.t==='nz'){let w=Math.abs(p.x-d.x),h=Math.abs(p.y-d.y);if(herr==='cuad')h=w=Math.max(w,h);if(w>r&&h>r){snap();const z={id:uid(),forma:herr==='circ'?'circ':herr==='cuad'?'cuad':'rect',color:colorZ,x:Math.min(d.x,p.x),y:Math.min(d.y,p.y),w,h};PZ.zonas.push(z)}}
+    if(d.t==='nfl'){if(Math.hypot(p.x-d.x1,p.y-d.y1)>r){snap();const a={id:uid(),x1:d.x1,y1:d.y1,x2:p.x,y2:p.y,k:herr,fr:FR};PZ.flechas.push(a);SEL={tipo:'fl',id:a.id}}
+      else{const h=hits(p);SEL=h&&['el','tx','fl','zo','ln'].includes(h.t)?{tipo:h.t,id:h.o.id}:null}}
+    if(d.t==='nz'){let w=Math.abs(p.x-d.x),h=Math.abs(p.y-d.y);if(herr==='cuad')h=w=Math.max(w,h);if(w>r&&h>r){snap();const z={id:uid(),forma:herr==='circ'?'circ':herr==='cuad'?'cuad':'rect',color:colorZ,x:Math.min(d.x,p.x),y:Math.min(d.y,p.y),w,h};PZ.zonas.push(z);SEL={tipo:'zo',id:z.id}}
+      else{const hh=hits(p);SEL=hh&&['el','tx','fl','zo','ln'].includes(hh.t)?{tipo:hh.t,id:hh.o.id}:null}}
     redibujar();pintarSel();
   };
 }
