@@ -438,6 +438,14 @@ let marcados = new Set();    // tags tildados en la tabla
 
 /* ---------- plantel y club desde Metodika Clubes ---------- */
 function fechaAR(iso){ const m = String(iso||"").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3]+"/"+m[2]+"/"+m[1] : String(iso||""); }
+async function mtkLeerDatos(fs,clubId,k){ /* lee club o jugadores en el formato nuevo (fragmentos) o en el viejo */
+  const col=fs.collection("clubes").doc(clubId).collection("datos"),vacio=k==="club"?{}:[];
+  try{const FP=firebase.firestore.FieldPath.documentId();const q=await col.where(FP,">=",k+"@").where(FP,"<",k+"@~").get();
+    if(!q.empty){const it={},ord={};q.docs.forEach(d=>{Object.assign(it,d.data().items||{});Object.assign(ord,d.data().ord||{})});
+      if(k==="club"){const o={};for(const x in it)o[x]=JSON.parse(it[x]);return o}
+      return Object.keys(it).sort((a,b)=>(ord[a]??0)-(ord[b]??0)).map(x=>JSON.parse(it[x]))}}catch(e){}
+  const d=await col.doc(k).get();return d.exists?JSON.parse(d.data().v||(k==="club"?"{}":"[]")):vacio;
+}
 async function cargarPlantel(){
   let S = null;
   try{
@@ -446,10 +454,9 @@ async function cargarPlantel(){
   }catch(e){}
   if (!S && CLUB_ID && getDb()){
     try{
-      const base = getDb().collection("clubes").doc(CLUB_ID).collection("datos");
-      const [c, j] = await Promise.all([base.doc("club").get(), base.doc("jugadores").get()]);
-      S = {club: c.exists ? JSON.parse(c.data().v||"{}") : {}, jugadores: j.exists ? JSON.parse(j.data().v||"[]") : [], partidos: []};
-      try{ const ps = await getDb().collection("clubes").doc(CLUB_ID).collection("partidos").get(); S.partidos = ps.docs.map(d=>{ try{ return JSON.parse(d.data().v||"{}"); }catch(e){ return null; } }).filter(Boolean); }catch(e){}
+      const [c, j] = await Promise.all([mtkLeerDatos(getDb(), CLUB_ID, "club"), mtkLeerDatos(getDb(), CLUB_ID, "jugadores")]);
+      S = {club: c, jugadores: j, partidos: []};
+      try{ const ps = await getDb().collection("clubes").doc(CLUB_ID).collection("partidos").get(); S.partidos = ps.docs.filter(d=>!d.data().borrado).map(d=>{ try{ return JSON.parse(d.data().v||"{}"); }catch(e){ return null; } }).filter(Boolean); }catch(e){}
     }catch(e){ console.warn(e); }
   }
   if (!S){ try{ const t = localStorage.getItem("metodika_clubes_v1"); if (t){ const x = JSON.parse(t); S = {club:x.club, jugadores:x.jugadores, partidos:x.partidos}; } }catch(e){} }

@@ -578,9 +578,9 @@ function migrarTareasBase(){
   const campos=['titulo','objetivo','descripcion','consignas'];
   viejas.forEach(b=>{const t=S.tareas.find(x=>!x.base&&x.titulo===G(b.titulo,'F'));if(!t)return;
     campos.forEach(c=>{if(t[c]===G(b[c],'F'))t[c]=b[c]});t.base=b.base;
-    if(!t.diagrama&&b.diagrama){const p=B.pz.find(z=>z.id===b.diagrama);if(p){S.pizarras.push(normalizar(JSON.parse(JSON.stringify(p))));t.diagrama=p.id}}});
+    if(!t.diagrama&&b.diagrama){const p=B.pz.find(z=>z.id===b.diagrama);if(p){const c=normalizar(JSON.parse(JSON.stringify(p)));if(MODO==='nube')c.id='pzb_'+b.base;if(!S.pizarras.some(z=>z.id===c.id))S.pizarras.push(c);t.diagrama=c.id}}});
   nuevas.forEach(b=>{if(S.tareas.some(x=>x.base===b.base||G(x.titulo,'F')===G(b.titulo,'F')))return;
-    const p=B.pz.find(z=>z.id===b.diagrama);if(p){const c=normalizar(JSON.parse(JSON.stringify(p)));S.pizarras.push(c)}S.tareas.push(b)});
+    const p=B.pz.find(z=>z.id===b.diagrama);if(MODO==='nube')b.id='tb_'+b.base;if(p){const c=normalizar(JSON.parse(JSON.stringify(p)));if(MODO==='nube'){c.id='pzb_'+b.base;b.diagrama=c.id}if(!S.pizarras.some(z=>z.id===c.id))S.pizarras.push(c)}if(!S.tareas.some(x=>x.id===b.id))S.tareas.push(b)});
   S.contenidos=unicos([...CONT(),...nuevas.map(t=>t.contenido)]);
   S.club.tareasBase=BASE_VERSION;
   return true;
@@ -3054,7 +3054,6 @@ function editarPartido(p){
 /* ================= NUBE: USUARIOS Y DATOS COMPARTIDOS ================= */
 const FB_CONFIG={apiKey:"AIzaSyAQXlqWl9LdXwGsZMo1p7BAAXsMMcGd-QE",authDomain:"metodika-clubes.firebaseapp.com",projectId:"metodika-clubes",storageBucket:"metodika-clubes.firebasestorage.app",messagingSenderId:"927882662557",appId:"1:927882662557:web:e4515abe0ba8fd1c98fa74"};
 let registrando=false,MODO='local',auth=null,db=null,USR=null,PERFIL=null,CLUB=null,CLUBDOC=null,SOLIC=[],subs=[],tSync=null,pintarPend=false;
-const COL_DOC=['club','contenidos','jugadores','tareas','microciclos','sesiones','asistencia','evaluaciones'];
 const COL_ITEMS=['partidos','pizarras'];
 let ultimo={},ultimoItems={partidos:{},pizarras:{}},ultimoFoto={},FOTOS={};
 const nubeDisponible=()=>!!(window.firebase&&firebase.firestore&&firebase.auth)&&!/claude|anthropic/.test(location.hostname);
@@ -3200,67 +3199,272 @@ function pantallaPlan(){
   const y=$('#plYa');if(y)y.onclick=async()=>{await cargarPlan();if(estadoPlan().tipo==='vencido'){aviso('Todavía no figura activado. Si ya pagaste, puede tardar un rato.')}else{document.body.classList.remove('sin-menu');pintar();aviso('¡Plan activo!')}};
   $('#plSalir').onclick=()=>auth.signOut();
 }
+/* ================= GUARDADO EN LA NUBE (formato 2) =================
+   Cada elemento (sesión, tarea, jugador/a, asistencia de un día…) se guarda por separado dentro de
+   documentos "fragmento" (datos/sesiones@0, datos/sesiones@1…). Así dos personas pueden trabajar a la vez
+   (o una sin señal) sin pisarse, y no hay límite de espacio. Lo borrado va a la papelera 60 días. */
+const KL=['jugadores','tareas','microciclos','sesiones','evaluaciones'],KM=['asistencia','club'],KS=[...KL,...KM];
+const SH_MAX=450000,SH_TOPE=880000,PAPEL_DIAS=60,RESP_DIAS=14;
+let INF=new Map(),FMT=0,RAW={},SH={},LAST={},LOC={},ORD={},SZ={},PAPEL=[],SRVI={partidos:{},pizarras:{}},tReintento=null,datosHechos=false;
+function resetSync(){INF=new Map();FMT=0;RAW={};SH={};LAST={};LOC={};ORD={};SZ={};PAPEL=[];SRVI={partidos:{},pizarras:{}};KS.forEach(k=>{SH[k]={};LAST[k]={};LOC[k]={};ORD[k]={};SZ[k]={}});ultimo={};ultimoItems={partidos:{},pizarras:{}};ultimoFoto={};FOTOS={};datosHechos=false;clearTimeout(tReintento)}
+resetSync();
+const esLista=k=>KL.includes(k);
+function mapaLocal(k){if(k==='club')return S.club||{};if(k==='asistencia')return S.asistencia||{};const o={};(S[k]||[]).forEach(x=>{if(x&&x.id)o[x.id]=k==='jugadores'?{...x,foto:''}:x});return o}
+const js=v=>JSON.stringify(v===undefined?null:v);
+function remoto(k){const it={},ord={},n={};Object.keys(SH[k]).forEach(f=>{const d=SH[k][f]||{};Object.entries(d.items||{}).forEach(([id,s])=>{it[id]=s;n[id]=+f});Object.entries(d.ord||{}).forEach(([id,o])=>ord[id]=o)});return {it,ord,n}}
+function ponerLocal(k,id,v){
+  if(k==='club'){if(v===undefined)delete S.club[id];else S.club[id]=v;return}
+  if(k==='asistencia'){S.asistencia=S.asistencia||{};if(v===undefined)delete S.asistencia[id];else S.asistencia[id]=v;return}
+  const i=S[k].findIndex(x=>x.id===id);
+  if(v===undefined){if(i>=0)S[k].splice(i,1);return}
+  if(k==='jugadores')v.foto=FOTOS[id]||'';
+  if(i>=0)S[k][i]=v;else S[k].push(v);
+}
+function ordenarLocal(k){if(!esLista(k))return;const O=ORD[k],pos=new Map(S[k].map((x,i)=>[x.id,i]));S[k].sort((a,b)=>{const oa=O[a.id],ob=O[b.id];if(oa==null&&ob==null)return pos.get(a.id)-pos.get(b.id);if(oa==null)return 1;if(ob==null)return -1;return oa-ob||(a.id<b.id?-1:a.id>b.id?1:0)})}
+function tamFrag(k,f){const d=SH[k][f]||{};let t=0;Object.values(d.items||{}).forEach(s=>t+=s.length+40);Object.values(d.borr||{}).forEach(b=>t+=((b&&b.v)||'').length+60);return t}
+function recalcTam(k){SZ[k]={};Object.keys(SH[k]).forEach(f=>SZ[k][f]=tamFrag(k,f))}
+function fragLibre(k,len){const fs=Object.keys(SZ[k]).map(Number).sort((a,b)=>a-b);for(const f of fs)if((SZ[k][f]||0)+len<SH_MAX)return f;return fs.length?Math.max(...fs)+1:0}
+/* Orden de las listas: solo se cambia el número de los elementos que se movieron o son nuevos */
+function ordenar(k){const a=S[k],O=ORD[k],c={};let prev=-Infinity;
+  for(let i=0;i<a.length;i++){const id=a[i].id;let o=O[id];
+    if(o==null||!(o>prev)){let next=Infinity;for(let j=i+1;j<a.length;j++){const q=O[a[j].id];if(q!=null&&q>prev){next=q;break}}
+      o=next===Infinity?(prev===-Infinity?0:Math.floor(prev)+1):(prev===-Infinity?next-1:(prev+next)/2);O[id]=o;c[id]=o}
+    prev=o}
+  return c}
+/* Aplica lo que llegó de la nube sin pisar lo que esta persona cambió y todavía no subió */
+function aplicarRemoto(k,inicial){
+  const R=remoto(k),L=LAST[k],m=mapaLocal(k);let cambio=false;
+  Object.keys(R.ord).forEach(id=>{if(!(id in L)||inicial)ORD[k][id]=R.ord[id]});
+  if(inicial){
+    if(k==='club')S.club={...S.club};if(k==='asistencia')S.asistencia={};if(esLista(k))S[k]=[];
+  }
+  Object.keys(R.it).forEach(id=>{const s=R.it[id];LOC[k][id]=R.n[id];if(s===L[id]&&!inicial)return;if(!inicial&&INF.has(k+'|'+id))return;
+    const loc=inicial?L[id]:(id in m?js(m[id]):undefined);
+    if(inicial||loc===L[id]){ponerLocal(k,id,JSON.parse(s));if(R.ord[id]!=null)ORD[k][id]=R.ord[id];cambio=true}
+    L[id]=s});
+  Object.keys(L).forEach(id=>{if(id in R.it||INF.has(k+'|'+id))return;const loc=id in m?js(m[id]):undefined;if(loc===L[id]){ponerLocal(k,id,undefined);cambio=true}delete L[id];delete LOC[k][id]});
+  if(cambio)ordenarLocal(k);return cambio}
+function leerPapelera(){
+  const p=PAPEL.filter(x=>!KS.includes(x.k));
+  KS.forEach(k=>Object.keys(SH[k]).forEach(f=>Object.entries((SH[k][f]||{}).borr||{}).forEach(([id,b])=>{if(b&&b.v)p.push({k,id,v:b.v,t:b.t||0,por:b.por||'',f:+f})})));
+  PAPEL=p}
+/* --- Arranque del club --- */
 function abrirClub(clubId,recienCreado){
-  cortarSubs();CLUB=clubId;MODO='nube';LECT.cargado=false;PLAN={cargado:false,pago:false,hasta:'',tipo:''};
+  cortarSubs();CLUB=clubId;MODO='nube';LECT.cargado=false;PLAN={cargado:false,pago:false,hasta:'',tipo:''};resetSync();
   pantallaCompleta(`${marcaGrande()}<p class="sub">Cargando los datos del club…</p>`);
   const ref=db.collection('clubes').doc(clubId);
   let listos={club:false,datos:false,partidos:false,pizarras:false,fotos:false};
   if(!recienCreado)S={version:1,demo:false,contenidos:[...CONT_BASE],club:{nombre:'',categoria:'',temporada:String(HOY.getFullYear()),rama:'F',escudo:'',duracionTiempo:45},jugadores:[],tareas:[],pizarras:[],microciclos:[],sesiones:[],partidos:[],asistencia:{},evaluaciones:[]};
-  const listo=k=>{if(listos[k])return;listos[k]=true;if(Object.values(listos).every(Boolean)){document.body.classList.remove('sin-menu');migrarNube();{const h=(location.hash||'').replace('#','');if(VISTAS[h])ruta=h}cargarPlan().then(()=>{pintar();estadoNube('guardado')})}};
+  const listo=k=>{if(listos[k])return;listos[k]=true;if(Object.values(listos).every(Boolean)){document.body.classList.remove('sin-menu');migrarNube();{const h=(location.hash||'').replace('#','');if(VISTAS[h])ruta=h}cargarPlan().then(()=>{pintar();estadoNube(navigator.onLine===false?'offline':'guardado');setTimeout(tareasDiarias,15000)})}};
   subs.push(ref.onSnapshot(d=>{
     if(!d.exists){cortarSubs();pantallaClub('El club ya no existe.');return}
     CLUBDOC=d.data();
-    if(!CLUBDOC.miembros||!CLUBDOC.miembros[USR.uid]){cortarSubs();db.collection('usuarios').doc(USR.uid).set({clubId:firebase.firestore.FieldValue.delete()},{merge:true});pantallaClub('Ya no formás parte de ese club.');return}
+    if(!CLUBDOC.miembros||!CLUBDOC.miembros[USR.uid]){if(d.metadata&&d.metadata.fromCache)return;cortarSubs();db.collection('usuarios').doc(USR.uid).set({clubId:firebase.firestore.FieldValue.delete()},{merge:true});pantallaClub('Ya no formás parte de ese club.');return}
     if(esAdmin()&&!subs.solic){subs.solic=true;subs.push(ref.collection('solicitudes').onSnapshot(qs=>{SOLIC=qs.docs.map(x=>({uid:x.id,...x.data()}));pintarMenu();if(ruta==='ajustes'&&!$('#capaModal').innerHTML)pintar()},()=>{}))}
     if(listos.club)repintarRemoto();listo('club');
   },e=>{cortarSubs();if(e&&e.code==='permission-denied'){db.collection('usuarios').doc(USR.uid).set({clubId:firebase.firestore.FieldValue.delete()},{merge:true}).catch(()=>{});pantallaClub('Ya no formás parte de ese club.')}else pantallaClub(errTxt(e))}));
-  subs.push(ref.collection('datos').onSnapshot(qs=>{
-    let cambio=false;
-    qs.docChanges().forEach(ch=>{const k=ch.doc.id;if(!COL_DOC.includes(k))return;const s=ch.doc.data().v;if(s===ultimo[k])return;
-      if(listos.datos&&localSinSubir(k))return; // hay cambios propios sin subir: gana el último que guarda
-      ultimo[k]=s;let v=JSON.parse(s);if(k==='jugadores')v=v.map(j=>({...j,foto:FOTOS[j.id]||''}));S[k]=v;cambio=true});
-    if(!listos.datos&&qs.empty&&!recienCreado&&qs.metadata&&qs.metadata.fromCache){pantallaCompleta(marcaGrande()+'<p class="acc-err">No hay conexión para traer los datos del club. Conectate a internet y tocá Reintentar.</p><button class="btn" onclick="location.reload()">Reintentar</button>');return}
-    if(!listos.datos&&qs.empty){if(!recienCreado){S=clubVacio();S.club.nombre=(CLUBDOC&&CLUBDOC.nombre)||'Mi club';if(CLUBDOC&&CLUBDOC.categoria)S.club.categoria=CLUBDOC.categoria;if(CLUBDOC&&CLUBDOC.rama)S.club.rama=CLUBDOC.rama}subirTodo()}
-    if(cambio&&listos.datos)repintarRemoto();listo('datos');
-  },e=>{pantallaCompleta(marcaGrande()+'<p class="acc-err">No se pudieron cargar los datos: '+esc(errTxt(e))+'</p><button class="btn" onclick="location.reload()">Reintentar</button>')}));
+  const sinConexion=t=>pantallaCompleta(marcaGrande()+'<p class="acc-err">'+t+'</p><button class="btn" onclick="location.reload()">Reintentar</button>');
+  let migrando=false,fusionHecha=false;
+  subs.push(ref.collection('datos').where(firebase.firestore.FieldPath.documentId(),'<','~').onSnapshot({includeMetadataChanges:true},qs=>{
+    const cambiados=new Set();
+    qs.docChanges().forEach(ch=>{const id=ch.doc.id;RAW[id]=ch.type==='removed'?undefined:ch.doc.data();cambiados.add(id)});
+    const cache=!!(qs.metadata&&qs.metadata.fromCache);
+    const fmt=RAW.formato&&RAW.formato.v>=2;
+    if(!datosHechos){
+      if(!fmt){
+        if(cache){if(qs.empty&&!recienCreado)sinConexion('No hay conexión para traer los datos del club. Conectate a internet y tocá Reintentar.');else if(!qs.empty)sinConexion('Metodika se actualizó. Conectate a internet una vez para terminar la actualización y tocá Reintentar.');return}
+        if(migrando)return;migrando=true;
+        migrarFormato(ref,recienCreado).then(r=>{migrando=false;if(r==='ya')return;datosHechos=true;listo('datos');setTimeout(()=>KS.forEach(k=>fusionarViejo(ref,k)),0)}).catch(e=>{migrando=false;console.warn(e);sinConexion('No se pudo actualizar el formato de los datos: '+esc(errTxt(e)))});
+        return;
+      }
+      FMT=2;
+      KS.forEach(k=>{SH[k]={};LAST[k]={};LOC[k]={};ORD[k]={};Object.keys(RAW).forEach(id=>{const m=/^([a-z]+)@(\d+)$/.exec(id);if(m&&m[1]===k&&RAW[id])SH[k][m[2]]=RAW[id]});recalcTam(k);aplicarRemoto(k,true)});
+      if(RAW.contenidos&&RAW.contenidos.v){ultimo.contenidos=RAW.contenidos.v;try{S.contenidos=JSON.parse(RAW.contenidos.v)}catch(e){}}
+      leerPapelera();datosHechos=true;listo('datos');
+      if(!cache){fusionHecha=true;setTimeout(()=>KS.forEach(k=>fusionarViejo(ref,k)),0)}return;
+    }
+    if(FMT!==2)return;
+    let cambio=false;const tocados=new Set();
+    cambiados.forEach(id=>{const m=/^([a-z]+)@(\d+)$/.exec(id);if(m&&KS.includes(m[1])){if(RAW[id])SH[m[1]][m[2]]=RAW[id];else delete SH[m[1]][m[2]];tocados.add(m[1])}});
+    tocados.forEach(k=>{recalcTam(k);if(aplicarRemoto(k,false))cambio=true});
+    if(tocados.size)leerPapelera();
+    if(cambiados.has('contenidos')&&RAW.contenidos&&!INF.has('contenidos|')){const s=RAW.contenidos.v;if(s!==ultimo.contenidos){if(!(tSync&&valorDoc('contenidos')!==ultimo.contenidos)){ultimo.contenidos=s;try{S.contenidos=JSON.parse(s)}catch(e){}cambio=true}}}
+    if(!cache)KS.forEach(k=>{if(cambiados.has(k)||cambiados.has(k+'~base'))if(fusionarViejo(ref,k))cambio=true});
+    if(!cache&&!fusionHecha){fusionHecha=true;KS.forEach(k=>{if(fusionarViejo(ref,k))cambio=true})}
+    if(cambio)repintarRemoto()
+  },e=>{sinConexion('No se pudieron cargar los datos: '+esc(errTxt(e)))}));
   COL_ITEMS.forEach(k=>subs.push(ref.collection(k).onSnapshot(qs=>{
     let cambio=false;
-    qs.docChanges().forEach(ch=>{const id=ch.doc.id;if(ch.type==='removed'){if(ultimoItems[k][id]!==undefined){delete ultimoItems[k][id];S[k]=S[k].filter(x=>x.id!==id);cambio=true}return}
-      const s=ch.doc.data().v;if(s===ultimoItems[k][id])return;const loc=S[k].find(x=>x.id===id);if(listos[k]&&loc&&JSON.stringify(loc)!==ultimoItems[k][id])return;
+    qs.docChanges().forEach(ch=>{const id=ch.doc.id,d=ch.type==='removed'?null:ch.doc.data();
+      if(d&&!d.borrado)SRVI[k][id]=d.v;else delete SRVI[k][id];
+      if(INF.has(k+'|'+id))return;PAPEL=PAPEL.filter(x=>!(x.k===k&&x.id===id));
+      if(!d||d.borrado){if(d&&d.borrado&&d.v)PAPEL.push({k,id,v:d.v,t:d.tb||0,por:d.por||''});
+        delete SRVI[k][id];if(ultimoItems[k][id]!==undefined){const loc=S[k].find(x=>x.id===id);if(!loc||JSON.stringify(loc)===ultimoItems[k][id]){S[k]=S[k].filter(x=>x.id!==id);cambio=true}delete ultimoItems[k][id]}return}
+      const s=d.v;SRVI[k][id]=s;if(s===ultimoItems[k][id])return;const loc=S[k].find(x=>x.id===id);if(listos[k]&&loc&&JSON.stringify(loc)!==ultimoItems[k][id]){ultimoItems[k][id]=s;return}
       ultimoItems[k][id]=s;const v=JSON.parse(s);if(k==='pizarras')normalizar(v);const i=S[k].findIndex(x=>x.id===id);if(i>=0)S[k][i]=v;else S[k].push(v);cambio=true});
     if(cambio&&listos[k])repintarRemoto();listo(k);
   },e=>aviso(errTxt(e)))));
   subs.push(ref.collection('fotos').onSnapshot(qs=>{
-    qs.docChanges().forEach(ch=>{const id=ch.doc.id;if(ch.type==='removed'){delete FOTOS[id];delete ultimoFoto[id]}else{FOTOS[id]=ch.doc.data().d||'';ultimoFoto[id]=FOTOS[id]}const j=S.jugadores.find(x=>x.id===id);if(j)j.foto=FOTOS[id]||''});
+    qs.docChanges().forEach(ch=>{const id=ch.doc.id;if(INF.has('fotos|'+id))return;if(ch.type==='removed'){delete FOTOS[id];delete ultimoFoto[id]}else{FOTOS[id]=ch.doc.data().d||'';ultimoFoto[id]=FOTOS[id]}const j=S.jugadores.find(x=>x.id===id);if(j)j.foto=FOTOS[id]||''});
     if(listos.fotos)repintarRemoto();listo('fotos');
   },e=>{pantallaCompleta(marcaGrande()+'<p class="acc-err">No se pudieron cargar los datos: '+esc(errTxt(e))+'</p><button class="btn" onclick="location.reload()">Reintentar</button>')}));
 }
+/* Pasa un club del formato viejo (un documento por sección) al nuevo. Los documentos viejos NO se borran:
+   quedan como respaldo y para recibir cambios de alguien que tenga abierta una versión vieja de la app. */
+async function migrarFormato(ref,recienCreado){
+  const viejos=KS.filter(k=>RAW[k]&&RAW[k].v);
+  if(!recienCreado&&viejos.length){
+    viejos.forEach(k=>{try{const v=JSON.parse(RAW[k].v);if(k==='jugadores')S[k]=v.map(j=>({...j,foto:FOTOS[j.id]||''}));else if(v!=null)S[k]=v}catch(e){console.warn('No se pudo leer',k,e)}});
+    if(RAW.contenidos&&RAW.contenidos.v)try{S.contenidos=JSON.parse(RAW.contenidos.v)}catch(e){}
+  }else if(!recienCreado){S=clubVacio();S.club.nombre=(CLUBDOC&&CLUBDOC.nombre)||'Mi club';if(CLUBDOC&&CLUBDOC.categoria)S.club.categoria=CLUBDOC.categoria;if(CLUBDOC&&CLUBDOC.rama)S.club.rama=CLUBDOC.rama}
+  KS.forEach(k=>{if(esLista(k))S[k]=(S[k]||[]).filter(x=>x&&x.id)});
+  const pay=armarEscrituras(true),dref=ref.collection('datos'),ts=firebase.firestore.FieldValue.serverTimestamp();
+  const bases=db.batch();let hayB=false;viejos.forEach(k=>{if(!RAW[k+'~base']){bases.set(dref.doc(k+'~base'),{v:RAW[k].v});hayB=true}});if(hayB)try{await bases.commit()}catch(e){console.warn('copia base',e)}
+  const extra={};if(!(RAW.contenidos&&RAW.contenidos.v))extra.contenidos={v:valorDoc('contenidos'),t:ts,por:USR.uid};
+  const r=await db.runTransaction(async tx=>{
+    const f=await tx.get(dref.doc('formato'));if(f.exists&&f.data().v>=2)return 'ya';
+    Object.entries(pay).forEach(([id,p])=>tx.set(dref.doc(id),{...p,t:ts},{merge:true}));
+    Object.entries(extra).forEach(([id,p])=>tx.set(dref.doc(id),p));
+    tx.set(dref.doc('formato'),{v:2,t:ts,por:USR.uid,desde:viejos.length?'migracion':'nuevo'});
+    return 'ok';
+  });
+  if(r==='ya'){KS.forEach(k=>{LAST[k]={};LOC[k]={};ORD[k]={};SZ[k]={};SH[k]={}});return 'ya'}
+  FMT=2;ultimo.contenidos=valorDoc('contenidos');
+  KS.forEach(k=>Object.keys(pay).forEach(id=>{const m=/^([a-z]+)@(\d+)$/.exec(id);if(m&&m[1]===k){SH[k][m[2]]=JSON.parse(JSON.stringify({items:pay[id].items||{},ord:pay[id].ord||{},borr:{}}));}}));
+  KS.forEach(k=>recalcTam(k));
+  return 'ok';
+}
+/* Si alguien con una versión vieja abierta guardó en el documento viejo, se suman sus cambios sin pisar lo nuevo */
+function fusionarViejo(ref,k){
+  const W=RAW[k],B=RAW[k+'~base'];if(!W||!B||W.v===B.v)return false;
+  let w,b;try{w=JSON.parse(W.v);b=JSON.parse(B.v)}catch(e){return false}
+  const aMapa=v=>{if(esLista(k)){const o={};(v||[]).forEach(x=>{if(x&&x.id)o[x.id]=k==='jugadores'?{...x,foto:''}:x});return o}return v||{}};
+  const mw=aMapa(w),mb=aMapa(b),m=mapaLocal(k);let cambio=false;
+  new Set([...Object.keys(mw),...Object.keys(mb)]).forEach(id=>{const sw=id in mw?js(mw[id]):undefined,sb=id in mb?js(mb[id]):undefined;if(sw===sb)return;
+    const sl=id in m?js(m[id]):undefined;if(sl===sw||sl!==sb)return;
+    ponerLocal(k,id,sw===undefined?undefined:JSON.parse(sw));cambio=true});
+  RAW[k+'~base']={v:W.v};
+  ref.collection('datos').doc(k+'~base').set({v:W.v}).catch(()=>{});
+  if(cambio){ordenarLocal(k);guardar()}
+  return cambio}
 function migrarNube(){S.jugadores.forEach(j=>j.foto=FOTOS[j.id]||j.foto||'');if(!S.contenidos||!S.contenidos.length)S.contenidos=[...CONT_BASE];S.pizarras.forEach(normalizar);if(CLUBDOC&&CLUBDOC.nombre&&!S.club.nombre)S.club.nombre=CLUBDOC.nombre;if(migrarTareasBase())guardar()}
 function valorDoc(k){let v=S[k];if(k==='jugadores')v=v.map(j=>({...j,foto:''}));return JSON.stringify(v??null)}
-function localSinSubir(k){return tSync&&valorDoc(k)!==ultimo[k]}
 function repintarRemoto(){if($('#capaModal').innerHTML||(ruta==='pizarra')||(ruta==='partido'&&tabPartido==='vivo'&&pend)){pintarPend=true;return}pintar()}
 function programarSync(){estadoNube('guardando');clearTimeout(tSync);tSync=setTimeout(sincronizar,700)}
-const LIM_DOC=900000,TXE=new TextEncoder(),bytes=t=>TXE.encode(t).length,NOMBRE_DOC={club:'Datos del club',contenidos:'Contenidos',jugadores:'Plantel',tareas:'Biblioteca de tareas',microciclos:'Microciclos',sesiones:'Sesiones',asistencia:'Asistencia',evaluaciones:'Evaluaciones'};let avisoGrande=false;
+const TXE=new TextEncoder(),bytes=t=>TXE.encode(t).length;
+/* Arma lo que hay que escribir en los fragmentos: solo lo que cambió */
+function armarEscrituras(todo){
+  const pay={},DEL=firebase.firestore.FieldValue.delete(),P=(k,f)=>{const id=k+'@'+f;return pay[id]||(pay[id]={items:{},ord:{},borr:{}})};
+  KS.forEach(k=>{
+    if(todo){LAST[k]={};LOC[k]={};ORD[k]={};SZ[k]={};SH[k]={}}
+    const m=mapaLocal(k),L=LAST[k],co=esLista(k)?ordenar(k):{};
+    Object.keys(m).forEach(id=>{const s=js(m[id]);if(s===L[id]&&co[id]==null)return;
+      let f=LOC[k][id];
+      if(f!=null&&(SZ[k][f]||0)-((L[id]||'').length)+s.length>SH_TOPE){const p=P(k,f);p.items[id]=DEL;p.ord[id]=DEL;SZ[k][f]-=((L[id]||'').length+40);f=null}
+      if(f==null)f=fragLibre(k,s.length+40);
+      const p=P(k,f);p.items[id]=s;if(esLista(k))p.ord[id]=ORD[k][id];
+      const pp=PAPEL.find(x=>x.k===k&&x.id===id);if(pp){P(k,pp.f).borr[id]=DEL;PAPEL=PAPEL.filter(x=>x!==pp)}
+      SZ[k][f]=(SZ[k][f]||0)-((L[id]||'').length)+s.length+40;L[id]=s;LOC[k][id]=f});
+    Object.keys(L).forEach(id=>{if(id in m)return;const f=LOC[k][id]??0,p=P(k,f);p.items[id]=DEL;p.ord[id]=DEL;
+      const t=Date.now(),por=USR?USR.uid:'';p.borr[id]={v:L[id],t,por};PAPEL.push({k,id,v:L[id],t,por,f});delete L[id];delete LOC[k][id];delete ORD[k][id]});
+  });
+  Object.values(pay).forEach(p=>['items','ord','borr'].forEach(c=>{if(!Object.keys(p[c]).length)delete p[c]}));
+  return pay}
+let sincronizando=false;
 async function sincronizar(){
-  tSync=null;if(MODO!=='nube'||!CLUB)return;
-  const ref=db.collection('clubes').doc(CLUB),ops=[],ts=firebase.firestore.FieldValue.serverTimestamp();
-  const grandes=[];COL_DOC.forEach(k=>{const s=valorDoc(k);if(bytes(s)>LIM_DOC){grandes.push(k);return}if(s!==ultimo[k]){ultimo[k]=s;ops.push(b=>b.set(ref.collection('datos').doc(k),{v:s,t:ts,por:USR.uid}))}});
-  COL_ITEMS.forEach(k=>{const vivos=new Set();S[k].forEach(it=>{vivos.add(it.id);const s=JSON.stringify(it);if(s!==ultimoItems[k][it.id]){ultimoItems[k][it.id]=s;ops.push(b=>b.set(ref.collection(k).doc(it.id),{v:s,t:ts,por:USR.uid}))}});
-    Object.keys(ultimoItems[k]).forEach(id=>{if(!vivos.has(id)){delete ultimoItems[k][id];ops.push(b=>b.delete(ref.collection(k).doc(id)))}})});
-  const ids=new Set(S.jugadores.map(j=>j.id));
-  S.jugadores.forEach(j=>{const f=j.foto||'';if(f!==(ultimoFoto[j.id]||'')){ultimoFoto[j.id]=f;FOTOS[j.id]=f;ops.push(b=>f?b.set(ref.collection('fotos').doc(j.id),{d:f}):b.delete(ref.collection('fotos').doc(j.id)))}});
-  Object.keys(ultimoFoto).forEach(id=>{if(!ids.has(id)){delete ultimoFoto[id];delete FOTOS[id];ops.push(b=>b.delete(ref.collection('fotos').doc(id)))}});
-  if(grandes.length)aviso('No se pudo guardar en la nube: '+grandes.map(k=>NOMBRE_DOC[k]||k).join(', ')+' superó el espacio máximo. Borrá elementos viejos para liberar lugar.');
-  else if(COL_DOC.some(k=>bytes(valorDoc(k))>LIM_DOC*.8)&&!avisoGrande){avisoGrande=true;aviso('Atención: '+COL_DOC.filter(k=>bytes(valorDoc(k))>LIM_DOC*.8).map(k=>NOMBRE_DOC[k]||k).join(', ')+' está cerca del límite de espacio en la nube.')}
-  if(!ops.length){estadoNube(grandes.length?'error':'guardado');return}
-  try{for(let i=0;i<ops.length;i+=400){const b=db.batch();ops.slice(i,i+400).forEach(f=>f(b));await b.commit()}estadoNube(grandes.length?'error':navigator.onLine===false?'offline':'guardado')}
-  catch(e){estadoNube('error');aviso('No se pudo guardar en la nube: '+errTxt(e));ultimo={};Object.keys(ultimoItems).forEach(k=>ultimoItems[k]={})}
+  tSync=null;if(MODO!=='nube'||!CLUB||FMT!==2)return;
+  const ref=db.collection('clubes').doc(CLUB),ops=[],ts=firebase.firestore.FieldValue.serverTimestamp(),uidU=USR.uid;
+  Object.entries(armarEscrituras(false)).forEach(([id,p])=>{const m=/^([a-z]+)@/.exec(id),ks=Object.keys(p.items||{}).concat(Object.keys(p.borr||{})).map(x=>m[1]+'|'+x);ops.push({n:JSON.stringify(p).length,ks,f:b=>b.set(ref.collection('datos').doc(id),{...p,t:ts,por:uidU},{merge:true})})});
+  {const s=valorDoc('contenidos');if(s!==ultimo.contenidos){ultimo.contenidos=s;ops.push({n:s.length,ks:['contenidos|'],f:b=>b.set(ref.collection('datos').doc('contenidos'),{v:s,t:ts,por:uidU})})}}
+  COL_ITEMS.forEach(k=>{const vivos=new Set();S[k].forEach(it=>{vivos.add(it.id);const s=JSON.stringify(it);if(s!==ultimoItems[k][it.id]){ultimoItems[k][it.id]=s;PAPEL=PAPEL.filter(x=>!(x.k===k&&x.id===it.id));ops.push({n:s.length,ks:[k+'|'+it.id],f:b=>b.set(ref.collection(k).doc(it.id),{v:s,t:ts,por:uidU})})}});
+    Object.keys(ultimoItems[k]).forEach(id=>{if(!vivos.has(id)){const v=ultimoItems[k][id],tb=Date.now();delete ultimoItems[k][id];PAPEL.push({k,id,v,t:tb,por:uidU});ops.push({n:v.length,ks:[k+'|'+id],f:b=>b.set(ref.collection(k).doc(id),{v,borrado:true,tb,t:ts,por:uidU})})}})});
+  S.jugadores.forEach(j=>{const f=j.foto||'';if(f!==(ultimoFoto[j.id]||'')){ultimoFoto[j.id]=f;FOTOS[j.id]=f;ops.push({n:f.length,ks:['fotos|'+j.id],f:b=>f?b.set(ref.collection('fotos').doc(j.id),{d:f}):b.delete(ref.collection('fotos').doc(j.id))})}});
+  if(!ops.length){if(!sincronizando)estadoNube('guardado');return}
+  sincronizando=true;
+  const marca={};ops.forEach(o=>(o.ks||[]).forEach(x=>INF.set(x,marca)));
+  const soltar=ok=>{const ks=new Set(),its=[];ops.forEach(o=>(o.ks||[]).forEach(x=>{if(INF.get(x)===marca){INF.delete(x);const [k,id]=x.split('|');if(KS.includes(k))ks.add(k);else if(COL_ITEMS.includes(k))its.push([k,id])}}));
+    if(!ok)return;
+    // lo que llegó de otras personas mientras esto subía se aplica ahora
+    let c=false;ks.forEach(k=>{if(aplicarRemoto(k,false))c=true});
+    its.forEach(([k,id])=>{const sv=SRVI[k][id],loc=S[k].find(x=>x.id===id),ls=loc?JSON.stringify(loc):undefined;if(sv===ultimoItems[k][id]||ls!==ultimoItems[k][id])return;
+      if(sv===undefined){S[k]=S[k].filter(x=>x.id!==id);delete ultimoItems[k][id]}else{const v=JSON.parse(sv);if(k==='pizarras')normalizar(v);const i=S[k].findIndex(x=>x.id===id);if(i>=0)S[k][i]=v;else S[k].push(v);ultimoItems[k][id]=sv}c=true});
+    if(c)repintarRemoto()};
+  try{let i=0;while(i<ops.length){const b=db.batch();let n=0,c=0;while(i<ops.length&&c<400&&(c===0||n+ops[i].n<8000000)){ops[i].f(b);n+=ops[i].n;c++;i++}await b.commit()}
+    soltar(true);
+    sincronizando=false;if(!tSync)estadoNube(navigator.onLine===false?'offline':'guardado')}
+  catch(e){sincronizando=false;console.warn(e);estadoNube('error');aviso('No se pudo guardar en la nube: '+errTxt(e)+'. Lo que hiciste sigue en pantalla y se vuelve a intentar solo.');
+    // Lo que el servidor tiene de verdad vuelve a ser la referencia, así se reintenta todo lo que faltó
+    KS.forEach(k=>{const R=remoto(k);LAST[k]={...R.it};LOC[k]={...R.n}});ultimo={contenidos:RAW.contenidos&&RAW.contenidos.v};COL_ITEMS.forEach(k=>ultimoItems[k]={...SRVI[k]});ultimoFoto={...FOTOS};soltar(false);
+    clearTimeout(tReintento);tReintento=setTimeout(()=>{if(MODO==='nube')sincronizar()},15000)}
 }
+async function subirTodo(){KS.forEach(k=>{LAST[k]={}});ultimo={};ultimoItems={partidos:{},pizarras:{}};ultimoFoto={};await sincronizar()}
 function guardarYa(){if(tSync){clearTimeout(tSync);sincronizar()}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')guardarYa()});
 window.addEventListener('pagehide',guardarYa);
-window.addEventListener('beforeunload',e=>{if(tSync){guardarYa();e.preventDefault();e.returnValue=''}});
-async function subirTodo(){ultimo={};ultimoItems={partidos:{},pizarras:{}};ultimoFoto={};await sincronizar()}
+window.addEventListener('beforeunload',e=>{if(tSync||sincronizando){guardarYa();e.preventDefault();e.returnValue=''}});
+
+/* ---------- Papelera ---------- */
+const PAPEL_NOM={jugadores:['Jugador/a','👤'],tareas:['Tarea','📋'],microciclos:['Microciclo','🗓'],sesiones:['Sesión','🏃'],evaluaciones:['Evaluación','📊'],partidos:['Partido','⚽'],pizarras:['Pizarra','🧩']};
+function nombrePapel(x){let v={};try{v=JSON.parse(x.v)||{}}catch(e){}
+  if(x.k==='jugadores')return ((v.dorsal?v.dorsal+' · ':'')+(v.nombre||'')+' '+(v.apellido||'')).trim();
+  if(x.k==='sesiones')return (v.titulo||'Sesión')+(v.fecha?' · '+fCorta(v.fecha):'');
+  if(x.k==='partidos')return 'vs '+(v.rival||'?')+(v.fecha?' · '+fCorta(v.fecha):'');
+  if(x.k==='evaluaciones'){const j=jugador(v.jugId);return (j?j.nombre+' '+j.apellido:'Evaluación')+(v.fecha?' · '+fCorta(v.fecha):'')}
+  return v.titulo||v.nombre||'Sin nombre'}
+function papeleraVisible(){return PAPEL.filter(x=>PAPEL_NOM[x.k]).sort((a,b)=>(b.t||0)-(a.t||0))}
+function recuperarPapel(k,id){
+  const x=PAPEL.find(p=>p.k===k&&p.id===id);if(!x)return;let v;try{v=JSON.parse(x.v)}catch(e){aviso('No se pudo recuperar');return}
+  if(S[k].some(y=>y.id===id)){aviso('Ya está recuperado');return}
+  if(k==='jugadores')v.foto=FOTOS[id]||'';if(k==='pizarras')normalizar(v);
+  S[k].push(v);
+  if(k==='sesiones'){const a=PAPEL.find(p=>p.k==='asistencia'&&p.id==='s:'+id);if(a)try{S.asistencia['s:'+id]=JSON.parse(a.v)}catch(e){}}
+  guardar();aviso((PAPEL_NOM[k]||['Elemento'])[0]+' recuperada/o');pintar()}
+function panelPapeleraHtml(){
+  if(MODO!=='nube')return '';const L=papeleraVisible(),info=(CLUBDOC&&CLUBDOC.info)||{};
+  return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>🗑 Papelera</h3><div class="der"><span class="chip">${L.length}</span></div></div>
+    <p class="sub" style="margin:0 0 10px;font-size:13.5px">Todo lo que se borra queda acá ${PAPEL_DIAS} días. Si alguien borró algo sin querer, tocá <b>Recuperar</b>.</p>
+    ${L.length?`<div class="lista" style="max-height:340px;overflow:auto">${L.slice(0,150).map(x=>`<div class="fila"><span style="font-size:18px">${PAPEL_NOM[x.k][1]}</span><div style="flex:1;min-width:0"><b>${esc(nombrePapel(x))}</b><div class="sub" style="font-size:12.5px">${PAPEL_NOM[x.k][0]} · borrado ${x.t?new Date(x.t).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''}${info[x.por]&&info[x.por].nombre?' por '+esc(info[x.por].nombre):''}</div></div><button class="btn chico" data-recup="${esc(x.k)}|${esc(x.id)}">Recuperar</button></div>`).join('')}</div>`:'<div class="sub" style="font-size:13.5px">La papelera está vacía.</div>'}</div>`}
+function conectarPapelera(el){$$('[data-recup]',el).forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.recup.split('|');recuperarPapel(k,id)})}
+
+/* ---------- Copias automáticas en la nube (una por día, se guardan las últimas 14) ---------- */
+async function comprimir(txt){try{if(typeof CompressionStream==='undefined')throw 0;const s=new Blob([txt]).stream().pipeThrough(new CompressionStream('gzip'));const u8=new Uint8Array(await new Response(s).arrayBuffer());let b='';for(let i=0;i<u8.length;i+=32768)b+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));return {d:btoa(b),gz:true}}catch(e){return {d:txt,gz:false}}}
+async function descomprimir(d,gz){if(!gz)return d;const bin=atob(d),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const s=new Blob([u8]).stream().pipeThrough(new DecompressionStream('gzip'));return await new Response(s).text()}
+function copiaSinFotos(){const c=JSON.parse(JSON.stringify(S));c.jugadores=(c.jugadores||[]).map(j=>({...j,foto:''}));return c}
+async function respaldoDiario(){
+  if(MODO!=='nube'||FMT!==2||navigator.onLine===false)return;
+  const hoy=iso(new Date()),clave='mtk_resp_'+CLUB;try{if(localStorage.getItem(clave)===hoy)return}catch(e){}
+  const dref=db.collection('clubes').doc(CLUB).collection('datos'),ir=dref.doc('~resp-indice');
+  const ix=await ir.get();const dias=(ix.exists&&ix.data().dias)||{};
+  if(!dias[hoy]){
+    const {d,gz}=await comprimir(JSON.stringify(copiaSinFotos())),CH=700000,n=Math.max(1,Math.ceil(d.length/CH)),b=db.batch(),DEL=firebase.firestore.FieldValue.delete();
+    for(let i=0;i<n;i++)b.set(dref.doc('~resp.'+hoy+'.'+i),{d:d.slice(i*CH,(i+1)*CH)});
+    const viejos=Object.keys(dias).sort().reverse().slice(RESP_DIAS-1);
+    viejos.forEach(f=>{for(let i=0;i<(dias[f].n||1);i++)b.delete(dref.doc('~resp.'+f+'.'+i))});
+    const upd={dias:{[hoy]:{n,gz,bytes:d.length,t:Date.now(),por:USR.uid,nom:(PERFIL&&PERFIL.nombre)||''}}};viejos.forEach(f=>upd.dias[f]=DEL);
+    b.set(ir,upd,{merge:true});await b.commit();
+  }
+  try{localStorage.setItem(clave,hoy)}catch(e){}
+}
+async function bajarRespaldo(f){const dref=db.collection('clubes').doc(CLUB).collection('datos'),ix=await dref.doc('~resp-indice').get(),r=((ix.exists&&ix.data().dias)||{})[f];if(!r)throw new Error('No existe esa copia');
+  let d='';for(let i=0;i<(r.n||1);i++){const x=await dref.doc('~resp.'+f+'.'+i).get();if(!x.exists)throw new Error('La copia está incompleta');d+=x.data().d||''}return await descomprimir(d,r.gz)}
+async function panelRespaldos(el){
+  const caja=$('#respAuto',el);if(!caja)return;
+  try{const ix=await db.collection('clubes').doc(CLUB).collection('datos').doc('~resp-indice').get();const dias=(ix.exists&&ix.data().dias)||{},fs=Object.keys(dias).sort().reverse();
+    caja.innerHTML=fs.length?`<div class="lista">${fs.map(f=>`<div class="fila"><div style="flex:1"><b>${fFecha(f)}</b><div class="sub" style="font-size:12.5px">${Math.max(1,Math.round(dias[f].bytes/1024))} KB</div></div><button class="btn chico" data-rbaj="${f}">Descargar</button>${esAdmin()?`<button class="btn chico peligro" data-rres="${f}">Volver a este día</button>`:''}</div>`).join('')}</div>`:'<div class="sub" style="font-size:13.5px">Todavía no hay copias. La primera se hace sola hoy.</div>';
+    $$('[data-rbaj]',caja).forEach(b=>b.onclick=async()=>{b.disabled=true;try{const t=await bajarRespaldo(b.dataset.rbaj);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download='metodika-copia-'+b.dataset.rbaj+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){aviso(errTxt(e))}b.disabled=false});
+    $$('[data-rres]',caja).forEach(b=>b.onclick=()=>confirmar('¿Volver al '+fFecha(b.dataset.rres)+'?','Los datos del club quedan como estaban ese día. Lo que se cargó después queda en la Papelera por si lo necesitás.','Volver a ese día',async()=>{try{const d=JSON.parse(await bajarRespaldo(b.dataset.rres));aplicarCopia(d);aviso('Datos restaurados al '+fFecha(b.dataset.rres))}catch(e){aviso(errTxt(e))}}));
+  }catch(e){caja.innerHTML='<div class="sub">No se pudieron leer las copias: '+esc(errTxt(e))+'</div>'}}
+function aplicarCopia(d){if(!d||!d.club||!Array.isArray(d.jugadores))throw new Error('La copia no es válida');(d.jugadores||[]).forEach(j=>{if(!j.foto&&FOTOS[j.id])j.foto=FOTOS[j.id]});S=d;migrar();migrarTareasBase();S.pizarras.forEach(normalizar);guardar();ir('inicio')}
+/* Tareas de mantenimiento: copia diaria y limpieza de la papelera vieja (solo admin) */
+async function tareasDiarias(){
+  try{await respaldoDiario()}catch(e){console.warn('respaldo',e)}
+  if(!esAdmin())return;
+  try{const lim=Date.now()-PAPEL_DIAS*864e5,viejos=PAPEL.filter(x=>x.t&&x.t<lim);if(!viejos.length)return;
+    const ref=db.collection('clubes').doc(CLUB),b=db.batch(),DEL=firebase.firestore.FieldValue.delete(),pay={};let n=0;
+    viejos.slice(0,300).forEach(x=>{if(KS.includes(x.k)){const id=x.k+'@'+x.f;(pay[id]=pay[id]||{borr:{}}).borr[x.id]=DEL}else{b.delete(ref.collection(x.k).doc(x.id));n++}
+      if(x.k==='jugadores'&&!S.jugadores.some(j=>j.id===x.id)){b.delete(ref.collection('fotos').doc(x.id));n++}});
+    Object.entries(pay).forEach(([id,p])=>b.set(ref.collection('datos').doc(id),p,{merge:true}));await b.commit();
+  }catch(e){console.warn('limpieza',e)}}
 
 /* ---------- Cuerpo técnico (Ajustes) ---------- */
 function panelEquipoHtml(){
@@ -3301,7 +3505,7 @@ function alEntrar(u){
     PERFIL=d.exists?d.data():{nombre:u.displayName||'',email:u.email};
     if(!d.exists)db.collection('usuarios').doc(u.uid).set({nombre:u.displayName||'',email:u.email},{merge:true});
     if(PERFIL.clubId)abrirClub(PERFIL.clubId);else if(PERFIL.pendiente)pantallaEspera();else pantallaClub();
-  }).catch(e=>pantallaAcceso(errTxt(e)));
+  }).catch(e=>{if(e&&(e.code==='unavailable'||/offline/i.test(e.message||'')))pantallaCompleta(marcaGrande()+'<p class="acc-err">No hay conexión a internet. Conectate y tocá Reintentar.</p><button class="btn" onclick="location.reload()">Reintentar</button>');else pantallaAcceso(errTxt(e))});
 }
 function iniciarNube(){
   firebase.initializeApp(FB_CONFIG);auth=firebase.auth();db=firebase.firestore();
@@ -3315,7 +3519,7 @@ function iniciarNube(){
   auth.onAuthStateChanged(u=>{
     cortarSubs();clearInterval(tEspera);
     if(u){if(registrando)return;if(primera||!USR||USR.uid!==u.uid)alEntrar(u)}
-    else{USR=null;PERFIL=null;CLUB=null;CLUBDOC=null;SOLIC=[];MODO='local';ultimo={};ultimoItems={partidos:{},pizarras:{}};ultimoFoto={};FOTOS={};pantallaAcceso()}
+    else{USR=null;PERFIL=null;CLUB=null;CLUBDOC=null;SOLIC=[];MODO='local';resetSync();pantallaAcceso()}
     primera=false;
   });
 }
@@ -3773,7 +3977,7 @@ VISTAS.ajustes=el=>{
   const c=S.club;let esc0=c.escudo;
   let tema='';try{tema=localStorage.getItem('metodika_tema')||''}catch(e){}
   const nube=MODO==='nube';
-  el.innerHTML=cabecera('Configuración','Ajustes','')+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+
+  el.innerHTML=cabecera('Configuración','Ajustes','')+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+(nube?panelPapeleraHtml():'')+
   `<div class="grilla g2" style="align-items:start"><div class="panel"><h3>Datos del club</h3><form class="form" id="fC" style="margin-top:6px">
     <div class="ancho" style="display:flex;gap:14px;align-items:center"><div class="av g" id="prevEsc">${c.escudo?`<img src="${c.escudo}" alt="">`:'?'}</div><label class="btn chico" for="escF">Subir escudo</label><input type="file" id="escF" accept="image/*" hidden></div>
     <label class="campo ancho">Nombre del club<input type="text" id="cn" name="nombre" value="${esc(c.nombre)}"></label>
@@ -3786,8 +3990,8 @@ VISTAS.ajustes=el=>{
     <div class="panel"><h3>Contenidos de entrenamiento</h3><p class="sub" style="margin:0 0 10px;font-size:14px">Son los conceptos que usás en sesiones, microciclos y tareas. Agregá los de tu metodología.</p>
       <div class="chips" id="listaCont">${CONT().map(c=>`<span class="chip">${esc(c)} <button type="button" class="btn fantasma chico" style="padding:0 2px;font-size:12px" data-qc="${esc(c)}" aria-label="Quitar ${esc(c)}">✕</button></span>`).join('')}</div>
       <div style="display:flex;gap:6px;margin-top:10px;max-width:380px"><input type="text" id="aCont" placeholder="Nuevo concepto, ej.: Salida de juego" aria-label="Nuevo concepto"><button class="btn chico" id="aContB">＋ Agregar</button></div></div>
-    <div class="panel"><h3>Copia de seguridad</h3><p class="sub" style="margin:0 0 12px;font-size:14px">${nube?'Los datos del club se guardan en la nube y los ve todo el cuerpo técnico. Igual podés guardar una copia en tu compu.':'Los datos se guardan en este dispositivo y navegador. Hacé una copia cada tanto para no perderlos o para pasarlos a otra compu.'}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="desD">Descargar copia</button><button class="btn" id="expD">Copiar mis datos</button>${nube&&!esAdmin()?'':'<label class="btn" for="impF">Restaurar desde archivo</label><input type="file" id="impF" accept=".json,application/json,text/plain" hidden>'}${nube&&!esAdmin()?'':'<button class="btn" id="impT">Pegar copia</button>'}</div></div>
+    <div class="panel"><h3>Copia de seguridad</h3><p class="sub" style="margin:0 0 12px;font-size:14px">${nube?'Los datos del club se guardan en la nube y los ve todo el cuerpo técnico. Además, Metodika hace sola una copia por día en la nube y guarda las últimas 14. Igual podés guardar una copia en tu compu.':'Los datos se guardan en este dispositivo y navegador. Hacé una copia cada tanto para no perderlos o para pasarlos a otra compu.'}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${nube?'<h4 style="margin:4px 0 8px">Copias automáticas</h4><div id="respAuto" style="margin-bottom:12px"><div class="sub" style="font-size:13.5px">Cargando…</div></div>':''}<button class="btn" id="desD">Descargar copia</button><button class="btn" id="expD">Copiar mis datos</button>${nube&&!esAdmin()?'':'<label class="btn" for="impF">Restaurar desde archivo</label><input type="file" id="impF" accept=".json,application/json,text/plain" hidden>'}${nube&&!esAdmin()?'':'<button class="btn" id="impT">Pegar copia</button>'}</div></div>
     ${nube&&!esAdmin()?'':`<div class="panel"><h3>Empezar de nuevo</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${nube?'':'<button class="btn" id="verDemo">Cargar club de ejemplo</button>'}<button class="btn peligro" id="vaciar">Borrar todo y empezar de cero</button></div></div>`}
   </div></div>`;
   const addA=()=>{const n=agregarContenido($('#aCont').value);if(n){aviso('Concepto agregado: '+n);pintar()}};
@@ -3797,15 +4001,16 @@ VISTAS.ajustes=el=>{
   $('#escF').onchange=e=>{const f=e.target.files[0];if(f)reducirFoto(f,d=>{esc0=d;$('#prevEsc').innerHTML=`<img src="${d}" alt="">`})};
   $('#gC').onclick=()=>{const d=leerForm($('#fC'));Object.assign(S.club,d,{duracionTiempo:+d.duracionTiempo||45,escudo:esc0});guardar();if(nube&&esAdmin()&&CLUBDOC.nombre!==S.club.nombre)db.collection('clubes').doc(CLUB).update({nombre:S.club.nombre}).catch(()=>{});aviso('Datos del club guardados');pintar()};
   conectarPanelEquipo(el);
+  if(nube){conectarPapelera(el);panelRespaldos(el)}
   conectarCategorias(el);
   $$('[data-tema]').forEach(b=>b.onclick=()=>{const v=b.dataset.tema;try{v?localStorage.setItem('metodika_tema',v):localStorage.removeItem('metodika_tema')}catch(e){}aplicarTema();pintar()});
   $('#desD').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='metodika-copia-'+iso(HOY)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);aviso('Copia descargada')};
   $('#expD').onclick=()=>{const txt=JSON.stringify(S);modal('Copia de tus datos',`<p class="sub" style="margin:0 0 10px">Copiá este texto y guardalo en un archivo de texto (por ejemplo en el Bloc de notas) con el nombre <b>metodika-copia.json</b>.</p><textarea id="txtD" readonly style="min-height:200px;font-family:monospace;font-size:12px">${escRaw(txt)}</textarea><div class="modal-pie"><button class="btn pri" id="copD">Copiar</button></div>`,{alMontar:m=>$('#copD',m).onclick=()=>{const ta=$('#txtD',m);navigator.clipboard.writeText(txt).then(()=>aviso('Copiado'),()=>{ta.focus();ta.select();aviso('Seleccionado: apretá Ctrl + C')})}})};
-  const restaurar=txt=>{try{const d=JSON.parse(txt);if(!d.club||!Array.isArray(d.jugadores))throw 0;confirmar('¿Restaurar esta copia?','Reemplaza todos los datos actuales por los de la copia.','Restaurar',()=>{S=d;migrar();migrarTareasBase();guardar();ir('inicio');aviso('Datos restaurados')})}catch(e){aviso('El archivo no es una copia válida de Metodika.')}};
+  const restaurar=txt=>{try{const d=JSON.parse(txt);if(!d.club||!Array.isArray(d.jugadores))throw 0;confirmar('¿Restaurar esta copia?','Reemplaza todos los datos actuales por los de la copia.'+(MODO==='nube'?' Lo que no esté en la copia queda en la Papelera.':''),'Restaurar',()=>{(d.jugadores||[]).forEach(j=>{if(!j.foto&&FOTOS[j.id])j.foto=FOTOS[j.id]});S=d;migrar();migrarTareasBase();S.pizarras.forEach(normalizar);guardar();ir('inicio');aviso('Datos restaurados')})}catch(e){aviso('El archivo no es una copia válida de Metodika.')}};
   if($('#impF'))$('#impF').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restaurar(r.result);r.readAsText(f)};
   if($('#impT'))$('#impT').onclick=()=>modal('Pegar copia',`<textarea id="pegD" style="min-height:200px;font-family:monospace;font-size:12px" placeholder="Pegá acá el texto de la copia"></textarea><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okP">Restaurar</button></div>`,{alMontar:m=>$('#okP',m).onclick=()=>{const v=$('#pegD',m).value;cerrarModal();restaurar(v)}});
   if($('#verDemo'))$('#verDemo').onclick=()=>confirmar('¿Cargar el club de ejemplo?','Reemplaza los datos actuales por el club ficticio.','Cargar ejemplo',()=>{S=crearDemo();guardar();ir('inicio')});
-  if($('#vaciar'))$('#vaciar').onclick=()=>confirmar('¿Borrar todo?','Se eliminan plantel, sesiones, partidos, asistencia y evaluaciones. Hacé una copia antes si la necesitás.','Borrar todo',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Empezá cargando los datos del club.')});
+  if($('#vaciar'))$('#vaciar').onclick=()=>confirmar('¿Borrar todo?','Se eliminan plantel, sesiones, partidos, asistencia y evaluaciones.'+(MODO==='nube'?' Quedan en la Papelera '+PAPEL_DIAS+' días por si te arrepentís.':' Hacé una copia antes si la necesitás.'),'Borrar todo',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Empezá cargando los datos del club.')});
 };
 function aplicarTema(){let t='';try{t=localStorage.getItem('metodika_tema')||''}catch(e){}if(t)document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme')}
 
@@ -3814,6 +4019,7 @@ aplicarTema();
 const JUGADA_COMP=new URLSearchParams(location.search).get('jugada');
 if(JUGADA_COMP){S=crearDemo();paginaJugada(JUGADA_COMP)}
 else if(nubeDisponible()){S=crearDemo();iniciarNube()}
+else if(/github\.io$|metodika\.com\.ar$/.test(location.hostname)){S=crearDemo();document.body.classList.add('sin-menu');$('#vista').innerHTML=`<div class="acceso">${marcaGrande()}<p class="acc-err">No se pudo conectar con la nube de Metodika. Revisá tu conexión a internet (o si tenés un bloqueador de anuncios, desactivalo para esta página) y tocá Reintentar.</p><button class="btn" onclick="location.reload()">Reintentar</button></div>`}
 else{
   S=cargar()||crearDemo();
   if(!cargar())guardar();

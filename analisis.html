@@ -269,6 +269,15 @@ window.MTK_PATH_PREFIX = "";
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <script>
+async function mtkLeerDatos(fs,clubId,k){ /* lee club o jugadores en el formato nuevo (fragmentos) o en el viejo */
+  const col=fs.collection("clubes").doc(clubId).collection("datos"),vacio=k==="club"?{}:[];
+  try{const FP=firebase.firestore.FieldPath.documentId();const q=await col.where(FP,">=",k+"@").where(FP,"<",k+"@~").get();
+    if(!q.empty){const it={},ord={};q.docs.forEach(d=>{Object.assign(it,d.data().items||{});Object.assign(ord,d.data().ord||{})});
+      if(k==="club"){const o={};for(const x in it)o[x]=JSON.parse(it[x]);return o}
+      return Object.keys(it).sort((a,b)=>(ord[a]??0)-(ord[b]??0)).map(x=>JSON.parse(it[x]))}}catch(e){}
+  const d=await col.doc(k).get();return d.exists?JSON.parse(d.data().v||(k==="club"?"{}":"[]")):vacio;
+}
+
 /* Espera la sesión de Metodika Clubes y ubica los datos dentro del club del usuario. */
 window.MTK_READY = new Promise((resolve, reject)=>{
   const fail = msg => { window.MTK_NO_CLOUD = msg; reject(new Error(msg)); };
@@ -286,8 +295,7 @@ window.MTK_READY = new Promise((resolve, reject)=>{
         window.MTK_USER_ID = u.uid;
         window.MTK_USER_NAMES = {}; window.MTK_USER_NAMES[u.uid] = (perfil.data().nombre || u.displayName || "Vos");
         try {
-          const c = await fs.collection("clubes").doc(clubId).collection("datos").doc("club").get();
-          if (c.exists) window.MTK_CLUB = JSON.parse(c.data().v || "{}");
+          window.MTK_CLUB = await mtkLeerDatos(fs, clubId, "club");
         } catch(e) {}
         resolve();
       } catch(e) { fail("No se pudo abrir el club: " + (e && e.message || e)); }
