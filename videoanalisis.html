@@ -698,7 +698,7 @@ function cargarYT(url){
   kind = "yt"; ytReady = false;
   P.video = {tipo:"youtube", url:url, id:id};
   const crear = ()=>{
-    yt = new YT.Player("ytHost", { videoId:id, playerVars:{rel:0, modestbranding:1, playsinline:1},
+    yt = new YT.Player("ytHost", { videoId:id, playerVars:{rel:0, modestbranding:1, playsinline:1, cc_load_policy:0, iv_load_policy:3},
       events:{ onReady(){ ytReady=true; renderTimeline._d=0; intentarPendiente(); } } });
   };
   if (window.YT && window.YT.Player) crear();
@@ -1466,7 +1466,8 @@ async function grabarDesdePestana(datos, titulo, uno){
   const chunks=[]; rec.ondataavailable = e=>{ if(e.data && e.data.size) chunks.push(e.data); };
   let modo="cartel", cartel=[titulo||"Recortes"];
   const loop = setInterval(()=>{ if (modo==="cartel") textoCartel(g,W,H,cartel); else cap.dibujar(g,W,H); }, 1000/30);
-  const pm = modalProgreso(); pm.style.background = "transparent"; pm.style.alignItems = "flex-end"; pm.querySelector(".box").style.maxWidth = "420px";
+  const pm = modalProgreso(); ubicarFueraDelVideo(pm);
+  try{ if (yt && yt.unloadModule){ yt.unloadModule("captions"); yt.unloadModule("cc"); } }catch(e){}
   grabando = {cancelado:false};
   playlist = null;
   let hecho = 0;
@@ -1540,6 +1541,23 @@ function barraInfo(g, W, H, txt, sub){
   g.fillStyle = "#fff"; g.font = "700 30px Barlow, Arial"; g.textBaseline = "top"; g.fillText(txt, 44, 34);
   if (sub){ g.font = "500 22px Barlow, Arial"; g.fillStyle = "#CFE3F7"; g.fillText(sub, 44, 70); }
   g.restore();
+}
+/* el cartel de progreso va al costado del video: si queda encima, sale grabado en el clip */
+function ubicarFueraDelVideo(m){
+  const box = m.querySelector(".box"); m.style.background = "transparent"; m.style.pointerEvents = "none";
+  Object.assign(box.style, {position:"fixed", margin:"0", maxWidth:"320px", width:"320px", pointerEvents:"auto", boxShadow:"0 8px 24px rgba(0,0,0,.25)"});
+  const r = $("#stage").getBoundingClientRect(), W = window.innerWidth, H = window.innerHeight, bw = 320, bh = box.offsetHeight || 190, g = 10;
+  let left, top;
+  if (W - r.right >= bw + g*2){ left = r.right + g; top = Math.max(g, Math.min(H - bh - g, r.top)); }
+  else if (r.left >= bw + g*2){ left = r.left - bw - g; top = Math.max(g, Math.min(H - bh - g, r.top)); }
+  else if (H - r.bottom >= bh + g*2){ top = r.bottom + g; left = Math.max(g, Math.min(W - bw - g, r.left)); }
+  else if (r.top >= bh + g*2){ top = r.top - bh - g; left = Math.max(g, Math.min(W - bw - g, r.left)); }
+  else { // no entra al costado: versión mínima en la esquina de abajo, fuera del cuadro del video si se puede
+    box.querySelectorAll("p.small.muted").forEach(x=>x.remove()); box.querySelector("h2").style.fontSize = "15px";
+    top = H - (box.offsetHeight||110) - 6; left = W - bw - 6;
+    if (top < r.bottom){ const sc = document.scrollingElement || document.documentElement; sc.scrollTop += (r.bottom - top) + 8; }
+  }
+  box.style.left = left + "px"; box.style.top = top + "px";
 }
 function modalProgreso(){
   return modal(`<h2>Armando el video…</h2>
