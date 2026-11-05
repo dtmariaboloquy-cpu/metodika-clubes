@@ -2533,12 +2533,18 @@ async function grabarVideoPizarra(conVoz){
   const pz=JSON.parse(JSON.stringify(PZ));pararAnim();
   const [W,H]=FORMATOS[pz.formato],pad=Math.max(W,H)*.045,ar=(W+pad*2)/(H+pad*2);
   let CW=1280,CH=Math.round(1280/ar);if(CH>1280){CH=1280;CW=Math.round(1280*ar)}if(VFMT==='vert'){CW=1080;CH=1920}else if(VFMT==='cuad'){CW=1080;CH=1080}CW+=CW%2;CH+=CH%2;
-  const marco=(im,sub)=>{if(VFMT==='cancha'){g.drawImage(im,0,0,CW,CH);return}const u=Math.min(CW,CH),m=Math.round(u*.06),fb=Math.round(u*.085);g.fillStyle='#141412';g.fillRect(0,0,CW,CH);g.textAlign='left';g.textBaseline='top';let y=m;
+  const marco=(im,sub,nota,pi)=>{if(VFMT==='cancha'){g.drawImage(im,0,0,CW,CH);return}const u=Math.min(CW,CH),m=Math.round(u*.06),fb=Math.round(u*.085);g.fillStyle='#141412';g.fillRect(0,0,CW,CH);g.textAlign='left';g.textBaseline='top';let y=m;
     const club=(S.club&&S.club.nombre)||'';if(club){g.fillStyle='#FFD400';g.font='700 '+Math.round(u*.034)+'px "Barlow Condensed",Arial';g.fillText(club.toUpperCase(),m,y);y+=Math.round(u*.055)}
-    g.fillStyle='#FFFFFF';const fs=Math.round(u*(VFMT==='vert'?.085:.065));g.font='800 '+fs+'px "Barlow Condensed",Arial';const t=(pz.nombre||'Ejercicio').toUpperCase();let tt=t;while(g.measureText(tt).width>CW-m*2&&tt.length>4)tt=tt.slice(0,-2);if(tt!==t)tt=tt.slice(0,-1)+'…';g.fillText(tt,m,y);y+=Math.round(fs*1.15);
+    g.fillStyle='#FFFFFF';let fs=Math.round(u*(VFMT==='vert'?.1:.068));const t=(pz.nombre||'Ejercicio').toUpperCase(),maxL=VFMT==='vert'?3:2;let ls;
+    const partir=()=>{const ws=t.split(/\s+/),o=[];let l='';ws.forEach(w=>{const q=l?l+' '+w:w;if(g.measureText(q).width<=CW-m*2||!l)l=q;else{o.push(l);l=w}});if(l)o.push(l);return o};
+    do{g.font='800 '+fs+'px "Barlow Condensed",Arial';ls=partir();if(ls.length<=maxL&&ls.every(l=>g.measureText(l).width<=CW-m*2))break;fs-=2}while(fs>20);
+    ls.forEach(l=>{g.fillText(l,m,y);y+=Math.round(fs*1.02)});y+=Math.round(fs*.15);
     if(sub){g.fillStyle='#CFC8B8';g.font='600 '+Math.round(u*.03)+'px Barlow,Arial';g.fillText(sub,m,y);y+=Math.round(u*.05)}
     g.fillStyle='#FFD400';g.fillRect(0,CH-fb,CW,fb);g.fillStyle='#141412';g.textBaseline='middle';g.font='800 '+Math.round(fb*.36)+'px "Barlow Condensed",Arial';g.fillText('METODIKA · MÉTODO · CANCHA · EQUIPO',m,CH-fb/2);g.textAlign='right';g.font='700 '+Math.round(fb*.3)+'px "Barlow Condensed",Arial';g.fillText('metodika.com.ar',CW-m,CH-fb/2);
-    const top=y+Math.round(u*.02),bot=CH-fb-m,aw=CW-m*2,ah=bot-top;let w=aw,h=w/ar;if(h>ah){h=ah;w=h*ar}g.drawImage(im,(CW-w)/2,top+(ah-h)/2,w,h)};
+    const reserva=VFMT==='vert'?Math.round(u*.42):0,top=y+Math.round(u*.02),bot=CH-fb-m-reserva,aw=CW-m*2,ah=bot-top;let w=aw,h=w/ar;if(h>ah){h=ah;w=h*ar}const fy=VFMT==='vert'?top+Math.round(u*.04):top+(ah-h)/2;
+    g.save();g.beginPath();if(g.roundRect)g.roundRect((CW-w)/2,fy,w,h,Math.round(u*.02));else g.rect((CW-w)/2,fy,w,h);g.clip();g.drawImage(im,(CW-w)/2,fy,w,h);g.restore();
+    if(VFMT==='vert'){let yy=fy+h+Math.round(u*.07);const NN=pz.pasos.length+1;if(NN>1){const dw=(CW-m*2-(NN-1)*12)/NN;for(let i=0;i<NN;i++){g.fillStyle=i<=pi?'#FFD400':'#3A3A34';g.fillRect(m+i*(dw+12),yy,dw,10)}yy+=Math.round(u*.06)}
+      if(nota){g.textAlign='left';g.textBaseline='top';g.fillStyle='#FFFFFF';let nf=Math.round(u*.07);const ws=nota.split(/\s+/);let l='',o=[];g.font='700 '+nf+'px Barlow,Arial';ws.forEach(w2=>{const q=l?l+' '+w2:w2;if(g.measureText(q).width<=CW-m*2||!l)l=q;else{o.push(l);l=w2}});if(l)o.push(l);o.slice(0,4).forEach(x=>{g.fillText(x,m,yy);yy+=Math.round(nf*1.2)})}}};
   const c=document.createElement('canvas');c.width=CW;c.height=CH;const g=c.getContext('2d');
   let stream=c.captureStream(0),track=stream.getVideoTracks()[0];if(!track.requestFrame){stream=c.captureStream(30);track=stream.getVideoTracks()[0]}
   let mic=null;if(conVoz){try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});mic.getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){aviso('No se pudo usar el micrófono. Revisá el permiso del navegador.');return}}
@@ -2552,7 +2558,7 @@ async function grabarVideoPizarra(conVoz){
   while(!cancel){
     const t=i*1000/fps;if(t>total)break;
     if(t<intro)cartel(pz.nombre||'Ejercicio',conVoz&&intro-t>600?'🎙 Arranca en '+Math.ceil((intro-600-t)/1000):[S.club.nombre,'Metodika'].filter(Boolean).join(' · '));
-    else{const st=estadoAnim(pz,t-intro);const im=await svgAImagen(svgPizarra(pz,{frame:st.fin?N:st.seg,over:st.over}));marco(im,N?'Paso '+Math.min(N+1,(st.fin?N:st.seg)+1)+' de '+(N+1):'')}
+    else{const st=estadoAnim(pz,t-intro);const im=await svgAImagen(svgPizarra(pz,{frame:st.fin?N:st.seg,over:st.over}));const pi=st.fin?N:(st.over?st.seg+1:st.seg);marco(im,N?'Paso '+(pi+1)+' de '+(N+1):'',((pz.notas||[])[pi]||'').trim(),pi)}
     const espera=t0+t-performance.now();if(espera>0)await new Promise(r=>setTimeout(r,espera));
     if(track.requestFrame)track.requestFrame();
     const b=$('#vbar');if(b)b.style.width=Math.round(t/total*100)+'%';
