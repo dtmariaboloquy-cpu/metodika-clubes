@@ -14,7 +14,7 @@
 <title>Metodika Clubes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap">
 <style>
 :root{
   --suelo:#EDEAE2; --carta:#FAF8F3; --carta2:#F3F0E8; --tinta:#17160F; --sub:#6A6558; --tenue:#9C968A;
@@ -429,6 +429,77 @@ body.sin-menu .lateral{display:none}
 .av-racha span{font-size:12px;color:var(--sub);font-weight:600;line-height:1.25}
 .av-racha b{font-family:var(--f-d);font-size:30px;line-height:1.05}
 .av-racha small{font-size:12px;color:var(--sub)}
+
+/* ===================== DISEÑO METODIKA · Tribuna + Libreta ===================== */
+:root{--met:#FFD400;--can:#2EBD59;--equ:#FF6B2C;--f-x:'Anton','Barlow Condensed',Impact,sans-serif}
+.app{flex-direction:column}
+.lateral{width:100%;height:66px;flex-direction:row;align-items:center;gap:18px;padding:0 20px;position:sticky;top:0;z-index:30;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.lateral .marca{padding:0;border:0;gap:10px;cursor:pointer;order:1}
+.lateral .marca svg{width:40px;height:40px}.lateral .marca b{font-size:22px;letter-spacing:3px;font-weight:800}.lateral .marca small{display:none}
+nav.menu{order:2;flex:0 1 auto;flex-direction:row;gap:6px;padding:0;overflow:visible}
+nav.menu a.pilar{display:flex;align-items:center;gap:9px;padding:9px 16px;border-radius:12px;font:800 18px/1 var(--f-d);letter-spacing:2px;color:rgba(255,255,255,.62);background:transparent;text-decoration:none}
+nav.menu a.pilar i{width:11px;height:11px;border-radius:3px;display:block}
+nav.menu a.pilar:hover{color:#fff;background:rgba(255,255,255,.07)}
+nav.menu a.pilar.activo{background:var(--met);color:#141412}nav.menu a.pilar.activo i{background:#141412!important}
+nav.menu a.pilar.p-cancha.activo{background:var(--can);color:#fff}nav.menu a.pilar.p-cancha.activo i{background:#fff!important}
+nav.menu a.pilar.p-equipo.activo{background:var(--equ);color:#fff}nav.menu a.pilar.p-equipo.activo i{background:#fff!important}
+.lateral .club-mini{order:3;margin-left:auto;border:0;padding:4px 14px 4px 4px;background:#26261F;border-radius:26px;font-size:13px;gap:8px}
+.lateral .club-mini b{display:inline;font-size:13px}.lateral .club-mini b:after{content:' · ';color:#8A857A}.lateral .club-mini div{white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis;color:#C9C4B8}
+#catBox{order:4}#catBox label{padding:0!important}#catBox label>span{display:none!important}#catBox select{border-radius:20px;padding:6px 10px;font-size:13px;max-width:170px}
+.lateral .pie-lat{order:5;padding:0;display:flex;align-items:center;gap:6px;letter-spacing:0}
+.pie-lat .util{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#CFCABE;border:0;background:transparent;cursor:pointer;position:relative}
+.pie-lat .util:hover,.pie-lat .util.activo{background:#2A2925;color:#fff}.pie-lat .util.activo{box-shadow:inset 0 0 0 2px var(--met)}
+.pie-lat .util svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pie-lat .util .n{position:absolute;top:-2px;right:-2px;background:var(--met);color:#141412;border-radius:9px;font:800 11px/1 var(--f-d);padding:3px 5px}
+.pie-lat .yo{width:36px;height:36px;border-radius:50%;background:var(--equ);color:#fff;display:grid;place-items:center;font:800 15px var(--f-d);flex:none}
+.pie-lat #estadoNube{font-size:11.5px}
+main{padding-top:0}
+/* banda de cada sección */
+.cab{position:relative;overflow:hidden;margin:0 -32px 24px;padding:24px 32px 18px;background:var(--met);color:#141412;align-items:flex-end;row-gap:12px}
+.cab:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(-55deg,rgba(0,0,0,.055) 0 22px,transparent 22px 44px);pointer-events:none}
+.cab>*{position:relative}
+.cab .letra{position:absolute;right:26px;top:-34px;font:400 250px/1 var(--f-x);color:rgba(0,0,0,.07);pointer-events:none;user-select:none}
+.cab .eyebrow{color:inherit;opacity:.85;font:800 13px/1 var(--f-d);letter-spacing:3px;margin-bottom:8px}
+.cab h1{font:400 clamp(38px,5.2vw,68px)/1.02 var(--f-x);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.cab h1 .mk{background:linear-gradient(transparent 58%,#fff 58%,#fff 93%,transparent 93%);padding:0 6px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.cab p{color:inherit;opacity:.8;font-weight:500}
+.cab .acc{align-self:flex-end}
+.cab .subnav{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.cab .subnav a{background:#141412;color:#fff;padding:7px 15px;border-radius:22px;font-weight:700;font-size:13.5px;text-decoration:none;cursor:pointer}
+.cab .subnav a:hover{background:#000}.cab .subnav a.activo{background:#fff;color:#141412}
+.cab.p-cancha{background:var(--can);color:#fff}.cab.p-equipo{background:var(--equ);color:#fff}
+.cab.p-cancha h1 .mk,.cab.p-equipo h1 .mk{color:#141412;background:linear-gradient(transparent 56%,#fff 56%,#fff 94%,transparent 94%)}
+.cab.p-cancha .letra,.cab.p-equipo .letra{color:rgba(255,255,255,.12)}
+.cab.p-cancha .subnav a.activo,.cab.p-equipo .subnav a.activo{background:#fff;color:#141412}
+.cab.solo-nav{padding-top:12px;padding-bottom:12px}.cab.solo-nav .letra{display:none}
+.cab .acc .btn:not(.pri):not(.ama){background:rgba(255,255,255,.92);border-color:transparent;color:#141412}
+.cab .acc .btn.pri{background:#141412;border-color:#141412;color:#fff}
+/* nota pegada (idea de la semana) */
+.nota-dt{position:relative;margin:0 0 0 auto;align-self:center;transform:rotate(2.5deg);background:#fff;color:#141412;padding:12px 16px 14px;width:280px;box-shadow:0 12px 24px rgba(0,0,0,.18)}
+.nota-dt:before{content:"";position:absolute;top:-11px;left:50%;width:80px;height:22px;margin-left:-40px;background:rgba(20,20,18,.18);transform:rotate(-4deg)}
+.nota-dt small{font:800 11px var(--f-d);letter-spacing:2.5px;color:#8A857A}.nota-dt p{font:italic 700 18px/1.2 var(--f-t);color:#2F5BB7;margin:4px 0 0;opacity:1}
+.sello-ok{display:inline-block;font:800 11px/1 var(--f-d);letter-spacing:1px;color:#1E9E48;border:2px solid #1E9E48;border-radius:6px;padding:3px 6px;transform:rotate(-6deg);vertical-align:middle}
+.cinta{position:relative}.cinta:after{content:"";position:absolute;top:-11px;left:50%;width:92px;height:22px;margin-left:-46px;background:rgba(255,212,0,.85);transform:rotate(-3deg)}
+.a-mano{font:italic 700 15px var(--f-t);color:#2F5BB7}
+/* tarjetas */
+.panel{border-radius:18px}
+.panel-cab h3,.panel>h3{font-weight:800;text-transform:uppercase;letter-spacing:.8px}
+:root:not([data-theme="dark"]) .panel{border-color:transparent;box-shadow:0 2px 0 #E2DDD0,0 1px 3px rgba(0,0,0,.04)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .panel{border-color:var(--linea);box-shadow:none}}
+.dato{font-family:var(--f-x)!important;font-weight:400!important;letter-spacing:.3px}
+@media (max-width:1100px){.nota-dt{display:none}}
+@media (max-width:860px){
+  .lateral{height:auto;flex-wrap:wrap;padding:8px 12px;gap:8px}
+  .lateral .marca b{font-size:19px}.lateral .marca svg{width:34px;height:34px}
+  .lateral .club-mini{display:none}
+  .lateral .pie-lat{display:flex;margin-left:auto;order:2}
+  .pie-lat #estadoNube,.pie-lat .nom{display:none}
+  nav.menu{order:3;flex-basis:100%;overflow-x:auto;padding:0 0 4px;scrollbar-width:none}
+  nav.menu a.pilar{font-size:15px;padding:8px 12px;flex:none}
+  #catBox{order:4;flex-basis:100%}#catBox select{max-width:none;width:100%}
+  .cab{margin:0 -16px 18px;padding:18px 16px 14px}.cab .letra{font-size:160px;top:-14px}
+  .cab .subnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.cab .subnav a{flex:none}
+}
 </style>
 
 <div class="app">
@@ -534,8 +605,9 @@ function cats(){const c=S&&S.club&&S.club.categorias;if(c&&c.length)return c;con
 function asegurarCats(){if(!S||!S.club)return false;let cambio=false;if(!S.club.categorias||!S.club.categorias.length){S.club.categorias=[{id:'c1',nombre:S.club['categoria']||'Primera',rama:S.club['rama']||'F'}];cambio=true}
   const d=S.club.categorias[0].id;['jugadores','sesiones','partidos','microciclos'].forEach(k=>(S[k]||[]).forEach(x=>{if(!x.cat){x.cat=d;cambio=true}}));return cambio}
 function miUid(){return (typeof USR!=='undefined'&&USR)?USR.uid:''}
-function miRol(){if(typeof MODO==='undefined'||MODO!=='nube')return 'coord';if((typeof esAdmin==='function'&&esAdmin())||(typeof esDuenia==='function'&&esDuenia()))return 'coord';const e=((S.club&&S.club.equipo)||{})[miUid()];return (e&&ROLES[e.rol]&&e.rol)||'dt'}
-function misCats(){const t=cats();if(miRol()==='coord')return t;const e=((S.club&&S.club.equipo)||{})[miUid()];const ids=e&&Array.isArray(e.cats)&&e.cats.length?e.cats:null;const l=ids?t.filter(c=>ids.includes(c.id)):t;return l.length?l:t}
+let VER_COMO=null; // vista previa: {rol, cats}
+function miRol(){if(VER_COMO)return VER_COMO.rol;if(typeof MODO==='undefined'||MODO!=='nube')return 'coord';if((typeof esAdmin==='function'&&esAdmin())||(typeof esDuenia==='function'&&esDuenia()))return 'coord';const e=((S.club&&S.club.equipo)||{})[miUid()];return (e&&ROLES[e.rol]&&e.rol)||'dt'}
+function misCats(){const t=cats();if(miRol()==='coord')return t;if(VER_COMO){const l=t.filter(c=>(VER_COMO.cats||[]).includes(c.id));return l.length?l:t}const e=((S.club&&S.club.equipo)||{})[miUid()];const ids=e&&Array.isArray(e.cats)&&e.cats.length?e.cats:null;const l=ids?t.filter(c=>ids.includes(c.id)):t;return l.length?l:t}
 let CAT_ACT=null;
 function claveCat(){return 'mk_cat_'+((typeof CLUB!=='undefined'&&CLUB)||'local')}
 function catAct(){const ms=misCats();let a=CAT_ACT;if(a==null){try{a=localStorage.getItem(claveCat())}catch(e){}}
@@ -774,13 +846,24 @@ const ICO={
 const RUTAS=[['inicio','Inicio'],['coordinacion','Coordinación'],['metodologia','Metodología'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes'],['sugerencia','Enviar sugerencia']];
 const ICO_R={coordinacion:'coord',metodologia:'metod',inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',asistencia:'asist',tienda:'tienda',ajustes:'ajustes',sugerencia:'charla'};
 let ruta='inicio',param=null;
+const PILARES=[['metodo','MÉTODO','M',['inicio','coordinacion','metodologia','planificacion','biblioteca','lecturas']],['cancha','CANCHA','C',['pizarra','videoanalisis','analisis']],['equipo','EQUIPO','E',['plantel','partido','fixture','asistencia','evaluaciones']]];
+const NOM_R=Object.fromEntries(RUTAS.filter(r=>r[1]));NOM_R.analisis='Análisis de rival';
+function pilarDe(r){const p=PILARES.find(x=>x[3].includes(r));return p?p[0]:''}
+const ULT_PILAR={};
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-sub]');if(a){e.preventDefault();ir(a.dataset.sub)}});
+function rutasPilar(k){const p=PILARES.find(x=>x[0]===k);return p?p[3].filter(r=>r!=='coordinacion'||(miRol()==='coord'&&cats().length>1)):[]}
+function subnavHtml(){const k=pilarDe(ruta);if(!k)return '';return `<nav class="subnav" aria-label="Secciones de ${k}">${rutasPilar(k).map(r=>`<a data-sub="${r}" class="${ruta===r?'activo':''}">${esc(NOM_R[r]||r)}</a>`).join('')}</nav>`}
 function ir(r,p=null){if(r!=='pizarra'&&typeof PZ_FULL!=='undefined'&&PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs')}ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
 function pintarMenu(){
-  $('#menu').innerHTML=RUTAS.filter(([r])=>r!=='coordinacion'||(miRol()==='coord'&&cats().length>1)).map(([r,t])=>r==='-'?'<div class="sep"></div>':`<a href="#${r}" data-r="${r}" class="${ruta===r?'activo':''}"><svg viewBox="0 0 24 24">${ICO[ICO_R[r]]}</svg>${t==='Plantel'?'Plantel':t}</a>`).join('');
-  $$('#menu a').forEach(a=>a.onclick=e=>{e.preventDefault();if(a.dataset.r==='sugerencia')return enviarSugerencia();ir(a.dataset.r)});
+  const pa=pilarDe(ruta);if(pa)ULT_PILAR[pa]=ruta;
+  $('#menu').innerHTML=PILARES.map(([k,t])=>`<a href="#${ULT_PILAR[k]||rutasPilar(k)[0]}" data-pilar="${k}" class="pilar p-${k} ${pa===k?'activo':''}"><i style="background:${k==='metodo'?'var(--met)':k==='cancha'?'var(--can)':'var(--equ)'}"></i>${t}</a>`).join('');
+  $$('#menu a[data-pilar]').forEach(a=>a.onclick=e=>{e.preventDefault();const k=a.dataset.pilar,dest=ULT_PILAR[k]&&rutasPilar(k).includes(ULT_PILAR[k])?ULT_PILAR[k]:rutasPilar(k)[0];ir(dest)});
+  {const mc=$('.lateral .marca');if(mc&&!mc.onclick)mc.onclick=()=>ir('inicio')}
   const nSol=(typeof esAdmin==='function'&&esAdmin())?SOLIC.length:0;
-  if(nSol){const aj=$('#menu a[data-r="ajustes"]');if(aj)aj.insertAdjacentHTML('beforeend',`<span class="chip ama" style="margin-left:auto;padding:1px 7px">${nSol}</span>`)}
-  $('.pie-lat').innerHTML=(typeof MODO!=='undefined'&&MODO==='nube'&&USR)?`<div style="letter-spacing:0;color:#C9C4B8;font-size:12.5px;margin-bottom:6px;overflow-wrap:anywhere">${esc((PERFIL&&PERFIL.nombre)||USR.displayName||USR.email)}</div><span class="chip" id="estadoNube">☁ Guardado</span>`:'METODIKA CLUBES · V1';
+  const util=(r,tit,extra='')=>`<button class="util ${ruta===r?'activo':''}" data-util="${r}" title="${tit}" aria-label="${tit}"><svg viewBox="0 0 24 24">${ICO[ICO_R[r]]}</svg>${extra}</button>`;
+  const nube=typeof MODO!=='undefined'&&MODO==='nube'&&USR,nom=nube?((PERFIL&&PERFIL.nombre)||USR.displayName||USR.email||''):'';
+  $('.pie-lat').innerHTML=(nube?'<span class="chip" id="estadoNube">☁ Guardado</span>':'')+util('tienda','Tienda Metodika')+util('sugerencia','Enviar sugerencia')+util('ajustes','Ajustes',nSol?`<span class="n">${nSol}</span>`:'')+(nube?`<span class="yo" title="${esc(nom)}">${esc(nom.split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase())}</span>`:'');
+  $$('.pie-lat [data-util]').forEach(b=>b.onclick=()=>{if(b.dataset.util==='sugerencia')return enviarSugerencia();ir(b.dataset.util)});
   const c=S.club;
   $('#clubMini').innerHTML=`<div class="esc">${c.escudo?`<img src="${c.escudo}" alt="">`:esc((c.nombre||'?').replace(/^(Club|Atlético|Deportivo)\s+/gi,'')[0]||'C')}</div><div><b>${esc(c.nombre)}</b>${esc(CATN())} · ${esc(c.temporada)}</div>`;
   {let cb=$('#catBox');if(!cb){cb=document.createElement('div');cb.id='catBox';$('#clubMini').insertAdjacentElement('afterend',cb)}
@@ -797,7 +880,11 @@ function pintar(){
   const v=$('#vista');
   const enDemoNube=typeof MODO!=='undefined'&&MODO==='demo';
   const banda=S.demo?`<div class="demo-banda"><b>Club de ejemplo</b><span>Estás viendo datos ficticios para conocer Metodika.</span><button class="btn chico" id="salirDemo">${enDemoNube?'Entrar o crear cuenta':'Empezar con mi club'}</button></div>`:'';
-  v.innerHTML=banda+(typeof bandaPlan==='function'?bandaPlan():'')+'<div id="cont"></div>';
+  const bandaRol=VER_COMO?`<div class="demo-banda" style="background:#141412;color:#fff"><b style="color:#FFD400">👁 Vista previa</b><span>Así ve Metodika ${esc(VER_COMO.txt)}. Nada de lo que ves cambia tus permisos.</span><button class="btn chico pri" id="salirVerComo">Volver a mi vista</button></div>`:'';
+  v.innerHTML=bandaRol+banda+(typeof bandaPlan==='function'?bandaPlan():'')+'<div id="cont"></div>';
+  {const sv=$('#salirVerComo');if(sv)sv.onclick=()=>{VER_COMO=null;CAT_ACT=null;ir('ajustes');aviso('Volviste a tu vista')}}
+  setTimeout(()=>{const c=$('#cont');if(!c)return;if(!$('.cab',c)&&pilarDe(ruta)){const k=pilarDe(ruta);c.insertAdjacentHTML('afterbegin',`<div class="cab solo-nav p-${k}">${subnavHtml()}</div>`)}
+},0);
   {const vp=$('#verPlan');if(vp)vp.onclick=pantallaPlan}
   if(typeof bienvenidaPrueba==='function')bienvenidaPrueba();
   if(S.demo&&enDemoNube)$('#salirDemo').onclick=()=>location.reload();
@@ -824,7 +911,9 @@ let tAviso;
 function aviso(t){let a=$('#avisoT');if(!a){a=document.createElement('div');a.id='avisoT';a.className='aviso-t';document.body.appendChild(a)}a.textContent=t;a.hidden=false;clearTimeout(tAviso);tAviso=setTimeout(()=>a.hidden=true,2600)}
 function leerForm(root){const o={};$$('[name]',root).forEach(el=>{if(el.type==='checkbox'){if(el.dataset.lista){(o[el.name]=o[el.name]||[]);if(el.checked)o[el.name].push(el.value)}else o[el.name]=el.checked}else o[el.name]=el.value});return o}
 const opts=(arr,sel)=>arr.map(o=>{const [v,t]=Array.isArray(o)?o:[o,o];return `<option value="${esc(v)}" ${String(v)===String(sel)?'selected':''}>${esc(t)}</option>`}).join('');
-function cabecera(eyebrow,titulo,texto,acciones=''){return `<div class="cab"><div><div class="eyebrow">${esc(eyebrow)}</div><h1>${esc(titulo)}</h1>${texto?`<p>${texto}</p>`:''}</div><div class="acc">${acciones}</div></div>`}
+function cabecera(eyebrow,titulo,texto,acciones='',nota=''){const k=pilarDe(ruta),P=PILARES.find(x=>x[0]===k);
+  const ws=String(titulo||'').trim().split(/\s+/),tit=ws.length>1?esc(ws.slice(0,-1).join(' '))+' <span class="mk">'+esc(ws[ws.length-1])+'</span>':`<span class="mk">${esc(titulo)}</span>`;
+  return `<div class="cab ${k?'p-'+k:''}">${P?`<div class="letra" aria-hidden="true">${P[2]}</div>`:''}<div><div class="eyebrow">${P?P[1]+' · ':''}${esc(eyebrow)}</div><h1>${tit}</h1>${texto?`<p>${texto}</p>`:''}</div><div class="acc">${acciones}</div>${nota}${subnavHtml()}</div>`}
 function avatar(j,g){return `<div class="av ${g?'g':''}">${j&&j.foto?`<img src="${j.foto}" alt="">`:esc(j?iniciales(j):'?')}</div>`}
 const jugador=id=>S.jugadores.find(j=>j.id===id);
 const nombreJ=id=>{const j=jugador(id);return j?j.nombre+' '+j.apellido:'—'};
@@ -985,11 +1074,12 @@ VISTAS.inicio=el=>{
   const jugados=SP().filter(x=>x.estado==='finalizado');
   const g=jugados.filter(x=>x.golesF>x.golesC).length,e=jugados.filter(x=>x.golesF===x.golesC).length,pe=jugados.length-g-e;
   const nombre=S.club.nombre;
-  el.innerHTML=cabecera(CATN()+' · Temporada '+S.club.temporada,nombre,`Hoy es ${fFecha(iso(HOY))}.`,catAct()==='todas'?'<button class="btn pri" data-ir="coordinacion">Ver panel de coordinación</button>':'')+panelGuia()+
+  const hoyI=iso(HOY),mcA=SMc().find(m=>m.inicio<=hoyI&&m.fin>=hoyI),notaIdea=mcA&&(mcA.objetivo||mcA.foco)?`<div class="nota-dt"><small>IDEA DE LA SEMANA${mcA.nombre?' · '+esc(mcA.nombre).toUpperCase():''}</small><p>“${esc(mcA.objetivo||mcA.foco)}”</p></div>`:'';
+  el.innerHTML=cabecera(CATN()+' · Temporada '+S.club.temporada,nombre,`Hoy es ${fFecha(iso(HOY))}.`,catAct()==='todas'?'<button class="btn pri" data-ir="coordinacion">Ver panel de coordinación</button>':'',notaIdea)+panelGuia()+
   `<div class="grilla g2" style="margin-bottom:16px">
     <div class="panel"><div class="panel-cab"><h3>Próximo entrenamiento</h3></div>${s?`
       <div class="dato" style="font-size:28px">${fFecha(s.fecha)} · ${esc(s.hora||'')}</div>
-      <p style="margin:8px 0 4px;font-weight:600">${esc(s.titulo)}</p><p class="sub" style="margin:0 0 12px">${esc(s.objetivo)}</p>
+      <p style="margin:8px 0 4px;font-weight:600">${esc(s.titulo)} ${s.tareas.length?'<span class="sello-ok">LISTA ✓</span>':''}</p><p class="a-mano" style="margin:0 0 12px">→ ${esc(s.objetivo)}</p>
       <div class="chips" style="margin-bottom:12px"><span class="chip">${s.tareas.length} tareas</span><span class="chip">${durSesion(s)} min</span><span class="chip">RPE ${s.rpe}</span></div>
       <button class="btn chico" data-ses="${s.id}">Ver sesión</button>`:`<div class="vacio">No hay sesiones programadas.<br><button class="btn chico" style="margin-top:10px" data-ir="planificacion">Planificar</button></div>`}</div>
     <div class="panel"><div class="panel-cab"><h3>Próximo partido</h3></div>${p?`
@@ -1833,12 +1923,17 @@ function refTacticas(pz,k,lc='#FFFFFF'){
   const largo=v?H:W,ancho=v?W:H;
   const lin=(a,b,c,d)=>`<line x1="${a*k}" y1="${b*k}" x2="${c*k}" y2="${d*k}" ${st}/>`;
   const cortesLargo=n=>{let o='';for(let i=1;i<n;i++){const q=largo*i/n;o+=v?lin(0,q,W,q):lin(q,0,q,H)}return o};
-  const cortesAncho=n=>{let o='';for(let i=1;i<n;i++){const q=ancho*i/n;o+=v?lin(q,0,q,H):lin(0,q,W,q)}return o};
+  const linAncho=qs=>qs.map(q=>v?lin(q,0,q,H):lin(0,q,W,q)).join('');
+  // en canchas con área: los carriles se marcan con las líneas del área grande (y del área chica para 5 carriles)
+  const conArea=COMPLETAS.includes(pz.formato)&&pz.formato!=='Futsal'||pz.formato==='Medio campo';
+  const ahA=v?Math.min(W*.7,40.3):Math.min(H*.6,40.3),chA=ahA*.45;
+  const cortesAncho=n=>{if(conArea&&n===3)return linAncho([(ancho-ahA)/2,(ancho+ahA)/2]);if(conArea&&n===5)return linAncho([(ancho-ahA)/2,(ancho-chA)/2,(ancho+chA)/2,(ancho+ahA)/2]);let o='';for(let i=1;i<n;i++){const q=ancho*i/n;o+=v?lin(q,0,q,H):lin(0,q,W,q)}return o};
   if(f==='tercios')return cortesLargo(3);
   if(f==='carriles')return cortesAncho(5);
   if(f==='ambos')return cortesLargo(3)+cortesAncho(5);
-  if(f==='zonas'){const nl=v?3:6,na=3;let o=cortesLargo(nl)+cortesAncho(na),n=1,fs=Math.min(largo/nl,ancho/na)*k*.32;
-    for(let a=0;a<na;a++)for(let l=0;l<nl;l++){const cx=v?(a+.5)*W/na:(l+.5)*W/nl,cy=v?(l+.5)*H/nl:(a+.5)*H/na;o+=`<text x="${cx*k}" y="${cy*k+fs*.35}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${fs}" fill="${lc}" fill-opacity=".25">${n++}</text>`}
+  if(f==='zonas'){ // 18 zonas: 6 franjas a lo largo × 3 carriles. Se numeran desde el arco propio, de a 3 por franja (la 14 queda en el centro, frente al área rival)
+    const nl=v?3:6,na=3,cAn=conArea?[0,(ancho-ahA)/2,(ancho+ahA)/2,ancho]:[0,ancho/3,ancho*2/3,ancho];let o=cortesLargo(nl)+cortesAncho(na),fs=Math.min(largo/nl,(cAn[2]-cAn[1]))*k*.3;
+    for(let l=0;l<nl;l++)for(let a=0;a<na;a++){const n=(v?9:0)+(v?nl-1-l:l)*3+a+1,ca=(cAn[a]+cAn[a+1])/2,cl=(l+.5)*largo/nl,cx=v?ca:cl,cy=v?cl:ca;o+=`<text x="${cx*k}" y="${cy*k+fs*.35}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${fs}" fill="${lc}" fill-opacity="${n===14?.45:.25}">${n}</text>`}
     return o}
   return '';
 }
@@ -3377,7 +3472,7 @@ let registrando=false,MODO='local',auth=null,db=null,USR=null,PERFIL=null,CLUB=n
 const COL_ITEMS=['partidos','pizarras'];
 let ultimo={},ultimoItems={partidos:{},pizarras:{}},ultimoFoto={},FOTOS={};
 const nubeDisponible=()=>!!(window.firebase&&firebase.firestore&&firebase.auth)&&!/claude|anthropic/.test(location.hostname);
-const esAdmin=()=>MODO==='nube'&&CLUBDOC&&CLUBDOC.miembros&&CLUBDOC.miembros[USR.uid]==='admin';
+const esAdmin=()=>!VER_COMO&&MODO==='nube'&&CLUBDOC&&CLUBDOC.miembros&&CLUBDOC.miembros[USR.uid]==='admin';
 const ERR_FB={'auth/invalid-email':'El mail no es válido.','auth/missing-password':'Escribí la contraseña.','auth/weak-password':'La contraseña tiene que tener al menos 6 caracteres.','auth/email-already-in-use':'Ya existe una cuenta con ese mail. Probá entrar.','auth/invalid-credential':'Mail o contraseña incorrectos.','auth/wrong-password':'Mail o contraseña incorrectos.','auth/user-not-found':'No hay ninguna cuenta con ese mail.','auth/too-many-requests':'Demasiados intentos. Esperá unos minutos y probá de nuevo.','auth/network-request-failed':'No hay conexión a internet.','permission-denied':'No tenés permiso para hacer eso.'};
 const errTxt=e=>ERR_FB[e&&e.code]||('Algo salió mal: '+(e&&e.message||e));
 
@@ -3723,6 +3818,19 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('pagehide',guardarYa);
 window.addEventListener('beforeunload',e=>{if(tSync||sincronizando){guardarYa();e.preventDefault();e.returnValue=''}});
 
+/* ---------- Cómo ve Metodika cada rol ---------- */
+const QUE_VE={coord:['Todas las categorías del club (y la opción “Todo el club”)','Panel de Coordinación para comparar categorías','Aprueba a quién entra, da roles y elige categorías','Plan, copias de seguridad y Papelera'],
+  dt:['Solo las categorías que le asignó Coordinación','Plantel, planificación, sesiones, partidos, asistencia y evaluaciones de esas categorías','Biblioteca de tareas y pizarra de todo el club','No ve el Panel de Coordinación ni administra personas'],
+  pf:['Solo las categorías que le asignó Coordinación','Sesiones, cargas, RPE y bienestar, asistencia y evaluaciones','Biblioteca de tareas y pizarra de todo el club','No ve el Panel de Coordinación ni administra personas']};
+function panelRolesHtml(){const cs=cats();
+  return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>👁 Cómo ve Metodika cada rol</h3></div>
+  <p class="sub" style="margin:0 0 12px;font-size:13.5px">Elegí un rol y una categoría para ver la app exactamente como la ve esa persona. Es solo una vista previa: no cambia nada.</p>
+  <div class="grilla g3" style="gap:10px;margin-bottom:12px">${[['coord','Coordinación','#FFD400'],['dt','DT / cuerpo técnico','#FFFFFF'],['pf','Preparación física','#FFFFFF']].map(([r,t,c])=>`<div class="ct" style="padding:12px"><b style="display:block;margin-bottom:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${c};border:1.5px solid #141412;margin-right:6px"></span>${t}</b><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.45">${QUE_VE[r].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="vcRol" style="width:auto">${opts([['dt','DT / cuerpo técnico'],['pf','Preparación física'],['coord','Coordinación']],'dt')}</select>
+    <select id="vcCat" style="width:auto">${cs.map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('')}</select>
+    <button class="btn pri" id="vcVer">👁 Ver como</button></div></div>`}
+function conectarRoles(el){const b=$('#vcVer',el);if(!b)return;const r=$('#vcRol',el),c=$('#vcCat',el);r.onchange=()=>{c.disabled=r.value==='coord'};
+  b.onclick=()=>{const rol=r.value,cat=c.value,cn=catNombre(cat);VER_COMO={rol,cats:rol==='coord'?[]:[cat],txt:rol==='coord'?'quien coordina el club':rol==='pf'?'quien hace la preparación física de '+cn:'alguien del cuerpo técnico de '+cn};CAT_ACT=rol==='coord'?null:cat;ir('inicio')}}
 /* ---------- Papelera ---------- */
 const PAPEL_NOM={jugadores:['Jugador/a','👤'],tareas:['Tarea','📋'],microciclos:['Microciclo','🗓'],sesiones:['Sesión','🏃'],evaluaciones:['Evaluación','📊'],partidos:['Partido','⚽'],pizarras:['Pizarra','🧩']};
 function nombrePapel(x){let v={};try{v=JSON.parse(x.v)||{}}catch(e){}
@@ -4297,7 +4405,7 @@ VISTAS.ajustes=el=>{
   const c=S.club;let esc0=c.escudo;
   let tema='';try{tema=localStorage.getItem('metodika_tema')||''}catch(e){}
   const nube=MODO==='nube';
-  el.innerHTML=cabecera('Configuración','Ajustes','')+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+(nube?panelPapeleraHtml():'')+
+  el.innerHTML=cabecera('Configuración','Ajustes','')+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+(nube&&esAdmin()?panelRolesHtml():'')+(nube?panelPapeleraHtml():'')+
   `<div class="grilla g2" style="align-items:start"><div class="panel"><h3>Datos del club</h3><form class="form" id="fC" style="margin-top:6px">
     <div class="ancho" style="display:flex;gap:14px;align-items:center"><div class="av g" id="prevEsc">${c.escudo?`<img src="${c.escudo}" alt="">`:'?'}</div><label class="btn chico" for="escF">Subir escudo</label><input type="file" id="escF" accept="image/*" hidden></div>
     <label class="campo ancho">Nombre del club<input type="text" id="cn" name="nombre" value="${esc(c.nombre)}"></label>
@@ -4321,7 +4429,7 @@ VISTAS.ajustes=el=>{
   $('#escF').onchange=e=>{const f=e.target.files[0];if(f)reducirFoto(f,d=>{esc0=d;$('#prevEsc').innerHTML=`<img src="${d}" alt="">`})};
   $('#gC').onclick=()=>{const d=leerForm($('#fC'));Object.assign(S.club,d,{duracionTiempo:+d.duracionTiempo||45,escudo:esc0});guardar();if(nube&&esAdmin()&&CLUBDOC.nombre!==S.club.nombre)db.collection('clubes').doc(CLUB).update({nombre:S.club.nombre}).catch(()=>{});aviso('Datos del club guardados');pintar()};
   conectarPanelEquipo(el);
-  if(nube){conectarPapelera(el);panelRespaldos(el)}
+  if(nube){conectarPapelera(el);panelRespaldos(el);conectarRoles(el)}
   conectarCategorias(el);
   $$('[data-tema]').forEach(b=>b.onclick=()=>{const v=b.dataset.tema;try{v?localStorage.setItem('metodika_tema',v):localStorage.removeItem('metodika_tema')}catch(e){}aplicarTema();pintar()});
   $('#desD').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='metodika-copia-'+iso(HOY)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);aviso('Copia descargada')};
