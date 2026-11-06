@@ -567,6 +567,14 @@ main{padding-top:0}
 .tour-pie{display:flex;gap:8px;align-items:center}.tour-salir{background:none;border:0;color:#77736A;font:inherit;font-size:14px;cursor:pointer;padding:6px 0;text-decoration:underline}
 .tour-pts{display:flex;gap:5px;justify-content:center;margin-top:12px}.tour-pts i{width:6px;height:6px;border-radius:50%;background:#D9D3C5}.tour-pts i.on{background:#141412;width:18px;border-radius:3px}
 .panel-tour{display:flex;align-items:center;gap:16px;margin-bottom:16px}@media (max-width:640px){.panel-tour{flex-wrap:wrap}.panel-tour .btn{width:100%}}
+.selj-barra{position:sticky;top:76px;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#141412;color:#fff;border-radius:14px;padding:10px 14px;margin:0 0 14px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.selj-barra b{font:400 26px var(--f-x);color:#FFD400}.selj-barra .sub{color:#B9B3A6;font-size:13px}.selj-barra .btn:not(.peligro){background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.3)}.selj-barra .peligro{background:#E5484D;color:#fff;border-color:#E5484D}.selj-barra .peligro[disabled]{opacity:.45}
+.cj.selmodo{position:relative}.cj.selmodo .cj-check{position:absolute;top:10px;right:10px;z-index:3;width:28px;height:28px;border-radius:50%;border:2.5px solid #fff;background:rgba(0,0,0,.35);color:#141412;font-weight:900;display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.cj.sel{outline:4px solid #FFD400;outline-offset:-2px}.cj.sel .cj-check{background:#FFD400;border-color:#FFD400}
+@media (max-width:640px){.selj-barra{top:110px}.selj-barra .sub{display:none}}
+.cj-foto .ini{color:var(--ct-clr,#fff)}.cj-dor{color:#fff}.cj-foto .addf{background:var(--ct-osc,#141412);color:#fff;border:2px solid #fff}
+.cj.sel{outline-color:var(--ct-osc,#141412)}.cj.sel .cj-check{background:var(--ct-osc,#141412);border-color:#fff;color:#fff}.selj-barra b{color:#fff}
+.pj-foto{border-color:#fff}.pj-pos{color:#fff}.pj-pos b{background:#fff;color:#141412}
 </style>
 
 <div class="app">
@@ -1252,16 +1260,18 @@ VISTAS.inicio=el=>{
 
 /* ================= PLANTEL ================= */
 let filtroPos='',filtroCat='',cmpSel=[];
+let SELJ=null;
 VISTAS.plantel=el=>{
   if(param==='comparar')return vistaComparar(el);
-  if(param&&jugador(param))return perfilJugador(el,jugador(param));
+  if(param&&jugador(param)){SELJ=null;return perfilJugador(el,jugador(param))}
+  if(SELJ)[...SELJ].forEach(id=>{if(!jugador(id))SELJ.delete(id)});
   const cats=[...new Set(SJ().map(j=>j.categoria).filter(Boolean))];
   const lista=ordenJ(SJ().filter(j=>(!filtroPos||j.posicion===filtroPos)&&(!filtroCat||j.categoria===filtroCat)));
   const minTot=minutosEquipo();
   el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button>${SJ().length?'<button class="btn" id="fotosJ">📷 Cargar fotos</button>':''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
   `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
-   <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select></div>`+
-  (lista.length?(()=>{const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj" data-id="${j.id}"><div class="cj-foto" style="${j.foto?'':'background:'+cssCamiseta()}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(puestoTxt(j))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
+   <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select>${SJ().length?`<button class="btn ${SELJ?'pri':''}" id="selModo" style="margin-left:auto">${SELJ?'✕ Terminar selección':'☑ Seleccionar varias'}</button>`:''}</div>`+(SELJ?`<div class="selj-barra"><b>${SELJ.size}</b> ${SELJ.size===1?'elegida':'elegidas'}<span class="sub">Tocá las tarjetas para elegir</span><span style="flex:1"></span><button class="btn chico" id="selTodas">${lista.length&&lista.every(j=>SELJ.has(j.id))?'Ninguna':'Todas'}</button><button class="btn chico peligro" id="selBorrar" ${SELJ.size?'':'disabled'}>🗑 Eliminar ${SELJ.size||''}</button></div>`:'')+
+  (lista.length?(()=>{const CT=coloresTarjeta();el.style.setProperty('--ct-osc',CT.osc);el.style.setProperty('--ct-clr',CT.clr);const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj ${SELJ?'selmodo':''} ${SELJ&&SELJ.has(j.id)?'sel':''}" data-id="${j.id}">${SELJ?`<span class="cj-check">${SELJ.has(j.id)?'✓':''}</span>`:''}<div class="cj-foto" style="${j.foto?'':'background:'+CT.fondo}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(puestoTxt(j))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
     if(filtroPos)return `<div class="cartas-j">${lista.map(carta).join('')}</div>`;
     return LINEAS.map(([k])=>{const g=lista.filter(j=>lineaDe(j)===k);return g.length?`<h2 class="linea-tit">${g.length} ${esc(nombreLinea(k,g.length))}</h2><div class="cartas-j">${g.map(carta).join('')}</div>`:''}).join('')})():`<div class="vacio">Todavía no cargaste ${J('pl')}.<br><button class="btn pri" style="margin-top:12px" id="nuevaJ2">＋ Agregar ${J('sg')}</button></div>`);
   $('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
@@ -1272,7 +1282,11 @@ VISTAS.plantel=el=>{
   const tp=$('#tablaPdf');if(tp)tp.onclick=()=>tablaJugadoresPDF().catch(()=>aviso('No se pudo generar el PDF.'));
   const tx=$('#tablaXls');if(tx)tx.onclick=()=>tablaJugadoresExcel().catch(()=>aviso('No se pudo generar el Excel.'));
   const n2=$('#nuevaJ2');if(n2)n2.onclick=()=>editarJugador();
-  $$('.cj',el).forEach(b=>b.onclick=ev=>{const f=ev.target.closest('[data-foto]');if(f){ev.stopPropagation();fotoRapida(f.dataset.foto);return}ir('plantel',b.dataset.id)});
+  {const sm=$('#selModo');if(sm)sm.onclick=()=>{SELJ=SELJ?null:new Set();pintar()}}
+  {const st=$('#selTodas');if(st)st.onclick=()=>{const todas=lista.every(j=>SELJ.has(j.id));lista.forEach(j=>todas?SELJ.delete(j.id):SELJ.add(j.id));pintar()}}
+  {const sb=$('#selBorrar');if(sb)sb.onclick=()=>{const ids=[...SELJ],ns=ids.map(id=>jugador(id)).filter(Boolean);if(!ns.length)return;
+    confirmar('¿Eliminar '+(ns.length===1?'a '+ns[0].nombre+' '+ns[0].apellido:ns.length+' '+J('pl'))+'?',(ns.length>1?ns.map(j=>j.nombre+' '+j.apellido).join(', ')+'. ':'')+'Se borran sus perfiles del plantel. Sus datos en partidos quedan registrados.'+(MODO==='nube'?' Si te equivocás, las recuperás desde Ajustes → Papelera durante '+PAPEL_DIAS+' días.':''),'Eliminar '+ns.length,()=>{const set=new Set(ids);S.jugadores=S.jugadores.filter(x=>!set.has(x.id));SELJ=null;guardar();pintar();aviso(ns.length===1?'1 perfil eliminado':ns.length+' perfiles eliminados')})}}
+  $$('.cj',el).forEach(b=>b.onclick=ev=>{if(SELJ){const id=b.dataset.id;SELJ.has(id)?SELJ.delete(id):SELJ.add(id);const y=scrollY;pintar();scrollTo(0,y);return}const f=ev.target.closest('[data-foto]');if(f){ev.stopPropagation();fotoRapida(f.dataset.foto);return}ir('plantel',b.dataset.id)});
   const fm=$('#fotosJ');if(fm)fm.onclick=()=>cargarFotosMasivo();
 };
 /* ---------- Fotos: una sola o muchas de una vez ---------- */
@@ -1393,7 +1407,7 @@ function perfilJugador(el,j){
   const cam=camisetaClub(),pe=ult?promEval(ult):null;
   el.innerHTML=`<button class="btn fantasma chico" id="volver" style="margin-bottom:12px">← Plantel</button>
   <div class="pj-hero">
-    <div class="pj-fondo" style="background:${cssCamiseta(cam)}"></div><div class="pj-velo"></div>
+    <div class="pj-fondo" style="background:${coloresTarjeta().fondo}"></div><div class="pj-velo"></div>
     <div class="pj-dorsal" aria-hidden="true">${j.dorsal||''}</div>
     <div class="pj-foto">${j.foto?`<img src="${j.foto}" alt="">`:`<span>${esc(iniciales(j))}</span>`}</div>
     <div class="pj-info">
@@ -1435,7 +1449,7 @@ function radarEval(ev,eq,{w=300,col='#FFD400',claro=false}={}){
 /* Carta de la jugadora/el jugador en PNG (1080×1350) para compartir */
 async function cartaJugador(j){
   const W=1080,H=1350,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
-  const cam=camisetaClub(),st=statsJugador(j.id),a=asistJugador(j.id),ev=evalsJugador(j.id),ult=ev[ev.length-1];
+  const cam=camisetaPropia()?camisetaClub():{t:'bastones',c1:'#141412',c2:'#3A3A35'},st=statsJugador(j.id),a=asistJugador(j.id),ev=evalsJugador(j.id),ult=ev[ev.length-1];
   const FX="'Anton','Barlow Condensed',Impact,sans-serif",FT="'Barlow','Segoe UI',Arial,sans-serif";
   try{await Promise.all([document.fonts.load('120px Anton'),document.fonts.load('800 40px Barlow'),document.fonts.load('600 40px "Barlow Condensed"')])}catch(e){}
   const img=src=>new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src});
@@ -1447,14 +1461,14 @@ async function cartaJugador(j){
   x.save();x.font=`560px ${FX}`;x.textAlign='right';x.textBaseline='alphabetic';x.fillStyle='rgba(255,255,255,.12)';x.fillText(String(j.dorsal||''),W-30,640);x.restore();
   // foto
   const fo=await img(j.foto),cxF=W/2,cyF=430,rF=270;
-  x.save();x.beginPath();x.arc(cxF,cyF,rF+14,0,7);x.fillStyle='#FFD400';x.fill();x.beginPath();x.arc(cxF,cyF,rF,0,7);x.clip();
+  x.save();x.beginPath();x.arc(cxF,cyF,rF+14,0,7);x.fillStyle='#FFFFFF';x.fill();x.beginPath();x.arc(cxF,cyF,rF,0,7);x.clip();
   if(fo){const k=Math.max(2*rF/fo.width,2*rF/fo.height);x.drawImage(fo,cxF-fo.width*k/2,cyF-fo.height*k/2,fo.width*k,fo.height*k)}else{x.fillStyle='#141412';x.fillRect(cxF-rF,cyF-rF,2*rF,2*rF);x.fillStyle='#fff';x.font=`200px ${FX}`;x.textAlign='center';x.textBaseline='middle';x.fillText(iniciales(j),cxF,cyF+8)}
   x.restore();
   // escudo + club
   const es=await img(S.club.escudo);if(es){const k=Math.min(110/es.width,110/es.height);x.drawImage(es,60,50,es.width*k,es.height*k)}
   x.fillStyle='#fff';x.font=`600 30px ${FT}`;x.textAlign='left';x.textBaseline='top';x.fillText((S.club.nombre||'').toUpperCase(),es?190:60,72);x.fillStyle='rgba(255,255,255,.75)';x.font=`500 26px ${FT}`;x.fillText([j.categoria||CATN(),S.club.temporada].filter(Boolean).join(' · '),es?190:60,112);
   // nombre
-  x.textAlign='center';x.textBaseline='alphabetic';x.fillStyle='#FFD400';x.font=`800 34px ${FT}`;x.fillText(('#'+(j.dorsal||'–')+'  ·  '+puestoTxt(j)).toUpperCase(),W/2,800);
+  x.textAlign='center';x.textBaseline='alphabetic';x.fillStyle='#FFFFFF';x.font=`800 34px ${FT}`;x.fillText(('#'+(j.dorsal||'–')+'  ·  '+puestoTxt(j)).toUpperCase(),W/2,800);
   const ajustar=(t,max,tam)=>{let f=tam;do{x.font=`${f}px ${FX}`;f-=4}while(x.measureText(t).width>max&&f>40)};
   x.fillStyle='#fff';ajustar(j.nombre.toUpperCase(),W-120,84);x.fillText(j.nombre.toUpperCase(),W/2,890);ajustar(j.apellido.toUpperCase(),W-120,128);x.fillText(j.apellido.toUpperCase(),W/2,1015);
   // estadísticas
@@ -2000,6 +2014,11 @@ const CATEG_PZ=['Entrenamiento','Partido','Estrategia','ABP','Rival'];
 const PALETA=['#FFD400','#FFFFFF','#E23B2E','#2F6FDB','#141412','#4FB3E8','#F08A24','#3FA34D','#8E44AD','hueco'];
 const PALETA_J=['club',...PALETA];
 const DISENOS_CAM=[['lisa','Lisa'],['bastones','A bastones (verticales)'],['rayas','Rayas horizontales'],['banda','Banda cruzada']];
+function camisetaPropia(){const c=S&&S.club&&S.club.camiseta;return !!(c&&/^#[0-9a-fA-F]{6}$/.test(c.c1||''))}
+function lumHex(h){const n=parseInt(h.slice(1),16);return ((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000}
+/* Colores para tarjetas y perfil: los del club si los cargó; si no, blanco y negro */
+function coloresTarjeta(){if(!camisetaPropia())return {fondo:'repeating-linear-gradient(90deg,#141412 0 25%,#3A3A35 25% 50%)',osc:'#141412',clr:'#FFFFFF'};
+  const c=camisetaClub(),[o,l]=lumHex(c.c1)<=lumHex(c.c2)?[c.c1,c.c2]:[c.c2,c.c1];return {fondo:cssCamiseta(c),osc:lumHex(o)>170?'#141412':o,clr:lumHex(l)<90?'#FFFFFF':l}}
 function camisetaClub(){const c=(typeof S!=='undefined'&&S&&S.club&&S.club.camiseta)||{};return {t:DISENOS_CAM.some(d=>d[0]===c.t)?c.t:'bastones',c1:/^#[0-9a-fA-F]{6}$/.test(c.c1||'')?c.c1:'#1B3A8C',c2:/^#[0-9a-fA-F]{6}$/.test(c.c2||'')?c.c2:'#FFFFFF'}}
 function cssCamiseta(cam){cam=cam||camisetaClub();const{t,c1,c2}=cam;if(t==='lisa')return c1;if(t==='bastones')return `repeating-linear-gradient(90deg,${c1} 0 25%,${c2} 25% 50%)`;if(t==='rayas')return `repeating-linear-gradient(0deg,${c1} 0 25%,${c2} 25% 50%)`;return `linear-gradient(45deg,${c1} 0 40%,${c2} 40% 60%,${c1} 60%)`}
 function defsCamiseta(){const {t,c1,c2}=camisetaClub();let d='';
