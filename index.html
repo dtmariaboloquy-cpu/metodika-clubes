@@ -539,7 +539,7 @@ main{padding-top:0}
 .pj-stats{display:flex;gap:0;margin-top:18px;background:rgba(255,255,255,.08);border-radius:12px;width:max-content;max-width:100%;flex-wrap:wrap}
 .pj-stats div{padding:10px 18px;text-align:center;border-left:1px solid rgba(255,255,255,.14)}.pj-stats div:first-child{border-left:0}
 .pj-stats b{display:block;font:400 34px/1 var(--f-x)}.pj-stats i{font-style:normal;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:.75}
-.pj-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.pj-acc .btn:not(.pri){background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.3)}
+.pj-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.pj-lapiz{background:rgba(255,255,255,.12);border:0;border-radius:8px;padding:2px 7px;margin-left:6px;cursor:pointer;font-size:13px;vertical-align:middle}.pj-lapiz:hover{background:rgba(255,255,255,.25)}.pj-acc .pj-del{margin-left:auto;color:#FFB4A8!important;border-color:rgba(255,120,100,.45)!important}.pj-acc .btn:not(.pri){background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.3)}
 .pj-radar{width:330px}.pj-radar .radar{width:100%;display:block;font-family:var(--f-t)}
 .pj-ley{display:flex;gap:14px;justify-content:center;font-size:12px;opacity:.85}.pj-ley i{display:inline-block;width:14px;height:3px;margin-right:6px;vertical-align:middle;background:#FFD400}.pj-ley i.eq{background:none;border-top:2px dashed #fff}
 @media (max-width:1100px){.pj-hero{grid-template-columns:auto 1fr}.pj-radar{grid-column:1/-1;justify-self:center}}
@@ -695,6 +695,15 @@ function catTarea(c){ // adapta "Jugadora con pelota" a la rama
   if(RAMA()==='X')return c.replace('Jugadora','Jugador/a');
   return c;
 }
+/* Puesto detallado (lado) → línea general para filtros, orden y pizarra */
+const PUESTOS=[['Arquera/o','Arquera/o'],['Defensa central derecha/o','Defensa central'],['Defensa central izquierda/o','Defensa central'],['Lateral derecha/o','Lateral'],['Lateral izquierda/o','Lateral'],['Volante central','Volante central'],['Volante interna/o derecha/o','Volante interna/o'],['Volante interna/o izquierda/o','Volante interna/o'],['Enganche','Volante interna/o'],['Extremo derecho','Extremo'],['Extremo izquierdo','Extremo'],['Delantera/o centro','Delantera/o'],['Segunda/o delantera/o','Delantera/o']];
+function generoTxt(t){const r=RAMA();if(r==='F')return t.replace(/\/o\b/g,'');if(r==='M')return t.replace(/a\/o\b/g,'o');return t}
+function puestoTxt(j){return j&&j.puesto?generoTxt(j.puesto):posTxt(j&&j.posicion)}
+function opcionesPuesto(j){return POSICIONES.map(g=>`<optgroup label="${esc(posTxt(g))}"><option value="${esc(g)}" ${!j.puesto&&j.posicion===g?'selected':''}>${esc(posTxt(g))}${PUESTOS.filter(p=>p[1]===g&&p[0]!==g).length?' (sin especificar)':''}</option>${PUESTOS.filter(p=>p[1]===g&&p[0]!==g).map(p=>`<option value="${esc(p[0])}" ${j.puesto===p[0]?'selected':''}>${esc(generoTxt(p[0]))}</option>`).join('')}</optgroup>`).join('')}
+function aplicarPuesto(j,v){const p=PUESTOS.find(x=>x[0]===v);if(p&&p[0]!==p[1]){j.puesto=p[0];j.posicion=p[1]}else{j.puesto='';j.posicion=POSICIONES.includes(v)?v:j.posicion}}
+function puestoDesdeTexto(t,gen){t=String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');const der=/derech|\bder\b|\bd\b/.test(t),izq=/izq/.test(t);
+  if(/enganche|mediapunta|media punta|^10$/.test(t))return 'Enganche';if(/segund[oa] delanter|segunda punta/.test(t))return 'Segunda/o delantera/o';if(gen==='Delantera/o'&&/centro|^9$|nueve/.test(t))return 'Delantera/o centro';
+  if(!der&&!izq)return '';const p=PUESTOS.find(x=>x[1]===gen&&x[0]!==gen&&(der?/derech/.test(x[0]):/izquierd/.test(x[0])));return p?p[0]:''}
 function posTxt(p){
   if(!p)return '';
   if(RAMA()==='F')return p.replace('/o','');
@@ -1252,7 +1261,7 @@ VISTAS.plantel=el=>{
   el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button>${SJ().length?'<button class="btn" id="fotosJ">📷 Cargar fotos</button>':''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
   `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
    <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select></div>`+
-  (lista.length?(()=>{const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj" data-id="${j.id}"><div class="cj-foto" style="${j.foto?'':'background:'+cssCamiseta()}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(posTxt(j.posicion))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
+  (lista.length?(()=>{const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj" data-id="${j.id}"><div class="cj-foto" style="${j.foto?'':'background:'+cssCamiseta()}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(puestoTxt(j))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
     if(filtroPos)return `<div class="cartas-j">${lista.map(carta).join('')}</div>`;
     return LINEAS.map(([k])=>{const g=lista.filter(j=>lineaDe(j)===k);return g.length?`<h2 class="linea-tit">${g.length} ${esc(nombreLinea(k,g.length))}</h2><div class="cartas-j">${g.map(carta).join('')}</div>`:''}).join('')})():`<div class="vacio">Todavía no cargaste ${J('pl')}.<br><button class="btn pri" style="margin-top:12px" id="nuevaJ2">＋ Agregar ${J('sg')}</button></div>`);
   $('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
@@ -1360,11 +1369,11 @@ function importarPlantel(){
             if((!nom||!ape)&&comb){if(comb.includes(',')){const [a,n]=comb.split(',');ape=a.trim();nom=(n||'').trim()}else{const pz=comb.split(/\s+/);if(/apellido y nombre/.test(Object.keys(r).map(norm).join('|'))){ape=pz.shift();nom=pz.join(' ')}else{ape=pz.pop();nom=pz.join(' ')}}}
             if(!ape&&nom.includes(' ')){const pz=nom.split(/\s+/);ape=pz.pop();nom=pz.join(' ')}
             const may=t=>t&&t===t.toUpperCase()?t.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):t;nom=may(nom);ape=may(ape);if(!nom||!ape)return;
-            const j={id:uid(),nombre:nom,apellido:ape,dorsal:+String(get(r,'dorsal','numero','nro','camiseta','n°','nº','n ','num','#')).replace(/[^0-9]/g,'')||'',posicion:posDesdeTexto(get(r,'posicion','puesto')),categoria:String(get(r,'categoria')).trim()||CATN()||'',nacimiento:fechaDesde(get(r,'nacimiento','fecha de nac','fecha nac'),X),pie:/izq/i.test(get(r,'pie'))?'Izquierdo':/amb/i.test(get(r,'pie'))?'Ambidiestro':'Derecho',altura:+get(r,'altura')||'',foto:'',obs:''};
+            const j={id:uid(),nombre:nom,apellido:ape,dorsal:+String(get(r,'dorsal','numero','nro','camiseta','n°','nº','n ','num','#')).replace(/[^0-9]/g,'')||'',posicion:posDesdeTexto(get(r,'posicion','puesto')),puesto:puestoDesdeTexto(get(r,'posicion','puesto'),posDesdeTexto(get(r,'posicion','puesto'))),categoria:String(get(r,'categoria')).trim()||CATN()||'',nacimiento:fechaDesde(get(r,'nacimiento','fecha de nac','fecha nac'),X),pie:/izq/i.test(get(r,'pie'))?'Izquierdo':/amb/i.test(get(r,'pie'))?'Ambidiestro':'Derecho',altura:+get(r,'altura')||'',foto:'',obs:''};
             (existe.has(norm(nom+' '+ape))?rep:nuevos).push(j)});
           if(!nuevos.length){box.innerHTML=`<div class="vacio">${rep.length?'Todas las personas del archivo ya están en el plantel.':'No encontré filas con Nombre y Apellido. Usá la plantilla.'}</div>`;return}
           box.innerHTML=`<div class="panel" style="padding:12px"><b>${nuevos.length} ${nuevos.length===1?J('sg'):J('pl')} para agregar</b>${rep.length?` <span class="sub">· ${rep.length} ya estaban y se saltean</span>`:''}
-            <div class="lista" style="max-height:38vh;overflow:auto;margin-top:8px">${nuevos.map(j=>`<div class="fila" style="padding:6px 0"><span class="dorsal" style="min-width:28px">${j.dorsal||'–'}</span><b style="flex:1">${esc(j.nombre+' '+j.apellido)}</b><span class="sub" style="font-size:13px">${esc(posTxt(j.posicion))}${j.nacimiento?' · '+esc(fFecha(j.nacimiento)):''}</span></div>`).join('')}</div></div>
+            <div class="lista" style="max-height:38vh;overflow:auto;margin-top:8px">${nuevos.map(j=>`<div class="fila" style="padding:6px 0"><span class="dorsal" style="min-width:28px">${j.dorsal||'–'}</span><b style="flex:1">${esc(j.nombre+' '+j.apellido)}</b><span class="sub" style="font-size:13px">${esc(puestoTxt(j))}${j.nacimiento?' · '+esc(fFecha(j.nacimiento)):''}</span></div>`).join('')}</div></div>
             <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ipOk">Agregar al plantel</button></div>`;
           $('#ipOk',m).onclick=()=>{S.jugadores.push(...nuevos);guardar();cerrarModal();pintar();
             modal('¡Listo! Se armaron '+nuevos.length+' perfiles',`<p style="margin:0 0 12px">Cada ${J('sg')} ya tiene su perfil con los datos del Excel. ¿Querés sumar las fotos ahora?</p><p class="sub" style="margin:0 0 12px;font-size:13.5px">Podés elegir todas las fotos juntas: si cada archivo tiene el apellido o el dorsal en el nombre, Metodika las ubica sola.</p><div class="modal-pie"><button class="btn" data-cerrar>Más tarde</button><button class="btn pri" id="ipFotos">📷 Cargar fotos</button></div>`,{alMontar:m2=>{$('#ipFotos',m2).onclick=()=>{cerrarModal();cargarFotosMasivo(nuevos)}}})};
@@ -1374,7 +1383,7 @@ function importarPlantel(){
 async function tablaJugadoresExcel(){
   const X=await cargarXLSX();
   const aoa=[['Dorsal','Apellido','Nombre','Posición','Categoría','Partidos jugados','Minutos','% minutos','Goles','Asistencias','Recuperaciones','Pérdidas','Faltas','Amarillas','Rojas','Evaluación promedio','Asistencia a entrenamientos (%)']];
-  filasTabla().forEach(({j,d})=>aoa.push([j.dorsal||'',j.apellido||'',j.nombre||'',posTxt(j.posicion)||'',j.categoria||'',d.st.pj,d.st.min,d.pm,d.st.gol,d.st.asis,d.st.rec,d.st.per,d.st.fal,d.st.ama,d.st.roj,d.ev!=null?d.ev:'',d.asis!=null?d.asis:'']));
+  filasTabla().forEach(({j,d})=>aoa.push([j.dorsal||'',j.apellido||'',j.nombre||'',puestoTxt(j)||'',j.categoria||'',d.st.pj,d.st.min,d.pm,d.st.gol,d.st.asis,d.st.rec,d.st.per,d.st.fal,d.st.ama,d.st.roj,d.ev!=null?d.ev:'',d.asis!=null?d.asis:'']));
   const ws=X.utils.aoa_to_sheet(aoa);ws['!cols']=aoa[0].map((h,i)=>({wch:i===1?16:Math.max(9,String(h).length+2)}));
   const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,J('Pl'));X.writeFile(wb,'tabla-'+J('pl')+'.xlsx');
 }
@@ -1388,11 +1397,11 @@ function perfilJugador(el,j){
     <div class="pj-dorsal" aria-hidden="true">${j.dorsal||''}</div>
     <div class="pj-foto">${j.foto?`<img src="${j.foto}" alt="">`:`<span>${esc(iniciales(j))}</span>`}</div>
     <div class="pj-info">
-      <div class="pj-pos"><b>#${j.dorsal||'–'}</b> ${esc(posTxt(j.posicion))}</div>
+      <div class="pj-pos"><b>#${j.dorsal||'–'}</b> ${esc(puestoTxt(j))} <button class="pj-lapiz" id="editPos" title="Editar perfil" aria-label="Editar perfil">✏️</button></div>
       <h1 class="pj-nom"><span>${esc(j.nombre)}</span>${esc(j.apellido)}</h1>
       <div class="pj-chips"><span>${esc(j.categoria||'Sin categoría')}</span>${edad?`<span>${edad} años</span>`:''}${j.pie?`<span>Pie ${esc(j.pie.toLowerCase())}</span>`:''}${j.altura?`<span>${j.altura} cm</span>`:''}</div>
       <div class="pj-stats">${[['PJ',st.pj],['Min',st.min],['Goles',st.gol],['Asist.',st.asis],['Asistencia',a.t?a.pct+'%':'—'],['Nota',pe!=null?pe.toFixed(1):'—']].map(([t,v])=>`<div><b>${v}</b><i>${t}</i></div>`).join('')}</div>
-      <div class="pj-acc"><button class="btn pri" id="cartaJ">🖼 Carta para compartir</button><button class="btn" id="infJ">📄 Informe de temporada</button><button class="btn" id="editJ">Editar datos y foto</button></div>
+      <div class="pj-acc"><button class="btn pri" id="cartaJ">🖼 Carta para compartir</button><button class="btn" id="infJ">📄 Informe de temporada</button><button class="btn" id="editJ">✏️ Editar perfil</button><button class="btn pj-del" id="delJ">🗑 Eliminar</button></div>
     </div>
     ${ult?`<div class="pj-radar">${radarEval(ult,promEquipoEval())}<div class="pj-ley"><span><i class="yo"></i>${esc(j.nombre)}</span><span><i class="eq"></i>Promedio plantel</span></div></div>`:''}
   </div>
@@ -1407,9 +1416,10 @@ function perfilJugador(el,j){
   ${analisisAvanzado(j)}
   <div class="panel"><h3>Observaciones</h3><p style="margin:0;white-space:pre-wrap" class="${j.obs?'':'tenue'}">${esc(j.obs||'Sin observaciones.')}</p></div>`;
   $('#volver').onclick=()=>ir('plantel');
-  $('#editJ').onclick=()=>editarJugador(j);
+  $('#editJ').onclick=$('#editPos').onclick=()=>editarJugador(j);
   $('#infJ').onclick=()=>informeJugador(j);
   $('#cartaJ').onclick=()=>cartaJugador(j);
+  $('#delJ').onclick=()=>confirmar('¿Eliminar a '+j.nombre+' '+j.apellido+'?','Se borra su perfil del plantel. Sus datos en partidos quedan registrados.'+(MODO==='nube'?' Si te equivocás, lo recuperás desde Ajustes → Papelera durante '+PAPEL_DIAS+' días.':''),'Eliminar',()=>{S.jugadores=S.jugadores.filter(x=>x.id!==j.id);guardar();ir('plantel');aviso(j.nombre+' '+j.apellido+' eliminad'+(RAMA()==='M'?'o':RAMA()==='F'?'a':'a/o'))});
   $('#evalJ').onclick=()=>editarEvaluacion(null,j.id);
 }
 /* Radar de las 5 dimensiones (escala 1 a 10) */
@@ -1444,7 +1454,7 @@ async function cartaJugador(j){
   const es=await img(S.club.escudo);if(es){const k=Math.min(110/es.width,110/es.height);x.drawImage(es,60,50,es.width*k,es.height*k)}
   x.fillStyle='#fff';x.font=`600 30px ${FT}`;x.textAlign='left';x.textBaseline='top';x.fillText((S.club.nombre||'').toUpperCase(),es?190:60,72);x.fillStyle='rgba(255,255,255,.75)';x.font=`500 26px ${FT}`;x.fillText([j.categoria||CATN(),S.club.temporada].filter(Boolean).join(' · '),es?190:60,112);
   // nombre
-  x.textAlign='center';x.textBaseline='alphabetic';x.fillStyle='#FFD400';x.font=`800 34px ${FT}`;x.fillText(('#'+(j.dorsal||'–')+'  ·  '+posTxt(j.posicion)).toUpperCase(),W/2,800);
+  x.textAlign='center';x.textBaseline='alphabetic';x.fillStyle='#FFD400';x.font=`800 34px ${FT}`;x.fillText(('#'+(j.dorsal||'–')+'  ·  '+puestoTxt(j)).toUpperCase(),W/2,800);
   const ajustar=(t,max,tam)=>{let f=tam;do{x.font=`${f}px ${FX}`;f-=4}while(x.measureText(t).width>max&&f>40)};
   x.fillStyle='#fff';ajustar(j.nombre.toUpperCase(),W-120,84);x.fillText(j.nombre.toUpperCase(),W/2,890);ajustar(j.apellido.toUpperCase(),W-120,128);x.fillText(j.apellido.toUpperCase(),W/2,1015);
   // estadísticas
@@ -1547,7 +1557,7 @@ async function informeTemporadaPDF(j){
     azul:[47,111,219],verde:[30,140,90],rojo:[210,64,47],naranja:[240,138,36],violeta:[139,92,246],claro:[230,227,219],blanco:[255,255,255]};
   const club=S.club||{},temp=club.temporada||String(HOY.getFullYear());
   const T=(sz,st,col)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz);doc.setTextColor(...(col||C.texto))};
-  const nombre=(j.nombre+' '+j.apellido).trim(),dorsal=j.dorsal||'–',pos=posTxt(j.posicion)||'Sin posición',esArq=/arquer/i.test(j.posicion||'');
+  const nombre=(j.nombre+' '+j.apellido).trim(),dorsal=j.dorsal||'–',pos=puestoTxt(j)||'Sin posición',esArq=/arquer/i.test(j.posicion||'');
   const posCorta=esArq?'ARQ':/central|lateral|defens/i.test(j.posicion||'')?'DEF':/volante/i.test(j.posicion||'')?'MED':/delanter|extremo/i.test(j.posicion||'')?'DEL':pos.slice(0,3).toUpperCase();
   const edad=j.nacimiento?Math.floor((HOY-deIso(j.nacimiento))/31557600000):null;
   const iniciales=nombre.split(/\s+/).map(p=>p[0]).slice(0,2).join('').toUpperCase();
@@ -1719,13 +1729,13 @@ function reducirFoto(file,cb){
 function editarJugador(j){
   const n=!j;j=j||{id:uid(),nombre:'',apellido:'',dorsal:'',posicion:POSICIONES[3],categoria:CATN(),nacimiento:'',pie:'Derecho',altura:'',foto:'',obs:''};
   let foto=j.foto;
-  modal(n?(RAMA()==='F'?'Nueva jugadora':RAMA()==='M'?'Nuevo jugador':'Nueva ficha'):'Editar '+J('sg'),`
+  modal(n?(RAMA()==='F'?'Nueva jugadora':RAMA()==='M'?'Nuevo jugador':'Nueva ficha'):'Editar perfil de '+j.nombre,`
   <form class="form" id="fJ">
     <div class="ancho" style="display:flex;gap:14px;align-items:center"><div id="prevF">${avatar(j,true)}</div><label class="btn chico" for="fotoJ">Subir foto</label><input type="file" id="fotoJ" accept="image/*" hidden>${foto?'<button type="button" class="btn chico fantasma" id="sacarF">Quitar foto</button>':''}</div>
     <label class="campo">Nombre<input type="text" id="jn" name="nombre" value="${esc(j.nombre)}" required></label>
     <label class="campo">Apellido<input type="text" id="ja" name="apellido" value="${esc(j.apellido)}" required></label>
     <label class="campo">Dorsal<input type="number" id="jd" name="dorsal" min="1" max="99" value="${esc(j.dorsal)}"></label>
-    <label class="campo">Posición<select id="jp" name="posicion">${opts(POSICIONES.map(p=>[p,posTxt(p)]),j.posicion)}</select></label>
+    <label class="campo">Puesto<select id="jp" name="posicion">${opcionesPuesto(j)}</select></label>
     <label class="campo">Categoría<input type="text" id="jc" name="categoria" value="${esc(j.categoria)}" placeholder="Ej.: Primera, Reserva, Sub 16"></label>
     <label class="campo">Fecha de nacimiento<input type="date" id="jf" name="nacimiento" value="${esc(j.nacimiento)}"></label>
     <label class="campo">Pie hábil<select id="jpie" name="pie">${opts(['Derecho','Izquierdo','Ambos'],j.pie)}</select></label>
@@ -1735,7 +1745,7 @@ function editarJugador(j){
   <div class="modal-pie">${n?'':'<button class="btn peligro" id="borrarJ" style="margin-right:auto">Eliminar</button>'}<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="guardarJ">Guardar</button></div>`,{alMontar:m=>{
     $('#fotoJ',m).onchange=e=>{const f=e.target.files[0];if(f)reducirFoto(f,d=>{foto=d;$('#prevF',m).innerHTML=avatar({...j,foto:d},true)})};
     const sf=$('#sacarF',m);if(sf)sf.onclick=()=>{foto='';$('#prevF',m).innerHTML=avatar({...j,foto:''},true)};
-    $('#guardarJ',m).onclick=()=>{const d=leerForm($('#fJ',m));if(!d.nombre.trim()||!d.apellido.trim()){aviso('Completá nombre y apellido.');return}Object.assign(j,d,{dorsal:d.dorsal?+d.dorsal:'',altura:d.altura?+d.altura:'',foto});if(n)S.jugadores.push(j);guardar();cerrarModal();aviso('Guardado');ruta==='plantel'?ir('plantel',j.id):pintar()};
+    $('#guardarJ',m).onclick=()=>{const d=leerForm($('#fJ',m));if(!d.nombre.trim()||!d.apellido.trim()){aviso('Completá nombre y apellido.');return}const pv=d.posicion;delete d.posicion;Object.assign(j,d,{dorsal:d.dorsal?+d.dorsal:'',altura:d.altura?+d.altura:'',foto});aplicarPuesto(j,pv);if(n)S.jugadores.push(j);guardar();cerrarModal();aviso('Guardado');ruta==='plantel'?ir('plantel',j.id):pintar()};
     const b=$('#borrarJ',m);if(b)b.onclick=()=>confirmar('¿Eliminar a '+j.nombre+'?','Se borra su ficha. Sus eventos en partidos quedan registrados.','Eliminar',()=>{S.jugadores=S.jugadores.filter(x=>x.id!==j.id);guardar();ir('plantel')});
   }});
 }
@@ -3271,7 +3281,7 @@ async function datosPublicos(p){
   const o={clubId:CLUB,club:S.club.nombre||'',categoria:catNombre(p.cat)||'',rama:ramaDe(p.cat)||'F',escudo:S.club.escudo||'',estilo:S.club.pizarraEstilo||{},
     rival:p.rival||'',rivalEscudo:p.rivalEscudo||'',fecha:p.fecha,hora:p.hora||'',condicion:p.condicion||'',competicion:p.competicion||'',jornada:p.jornada||'',lugar:p.lugar||'',
     citacion:{hora:c.hora||'',lugar:c.lugar||'',llevar:[...(c.llevar||[]),...(c.otros?[c.otros]:[])],obs:c.obs||''},kits:{propia:kitDe(p,'propia'),arquera:kitDe(p,'arquera'),rival:kitDe(p,'rival')},actualizado:new Date().toISOString()};
-  if(inc.conv)o.convocados=conv.map(j=>({d:j.dorsal||'',n:j.nombre+' '+j.apellido,p:posTxt(j.posicion)||'',f:fm[j.id]||''}));
+  if(inc.conv)o.convocados=conv.map(j=>({d:j.dorsal||'',n:j.nombre+' '+j.apellido,p:puestoTxt(j)||'',f:fm[j.id]||''}));
   if(inc.aline&&p.titulares.length){const a=alineDe(p);o.aline={pz:pizarraAline(p,false,false,fm),sistema:a.sistema,sup:conv.filter(j=>!a.slots.includes(j.id)).map(j=>(j.dorsal?j.dorsal+' ':'')+j.nombre[0]+'. '+j.apellido)}}
   if(inc.rival){const inf=p.informe||{};o.informe={sistema:inf.sistema||'',items:INF_RIVAL.filter(([k])=>inf[k]).map(([k,t])=>[infRivalTxt(k,t),inf[k]]),pz:inf.sistema?pizarraAline(p,true):null}}
   if(inc.piz)o.pizarras=(p.pizarras||[]).map(id=>S.pizarras.find(z=>z.id===id)).filter(Boolean).slice(0,8).map(z=>JSON.parse(JSON.stringify(z)));
@@ -3556,7 +3566,7 @@ function previaPartido(el,p){
   const todos=ordenJ(SJ());
   el.innerHTML=`<div class="grilla g2">
     <div class="panel"><div class="panel-cab"><h3>Convocatoria</h3><span class="chip" id="nConv">${p.convocados.length}</span><div class="der"><button class="btn chico" id="convTodas">Todo el plantel</button><button class="btn chico fantasma" id="convNinguna">Ninguna/o</button></div></div>
-      <div class="lista">${todos.map(j=>`<label class="fila" style="cursor:pointer"><input type="checkbox" data-conv="${j.id}" ${p.convocados.includes(j.id)?'checked':''}><span class="dorsal">${j.dorsal||'–'}</span><span style="flex:1">${esc(j.nombre+' '+j.apellido)}</span><span class="sub" style="font-size:12.5px">${esc(posTxt(j.posicion))}</span></label>`).join('')||'<div class="vacio">Cargá el plantel primero.</div>'}</div></div>
+      <div class="lista">${todos.map(j=>`<label class="fila" style="cursor:pointer"><input type="checkbox" data-conv="${j.id}" ${p.convocados.includes(j.id)?'checked':''}><span class="dorsal">${j.dorsal||'–'}</span><span style="flex:1">${esc(j.nombre+' '+j.apellido)}</span><span class="sub" style="font-size:12.5px">${esc(puestoTxt(j))}</span></label>`).join('')||'<div class="vacio">Cargá el plantel primero.</div>'}</div></div>
     <div class="panel"><div class="panel-cab"><h3>Titulares y suplentes</h3><span class="chip ${p.titulares.length===11?'ok':'aviso'}" id="nTit">${p.titulares.length} titulares</span></div>
       <p class="sub" style="margin:0 0 10px;font-size:13.5px">Tocá para pasar de suplente a titular.</p>
       <div class="en-cancha" id="titSup"></div>
@@ -4193,7 +4203,7 @@ VISTAS.cargas=el=>{
   </div>
   <div class="panel"><div class="panel-cab"><h3>${J('Pl')} · semáforo</h3><span class="sub" style="margin-left:auto;font-size:13px">Tocá para ver el perfil</span></div>
     <div class="cg-tabla"><div class="cg-f cg-h"><span></span><span>${J('Sg')}</span><span>Esta semana</span><span>Prom. mes</span><span>Relación</span><span>Últimas 6 semanas</span><span>Bienestar</span></div>
-    ${filas.map(f=>`<div class="cg-f click e${f.est}" data-jug="${f.j.id}">${avatar(f.j)}<span class="cg-n"><b>${esc(f.j.nombre+' '+f.j.apellido)}</b><i>${esc(posTxt(f.j.posicion))}</i></span><span class="num" data-t="Esta semana">${Math.round(f.ag)} <i>UA</i></span><span class="num" data-t="Prom. mes">${Math.round(f.cr)} <i>UA</i></span><span class="cg-r" data-t="Relación"><b>${f.r==null?'—':f.r.toFixed(2).replace('.',',')}</b>${medidorCarga(f.r)}</span><span class="cg-sp">${sparkline(f.sem,{w:130,h:34,max:Math.max(1,...f.sem),color:f.est===3?'var(--rojo)':f.est===2?'var(--ambar)':'var(--verde)'})}</span><span class="cg-b">${f.b&&f.b.a.length?`<span class="chip mal">⚠ ${esc(f.b.a.join(', '))}</span>`:f.b?'<span class="chip ok">Bien</span>':'<span class="tenue">—</span>'}</span></div>`).join('')}</div></div>`);
+    ${filas.map(f=>`<div class="cg-f click e${f.est}" data-jug="${f.j.id}">${avatar(f.j)}<span class="cg-n"><b>${esc(f.j.nombre+' '+f.j.apellido)}</b><i>${esc(puestoTxt(f.j))}</i></span><span class="num" data-t="Esta semana">${Math.round(f.ag)} <i>UA</i></span><span class="num" data-t="Prom. mes">${Math.round(f.cr)} <i>UA</i></span><span class="cg-r" data-t="Relación"><b>${f.r==null?'—':f.r.toFixed(2).replace('.',',')}</b>${medidorCarga(f.r)}</span><span class="cg-sp">${sparkline(f.sem,{w:130,h:34,max:Math.max(1,...f.sem),color:f.est===3?'var(--rojo)':f.est===2?'var(--ambar)':'var(--verde)'})}</span><span class="cg-b">${f.b&&f.b.a.length?`<span class="chip mal">⚠ ${esc(f.b.a.join(', '))}</span>`:f.b?'<span class="chip ok">Bien</span>':'<span class="tenue">—</span>'}</span></div>`).join('')}</div></div>`);
   $$('[data-jug]',el).forEach(x=>x.onclick=()=>ir('plantel',x.dataset.jug));
 };
 VISTAS.evaluaciones=el=>{
@@ -4221,7 +4231,7 @@ VISTAS.evaluaciones=el=>{
     ${DIM_EVAL.map(([c,n],i)=>{const y=i*44+14;return `<text x="0" y="${y+15}" style="fill:var(--tinta);font-weight:600;font-size:13px">${n}</text><rect x="150" y="${y+4}" width="${u[c]*38}" height="16" rx="4" fill="var(--tinta)"><title>${n}: ${u[c]} (última)</title></rect><text x="${150+u[c]*38+(u[c]>=9.5?-8:8)}" y="${y+16}" text-anchor="${u[c]>=9.5?'end':'start'}" style="fill:${u[c]>=9.5?'var(--carta)':'var(--tinta)'};font-weight:700">${u[c]}</text>${a?`<circle cx="${150+a[c]*38}" cy="${y+12}" r="5.5" fill="var(--carta)" stroke="var(--bronce)" stroke-width="2.5"><title>Anterior: ${a[c]}</title></circle>`:''}<line x1="${150+promPlantel[c]*38}" y1="${y}" x2="${150+promPlantel[c]*38}" y2="${y+24}" stroke="var(--verde)" stroke-width="3" stroke-linecap="round"><title>Promedio del plantel: ${promPlantel[c].toFixed(1)}</title></line>`}).join('')}</svg></div>
     <div class="leyenda"><span><i style="background:var(--tinta)"></i>Última (${fCorta(u.fecha)})</span>${a?`<span><i style="background:var(--carta);border:2.5px solid var(--bronce);border-radius:50%"></i>Anterior (${fCorta(a.fecha)})</span>`:''}<span><i style="background:var(--verde);width:3px"></i>Promedio del plantel</span></div>`:'<div class="vacio">Sin evaluaciones todavía.</div>';
   t.innerHTML=`<div class="filtros"><select id="selJ" style="width:auto" aria-label="${J('Sg')}">${opts(ordenJ(SJ()).map(x=>[x.id,(x.dorsal?x.dorsal+' · ':'')+x.nombre+' '+x.apellido]),j.id)}</select><button class="btn chico" id="evalEsta">＋ Evaluar a ${esc(j.nombre)}</button></div>
-  <div class="grilla g2" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);margin-bottom:16px"><div class="panel"><div class="panel-cab">${avatar(j)}<div><h3>${esc(j.nombre+' '+j.apellido)}</h3><div class="sub" style="font-size:13px">${esc(posTxt(j.posicion))} · ${ev.length} evaluaciones</div></div>${u?`<div class="der"><div style="text-align:right"><div class="etq">Promedio</div><div class="dato">${promEval(u).toFixed(1)}</div></div></div>`:''}</div>${comp}</div>
+  <div class="grilla g2" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);margin-bottom:16px"><div class="panel"><div class="panel-cab">${avatar(j)}<div><h3>${esc(j.nombre+' '+j.apellido)}</h3><div class="sub" style="font-size:13px">${esc(puestoTxt(j))} · ${ev.length} evaluaciones</div></div>${u?`<div class="der"><div style="text-align:right"><div class="etq">Promedio</div><div class="dato">${promEval(u).toFixed(1)}</div></div></div>`:''}</div>${comp}</div>
   <div class="panel"><h3>Evolución</h3>${ev.length?`<div class="lista">${DIM_EVAL.map(([c,n])=>`<div class="fila"><span style="flex:1">${n}</span>${sparkline(ev.map(x=>+x[c]),{w:130,h:34})}<b class="num" style="min-width:22px;text-align:right">${u[c]}</b></div>`).join('')}</div>`:'<div class="vacio">Sin datos.</div>'}</div></div>
   <div class="panel"><h3>Historial</h3>${ev.length?`<div class="tabla-c" style="border:0"><table><thead><tr><th>Fecha</th>${DIM_EVAL.map(([,n])=>`<th class="n">${n}</th>`).join('')}<th class="n">Prom.</th><th>Observaciones</th><th></th></tr></thead><tbody>${[...ev].reverse().map(e=>`<tr><td>${fFecha(e.fecha)}</td>${DIM_EVAL.map(([c])=>`<td class="n">${e[c]}</td>`).join('')}<td class="n"><b>${promEval(e).toFixed(1)}</b></td><td class="sub">${esc(e.obs||'')}</td><td><button class="btn chico fantasma" data-ee="${e.id}">Editar</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="vacio">Sin evaluaciones.</div>'}</div>`;
   $('#selJ').onchange=e=>{evalJug=e.target.value;pintar()};
@@ -4290,7 +4300,7 @@ function tomarAsistencia(el,k){
   el.innerHTML=`<button class="btn fantasma chico" id="volA" style="margin-bottom:12px">← Asistencia</button>`+cabecera((tp==='s'?'Entrenamiento':'Partido')+' · '+fFecha(act.fecha),tp==='s'?act.titulo:'vs '+act.rival,'',`<button class="btn pri" id="linkConf">📲 Link para confirmar</button><button class="btn" id="todosP">Todos presentes</button>`)+
   `<div id="confBox"></div>`+
   `<div class="chips" style="margin-bottom:14px" id="resA"><span class="chip ok">${c.P} presentes</span><span class="chip aviso">${c.J} justificadas</span><span class="chip mal">${c.A} ausentes</span>${c.sin?`<span class="chip">${c.sin} sin marcar</span>`:''}</div>
-  <div class="panel"><div class="lista">${lista.map(j=>`<div class="fila" style="flex-wrap:wrap">${avatar(j)}<div style="min-width:140px;flex:1"><b>${esc(j.nombre+' '+j.apellido)}</b><div class="sub" style="font-size:12.5px">#${j.dorsal||'–'} · ${esc(posTxt(j.posicion))}</div></div>
+  <div class="panel"><div class="lista">${lista.map(j=>`<div class="fila" style="flex-wrap:wrap">${avatar(j)}<div style="min-width:140px;flex:1"><b>${esc(j.nombre+' '+j.apellido)}</b><div class="sub" style="font-size:12.5px">#${j.dorsal||'–'} · ${esc(puestoTxt(j))}</div></div>
     <div class="seg" role="group" aria-label="Asistencia de ${esc(j.nombre)}">${[['P','Presente'],['J','Justificada'],['A','Ausente']].map(([v,t])=>`<button data-a="${j.id}" data-v="${v}" class="${reg.reg[j.id]===v?'activo':''}">${t}</button>`).join('')}</div>
     <span data-cr="${j.id}"></span><input type="text" data-o="${j.id}" value="${esc(reg.obs[j.id]||'')}" placeholder="Observación" style="max-width:220px" aria-label="Observación"></div>`).join('')}</div></div>`;
   const save=()=>{S.asistencia[k]=reg;guardar();const c=cont();$('#resA').innerHTML=`<span class="chip ok">${c.P} presentes</span><span class="chip aviso">${c.J} justificadas</span><span class="chip mal">${c.A} ausentes</span>${c.sin?`<span class="chip">${c.sin} sin marcar</span>`:''}`};
