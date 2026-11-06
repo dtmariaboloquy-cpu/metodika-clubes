@@ -382,7 +382,16 @@ body.sin-menu .lateral{display:none}
 .cj .mini span{white-space:nowrap}.cj .mini b{display:inline;color:var(--tinta)}
 .cj .minbar{margin-top:6px}
 .cj .minbar .lbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sub);margin-bottom:3px}
-.cj{align-items:flex-start}
+.cj{align-items:stretch;flex-direction:column;padding:0;overflow:hidden;gap:0}
+.cj-foto{position:relative;height:170px;background:#26261F;display:grid;place-items:center;overflow:hidden}
+.cj-foto img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.cj-foto .ini{width:92px;height:92px;border-radius:50%;background:#141412;border:3px solid #fff;display:grid;place-items:center;font:400 40px/1 var(--f-x,'Barlow Condensed');color:#FFD400;box-shadow:0 6px 16px rgba(0,0,0,.35);margin-top:-16px;position:relative;z-index:1}
+.cj-foto:after{content:"";position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(transparent,rgba(0,0,0,.45));pointer-events:none}
+.cj-dor{position:absolute;left:10px;top:8px;z-index:1;font:400 34px/1 var(--f-x,'Barlow Condensed');color:#FFD400;text-shadow:0 2px 0 #141412,0 0 10px rgba(0,0,0,.4)}
+.cj-foto .addf{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:2;background:#FFD400;color:#141412;font:700 12.5px var(--f-t);padding:5px 11px;border-radius:16px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.cj-foto .camf{position:absolute;right:8px;bottom:8px;z-index:2;background:rgba(20,20,18,.75);color:#fff;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;font-size:15px;opacity:0;transition:opacity .15s}
+.cj:hover .camf{opacity:1}@media (hover:none){.cj-foto .camf{opacity:1}}
+.cj-txt{padding:12px 14px 14px}
 .cj>div:last-child{flex:1}
 .linea-tit{font-family:var(--f-d);font-size:20px;font-weight:700;letter-spacing:.3px;margin:22px 0 10px}
 .linea-tit:first-of-type{margin-top:4px}
@@ -1146,10 +1155,10 @@ VISTAS.plantel=el=>{
   const cats=[...new Set(SJ().map(j=>j.categoria).filter(Boolean))];
   const lista=ordenJ(SJ().filter(j=>(!filtroPos||j.posicion===filtroPos)&&(!filtroCat||j.categoria===filtroCat)));
   const minTot=minutosEquipo();
-  el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button><button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
+  el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button>${SJ().length?'<button class="btn" id="fotosJ">📷 Cargar fotos</button>':''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
   `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
    <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select></div>`+
-  (lista.length?(()=>{const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj" data-id="${j.id}">${avatar(j)}<div style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small><span class="dorsal" style="font-size:14px">${j.dorsal||'–'}</span> ${esc(posTxt(j.posicion))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
+  (lista.length?(()=>{const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj" data-id="${j.id}"><div class="cj-foto" style="${j.foto?'':'background:'+cssCamiseta()}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(posTxt(j.posicion))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
     if(filtroPos)return `<div class="cartas-j">${lista.map(carta).join('')}</div>`;
     return LINEAS.map(([k])=>{const g=lista.filter(j=>lineaDe(j)===k);return g.length?`<h2 class="linea-tit">${g.length} ${esc(nombreLinea(k,g.length))}</h2><div class="cartas-j">${g.map(carta).join('')}</div>`:''}).join('')})():`<div class="vacio">Todavía no cargaste ${J('pl')}.<br><button class="btn pri" style="margin-top:12px" id="nuevaJ2">＋ Agregar ${J('sg')}</button></div>`);
   $('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
@@ -1160,8 +1169,24 @@ VISTAS.plantel=el=>{
   const tp=$('#tablaPdf');if(tp)tp.onclick=()=>tablaJugadoresPDF().catch(()=>aviso('No se pudo generar el PDF.'));
   const tx=$('#tablaXls');if(tx)tx.onclick=()=>tablaJugadoresExcel().catch(()=>aviso('No se pudo generar el Excel.'));
   const n2=$('#nuevaJ2');if(n2)n2.onclick=()=>editarJugador();
-  $$('.cj',el).forEach(b=>b.onclick=()=>ir('plantel',b.dataset.id));
+  $$('.cj',el).forEach(b=>b.onclick=ev=>{const f=ev.target.closest('[data-foto]');if(f){ev.stopPropagation();fotoRapida(f.dataset.foto);return}ir('plantel',b.dataset.id)});
+  const fm=$('#fotosJ');if(fm)fm.onclick=()=>cargarFotosMasivo();
 };
+/* ---------- Fotos: una sola o muchas de una vez ---------- */
+function fotoRapida(id){const j=S.jugadores.find(x=>x.id===id);if(!j)return;const i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=()=>{const f=i.files[0];if(!f)return;reducirFoto(f,d=>{j.foto=d;guardar();pintar();aviso('Foto de '+j.nombre+' guardada')})};i.click()}
+function normTxt(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9ñ]+/g,' ').trim()}
+function adivinarJugadora(nombreArchivo,lista){const base=normTxt(nombreArchivo.replace(/\.[a-z0-9]+$/i,'')),tok=base.split(' ').filter(Boolean),nums=tok.filter(t=>/^\d+$/.test(t));let mejor=null,mp=0;
+  lista.forEach(j=>{let pts=0;const ap=normTxt(j.apellido).split(' '),no=normTxt(j.nombre).split(' ');if(ap.every(a=>a&&tok.includes(a)))pts+=3;if(no.some(n=>n&&tok.includes(n)))pts+=2;if(j.dorsal&&nums.length===1&&+nums[0]===+j.dorsal)pts+=ap.some(a=>tok.includes(a))?1:2;if(pts>mp){mp=pts;mejor=j}});return mp>=2?mejor:null}
+function cargarFotosMasivo(lista){lista=lista||ordenJ(SJ());const i=document.createElement('input');i.type='file';i.accept='image/*';i.multiple=true;
+  i.onchange=()=>{const fs=[...i.files];if(!fs.length)return;const usadas=new Set();const filas=fs.map(f=>{const j=adivinarJugadora(f.name,lista.filter(x=>!usadas.has(x.id)));if(j)usadas.add(j.id);return {f,url:URL.createObjectURL(f),id:j?j.id:''}});
+    modal('Cargar fotos del plantel',`<p class="sub" style="margin:0 0 10px">Elegí a quién corresponde cada foto. Si el archivo se llama con el apellido o el dorsal (por ejemplo <b>${esc(((lista[0]||{}).apellido)||'Perez')}.jpg</b> o <b>10.jpg</b>), Metodika la reconoce sola.</p>
+      <div class="lista" style="max-height:52vh;overflow:auto">${filas.map((r,k)=>`<div class="fila" style="gap:12px"><img src="${r.url}" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none"><span class="sub" style="font-size:12px;flex:1;min-width:0;overflow-wrap:anywhere">${esc(r.f.name)}</span><select data-fj="${k}" style="max-width:220px"><option value="">— No usar —</option>${lista.map(j=>`<option value="${j.id}" ${r.id===j.id?'selected':''}>${j.dorsal?j.dorsal+' · ':''}${esc(j.nombre+' '+j.apellido)}${j.foto?' (ya tiene)':''}</option>`).join('')}</select></div>`).join('')}</div>
+      <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="fjOk">Guardar fotos</button></div>`,{ancho:true,alMontar:m=>{
+        $$('[data-fj]',m).forEach(sl=>sl.onchange=()=>{filas[+sl.dataset.fj].id=sl.value});
+        $('#fjOk',m).onclick=async()=>{const ok=filas.filter(r=>r.id);if(!ok.length){aviso('No elegiste ninguna');return}$('#fjOk',m).disabled=true;$('#fjOk',m).textContent='Guardando…';
+          await Promise.all(ok.map(r=>new Promise(res=>reducirFoto(r.f,d=>{const j=S.jugadores.find(x=>x.id===r.id);if(j)j.foto=d;res()}))));
+          filas.forEach(r=>URL.revokeObjectURL(r.url));guardar();cerrarModal();pintar();aviso(ok.length+(ok.length===1?' foto guardada':' fotos guardadas'))}}})};
+  i.click()}
 /* ================= PLANTEL POR LÍNEA, COMPARAR Y TABLA ================= */
 const LINEAS=[['ARQ'],['DEF'],['MED'],['DEL'],['SIN']];
 function lineaDe(j){const p=j.posicion||'';return /arquer/i.test(p)?'ARQ':/volante|medio/i.test(p)?'MED':/central|lateral|defens/i.test(p)?'DEF':/delanter|extremo/i.test(p)?'DEL':'SIN'}
@@ -1222,7 +1247,7 @@ const COLS_IMP=['Nombre','Apellido','Dorsal','Posición','Categoría','Nacimient
 async function plantillaPlantel(){const X=await cargarXLSX();const ej=RAMA()==='M'?['Juan','Pérez',10,'Volante central',CATN()||'','15/03/2008','Derecho',172]:['Sofía','Gómez',10,'Volante central',CATN()||'','15/03/2008','Derecho',165];
   const ws=X.utils.aoa_to_sheet([COLS_IMP,ej]);ws['!cols']=COLS_IMP.map(h=>({wch:Math.max(12,h.length+2)}));const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,'Plantel');X.writeFile(wb,'plantilla-plantel-metodika.xlsx')}
 function posDesdeTexto(t){t=String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');if(!t)return POSICIONES[3];
-  const m=[[/arquer|portero|golero|^arq/,0],[/central|zaguer|defensor central|^dfc/,1],[/lateral|carrilero/,2],[/volante central|mediocentro|pivote|^5$/,3],[/interno|interna|volante|medio/,4],[/extrem|punta|wing|ala/,5],[/delanter|centrodelanter|^9$/,6]];for(const [r,i] of m)if(r.test(t))return POSICIONES[i];return POSICIONES[3]}
+  const m=[[/arquer|portero|golero|^arq/,0],[/volante central|mediocentro|pivote|contencion|^5$/,3],[/central|zaguer|defensor central|^dfc/,1],[/lateral|carrilero/,2],[/interno|interna|volante|medio/,4],[/extrem|punta|wing|ala/,5],[/delanter|centrodelanter|^9$/,6]];for(const [r,i] of m)if(r.test(t))return POSICIONES[i];return POSICIONES[3]}
 function fechaDesde(v,X){if(v==null||v==='')return '';if(typeof v==='number'){const d=X.SSF.parse_date_code(v);if(d)return d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0')}
   const t=String(v).trim();let m=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=y>30?1900:2000;return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}m=t.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
 function importarPlantel(){
@@ -1236,14 +1261,19 @@ function importarPlantel(){
           const norm=k=>String(k).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
           const get=(r,...ks)=>{for(const k of Object.keys(r)){const n=norm(k);if(ks.some(x=>n.startsWith(x)))return r[k]}return ''};
           const existe=new Set(SJ().map(j=>norm(j.nombre+' '+j.apellido)));
-          const nuevos=[],rep=[];filas.forEach(r=>{let nom=String(get(r,'nombre')).trim(),ape=String(get(r,'apellido')).trim();if(!ape&&nom.includes(' ')){const pz=nom.split(/\s+/);ape=pz.pop();nom=pz.join(' ')}if(!nom||!ape)return;
-            const j={id:uid(),nombre:nom,apellido:ape,dorsal:+get(r,'dorsal','numero','nro','camiseta')||'',posicion:posDesdeTexto(get(r,'posicion','puesto')),categoria:String(get(r,'categoria')).trim()||CATN()||'',nacimiento:fechaDesde(get(r,'nacimiento','fecha de nac','fecha nac'),X),pie:/izq/i.test(get(r,'pie'))?'Izquierdo':/amb/i.test(get(r,'pie'))?'Ambidiestro':'Derecho',altura:+get(r,'altura')||'',foto:'',obs:''};
+          const nuevos=[],rep=[];filas.forEach(r=>{let nom=String(get(r,'nombre')).trim(),ape=String(get(r,'apellido')).trim();
+            const comb=String(get(r,'apellido y nombre','apellido, nombre','nombre y apellido','nombre completo','jugadora','jugador','integrante')).trim();
+            if((!nom||!ape)&&comb){if(comb.includes(',')){const [a,n]=comb.split(',');ape=a.trim();nom=(n||'').trim()}else{const pz=comb.split(/\s+/);if(/apellido y nombre/.test(Object.keys(r).map(norm).join('|'))){ape=pz.shift();nom=pz.join(' ')}else{ape=pz.pop();nom=pz.join(' ')}}}
+            if(!ape&&nom.includes(' ')){const pz=nom.split(/\s+/);ape=pz.pop();nom=pz.join(' ')}
+            const may=t=>t&&t===t.toUpperCase()?t.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):t;nom=may(nom);ape=may(ape);if(!nom||!ape)return;
+            const j={id:uid(),nombre:nom,apellido:ape,dorsal:+String(get(r,'dorsal','numero','nro','camiseta','n°','nº','n ','num','#')).replace(/[^0-9]/g,'')||'',posicion:posDesdeTexto(get(r,'posicion','puesto')),categoria:String(get(r,'categoria')).trim()||CATN()||'',nacimiento:fechaDesde(get(r,'nacimiento','fecha de nac','fecha nac'),X),pie:/izq/i.test(get(r,'pie'))?'Izquierdo':/amb/i.test(get(r,'pie'))?'Ambidiestro':'Derecho',altura:+get(r,'altura')||'',foto:'',obs:''};
             (existe.has(norm(nom+' '+ape))?rep:nuevos).push(j)});
           if(!nuevos.length){box.innerHTML=`<div class="vacio">${rep.length?'Todas las personas del archivo ya están en el plantel.':'No encontré filas con Nombre y Apellido. Usá la plantilla.'}</div>`;return}
           box.innerHTML=`<div class="panel" style="padding:12px"><b>${nuevos.length} ${nuevos.length===1?J('sg'):J('pl')} para agregar</b>${rep.length?` <span class="sub">· ${rep.length} ya estaban y se saltean</span>`:''}
             <div class="lista" style="max-height:38vh;overflow:auto;margin-top:8px">${nuevos.map(j=>`<div class="fila" style="padding:6px 0"><span class="dorsal" style="min-width:28px">${j.dorsal||'–'}</span><b style="flex:1">${esc(j.nombre+' '+j.apellido)}</b><span class="sub" style="font-size:13px">${esc(posTxt(j.posicion))}${j.nacimiento?' · '+esc(fFecha(j.nacimiento)):''}</span></div>`).join('')}</div></div>
             <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ipOk">Agregar al plantel</button></div>`;
-          $('#ipOk',m).onclick=()=>{S.jugadores.push(...nuevos);guardar();cerrarModal();aviso(nuevos.length+' '+(nuevos.length===1?J('sg'):J('pl'))+' '+(nuevos.length===1?'agregada/o':'agregadas/os'));pintar()};
+          $('#ipOk',m).onclick=()=>{S.jugadores.push(...nuevos);guardar();cerrarModal();pintar();
+            modal('¡Listo! Se armaron '+nuevos.length+' perfiles',`<p style="margin:0 0 12px">Cada ${J('sg')} ya tiene su perfil con los datos del Excel. ¿Querés sumar las fotos ahora?</p><p class="sub" style="margin:0 0 12px;font-size:13.5px">Podés elegir todas las fotos juntas: si cada archivo tiene el apellido o el dorsal en el nombre, Metodika las ubica sola.</p><div class="modal-pie"><button class="btn" data-cerrar>Más tarde</button><button class="btn pri" id="ipFotos">📷 Cargar fotos</button></div>`,{alMontar:m2=>{$('#ipFotos',m2).onclick=()=>{cerrarModal();cargarFotosMasivo(nuevos)}}})};
         }catch(x){console.warn(x);box.innerHTML='<div class="vacio">No pude leer el archivo. Probá guardarlo como .xlsx o .csv.</div>'}};
     }});
 }
@@ -1993,6 +2023,11 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
     if(!mini&&pz.verDist!==false){const fs=r*.62;o+=`<text x="${(x1+x2)/2*k}" y="${(y1+y2)/2*k-r*.35}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${fs}" fill="#fff" stroke="rgba(0,0,0,.65)" stroke-width="${fs*.24}" paint-order="stroke">${distTxt(Math.hypot(x2-x1,y2-y1))}</text>`}
     if(sel&&sel.tipo==='ln'&&sel.id===l.id&&!mini)o+=`<line x1="${x1*k}" y1="${y1*k}" x2="${x2*k}" y2="${y2*k}" stroke="#fff" stroke-width="${r*.06}" stroke-dasharray="${r*.3} ${r*.2}"/>`;
     return o}).join('');
+  if(multi&&multi.size&&!mini){const ce=`fill="none" stroke="#4FB3E8" stroke-width="${r*.14}" stroke-dasharray="${r*.35} ${r*.25}"`;
+    pz.flechas.filter(a=>multi.has('fl:'+a.id)).forEach(a=>{hl+=`<path d="${dFlecha(a,k,r/k)}" ${ce} stroke-opacity=".9"/>`});
+    pz.textos.filter(t=>multi.has('tx:'+t.id)).forEach(t=>{const w=t.txt.length*r*(t.tam||1)*.3;hl+=`<rect x="${t.x*k-w-r*.3}" y="${t.y*k-r*(t.tam||1)}" width="${w*2+r*.6}" height="${r*(t.tam||1)*1.3}" ${ce}/>`});
+    pz.zonas.filter(z=>multi.has('zo:'+z.id)).forEach(z=>{hl+=`<rect x="${z.x*k}" y="${z.y*k}" width="${z.w*k}" height="${z.h*k}" ${ce}/>`});
+    (pz.trazos||[]).filter(t=>multi.has('tr:'+t.id)).forEach(t=>{hl+=`<polyline points="${t.pts.map(q=>q[0]*k+','+q[1]*k).join(' ')}" ${ce}/>`})}
   if(multi&&multi.size&&!mini)pz.elementos.filter(e=>multi.has(e.id)).forEach(e=>{const [x,y]=pos(e);hl+=`<circle cx="${x*k}" cy="${y*k}" r="${r*1.55}" fill="none" stroke="#4FB3E8" stroke-width="${r*.14}" stroke-dasharray="${r*.35} ${r*.25}"/>`});
   if(rectSel)hl+=`<rect x="${Math.min(rectSel.x1,rectSel.x2)*k}" y="${Math.min(rectSel.y1,rectSel.y2)*k}" width="${Math.abs(rectSel.x2-rectSel.x1)*k}" height="${Math.abs(rectSel.y2-rectSel.y1)*k}" fill="rgba(79,179,232,.12)" stroke="#4FB3E8" stroke-width="${r*.08}" stroke-dasharray="${r*.3} ${r*.2}"/>`;
   const extra=mini?'':svgBloque(pz,pos,k,r,W,H)+svgNota(pz,over?frame+1:frame,k,W,H);
@@ -2340,7 +2375,7 @@ function pintarSel(){
   if(!SEL&&MULTI.size){
     const ids=[...MULTI];
     box.innerHTML=`<div class="panel" style="margin-top:12px"><div class="panel-cab"><div><div class="etq">Seleccionadas</div><h3 style="margin-top:2px">${ids.length} piezas</h3></div><div class="der"><button class="btn chico fantasma" id="mX">Listo</button></div></div>
-      <p class="sub" style="margin:0 0 8px;font-size:13px">Arrastrá cualquiera de las marcadas para mover el bloque entero.</p>
+      <p class="sub" style="margin:0 0 8px;font-size:13px">Arrastrá cualquiera de las marcadas para mover todo junto. Con <b>Supr</b> o <b>Eliminar</b> las borrás de una vez. Tip: con <b>Shift + clic</b> sumás o sacás piezas.</p>
       <div class="colores">${PALETA_J.map(c=>`<button class="sw" data-mc="${c}" style="${swBg(c)}" title="${c}"></button>`).join('')}</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn chico" id="mFila" title="Todas a la misma altura">⇹ Alinear en fila</button><button class="btn chico" id="mCol" title="Todas en la misma columna">⇵ Alinear en columna</button><button class="btn chico" id="mRep" title="Misma distancia entre cada una">↔ Repartir parejo</button><button class="btn chico" id="mDup">Duplicar</button><button class="btn chico" id="mUnir">Unir en línea</button><button class="btn chico peligro" id="mDel">Eliminar</button></div></div>`;
     $('#mX',box).onclick=()=>{MULTI.clear();redibujar();pintarSel()};
@@ -2351,7 +2386,7 @@ function pintarSel(){
       else{const hz=Math.max(...xs)-Math.min(...xs)>=Math.max(...ys)-Math.min(...ys),i=hz?0:1;L.sort((a,b)=>a.p[i]-b.p[i]);const a0=L[0].p[i],a1=L[L.length-1].p[i];L.forEach((q,n)=>{const v=a0+(a1-a0)*n/(L.length-1);setPos(q.e,hz?v:q.p[0],hz?q.p[1]:v)})}
       redibujar();pintarSel()};
     $('#mFila',box).onclick=()=>alin('fila');$('#mCol',box).onclick=()=>alin('col');$('#mRep',box).onclick=()=>alin('rep');
-    $('#mDel',box).onclick=()=>{snap();PZ.elementos=PZ.elementos.filter(e=>!MULTI.has(e.id));PZ.lineas=PZ.lineas.filter(l=>!MULTI.has(l.a)&&!MULTI.has(l.b));PZ.pasos.forEach(p=>ids.forEach(id=>delete p.pos[id]));MULTI.clear();redibujar();pintarSel()};
+    $('#mDel',box).onclick=borrarMulti;
     $('#mDup',box).onclick=()=>{snap();const d=radio(PZ.formato)*2.4,nuevos=new Set();PZ.elementos.filter(e=>MULTI.has(e.id)).forEach(e=>{const [x,y]=posEn(PZ,e,FR);const c={...e,id:uid(),x:x+d,y:y+d};PZ.elementos.push(c);nuevos.add(c.id)});MULTI=nuevos;redibujar();pintarSel()};
     $('#mUnir',box).onclick=()=>{snap();const els=PZ.elementos.filter(e=>MULTI.has(e.id)).map(e=>({e,p:posEn(PZ,e,FR)}));const [W,H]=FORMATOS[PZ.formato];const v=esVertical(PZ.formato);els.sort((a,b)=>v?a.p[0]-b.p[0]:a.p[1]-b.p[1]);for(let i=1;i<els.length;i++)PZ.lineas.push({id:uid(),a:els[i-1].e.id,b:els[i].e.id});redibujar()};
     $$('[data-mc]',box).forEach(b=>b.onclick=()=>{snap();PZ.elementos.forEach(e=>{if(MULTI.has(e.id)&&(e.t==='J'||b.dataset.mc!=='hueco'))e.color=b.dataset.mc});redibujar()});
@@ -2392,12 +2427,21 @@ function pintarSel(){
   if(q('txV'))q('txV').oninput=e=>{PZ.textos.find(x=>x.id===SEL.id).txt=e.target.value;redibujar()};
   if(q('txT'))q('txT').onchange=e=>{PZ.textos.find(x=>x.id===SEL.id).tam=+e.target.value;redibujar()};
 }
+function arrastreGrupo(p){const orig={};PZ.elementos.filter(e=>MULTI.has(e.id)&&!e.lock).forEach(e=>orig[e.id]=posEn(PZ,e,FR));
+  const otros=[...MULTI].filter(k=>k.includes(':')).map(k=>{const [t,id]=k.split(':'),f={fl:'flechas',tx:'textos',zo:'zonas',tr:'trazos'}[t],o=(PZ[f]||[]).find(x=>x.id===id);return o&&!o.lock?{t,o,c:JSON.parse(JSON.stringify(o))}:null}).filter(Boolean);
+  return {t:'grupo',x:p.x,y:p.y,orig,otros}}
+function moverOtros(L,dx,dy){(L||[]).forEach(({t,o,c})=>{if(t==='fl'){o.x1=c.x1+dx;o.y1=c.y1+dy;o.x2=c.x2+dx;o.y2=c.y2+dy;if(c.cx!=null){o.cx=c.cx+dx;o.cy=c.cy+dy}}else if(t==='tr')o.pts=c.pts.map(q=>[q[0]+dx,q[1]+dy]);else{o.x=c.x+dx;o.y=c.y+dy}})}
+function borrarMulti(){if(!MULTI.size)return;snap();const ids=[...MULTI],n=ids.length;
+  PZ.elementos=PZ.elementos.filter(e=>!MULTI.has(e.id)||e.lock);PZ.lineas=PZ.lineas.filter(l=>!MULTI.has(l.a)&&!MULTI.has(l.b));PZ.pasos.forEach(p=>ids.forEach(id=>delete p.pos[id]));
+  [['fl','flechas'],['tx','textos'],['zo','zonas'],['tr','trazos']].forEach(([t,f])=>{PZ[f]=(PZ[f]||[]).filter(o=>!MULTI.has(t+':'+o.id)||o.lock)});
+  MULTI.clear();redibujar();pintarSel();aviso(n+(n===1?' pieza borrada':' piezas borradas')+' · Deshacer con ↶')}
 function borrarSel(){if(!SEL)return;{const o=objSel();if(o&&o.lock){aviso('Está bloqueada: desbloqueala para borrarla');return}}snap();const f={el:'elementos',zo:'zonas',fl:'flechas',tx:'textos',ln:'lineas',tr:'trazos'}[SEL.tipo];PZ[f]=PZ[f].filter(x=>x.id!==SEL.id);if(SEL.tipo==='el'){PZ.pasos.forEach(p=>delete p.pos[SEL.id]);PZ.lineas=PZ.lineas.filter(l=>l.a!==SEL.id&&l.b!==SEL.id)}SEL=null;BURB_COL=false;redibujar();pintarSel()}
 document.addEventListener('keydown',e=>{if(ruta!=='pizarra')return;if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
   const c=e.ctrlKey||e.metaKey,kk=e.key.toLowerCase();
   if(c&&kk==='z'&&!e.shiftKey){e.preventDefault();deshacer();return}
   if(c&&(kk==='y'||(kk==='z'&&e.shiftKey))){e.preventDefault();rehacer();return}
   if(e.key==='Escape'){if(TRAY){cerrarTray();return}if(SEL||MULTI.size){SEL=null;MULTI.clear();redibujar();pintarSel();return}if(PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs');pintar()}return}
+  if(MULTI.size&&!SEL&&(e.key==='Delete'||e.key==='Backspace')){e.preventDefault();borrarMulti();return}
   if(!SEL)return;
   if(c&&kk==='d'){e.preventDefault();if(!(objSel()||{}).lock)duplicarSel();return}
   if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();borrarSel();return}
@@ -2433,6 +2477,10 @@ function conectarCancha(){
     {const bu=$('#pzBurb');if(bu)bu.hidden=true}
     if(herr==='mover'){
       const h=hits(p);
+      // Shift + clic (o Ctrl): suma o saca piezas de la selección múltiple
+      if((ev.shiftKey||ev.ctrlKey||ev.metaKey)&&h&&['el','tx','fl','zo','tr'].includes(h.t)){const key=h.t==='el'?h.o.id:h.t+':'+h.o.id;if(SEL&&!MULTI.size){const k0=SEL.tipo==='el'?SEL.id:SEL.tipo+':'+SEL.id;if(SEL.tipo!=='ln')MULTI.add(k0)}SEL=null;if(MULTI.has(key))MULTI.delete(key);else MULTI.add(key);redibujar();pintarSel();return}
+      if(h&&MULTI.size&&MULTI.has(h.t==='el'?h.o.id:h.t+':'+h.o.id)){snap();drag=arrastreGrupo(p);return}
+      if(MULTI.size){MULTI.clear();redibujar();pintarSel()}
       if(!h){if(SEL){SEL=null;repintar();pintarSel()}return}
       snap();
       if(h.o&&h.o.lock){SEL={tipo:{zoRes:'zo',flMid:'fl',flA:'fl',flB:'fl'}[h.t]||h.t,id:h.o.id};drag=null;repintar();pintarSel();return}
@@ -2451,7 +2499,7 @@ function conectarCancha(){
       if(!UNIR_A||UNIR_A===h.o.id){UNIR_A=h.o.id;SEL={tipo:'el',id:h.o.id};repintar();return}
       snap();PZ.lineas.push({id:uid(),a:UNIR_A,b:h.o.id});UNIR_A=null;SEL=null;redibujar();return}
     if(herr==='lazo'){const h=hits(p);
-      if(h&&h.t==='el'&&MULTI.has(h.o.id)){snap();const orig={};PZ.elementos.filter(e=>MULTI.has(e.id)&&!e.lock).forEach(e=>orig[e.id]=posEn(PZ,e,FR));drag={t:'grupo',x:p.x,y:p.y,orig};return}
+      if(h&&MULTI.has(h.t==='el'?h.o.id:h.t+':'+h.o.id)){snap();drag=arrastreGrupo(p);return}
       MULTI.clear();drag={t:'lazo',x:p.x,y:p.y};return}
     if(FLECHAS[herr]||herr==='linea'){drag={t:'nfl',x1:p.x,y1:p.y};return}
     if(herr==='lapiz'){snap();const t={id:uid(),pts:[[+p.x.toFixed(2),+p.y.toFixed(2)]],c:colorZ==='#FFFFFF'?'#FFFFFF':colorZ,g:1,fr:FR};PZ.trazos.push(t);drag={t:'lapiz',o:t};return}
@@ -2465,7 +2513,7 @@ function conectarCancha(){
   svg.onpointermove=ev=>{
     if(!drag)return;const p=pto(ev);
     if(drag.t==='lazo'){svg.innerHTML=new DOMParser().parseFromString(svgPizarra(PZ,{frame:FR,rectSel:{x1:drag.x,y1:drag.y,x2:p.x,y2:p.y}}),'image/svg+xml').documentElement.innerHTML;return}
-    if(drag.t==='grupo'){const dx=p.x-drag.x,dy=p.y-drag.y;PZ.elementos.forEach(e=>{const o=drag.orig[e.id];if(o)setPos(e,o[0]+dx,o[1]+dy)})}
+    if(drag.t==='grupo'){const dx=p.x-drag.x,dy=p.y-drag.y;PZ.elementos.forEach(e=>{const o=drag.orig[e.id];if(o)setPos(e,o[0]+dx,o[1]+dy)});moverOtros(drag.otros,dx,dy)}
     else if(drag.t==='el')setPos(drag.o,p.x+drag.dx,p.y+drag.dy);
     else if(drag.t==='tx'||drag.t==='zo'){drag.o.x=p.x+drag.dx;drag.o.y=p.y+drag.dy}
     else if(drag.t==='zoRes'){const z=drag.o;z.w=Math.max(1,p.x-z.x);z.h=Math.max(1,p.y-z.y);if(z.forma==='cuad')z.h=z.w}
@@ -2481,7 +2529,13 @@ function conectarCancha(){
   };
   svg.onpointerup=ev=>{
     if(!drag)return;const p=pto(ev),d=drag;drag=null;
-    if(d.t==='lazo'){const x1=Math.min(d.x,p.x),x2=Math.max(d.x,p.x),y1=Math.min(d.y,p.y),y2=Math.max(d.y,p.y);PZ.elementos.forEach(e=>{const [x,y]=posEn(PZ,e,FR);if(!e.lock&&x>=x1&&x<=x2&&y>=y1&&y<=y2)MULTI.add(e.id)});redibujar();pintarSel();if(MULTI.size)aviso(MULTI.size+' piezas elegidas: arrastralas para moverlas juntas');return}
+    if(d.t==='lazo'){const x1=Math.min(d.x,p.x),x2=Math.max(d.x,p.x),y1=Math.min(d.y,p.y),y2=Math.max(d.y,p.y);PZ.elementos.forEach(e=>{const [x,y]=posEn(PZ,e,FR);if(!e.lock&&x>=x1&&x<=x2&&y>=y1&&y<=y2)MULTI.add(e.id)});
+      const den=(x,y)=>x>=x1&&x<=x2&&y>=y1&&y<=y2;
+      PZ.flechas.filter(a=>(a.fr||0)===FR&&!a.lock&&den(a.x1,a.y1)&&den(a.x2,a.y2)).forEach(a=>MULTI.add('fl:'+a.id));
+      PZ.textos.filter(t=>!t.lock&&den(t.x,t.y)).forEach(t=>MULTI.add('tx:'+t.id));
+      PZ.zonas.filter(z=>!z.lock&&den(z.x,z.y)&&den(z.x+z.w,z.y+z.h)).forEach(z=>MULTI.add('zo:'+z.id));
+      (PZ.trazos||[]).filter(t=>(t.fr||0)===FR&&!t.lock&&t.pts.every(q=>den(q[0],q[1]))).forEach(t=>MULTI.add('tr:'+t.id));
+      redibujar();pintarSel();if(MULTI.size)aviso(MULTI.size+' piezas elegidas: arrastralas para moverlas juntas');return}
     if(d.t==='grupo'){redibujar();pintarSel();return}
     if(d.t==='lapiz'){if(d.o.pts.length<2)PZ.trazos=PZ.trazos.filter(t=>t!==d.o);else SEL={tipo:'tr',id:d.o.id}}
     if(d.t==='nfl'){if(Math.hypot(p.x-d.x1,p.y-d.y1)>r){snap();const a={id:uid(),...nuevaFl(d,p),fr:FR};PZ.flechas.push(a);SEL={tipo:'fl',id:a.id}}
