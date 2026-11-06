@@ -430,6 +430,17 @@ body.sin-menu .lateral{display:none}
 .av-racha b{font-family:var(--f-d);font-size:30px;line-height:1.05}
 .av-racha small{font-size:12px;color:var(--sub)}
 
+/* semana del club (coordinación) */
+.semana-club{width:100%;border-collapse:separate;border-spacing:0;min-width:820px}
+.semana-club th,.semana-club td{vertical-align:top;padding:6px;border-bottom:1px solid var(--linea);font-size:12.5px;text-align:left}
+.semana-club thead th{font:800 12px var(--f-d);letter-spacing:1.5px;text-transform:uppercase;color:var(--sub)}
+.semana-club .hoy{background:rgba(255,212,0,.14)}
+.semana-club tr.grupo td{font:800 12px var(--f-d);letter-spacing:2.5px;color:var(--sub);background:transparent;padding-top:14px}
+.semana-club .cn{background:none;border:0;font:800 14px var(--f-d);cursor:pointer;padding:0;text-align:left;color:inherit}
+.semana-club .cn:hover{text-decoration:underline}
+.semana-club .cs,.semana-club .cp{display:block;width:100%;text-align:left;border:0;border-radius:7px;padding:5px 7px;margin-bottom:4px;cursor:pointer;font:500 12px/1.25 var(--f-t);background:var(--carta2,#F2EFE7);color:inherit;border-left:3px solid var(--met)}
+.semana-club .cp{border-left-color:var(--equ);font-weight:700}
+.semana-club .sin{color:var(--rojo);font-size:11px}
 /* ===================== DISEÑO METODIKA · Tribuna + Libreta ===================== */
 :root{--met:#FFD400;--can:#2EBD59;--equ:#FF6B2C;--f-x:'Anton','Barlow Condensed',Impact,sans-serif}
 .app{flex-direction:column}
@@ -3826,7 +3837,7 @@ function panelRolesHtml(){const cs=cats();
   return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>👁 Cómo ve Metodika cada rol</h3></div>
   <p class="sub" style="margin:0 0 12px;font-size:13.5px">Elegí un rol y una categoría para ver la app exactamente como la ve esa persona. Es solo una vista previa: no cambia nada.</p>
   <div class="grilla g3" style="gap:10px;margin-bottom:12px">${[['coord','Coordinación','#FFD400'],['dt','DT / cuerpo técnico','#FFFFFF'],['pf','Preparación física','#FFFFFF']].map(([r,t,c])=>`<div class="ct" style="padding:12px"><b style="display:block;margin-bottom:6px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${c};border:1.5px solid #141412;margin-right:6px"></span>${t}</b><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.45">${QUE_VE[r].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="vcRol" style="width:auto">${opts([['dt','DT / cuerpo técnico'],['pf','Preparación física'],['coord','Coordinación']],'dt')}</select>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="vcRol" style="width:auto">${opts([['dt','DT / cuerpo técnico completo'],['pf','Preparación física'],['coord','Coordinación (todo el club)']],'dt')}</select>
     <select id="vcCat" style="width:auto">${cs.map(c=>`<option value="${c.id}">${esc(c.nombre)}</option>`).join('')}</select>
     <button class="btn pri" id="vcVer">👁 Ver como</button></div></div>`}
 function conectarRoles(el){const b=$('#vcVer',el);if(!b)return;const r=$('#vcRol',el),c=$('#vcCat',el);r.onchange=()=>{c.disabled=r.value==='coord'};
@@ -4297,21 +4308,40 @@ function resumenCat(c){
   return {jug:jug.length,semana:semana.length,minSem:semana.reduce((t,s)=>t+durSesion(s),0),ult:pasadas[0],prox:prox[0],ag,r,asis:tot?pct(pr,tot):null,pj:jugados.length,g,e,pe:jugados.length-g-e,proxP,alertas,met};
 }
 /* ---------- Panel de coordinación ---------- */
+let coordRama='',coordSem=0;
+function staffDe(catId){const eq=(S.club&&S.club.equipo)||{},info=(typeof CLUBDOC!=='undefined'&&CLUBDOC&&CLUBDOC.info)||{},mi=(typeof CLUBDOC!=='undefined'&&CLUBDOC&&CLUBDOC.miembros)||{};
+  return Object.keys(mi).filter(u=>mi[u]!=='admin').map(u=>({u,n:(info[u]&&info[u].nombre)||'Sin nombre',rol:(eq[u]&&eq[u].rol)||'dt',cats:(eq[u]&&eq[u].cats)||[]})).filter(x=>x.rol!=='coord'&&(!x.cats.length||x.cats.includes(catId)))}
 VISTAS.coordinacion=el=>{
   if(miRol()!=='coord'){el.innerHTML=cabecera('Coordinación','Panel de coordinación','')+'<div class="vacio">Esta sección es para quien coordina el club.</div>';return}
-  const rs=cats().map(c=>({c,r:resumenCat(c)})),conAl=rs.filter(x=>x.r.alertas.length).length;
+  const todas=cats(),ramas=[...new Set(todas.map(c=>c.rama))],lista=todas.filter(c=>!coordRama||c.rama===coordRama);
+  const rs=lista.map(c=>({c,r:resumenCat(c)})),conAl=rs.filter(x=>x.r.alertas.length).length;
   const totJ=rs.reduce((t,x)=>t+x.r.jug,0),totS=rs.reduce((t,x)=>t+x.r.semana,0);
-  el.innerHTML=cabecera('Todo el club','Panel de coordinación','Cómo viene cada categoría esta semana. Tocá una para entrar a sus datos.')+
-  `<div class="grilla" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px">
-    ${[[cats().length,'categorías'],[totJ,'en los planteles'],[totS,'sesiones esta semana'],[conAl,conAl===1?'categoría para mirar':'categorías para mirar']].map(([v,t],i)=>`<div class="panel" style="padding:14px 16px"><div class="dato" style="font-size:32px;${i===3&&v?'color:var(--rojo)':''}">${v}</div><div class="sub" style="font-size:13px">${t}</div></div>`).join('')}</div>
-  <div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">${rs.map(({c,r})=>{const [tC,cC]=estadoCarga(r.r);return `<div class="panel" style="display:flex;flex-direction:column;gap:10px;${r.alertas.length?'border:2px solid var(--rojo)':''}">
-    <div class="panel-cab" style="margin:0"><h3>${esc(c.nombre)}</h3><span class="chip">${esc((RAMAS.find(x=>x[0]===c.rama)||[])[1]||'')}</span></div>
-    <div class="chips"><span class="chip">${r.jug} ${r.jug===1?(c.rama==='M'?'jugador':c.rama==='F'?'jugadora':'jugador/a'):(c.rama==='M'?'jugadores':c.rama==='F'?'jugadoras':'jugadoras/es')}</span><span class="chip ${r.semana?'ok':'aviso'}">${r.semana} sesiones esta semana · ${r.minSem}′</span>${r.asis!=null?`<span class="chip ${r.asis>=85?'ok':r.asis>=70?'aviso':'mal'}">${r.asis}% asistencia</span>`:''}<span class="chip ${cC}">Carga: ${r.r!=null?r.r.toFixed(2).replace('.',','):'—'} · ${tC}</span>${r.pj?`<span class="chip">${r.g}G ${r.e}E ${r.pe}P</span>`:''}${r.met?`<span class="chip ${r.met.pct>=70?'ok':r.met.pct>=40?'aviso':'mal'}">Metodología ${r.met.pct}%</span>`:''}</div>
+  const lun=sumarDias(lunesDe(HOY),coordSem*7),dias=Array.from({length:7},(_,i)=>sumarDias(lun,i)),DN=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const nomRama=r=>(RAMAS.find(x=>x[0]===r)||[])[1]||'';
+  const celda=(c,d)=>{const f=iso(d),ses=deCat(S.sesiones,c.id).filter(x=>x.fecha===f),par=deCat(S.partidos,c.id).filter(x=>x.fecha===f);
+    return `<td class="${f===iso(HOY)?'hoy':''}">${ses.map(x=>`<button class="cs" data-cses="${x.id}" data-ccat="${c.id}" title="${esc(x.objetivo||'')}"><b>${esc(x.hora||'')}</b> ${esc(x.titulo||'Sesión')}${(x.tareas||[]).length?'':' <span class="sin">sin tareas</span>'}</button>`).join('')}${par.map(x=>`<button class="cp" data-cpar="${x.id}" data-ccat="${c.id}">⚽ vs ${esc(x.rival)}</button>`).join('')}</td>`};
+  const grupos=ramas.filter(r=>!coordRama||r===coordRama).map(r=>({r,cs:lista.filter(c=>c.rama===r)}));
+  el.innerHTML=cabecera('Todo el club','Panel de coordinación','Mirá todas las categorías juntas: qué se entrena cada día, cómo vienen y quién está a cargo. Tocá una para entrar.')+
+  `<div class="filtros" style="margin-bottom:14px"><div class="seg">${[['','Todas'],...ramas.map(r=>[r,nomRama(r)])].map(([v,t])=>`<button data-crama="${v}" class="${coordRama===v?'activo':''}">${t}</button>`).join('')}</div></div>
+  <div class="grilla" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px">
+    ${[[lista.length,'categorías'],[totJ,'en los planteles'],[totS,'sesiones esta semana'],[conAl,conAl===1?'categoría para mirar':'categorías para mirar']].map(([v,t],i)=>`<div class="panel" style="padding:14px 16px"><div class="dato" style="font-size:36px;${i===3&&v?'color:var(--rojo)':''}">${v}</div><div class="sub" style="font-size:13px">${t}</div></div>`).join('')}</div>
+  <div class="panel" style="margin-bottom:18px"><div class="panel-cab"><h3>La semana del club</h3><div class="der" style="display:flex;gap:6px;align-items:center"><button class="btn chico" id="csAnt">◀</button><b style="font-size:13.5px">${fCorta(iso(dias[0]))} al ${fCorta(iso(dias[6]))}${coordSem===0?' · esta semana':''}</b><button class="btn chico" id="csSig">▶</button>${coordSem?'<button class="btn chico fantasma" id="csHoy">Hoy</button>':''}</div></div>
+    <div class="tabla-c"><table class="semana-club"><thead><tr><th>Categoría</th>${dias.map((d,i)=>`<th class="${iso(d)===iso(HOY)?'hoy':''}">${DN[i]} ${d.getDate()}</th>`).join('')}</tr></thead>
+    <tbody>${grupos.map(g=>`<tr class="grupo"><td colspan="8">${esc(nomRama(g.r)).toUpperCase()}</td></tr>`+g.cs.map(c=>`<tr><th><button class="cn" data-vercat="${c.id}">${esc(c.nombre)}</button></th>${dias.map(d=>celda(c,d)).join('')}</tr>`).join('')).join('')}</tbody></table></div>
+    <p class="sub" style="font-size:12.5px;margin:8px 0 0">Tocá una sesión para verla completa, o el nombre de la categoría para entrar a sus datos.</p></div>
+  ${grupos.map(g=>`<h2 style="margin:6px 0 12px">${esc(nomRama(g.r))}</h2><div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;margin-bottom:18px">${rs.filter(x=>x.c.rama===g.r).map(({c,r})=>{const st=staffDe(c.id);return `<div class="panel" style="display:flex;flex-direction:column;gap:10px;${r.alertas.length?'border:2px solid var(--rojo)':''}">
+    <div class="panel-cab" style="margin:0"><h3>${esc(c.nombre)}</h3><span class="chip">${esc(nomRama(c.rama))}</span></div>
+    <div class="chips"><span class="chip">${r.jug} ${r.jug===1?(c.rama==='M'?'jugador':c.rama==='F'?'jugadora':'jugador/a'):(c.rama==='M'?'jugadores':c.rama==='F'?'jugadoras':'jugadoras/es')}</span><span class="chip ${r.semana?'ok':'aviso'}">${r.semana} sesiones esta semana · ${r.minSem}′</span>${r.asis!=null?`<span class="chip ${r.asis>=85?'ok':r.asis>=70?'aviso':'mal'}">${r.asis}% asistencia</span>`:''}</div>
     <div class="sub" style="font-size:13.5px;line-height:1.5">Última sesión: <b>${r.ult?fFecha(r.ult.fecha)+' · '+esc(r.ult.titulo||'Sesión'):'—'}</b><br>Próxima: <b>${r.prox?fFecha(r.prox.fecha)+' · '+esc(r.prox.titulo||'Sesión'):'sin planificar'}</b><br>Próximo partido: <b>${r.proxP?fFecha(r.proxP.fecha)+' vs '+esc(r.proxP.rival):'—'}</b></div>
-    ${r.alertas.length?`<div style="background:#FFE3DE;border-radius:8px;padding:8px 10px;font-size:13.5px">${r.alertas.map(a=>'⚠ '+esc(a)).join('<br>')}</div>`:'<div style="background:#E3F1E8;border-radius:8px;padding:8px 10px;font-size:13.5px">✓ Todo en orden</div>'}
-    <div style="display:flex;gap:6px;margin-top:auto"><button class="btn chico pri" data-vercat="${c.id}">Entrar a ${esc(c.nombre)}</button><button class="btn chico" data-verplan="${c.id}">Planificación</button></div></div>`}).join('')}</div>`;
-  $$('[data-vercat]',el).forEach(b=>b.onclick=()=>{elegirCat(b.dataset.vercat);ir('inicio')});
-  $$('[data-verplan]',el).forEach(b=>b.onclick=()=>{elegirCat(b.dataset.verplan);ir('planificacion')});
+    <div style="font-size:13px"><span class="sub">Cuerpo técnico:</span> ${st.length?st.map(x=>`<span class="chip" style="margin:2px 2px 0 0">${esc(x.n)} · ${x.rol==='pf'?'PF':'DT'}</span>`).join(''):'<span class="sub">sin asignar (se asigna en Ajustes)</span>'}</div>
+    ${r.alertas.length?`<div style="background:#FFE3DE;border-radius:8px;padding:8px 10px;font-size:13.5px;color:#141412">${r.alertas.map(a=>'⚠ '+esc(a)).join('<br>')}</div>`:'<div style="background:#E3F1E8;border-radius:8px;padding:8px 10px;font-size:13.5px;color:#141412">✓ Todo en orden</div>'}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:auto"><button class="btn chico pri" data-vercat="${c.id}">Entrar a ${esc(c.nombre)}</button><button class="btn chico" data-irc="planificacion" data-c="${c.id}">Planificación</button><button class="btn chico" data-irc="plantel" data-c="${c.id}">Plantel</button><button class="btn chico" data-irc="asistencia" data-c="${c.id}">Asistencia</button></div></div>`}).join('')}</div>`).join('')}`;
+  $$('[data-crama]',el).forEach(b=>b.onclick=()=>{coordRama=b.dataset.crama;pintar()});
+  $('#csAnt',el).onclick=()=>{coordSem--;pintar()};$('#csSig',el).onclick=()=>{coordSem++;pintar()};{const h=$('#csHoy',el);if(h)h.onclick=()=>{coordSem=0;pintar()}}
+  $$('[data-vercat]',el).forEach(b=>b.onclick=()=>{elegirCat(b.dataset.vercat);ir('inicio');aviso('Estás viendo '+CATN()+'. Para volver a todo el club, elegí “Todo el club” arriba.')});
+  $$('[data-irc]',el).forEach(b=>b.onclick=()=>{elegirCat(b.dataset.c);ir(b.dataset.irc)});
+  $$('[data-cses]',el).forEach(b=>b.onclick=()=>verSesion(b.dataset.cses));
+  $$('[data-cpar]',el).forEach(b=>b.onclick=()=>{elegirCat(b.dataset.ccat);ir('partido',b.dataset.cpar)});
 };
 /* ---------- Metodología del club por etapas ---------- */
 function etapas(){return (S.club.metodologia&&S.club.metodologia.etapas)||[]}
