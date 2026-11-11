@@ -2787,7 +2787,25 @@ function crearPizarraDesdeImagen(img,nombre,ar,rival){
   const W=40,H=Math.max(12,Math.min(40,Math.round(40/(ar||16/9)))),f='A medida '+W+'×'+H+' m';FORMATOS[f]=[W,H];
   const z=pizarraNueva(f);z.medida=[W,H];z.nombre=nombre||'Jugada del video';z.categoria='Rival';z.carpeta=rival?'vs '+rival:'';z.fondoImg=img;z.verDist=false;
   S.pizarras.push(z);guardar();ir('pizarra',z.id);aviso('Recorte en la pizarra: dibujá las flechas y tocá ✨ Animar desde flechas');return z.id}
-function revisarPizarraPendiente(){let d=null;try{d=JSON.parse(localStorage.getItem('metodika_pz_pendiente')||'null')}catch(e){}if(!d||!d.img)return;try{localStorage.removeItem('metodika_pz_pendiente')}catch(e){}crearPizarraDesdeImagen(d.img,d.nombre,d.ar,d.rival)}
+function revisarPizarraPendiente(){let d=null;try{d=JSON.parse(localStorage.getItem('metodika_pz_pendiente')||'null')}catch(e){}if(!d||!(d.img||d.tipo==='once'))return;try{localStorage.removeItem('metodika_pz_pendiente')}catch(e){}if(d.tipo==='once')crearPizarraOnceRival(d);else crearPizarraDesdeImagen(d.img,d.nombre,d.ar,d.rival)}
+/* Análisis de rival → pizarra con el once probable (rival a la derecha, nuestro equipo a la izquierda) */
+function crearPizarraOnceRival(d){
+  if(!d||!S)return null;const f='11 vs 11',[W]=FORMATOS[f];
+  const okS=x=>/^\d(-\d){2,3}$/.test(x||'')&&String(x).split('-').map(Number).reduce((a,b)=>a+b,0)===10;
+  const sR=okS(d.sistema)?d.sistema:'4-4-2';
+  const gente=(d.once||[]).slice(0,11).map(o=>({dorsal:String((o&&o.dor)||'').trim()||null,apellido:String((o&&o.ref)||'').trim().slice(0,14)}));
+  const z=pizarraNueva(f);z.nombre='Once probable · '+(d.rival||'Rival');z.categoria='Rival';z.carpeta=d.rival?'vs '+d.rival:'';
+  colocarEquipo(f,sR,'izq','#E23B2E',true,gente.map((g,i)=>({dorsal:g.dorsal||'',apellido:g.apellido})),'#141412').forEach((e,i)=>{if(!gente[i]||!gente[i].dorsal)e.n=i+1;e.x=Math.max(e.x,W/2+2);z.elementos.push(e)});
+  if(d.propio){const prox=proximoPartido(),tit=prox&&prox.titulares&&prox.titulares.length>=11?ordenParaCancha(prox.titulares.map(jugador).filter(Boolean)):null;
+    colocarEquipo(f,SISTEMAS[f][0],'der','#FFD400',true,tit).forEach(e=>{e.x=Math.min(e.x,W/2-2);z.elementos.push(e)})}
+  z.textos.push({id:uid(),x:W*0.75,y:2,txt:(d.rival||'Rival')+' · '+sR,tam:.8});
+  if(d.notas)z.textos.push({id:uid(),x:W/2,y:FORMATOS[f][1]-1.5,txt:String(d.notas).slice(0,120),tam:.6});
+  normalizar(z);S.pizarras.push(z);guardar();ir('pizarra',z.id);aviso('Once probable de '+(d.rival||'el rival')+' en la pizarra');return z.id}
+/* Para el Análisis de rival: partidos jugados contra ese rival */
+function mtkPartidosVs(nombre){
+  if(!S)return [];const n=normTxt(nombre);if(!n)return [];const pal=n.split(' ').filter(w=>w.length>2);
+  const igual=r=>{const m=normTxt(r);return !!m&&(m===n||m.includes(n)||n.includes(m)||(pal.length&&pal.every(w=>m.includes(w))))};
+  return (S.partidos||[]).filter(p=>igual(p.rival)).sort((a,b)=>String(b.fecha).localeCompare(String(a.fecha))).map(p=>({id:p.id,fecha:p.fecha,rival:p.rival,competicion:p.competicion||'',condicion:p.condicion||'',estado:p.estado,golesF:p.golesF,golesC:p.golesC,notas:p.notas||p.observaciones||'',goles:(p.eventos||[]).filter(e=>/gol/i.test(e.tipo||'')).map(e=>({min:e.min,tipo:e.tipo,rival:e.tipo==='golRival',quien:(()=>{const j=e.jug&&jugador(e.jug);return j?(j.apellido||j.nombre||''):''})()}))}))}
 async function exportarPdfPizarra(cfg){
   const pz=JSON.parse(JSON.stringify(PZ)),c=cfg||cfgPdf();let JsPDF;try{JsPDF=await cargarJsPDF()}catch(e){aviso(errTxt(e));return}
   aviso('Armando el PDF…');

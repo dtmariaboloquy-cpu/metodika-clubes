@@ -465,6 +465,36 @@ document.addEventListener("DOMContentLoaded", ()=>{
   --accent:#FFD400;--accent-ink:#141412;--accent-wash:#2D2911;--navy:#FFD400;--rival:#E48A72;--rival-wash:#33201B;--ok:#63AE83;--ok-wash:#18271F;--pink:#FFD400}
 h1,h2,h3{letter-spacing:-.2px}
 body:not(.vopen) .viewer{top:0}
+.xtra{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:-8px 0 22px}
+.xbtn{font:inherit;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;color:var(--ink);display:flex;flex-direction:column;gap:2px;transition:border-color .15s,transform .15s}
+.xbtn:hover{border-color:var(--accent);transform:translateY(-1px)}.xbtn b{font-size:14.5px}.xbtn span{font-size:12.5px;color:var(--sub);line-height:1.35}
+.once-pz{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}.once-pz-chk{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--sub)}
+.xm{position:fixed;inset:0;z-index:60;background:rgba(5,8,12,.62);display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto}
+.xm-box{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(760px,100%);box-shadow:0 20px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;max-height:none}
+.xm-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}.xm-h b{font-family:var(--f-d);font-size:19px}
+.xm-x{font:inherit;font-size:26px;line-height:1;background:none;border:0;color:var(--sub);cursor:pointer;padding:0 4px}
+.xm-c{padding:14px 18px;overflow:auto}.xm-f{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--line)}
+.xm-sub{color:var(--sub);font-size:13.5px;margin:0 0 10px}.xm-load{color:var(--sub)}.xm-small{font-size:12.5px;color:var(--sub)}
+.xm-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:240px;overflow:auto}
+.xm-chk{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--field);cursor:pointer;font-size:14px}
+.xm-chk input{margin-top:3px;accent-color:var(--accent)}.xm-chk span{display:flex;flex-direction:column}.xm-chk small{color:var(--sub);font-size:12.5px}
+.xm-c h4{font-family:var(--f-d);font-size:15px;margin:16px 0 8px}
+.xm-tend{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.xm-t{border:1px solid var(--line);border-radius:9px;padding:8px 10px}.xm-tl{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);margin-bottom:5px}
+.xm-pill{display:inline-block;font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--field);border:1px solid var(--line);margin:0 5px 5px 0}
+.xm-pill.rep{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.xm-ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}.xm-ul .rep{color:var(--ok);font-weight:700}
+.xm-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}.xm-kpis div{background:var(--field);border:1px solid var(--line);border-radius:9px;padding:8px;text-align:center}
+.xm-kpis b{display:block;font-family:var(--f-d);font-size:20px}.xm-kpis span{font-size:11.5px;color:var(--sub)}
+.xm-scroll{overflow:auto}.xm-tab{width:100%;border-collapse:collapse;font-size:13.5px}.xm-tab th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--sub);padding:6px;border-bottom:1px solid var(--line)}
+.xm-tab td{padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.xm-res-b{display:inline-block;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--field)}.xm-res-b.g{background:rgba(46,107,74,.18);color:var(--ok)}.xm-res-b.p{background:var(--rival-wash);color:var(--rival)}.xm-res-b.e{background:var(--field)}
+.xm-ta{width:100%;min-height:70px;font:inherit;font-size:14px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:9px;padding:8px 10px;box-sizing:border-box}
+.xm-ops{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;font-size:13.5px}.xm-ops select{font:inherit;font-size:13.5px;margin-left:6px;padding:4px 6px;border-radius:7px;border:1px solid var(--line);background:var(--field);color:var(--ink);max-width:100%}
+.xm-pl{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start}.xm-pl-op{display:flex;flex-direction:column;gap:6px}
+.xm-pl-prev img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+@media (max-width:600px){.status{flex-wrap:wrap}.status>span:last-child{flex-wrap:wrap;gap:6px!important}}
+@media (max-width:620px){.xm-pl{grid-template-columns:1fr}.xm-pl-prev{max-width:240px;margin:0 auto}.xm-kpis{grid-template-columns:repeat(3,1fr)}}
 </style>
 <script>
 /* Toma el tema de la app (localStorage compartido) y lo sigue si cambia */
@@ -493,6 +523,12 @@ body:not(.vopen) .viewer{top:0}
   <button type="button" class="present-btn" id="presentBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Presentar en pantalla grande</button>
 
   <div class="how">Abrí el partido en el <b>visor</b> (tocá "Abrir video") y completá mientras lo mirás. <b>Se guarda solo.</b> Cuando veas una jugada, pausá, elegí la sección y tocá <b>Capturar</b>: queda como recorte con el minuto puesto, listo para dibujarle encima. Cuando termines, usá <b>Pantalla grande</b> para la charla o <b>Descargar PDF</b> para mandarlo al grupo.</div>
+  <div class="xtra" id="xtra">
+    <button type="button" class="xbtn" id="xHist"><b>📜 Historial</b><span>Partidos jugados contra este rival y qué funcionó</span></button>
+    <button type="button" class="xbtn" id="xAcum"><b>🔁 Rival acumulado</b><span>Juntá 2–3 partidos vistos y mirá qué se repite</span></button>
+    <button type="button" class="xbtn" id="xVA"><b>🎥 Traer de Videoanálisis</b><span>Suma las acciones taggeadas a cada sección</span></button>
+    <button type="button" class="xbtn" id="xPlantel"><b>📲 Para el plantel</b><span>Imagen simple por línea para WhatsApp</span></button>
+  </div>
 
   <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span style="display:flex;gap:12px;align-items:center"><span class="prog" id="prog"></span><button type="button" class="shot-add" id="planBtn">📄 Plan en 1 hoja</button><button type="button" class="shot-add" id="pdfBtn" hidden>Descargar PDF</button><button type="button" class="shot-add" id="presentBtn2">Pantalla grande</button></span></div>
 
@@ -735,6 +771,11 @@ function renderField(f) {
       d.addEventListener("input",()=>{ state.once[i].dor=d.value; changed(); }); r2.addEventListener("input",()=>{ state.once[i].ref=r2.value; changed(); });
       row.appendChild(d); row.appendChild(r2); g.appendChild(row); });
     wrap.appendChild(g);
+    const pzb = el("div",{class:"once-pz"});
+    const chk = el("label",{class:"once-pz-chk"}); const cb = el("input",{type:"checkbox",id:"oncePropio"}); cb.checked = lsGet("scout_once_propio")!=="0"; cb.addEventListener("change",()=>lsSet("scout_once_propio",cb.checked?"1":"0"));
+    chk.appendChild(cb); chk.appendChild(el("span",{text:"Sumar a nuestro equipo enfrente"}));
+    pzb.appendChild(bt("→ Pizarra con el once","solid",()=>onceAPizarra(cb.checked))); pzb.appendChild(chk);
+    wrap.appendChild(pzb);
   } else if (f.type==="list") {
     const box = el("div",{class:"plan3"});
     const arr = Array.isArray(state[f.id]) ? state[f.id] : (state[f.id] = []);
@@ -841,7 +882,8 @@ function flushPending(){ if (pendingSnap) { const sn = pendingSnap; pendingSnap 
 const rivalSel = document.getElementById("rivalSel");
 function fillRivalSel(){
   rivalSel.textContent = "";
-  rivals.sort((a,b)=>a.name.localeCompare(b.name,"es")).forEach(r=>{ const o = el("option",{value:r.slug,text:r.name}); if (r.slug===slug) o.selected = true; rivalSel.appendChild(o); });
+  const vistos = {};
+  rivals.sort((a,b)=>a.name.localeCompare(b.name,"es")||a.slug.localeCompare(b.slug)).forEach(r=>{ const k = nrm(r.name); vistos[k] = (vistos[k]||0)+1; const o = el("option",{value:r.slug,text:r.name+(vistos[k]>1?" ("+vistos[k]+")":"")}); if (r.slug===slug) o.selected = true; rivalSel.appendChild(o); });
 }
 async function loadRival(s, name){
   if (dirty) { clearTimeout(timer); await save(); }
@@ -896,6 +938,319 @@ delRivalBtn.addEventListener("click",async ()=>{
   } catch(e) { setStatus("err","No se pudo borrar el rival. Revisá la conexión."); }
   delRivalBtn.disabled = false; delRivalBtn.textContent = "Borrar rival";
 });
+
+/* ================= herramientas pro: historial, acumulado, videoanálisis, plantel, once → pizarra ================= */
+const nrm = t => String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9ñ]+/g," ").trim();
+const escH = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function g3(f,m,x){ const r = ramaClub(); return r==="M" ? m : r==="X" ? x : f; }
+function parentCon(fn){ try{ const p = window.parent; return (p && p!==window && typeof p[fn]==="function") ? p : null; }catch(e){ return null; } }
+function bt(txt, cls, fn){ const b = el("button",{type:"button",class:"btn2"+(cls?" "+cls:""),text:txt}); b.addEventListener("click",fn); return b; }
+function cerrarX(){ const o = document.getElementById("xm"); if (o) o.remove(); }
+function xModal(titulo, cuerpo, pie){
+  cerrarX();
+  const o = el("div",{class:"xm",id:"xm"}), b = el("div",{class:"xm-box",role:"dialog","aria-modal":"true","aria-label":titulo});
+  const h = el("div",{class:"xm-h"}); h.appendChild(el("b",{text:titulo})); const x = el("button",{type:"button",class:"xm-x","aria-label":"Cerrar",text:"×"}); x.addEventListener("click",cerrarX); h.appendChild(x); b.appendChild(h);
+  const c = el("div",{class:"xm-c"}); if (typeof cuerpo==="string") c.innerHTML = cuerpo; else if (cuerpo) c.appendChild(cuerpo); b.appendChild(c);
+  const f = el("div",{class:"xm-f"}); (pie||[]).forEach(n=>f.appendChild(n)); if ((pie||[]).length) b.appendChild(f);
+  o.appendChild(b); o.addEventListener("click",e=>{ if (e.target===o) cerrarX(); }); document.body.appendChild(o);
+  return c;
+}
+document.addEventListener("keydown",e=>{ if (e.key==="Escape" && document.getElementById("xm")) cerrarX(); });
+const parecido = (a,b)=>{ a = nrm(a); b = nrm(b); if (!a || !b) return false; if (a===b || a.includes(b) || b.includes(a)) return true; const pa = a.split(" ").filter(w=>w.length>2); return pa.length>0 && pa.some(w=>w.length>3 && b.split(" ").includes(w)); };
+async function todosLosAnalisis(){
+  const out = {};
+  if (db){ try{ const qs = await db.collection("scouting").get(); qs.docs.forEach(d=>{ out[d.id] = clone(d.data()); }); }catch(e){} }
+  else { try{ for (let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); if (!k || !k.startsWith("scout_") || k==="scout_last" || k==="scout_split" || k==="scout_once_propio") continue; try{ const d = JSON.parse(localStorage.getItem(k)); if (d && typeof d==="object" && !Array.isArray(d) && d.rival!=null) out[k.slice(6)] = d; }catch(e){} } }catch(e){} }
+  out[slug] = clone(state);
+  return Object.entries(out).map(([s,d])=>({slug:s, d:d||{}}));
+}
+const etiquetaAn = d => [d.visto, d.resultado].filter(Boolean).join(" · ") || "Sin partido cargado";
+
+/* ---------- 6. Rival acumulado ---------- */
+const CHIPF = [["sis_con","Sistema con pelota"],["sis_sin","Sistema sin pelota"],["sal_tipo","Tipo de inicio"],["sal_quien","Quiénes participan del inicio"],["pre_altura","Altura del bloque"],["pre_zona","Dónde recuperan más"],["ata_zona","Por dónde atacan más"],["ata_como","Cómo llegan"],["tra_perder","Cuando pierden"],["tra_ganar","Cuando recuperan"]];
+const campoDef = id => SECTIONS.flatMap(s=>s.fields).find(f=>f.id===id) || {};
+const comoLista = v => Array.isArray(v) ? v.filter(Boolean) : (v ? [v] : []);
+async function abrirAcumulado(){
+  const c = xModal("Rival acumulado", "<p class='xm-load'>Buscando los análisis guardados…</p>");
+  const todos = await todosLosAnalisis();
+  const sel = new Set(todos.filter(a=>a.slug===slug || parecido(a.d.rival, state.rival)).map(a=>a.slug));
+  c.textContent = "";
+  c.appendChild(el("p",{class:"xm-sub",text:"Juntá 2 o 3 partidos que miraste del mismo rival y mirá qué se repite. Tildá los análisis a sumar:"}));
+  const lista = el("div",{class:"xm-list"});
+  todos.sort((a,b)=>(b.slug===slug)-(a.slug===slug) || String(a.d.rival||"").localeCompare(String(b.d.rival||""),"es")).forEach(a=>{
+    const lab = el("label",{class:"xm-chk"}); const cb = el("input",{type:"checkbox"}); cb.checked = sel.has(a.slug);
+    cb.addEventListener("change",()=>{ if (cb.checked) sel.add(a.slug); else sel.delete(a.slug); pintar(); });
+    lab.appendChild(cb); const t = el("span"); t.appendChild(el("b",{text:(a.d.rival||"Rival")+(a.slug===slug?" (este)":"")})); t.appendChild(el("small",{text:etiquetaAn(a.d)})); lab.appendChild(t); lista.appendChild(lab);
+  });
+  c.appendChild(lista);
+  const res = el("div",{class:"xm-res"}); c.appendChild(res);
+  const otro = bt("＋ Analizar otro partido de "+(state.rival||"este rival"), "", otroPartidoMismoRival);
+  const usar = bt("Completar lo vacío con lo que se repite", "solid", ()=>usarTendencias(todos.filter(a=>sel.has(a.slug))));
+  const pie = document.querySelector("#xm .xm-box"); const f = el("div",{class:"xm-f"}); f.appendChild(otro); f.appendChild(usar); pie.appendChild(f);
+  function pintar(){
+    const L = todos.filter(a=>sel.has(a.slug)), n = L.length;
+    res.textContent = "";
+    if (n<2){ res.appendChild(el("p",{class:"xm-sub",text: n ? "Tildá al menos otro partido para ver las tendencias. Si todavía no lo cargaste, usá “＋ Analizar otro partido”." : "Tildá al menos 2 análisis."})); usar.disabled = true; return; }
+    usar.disabled = false;
+    res.appendChild(el("h4",{text:`Qué se repite en ${n} partidos`}));
+    const grid = el("div",{class:"xm-tend"});
+    CHIPF.forEach(([id,lab])=>{
+      const cnt = {}; L.forEach(a=>comoLista(a.d[id]).forEach(v=>cnt[v]=(cnt[v]||0)+1));
+      const vals = Object.entries(cnt).sort((x,y)=>y[1]-x[1]); if (!vals.length) return;
+      const box = el("div",{class:"xm-t"}); box.appendChild(el("span",{class:"xm-tl",text:gx(lab)}));
+      const ch = el("div"); vals.forEach(([v,k])=>{ const s = el("span",{class:"xm-pill"+(k>=2?" rep":""),text:gx(v)+" ×"+k}); if (k===n) s.title = "En todos los partidos"; ch.appendChild(s); }); box.appendChild(ch); grid.appendChild(box);
+    });
+    res.appendChild(grid);
+    const jc = {}; L.forEach(a=>(a.d.jug||[]).forEach(j=>{ const d = String(j.dor||"").trim(); if (!d) return; const o = jc[d] = jc[d]||{n:0,pos:new Set(),car:[]}; o.n++; if (j.pos) o.pos.add(j.pos); if (j.car) o.car.push(j.car); }));
+    const jl = Object.entries(jc).sort((a,b)=>b[1].n-a[1].n);
+    if (jl.length){ res.appendChild(el("h4",{text:gx("Jugadoras clave")}));
+      const ul = el("ul",{class:"xm-ul"}); jl.slice(0,8).forEach(([d,o])=>{ const li = el("li"); li.appendChild(el("b",{text:"N° "+d+([...o.pos][0]?" · "+[...o.pos][0]:"")})); li.appendChild(el("span",{class:o.n>=2?"rep":"",text:`  — en ${o.n} de ${n}`})); if (o.car.length) li.appendChild(el("div",{class:"xm-small",text:o.car.slice(0,2).join(" / ")})); ul.appendChild(li); }); res.appendChild(ul); }
+    const debs = L.filter(a=>a.d.deb); if (debs.length){ res.appendChild(el("h4",{text:"Debilidades que anotaste"})); const ul = el("ul",{class:"xm-ul"}); debs.forEach(a=>{ const li = el("li"); li.appendChild(el("small",{text:etiquetaAn(a.d)+": "})); li.appendChild(document.createTextNode(a.d.deb)); ul.appendChild(li); }); res.appendChild(ul); }
+  }
+  pintar();
+}
+function usarTendencias(L){
+  if (L.length<2) return;
+  let n = 0;
+  CHIPF.forEach(([id])=>{
+    if (comoLista(state[id]).length) return;
+    const cnt = {}; L.forEach(a=>comoLista(a.d[id]).forEach(v=>cnt[v]=(cnt[v]||0)+1));
+    const rep = Object.entries(cnt).filter(([,k])=>k>=2).sort((a,b)=>b[1]-a[1]).map(([v])=>v);
+    if (!rep.length) return;
+    state[id] = campoDef(id).multi ? rep : rep[0]; n++;
+  });
+  if (!n){ toast("No había nada vacío para completar con lo que se repite."); return; }
+  rerenderKeepingPlace(); changed(); cerrarX(); toast(`Listo: se completaron ${n} campos con lo que se repite.`);
+}
+async function otroPartidoMismoRival(){
+  const n = String(state.rival||"Rival").trim(), base = clone(state);
+  let s = slugify(n); const b0 = s; let k = 2; while (rivals.some(r=>r.slug===s)) s = b0+"-"+(k++);
+  rivals.push({slug:s, name:n}); cerrarX();
+  await loadRival(s, n);
+  state.rival = n; ["sis_con","sis_sin","once","jug","ficha","racha","proximo"].forEach(f=>{ if (base[f]!=null) state[f] = clone(base[f]); });
+  render(); fillRivalSel(); changed();
+  toast("Nuevo análisis de "+n+": ya trae el sistema, el once y las jugadoras clave. Cargá el partido que miraste.");
+}
+
+/* ---------- 7. Historial ---------- */
+async function abrirHistorial(){
+  const c = xModal("Historial contra "+(state.rival||"el rival"), "<p class='xm-load'>Buscando…</p>");
+  const p = parentCon("mtkPartidosVs"); let L = null;
+  try{ L = p ? p.mtkPartidosVs(state.rival||"") : null; }catch(e){ L = null; }
+  const todos = await todosLosAnalisis();
+  const otros = todos.filter(a=>a.slug!==slug && parecido(a.d.rival, state.rival));
+  c.textContent = "";
+  if (L===null) c.appendChild(el("p",{class:"xm-sub",text:"Abrí el Análisis de rival desde Metodika para ver los partidos que jugaste contra este rival."}));
+  else if (!L.length) c.appendChild(el("p",{class:"xm-sub",text:"No hay partidos contra este rival en el fixture. Si ya jugaron, cargalo en Partidos con el mismo nombre."}));
+  else {
+    const fin = L.filter(x=>x.estado==="finalizado" && x.golesF!=null && x.golesC!=null);
+    const pg = fin.filter(x=>x.golesF>x.golesC).length, pe = fin.filter(x=>x.golesF===x.golesC).length, pp = fin.filter(x=>x.golesF<x.golesC).length;
+    const gf = fin.reduce((a,x)=>a+(+x.golesF||0),0), gc = fin.reduce((a,x)=>a+(+x.golesC||0),0);
+    const k = el("div",{class:"xm-kpis"}); [["PJ",fin.length],["Ganados",pg],["Empates",pe],["Perdidos",pp],["Goles",gf+" – "+gc]].forEach(([l,v])=>{ const d = el("div"); d.appendChild(el("b",{text:String(v)})); d.appendChild(el("span",{text:l})); k.appendChild(d); }); c.appendChild(k);
+    const tb = el("table",{class:"xm-tab"}); tb.innerHTML = "<thead><tr><th>Fecha</th><th>Competencia</th><th>Condición</th><th>Resultado</th><th>Goles</th></tr></thead>";
+    const body = el("tbody");
+    L.forEach(x=>{ const tr = el("tr"); const f = String(x.fecha||"").split("-").reverse().join("/");
+      const res = x.golesF!=null && x.golesC!=null && x.estado==="finalizado" ? x.golesF+" – "+x.golesC : (x.estado==="finalizado" ? "—" : "Por jugar");
+      const cls = x.estado!=="finalizado" || x.golesF==null ? "" : x.golesF>x.golesC ? "g" : x.golesF===x.golesC ? "e" : "p";
+      tr.innerHTML = `<td>${escH(f)}</td><td>${escH(x.competicion)}</td><td>${escH(x.condicion)}</td><td><span class="xm-res-b ${cls}">${escH(res)}</span></td><td class="xm-small">${(x.goles||[]).map(g=>escH((g.min!=null?g.min+"' ":"")+(g.rival?"rival":(g.quien||"gol")))).join(" · ")}</td>`;
+      body.appendChild(tr); });
+    tb.appendChild(body); const w = el("div",{class:"xm-scroll"}); w.appendChild(tb); c.appendChild(w);
+  }
+  if (otros.length){ c.appendChild(el("h4",{text:"Planes que armaste antes contra este rival"}));
+    const ul = el("ul",{class:"xm-ul"}); otros.forEach(a=>{ const plan = [...comoLista(a.d.plan_con), ...comoLista(a.d.plan_sin), ...comoLista(a.d.plan_pp)].filter(Boolean); const li = el("li"); li.appendChild(el("b",{text:etiquetaAn(a.d)})); li.appendChild(el("div",{class:"xm-small",text: plan.length ? plan.join(" · ") : "Sin plan cargado"})); ul.appendChild(li); }); c.appendChild(ul); }
+  c.appendChild(el("h4",{text:"Qué nos funcionó contra este rival"}));
+  const t1 = el("textarea",{class:"xm-ta",id:"hist_ok",placeholder:"Ej: atacar a espaldas de la lateral derecha; presionar el inicio corto…"}); t1.value = state.hist_ok||""; t1.addEventListener("input",()=>{ state.hist_ok = t1.value; changed(); }); c.appendChild(t1);
+  c.appendChild(el("h4",{text:"Qué no nos funcionó"}));
+  const t2 = el("textarea",{class:"xm-ta",id:"hist_mal",placeholder:"Ej: pelotas largas a la 9, las centrales ganan todo de arriba…"}); t2.value = state.hist_mal||""; t2.addEventListener("input",()=>{ state.hist_mal = t2.value; changed(); }); c.appendChild(t2);
+  c.appendChild(el("p",{class:"xm-small",text:"Se guarda con este análisis."}));
+}
+
+/* ---------- 8. Once probable → pizarra ---------- */
+function onceAPizarra(propio){
+  const once = (state.once||[]).map(o=>({dor:String((o&&o.dor)||""), ref:String((o&&o.ref)||"")}));
+  const sis = isFormation(state.sis_con) ? state.sis_con : (isFormation(state.sis_sin) ? state.sis_sin : "");
+  if (!sis){ toast("Elegí primero el sistema con pelota (Sistema y once probable)."); return; }
+  const d = {tipo:"once", rival:String(state.rival||"").trim(), sistema:sis, once, propio:!!propio, t:Date.now()};
+  const p = parentCon("crearPizarraOnceRival");
+  if (p){ p.setTimeout(()=>p.crearPizarraOnceRival(JSON.parse(JSON.stringify(d))), 60); setStatus("saved","Abriendo el once en la pizarra…"); }
+  else { lsSet("metodika_pz_pendiente", JSON.stringify(d)); setStatus("saved","Once enviado: abrí la Pizarra en Metodika y aparece listo"); toast("Once enviado a la pizarra de Metodika."); }
+}
+
+/* ---------- 9. Traer de Videoanálisis ---------- */
+async function proyectosVA(){
+  const p = parentCon("cargarVA");
+  if (p){ try{ const L = await p.cargarVA(true); if (Array.isArray(L)) return JSON.parse(JSON.stringify(L)); }catch(e){} }
+  const por = {};
+  try{ for (let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); const m = /^vac_(.+?)_va_p_(.+)$/.exec(k||""); if (!m) continue; try{ const d = JSON.parse(localStorage.getItem(k)); if (d && Array.isArray(d.tags)){ const id = d.id||m[2]; if (!por[id] || String(d.actualizado||"")>String(por[id].actualizado||"")) por[id] = {...d, id}; } }catch(e){} } }catch(e){}
+  return Object.values(por);
+}
+const SEC_NOTA = {salida:"sal_notas", presion:"pre_notas", ataque:"ata_notas", transicion:"tra_notas", parada:"pp_favor", general:"general"};
+const SEC_NOM = {salida:"Inicio desde el arco", presion:"Presión y recuperación", ataque:"Ataque", transicion:"Transiciones", parada:"Pelota parada (a favor del rival)", general:"Otras observaciones"};
+function seccionDeTag(t){
+  const n = nrm(t.nombre), g = nrm(t.grupo);
+  if (/inicio|salida|saque de arco/.test(n)) return "salida";
+  if (/pelota parada/.test(g) || /corner|tiro libre|lateral|penal/.test(n)) return "parada";
+  if (/transicion/.test(g) || /contraataque|repliegue|tras perdida|recuperacion|perdida/.test(n)) return "transicion";
+  if (/defensa|defensiv/.test(g) || /presion|bloque|duelo|falta/.test(n)) return "presion";
+  if (/ataque|ofensiv/.test(g) || /remate|centro|progresion|gol|llegada|posesion/.test(n)) return "ataque";
+  return "general";
+}
+function minVA(p,t){ const x = +t.t||0; if (p.ini2!=null && x>=p.ini2) return (45+Math.floor((x-p.ini2)/60)+1)+"' 2T"; if (p.ini1!=null && x>=p.ini1) return (Math.floor((x-p.ini1)/60)+1)+"' 1T"; const s = Math.floor(x); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+async function abrirVA(){
+  const c = xModal("Traer de Videoanálisis", "<p class='xm-load'>Buscando los videoanálisis del club…</p>");
+  const L = (await proyectosVA()).filter(p=>(p.tags||[]).length).sort((a,b)=>String(b.fecha||"").localeCompare(String(a.fecha||"")));
+  c.textContent = "";
+  if (!L.length){ c.appendChild(el("p",{class:"xm-sub",text:"Todavía no hay partidos taggeados en Videoanálisis. Taggeá el partido del rival allá y después traé las acciones acá."})); return; }
+  const sel = new Set(L.filter(p=>parecido(p.rival, state.rival) || parecido(p.nombre, state.rival)).map(p=>p.id));
+  c.appendChild(el("p",{class:"xm-sub",text:"Elegí los partidos taggeados. Las acciones se suman a las notas de cada sección (Inicio, Presión, Ataque, Transiciones, Pelota parada) con su minuto."}));
+  const lista = el("div",{class:"xm-list"});
+  L.forEach(p=>{ const lab = el("label",{class:"xm-chk"}); const cb = el("input",{type:"checkbox"}); cb.checked = sel.has(p.id); cb.addEventListener("change",()=>{ if (cb.checked) sel.add(p.id); else sel.delete(p.id); pintar(); });
+    lab.appendChild(cb); const t = el("span"); t.appendChild(el("b",{text:p.nombre||("vs "+(p.rival||""))})); t.appendChild(el("small",{text:[p.fecha&&String(p.fecha).split("-").reverse().join("/"), p.rival&&"Rival: "+p.rival, (p.tags||[]).length+" tags"].filter(Boolean).join(" · ")})); lab.appendChild(t); lista.appendChild(lab); });
+  c.appendChild(lista);
+  const op = el("div",{class:"xm-ops"});
+  op.innerHTML = `<label>¿Quién es ${escH(state.rival||"el rival")} en esos videos? <select id="vaEq"><option value="rival">El equipo marcado como “Rival”</option><option value="propio">El equipo propio (taggeaste un partido del rival contra otro)</option></select></label>
+    <label class="xm-chk"><input type="checkbox" id="vaClips" checked><span>Sumar también a “Jugadas para mostrarle al plantel” las que tienen nota</span></label>`;
+  c.appendChild(op);
+  const res = el("div",{class:"xm-res"}); c.appendChild(res);
+  const ok = bt("Agregar al análisis","solid",()=>importar());
+  const box = document.querySelector("#xm .xm-box"); const f = el("div",{class:"xm-f"}); f.appendChild(bt("Cancelar","",cerrarX)); f.appendChild(ok); box.appendChild(f);
+  op.querySelector("#vaEq").addEventListener("change",pintar);
+  const ya = new Set(state.va_imp||[]);
+  function elegidas(){ const eq = op.querySelector("#vaEq").value; const out = []; L.filter(p=>sel.has(p.id)).forEach(p=>(p.tags||[]).forEach(t=>{ if ((t.equipo==="propio"?"propio":"rival")===eq && !ya.has(p.id+":"+t.id)) out.push({p,t}); })); return out; }
+  function pintar(){
+    const E = elegidas(); res.textContent = "";
+    if (!E.length){ res.appendChild(el("p",{class:"xm-sub",text: sel.size ? "No hay acciones nuevas para traer (o ya las trajiste antes)." : "Tildá al menos un partido."})); ok.disabled = true; return; }
+    ok.disabled = false;
+    const por = {}; E.forEach(x=>{ const s = seccionDeTag(x.t); (por[s] = por[s]||{}); por[s][x.t.nombre] = (por[s][x.t.nombre]||0)+1; });
+    const g = el("div",{class:"xm-tend"});
+    Object.entries(por).forEach(([s,acc])=>{ const b = el("div",{class:"xm-t"}); b.appendChild(el("span",{class:"xm-tl",text:SEC_NOM[s]})); const d = el("div"); Object.entries(acc).sort((a,b)=>b[1]-a[1]).forEach(([n,k])=>d.appendChild(el("span",{class:"xm-pill",text:n+" ×"+k}))); b.appendChild(d); g.appendChild(b); });
+    res.appendChild(el("h4",{text:E.length+" acciones para sumar"})); res.appendChild(g);
+  }
+  function importar(){
+    const E = elegidas(); if (!E.length) return;
+    const porSec = {};
+    E.forEach(x=>{ const s = seccionDeTag(x.t); (porSec[s] = porSec[s]||[]).push(x); });
+    Object.entries(porSec).forEach(([s,arr])=>{
+      const fid = SEC_NOTA[s]; const cnt = {}; arr.forEach(x=>cnt[x.t.nombre]=(cnt[x.t.nombre]||0)+1);
+      const partidos = [...new Set(arr.map(x=>x.p.nombre||("vs "+(x.p.rival||""))))].join(", ");
+      const lineas = arr.sort((a,b)=>String(a.p.fecha||"").localeCompare(String(b.p.fecha||"")) || a.t.t-b.t.t).slice(0,25).map(x=>"• "+minVA(x.p,x.t)+" "+x.t.nombre+(x.t.jugadora?" ("+x.t.jugadora+")":"")+(x.t.resultado==="pos"?" ✓":x.t.resultado==="neg"?" ✗":"")+(x.t.nota?" – "+x.t.nota:""));
+      const bloque = "Del videoanálisis ("+partidos+"): "+Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(([n,k])=>n+" "+k).join(" · ")+"\n"+lineas.join("\n")+(arr.length>25?"\n…y "+(arr.length-25)+" más":"");
+      state[fid] = (state[fid] ? String(state[fid]).replace(/\s+$/,"")+"\n\n" : "") + bloque;
+    });
+    if (op.querySelector("#vaClips").checked){
+      const conNota = E.filter(x=>x.t.nota);
+      if (conNota.length){ if (!Array.isArray(state.clips)) state.clips = []; state.clips = state.clips.filter(r=>r && (r.min||r.txt));
+        conNota.forEach(x=>state.clips.push({min:minVA(x.p,x.t), txt:x.t.nombre+(x.t.jugadora?" ("+x.t.jugadora+")":"")+" – "+x.t.nota+" · "+(x.p.nombre||"")})); }
+    }
+    state.va_imp = [...(state.va_imp||[]), ...E.map(x=>x.p.id+":"+x.t.id)].slice(-3000);
+    rerenderKeepingPlace(); changed(); cerrarX();
+    toast(E.length+" acciones del videoanálisis sumadas a las secciones.");
+  }
+  pintar();
+}
+
+/* ---------- 10. Para el plantel (imagen 1080×1920) ---------- */
+const LINEAS_PL = () => [["todo","Todo el plantel"],["def",g3("Defensoras","Defensores","Defensoras/es")],["med",g3("Volantes","Volantes","Volantes")],["del",g3("Delanteras","Delanteros","Delanteras/os")]];
+function wrapTxt(g, txt, maxW){ const out = []; String(txt||"").split(/\n+/).forEach(par=>{ let line = ""; par.split(/\s+/).forEach(w=>{ const t = line ? line+" "+w : w; if (g.measureText(t).width > maxW && line){ out.push(line); line = w; } else line = t; }); if (line) out.push(line); }); return out; }
+function lienzoPlantel(linea){
+  const W = 1080, H = 1920, HT = 3600, M = 70, cv = document.createElement("canvas"); cv.width = W; cv.height = HT;
+  const g = cv.getContext("2d"), AM = "#FFD400", BG = "#141412", TX = "#F4F1EA", SB = "#A9A396", RV = "#E5735A";
+  const FD = "Georama, 'Barlow', Arial, sans-serif", FB = "Barlow, Arial, sans-serif";
+  g.fillStyle = BG; g.fillRect(0,0,W,HT);
+  const club = window.MTK_CLUB || {};
+  let y = 96;
+  g.fillStyle = AM; g.font = `700 30px ${FB}`; g.textBaseline = "alphabetic";
+  g.fillText(([club.nombre, club.categoria].filter(Boolean).join(" · ") || "Metodika").toUpperCase(), M, y);
+  y += 92; g.fillStyle = TX; g.font = `800 88px ${FD}`;
+  const tit = "vs " + (state.rival || "Rival"); wrapTxt(g, tit, W-2*M).slice(0,2).forEach(l=>{ g.fillText(l, M, y); y += 92; }); y -= 10;
+  const nomL = (LINEAS_PL().find(x=>x[0]===linea)||[])[1] || "";
+  g.font = `600 34px ${FB}`; g.fillStyle = SB; g.fillText([linea==="todo"?"":"Para "+nomL.toLowerCase(), state.proximo].filter(Boolean).join(" · ").slice(0,60) || "Lo que tenemos que saber", M, y); y += 40;
+  g.fillStyle = "rgba(255,255,255,.12)"; g.fillRect(M, y, W-2*M, 2); y += 46;
+  const LIM = HT - 60;
+  let primero = true;
+  const titulo = (t)=>{ if (!primero) y += 58; primero = false; if (y > LIM-80) return false; g.fillStyle = AM; g.fillRect(M, y-32, 10, 38); g.fillStyle = TX; g.font = `800 42px ${FD}`; g.fillText(t.toUpperCase(), M+26, y); y += 22; return true; };
+  const limpio = t => String(t||"").split(/\n*Del videoanálisis/)[0].trim();
+  const bajo = v => String(v||"").toLowerCase().replace(/^(alt|medi|baj|cort|larg|mixt)a$/,"$1o");
+  const chips = (arr, color)=>{ arr = comoLista(arr).map(gx); if (!arr.length) return; g.font = `700 32px ${FB}`; let x = M; y += 14;
+    arr.forEach(v=>{ const w = g.measureText(v).width + 40; if (x + w > W-M){ x = M; y += 62; } if (y > LIM) return; g.fillStyle = color || "rgba(255,212,0,.16)"; const r = 24; g.beginPath(); g.roundRect ? g.roundRect(x, y, w, 50, r) : g.rect(x, y, w, 50); g.fill(); g.fillStyle = color ? "#141412" : AM; g.fillText(v, x+20, y+36); x += w + 12; });
+    y += 60; };
+  const texto = (t, max)=>{ t = limpio(t); if (!t) return; g.font = `500 33px ${FB}`; g.fillStyle = TX; y += 10; wrapTxt(g, t, W-2*M).slice(0, max||4).forEach(l=>{ if (y > LIM) return; y += 42; g.fillText(l, M, y); }); y += 6; };
+  const items = (arr, start)=>{ arr = comoLista(arr).filter(Boolean); if (!arr.length) return; let k = start||1; y += 6;
+    arr.forEach(t=>{ if (y > LIM-40) return; g.fillStyle = AM; g.beginPath(); g.arc(M+24, y+26, 24, 0, Math.PI*2); g.fill(); g.fillStyle = BG; g.font = `800 28px ${FD}`; g.textAlign = "center"; g.fillText(String(k++), M+24, y+36); g.textAlign = "left";
+      g.fillStyle = TX; g.font = `600 33px ${FB}`; const ls = wrapTxt(g, t, W-2*M-70).slice(0,3); ls.forEach((l,i)=>g.fillText(l, M+70, y+36+i*42)); y += Math.max(60, ls.length*42+20); });
+    y += 18; };
+  const claves = (max)=>{ const js = (state.jug||[]).filter(j=>j && (j.dor||j.car||j.pos)).slice(0, max||4); if (!js.length) return; y += 8;
+    js.forEach(j=>{ if (y > LIM-60) return; g.fillStyle = "#fff"; g.beginPath(); g.arc(M+38, y+38, 38, 0, Math.PI*2); g.fill(); g.lineWidth = 8; g.strokeStyle = RV; g.stroke();
+      g.fillStyle = BG; g.font = `800 34px ${FD}`; g.textAlign = "center"; g.fillText(String(j.dor||"?").slice(0,3), M+38, y+50); g.textAlign = "left";
+      g.fillStyle = TX; g.font = `800 34px ${FB}`; g.fillText((j.pos||"").slice(0,30) || "N° "+(j.dor||""), M+100, y+30);
+      g.font = `500 30px ${FB}`; g.fillStyle = SB; wrapTxt(g, j.car||"", W-2*M-100).slice(0,2).forEach((l,i)=>g.fillText(l, M+100, y+68+i*36)); y += 112; });
+    y += 10; };
+  const cancha = ()=>{ const sis = isFormation(state.sis_con) ? state.sis_con : null; if (!sis || y > LIM-430) return;
+    const x0 = M, w = W-2*M, h = 380, y0 = y+10; g.fillStyle = "#0f3b27"; g.beginPath(); g.roundRect ? g.roundRect(x0,y0,w,h,16) : g.rect(x0,y0,w,h); g.fill();
+    g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 3; g.strokeRect(x0+16,y0+16,w-32,h-32); g.beginPath(); g.moveTo(x0+w/2,y0+16); g.lineTo(x0+w/2,y0+h-16); g.stroke(); g.beginPath(); g.arc(x0+w/2,y0+h/2,52,0,Math.PI*2); g.stroke();
+    g.strokeRect(x0+16, y0+h/2-90, 90, 180); g.strokeRect(x0+w-106, y0+h/2-90, 90, 180);
+    const lines = sis.split("-").map(Number), once = state.once||[], cols = [x0+w-60]; const span = (w-140)/(lines.length+0.3); lines.forEach((_,i)=>cols.push(x0+w-60-span*(i+1)));
+    let idx = 0; const put = (x,yy,gk,lado)=>{ const p = once[idx++]||{}; g.fillStyle = gk ? AM : "#fff"; g.beginPath(); g.arc(x,yy,27,0,Math.PI*2); g.fill(); g.lineWidth = 6; g.strokeStyle = RV; g.stroke();
+      g.fillStyle = BG; g.font = `800 25px ${FD}`; g.textAlign = "center"; g.fillText(String(p.dor||"").slice(0,3), x, yy+9); if (p.ref){ g.fillStyle = "#fff"; g.font = `700 19px ${FB}`; if (lado){ g.textAlign = "left"; g.fillText(String(p.ref).slice(0,12), x+33, yy+7); } else g.fillText(String(p.ref).slice(0,12), x, yy+46); } g.textAlign = "left"; };
+    put(cols[0], y0+h/2, true); lines.forEach((n,i)=>{ for (let k=0;k<n;k++) put(cols[i+1], y0+h-20-((h-40)/(n+1))*(k+1), false, n>=4); });
+    g.fillStyle = "rgba(255,255,255,.85)"; g.font = `700 24px ${FB}`; g.fillText("← atacan · "+sis, x0+30, y0+h-26);
+    y = y0 + h + 30; };
+  const S = state;
+  if (linea==="todo"){
+    if (titulo("Cómo juegan")) { chips([S.sis_con&&"Con pelota "+S.sis_con, S.sis_sin&&"Sin pelota "+S.sis_sin, S.sal_tipo&&"Inicio "+bajo(S.sal_tipo), S.pre_altura&&"Bloque "+bajo(S.pre_altura)].filter(Boolean)); cancha(); }
+    if ((S.jug||[]).some(j=>j&&(j.dor||j.car)) && titulo(gx("Jugadoras clave"))) claves(3);
+    if (S.deb && titulo("Dónde les podemos hacer daño")) texto(S.deb, 4);
+    const plan = [...comoLista(S.plan_con), ...comoLista(S.plan_sin), ...comoLista(S.plan_pp)].filter(Boolean);
+    if (plan.length && titulo("Nuestro plan")) items(plan);
+  } else if (linea==="def"){
+    if (titulo("Cómo atacan")) { chips([...comoLista(S.ata_zona), ...comoLista(S.ata_como)]); texto(S.ata_notas, 3); }
+    if ((S.jug||[]).some(j=>j&&(j.dor||j.car)) && titulo("Ojo con")) claves(4);
+    if (S.pp_favor && titulo("Su pelota parada")) texto(S.pp_favor, 3);
+    if (comoLista(S.tra_ganar).length && titulo("Cuando recuperan")) chips(S.tra_ganar);
+    if (comoLista(S.plan_sin).filter(Boolean).length && titulo("Nuestro plan sin pelota")) items(S.plan_sin);
+  } else if (linea==="med"){
+    if (titulo("Su inicio")) { chips([...comoLista(S.sal_tipo), ...comoLista(S.sal_quien)]); texto(S.sal_notas, 2); }
+    if (titulo("Su presión")) { chips([...comoLista(S.pre_altura).map(v=>"Bloque "+bajo(v)), ...comoLista(S.pre_zona)]); texto(S.pre_notas, 2); }
+    if ((comoLista(S.tra_perder).length || comoLista(S.tra_ganar).length) && titulo("Transiciones")) { chips([...comoLista(S.tra_perder).map(v=>"Al perder: "+String(v).toLowerCase()), ...comoLista(S.tra_ganar).map(v=>"Al recuperar: "+String(v).toLowerCase())]); }
+    const plan = [...comoLista(S.plan_con), ...comoLista(S.plan_sin)].filter(Boolean);
+    if (plan.length && titulo("Nuestro plan")) items(plan);
+  } else {
+    if (titulo("Cómo inician")) { chips([...comoLista(S.sal_tipo), ...comoLista(S.sal_quien)]); texto(S.sal_notas, 3); }
+    if (S.deb && titulo("Dónde les podemos hacer daño")) texto(S.deb, 4);
+    if ((comoLista(S.tra_perder).length || S.sis_sin) && titulo("Su defensa")) chips([S.sis_sin&&"Sin pelota "+S.sis_sin, ...comoLista(S.tra_perder).map(v=>"Al perder: "+String(v).toLowerCase())].filter(Boolean));
+    if (S.pp_contra && titulo("Su pelota parada en contra")) texto(S.pp_contra, 2);
+    const plan = [...comoLista(S.plan_con), ...comoLista(S.plan_pp)].filter(Boolean);
+    if (plan.length && titulo("Nuestro plan con pelota")) items(plan);
+  }
+  /* si el contenido no entra en 1080×1920, se achica todo un poco para que no se pierda nada */
+  const alto = y + 20, AREA = H - 130, out = document.createElement("canvas"); out.width = W; out.height = H;
+  const o = out.getContext("2d"); o.fillStyle = BG; o.fillRect(0,0,W,H);
+  if (alto <= AREA) o.drawImage(cv, 0, 0, W, alto, 0, 0, W, alto);
+  else { const k = AREA/alto; o.drawImage(cv, 0, 0, W, alto, (W-W*k)/2, 0, W*k, AREA); }
+  o.fillStyle = AM; o.fillRect(0,0,W,14);
+  o.fillStyle = "rgba(255,255,255,.12)"; o.fillRect(M, H-96, W-2*M, 2);
+  o.fillStyle = SB; o.font = `600 26px ${FB}`; o.fillText("Análisis de rival · Metodika", M, H-50);
+  o.textAlign = "right"; o.fillText(new Date().toLocaleDateString("es-AR"), W-M, H-50); o.textAlign = "left";
+  return out;
+}
+function abrirPlantel(){
+  let linea = "todo";
+  const box = el("div",{class:"xm-pl"});
+  const izq = el("div",{class:"xm-pl-op"});
+  izq.appendChild(el("p",{class:"xm-sub",text:"Una imagen simple, tamaño historia de celular (1080×1920), para mandar por WhatsApp antes del partido."}));
+  LINEAS_PL().forEach(([v,n])=>{ const lab = el("label",{class:"xm-chk"}); const r = el("input",{type:"radio",name:"plL",value:v}); r.checked = v===linea; r.addEventListener("change",()=>{ linea = v; dibujar(); }); lab.appendChild(r); lab.appendChild(el("span",{text:n})); izq.appendChild(lab); });
+  const prev = el("div",{class:"xm-pl-prev"});
+  box.appendChild(izq); box.appendChild(prev);
+  let cv = null;
+  function dibujar(){ cv = lienzoPlantel(linea); prev.textContent = ""; const im = el("img",{alt:"Vista previa"}); im.src = cv.toDataURL("image/png"); prev.appendChild(im); }
+  const nombre = ()=> "plantel-vs-"+slugify(state.rival||"rival")+(linea==="todo"?"":"-"+linea)+".png";
+  const desc = bt("⬇ Descargar imagen","solid",()=>cv.toBlob(b=>{ if (!b) return; if (downloads) downloads.save({filename:nombre(), data:b}); else { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre(); a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); } toast("Imagen descargada."); }, "image/png"));
+  const pie = [bt("Cerrar","",cerrarX), desc];
+  try{ if (navigator.canShare && navigator.canShare({files:[new File([new Blob(["x"])], "x.png", {type:"image/png"})]})) pie.splice(1,0,bt("Compartir…","",()=>cv.toBlob(async b=>{ try{ await navigator.share({files:[new File([b], nombre(), {type:"image/png"})], title:"vs "+(state.rival||"")}); }catch(e){} }, "image/png"))); }catch(e){}
+  xModal("Para el plantel", box, pie);
+  dibujar();
+}
+
 /* ---------- recortes por sección ---------- */
 let assets = null, lastSection = SECTIONS[1].id, pendingSection = null;
 const fileIn = document.getElementById("fileIn");
@@ -1248,7 +1603,10 @@ document.addEventListener("keydown",e=>{ if((e.key==="c"||e.key==="C") && !vBody
   ]);
   db = dbNs; assets = asNs;
   try { userNs = window.claude ? await window.claude.use("user") : null; myId = userNs ? await userNs.id() : null; } catch(e) { userNs = null; myId = null; }
-  if (!db) { setStatus("", "Guardado solo en este navegador"); render(); return; }
+  if (!db) {
+    try { const vis = {}; for (let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); if (!k || !k.startsWith("scout_") || k==="scout_last" || k==="scout_split" || k==="scout_once_propio") continue; try { const d = JSON.parse(localStorage.getItem(k)); if (d && typeof d==="object" && !Array.isArray(d) && d.rival!=null) vis[k.slice(6)] = String(d.rival||k.slice(6)); } catch(e) {} }
+      if (Object.keys(vis).length) { vis[slug] = state.rival || vis[slug] || "Rival"; rivals = Object.entries(vis).map(([s,n])=>({slug:s, name:n})); } } catch(e) {}
+    setStatus("", "Guardado solo en este navegador"); render(); fillRivalSel(); return; }
   try {
     const qs = await db.collection("scouting").get();
     rivals = qs.docs.map(d=>({slug:d.id, name:(d.data()||{}).rival || d.id}));
@@ -1352,6 +1710,10 @@ async function planUnaHoja(){
   finally{if(b){b.disabled=false;b.textContent="📄 Plan en 1 hoja";}}
 }
 document.getElementById("planBtn").addEventListener("click",e=>{e.stopPropagation();planUnaHoja()});
+document.getElementById("xHist").addEventListener("click",abrirHistorial);
+document.getElementById("xAcum").addEventListener("click",abrirAcumulado);
+document.getElementById("xVA").addEventListener("click",abrirVA);
+document.getElementById("xPlantel").addEventListener("click",abrirPlantel);
 
 (async ()=>{ try { downloads = window.claude ? await window.claude.use("downloads") : null; } catch(e) { downloads = null; } pdfBtns.forEach(b=>{ b.hidden = !downloads; }); })();
 </script>
@@ -1366,6 +1728,7 @@ document.getElementById("planBtn").addEventListener("click",e=>{e.stopPropagatio
   [/^Pausa (\d+) s$/,['Pausa $1 s','Pause $1 s']],[/^Nuevo análisis · (.+)$/,['Nova análise · $1','New analysis · $1']],[/^▶︎ Reproducir selección \((\d+)\)$/,['▶︎ Reproduzir seleção ($1)','▶︎ Play selection ($1)']],
   [/^🎬 Video \((\d+)\)$/,['🎬 Vídeo ($1)','🎬 Video ($1)']],[/^⬇ PDF \((\d+)\)$/,['⬇ PDF ($1)','⬇ PDF ($1)']],[/^＋ Agregar\s+tildados a una lista$/,['＋ Adicionar marcados a uma lista','＋ Add selected to a playlist']],
   [/^(\d+) de (\d+) secciones con datos$/,['$1 de $2 seções com dados','$1 of $2 sections filled']],[/^inicio\/fin · (\d+)$/,['início/fim · $1','start/end · $1']],[/^Ej: (.*)$/,['Ex: $1','E.g. $1']]];
+Object.assign(DIC,{"📜 Historial": ["📜 Histórico", "📜 History"], "Partidos jugados contra este rival y qué funcionó": ["Jogos contra este adversário e o que funcionou", "Matches played against this opponent and what worked"], "🔁 Rival acumulado": ["🔁 Adversário acumulado", "🔁 Combined opponent"], "Juntá 2–3 partidos vistos y mirá qué se repite": ["Junte 2–3 jogos vistos e veja o que se repete", "Combine 2–3 scouted matches and see what repeats"], "🎥 Traer de Videoanálisis": ["🎥 Trazer da Videoanálise", "🎥 Import from Video analysis"], "Suma las acciones taggeadas a cada sección": ["Soma as ações marcadas a cada seção", "Adds tagged actions to each section"], "📲 Para el plantel": ["📲 Para o elenco", "📲 For the squad"], "Imagen simple por línea para WhatsApp": ["Imagem simples por linha para WhatsApp", "Simple image per unit for WhatsApp"], "→ Pizarra con el once": ["→ Prancheta com o onze", "→ Board with the line-up"], "Sumar a nuestro equipo enfrente": ["Incluir nosso time em frente", "Add our team opposite"], "Rival acumulado": ["Adversário acumulado", "Combined opponent"], "Buscando los análisis guardados…": ["Buscando as análises salvas…", "Looking for saved analyses…"], "Juntá 2 o 3 partidos que miraste del mismo rival y mirá qué se repite. Tildá los análisis a sumar:": ["Junte 2 ou 3 jogos que você viu do mesmo adversário e veja o que se repete. Marque as análises:", "Combine 2 or 3 matches you scouted of the same opponent and see what repeats. Tick the analyses to add:"], "Completar lo vacío con lo que se repite": ["Completar o vazio com o que se repete", "Fill empty fields with what repeats"], "Tildá al menos 2 análisis.": ["Marque pelo menos 2 análises.", "Tick at least 2 analyses."], "Debilidades que anotaste": ["Fraquezas que você anotou", "Weaknesses you noted"], "Buscando…": ["Buscando…", "Searching…"], "Abrí el Análisis de rival desde Metodika para ver los partidos que jugaste contra este rival.": ["Abra a Análise do adversário pela Metodika para ver os jogos contra este adversário.", "Open Opponent analysis from Metodika to see the matches played against this opponent."], "No hay partidos contra este rival en el fixture. Si ya jugaron, cargalo en Partidos con el mismo nombre.": ["Não há jogos contra este adversário no calendário. Se já jogaram, cadastre em Jogos com o mesmo nome.", "No matches against this opponent in the fixtures. If you already played, add it in Matches with the same name."], "PJ": ["J", "P"], "Ganados": ["Vitórias", "Won"], "Empates": ["Empates", "Drawn"], "Perdidos": ["Derrotas", "Lost"], "Goles": ["Gols", "Goals"], "Fecha": ["Data", "Date"], "Competencia": ["Competição", "Competition"], "Condición": ["Mando", "Venue"], "Resultado": ["Resultado", "Result"], "Por jugar": ["A jogar", "To play"], "Planes que armaste antes contra este rival": ["Planos que você montou antes contra este adversário", "Plans you made before against this opponent"], "Sin plan cargado": ["Sem plano", "No plan yet"], "Qué nos funcionó contra este rival": ["O que funcionou contra este adversário", "What worked against this opponent"], "Qué no nos funcionó": ["O que não funcionou", "What didn't work"], "Se guarda con este análisis.": ["Fica salvo com esta análise.", "Saved with this analysis."], "Traer de Videoanálisis": ["Trazer da Videoanálise", "Import from Video analysis"], "Buscando los videoanálisis del club…": ["Buscando as videoanálises do clube…", "Looking for the club's video analyses…"], "Elegí los partidos taggeados. Las acciones se suman a las notas de cada sección (Inicio, Presión, Ataque, Transiciones, Pelota parada) con su minuto.": ["Escolha os jogos marcados. As ações entram nas notas de cada seção (Saída, Pressão, Ataque, Transições, Bola parada) com o minuto.", "Pick the tagged matches. Actions are added to each section's notes (Build-up, Press, Attack, Transitions, Set pieces) with their minute."], "El equipo marcado como “Rival”": ["O time marcado como “Adversário”", "The team tagged as “Opponent”"], "El equipo propio (taggeaste un partido del rival contra otro)": ["O próprio time (você marcou um jogo do adversário contra outro)", "Own team (you tagged the opponent's match against someone else)"], "Sumar también a “Jugadas para mostrarle al plantel” las que tienen nota": ["Somar também a “Jogadas para mostrar ao elenco” as que têm nota", "Also add the ones with a note to “Clips to show the squad”"], "Agregar al análisis": ["Adicionar à análise", "Add to analysis"], "Cancelar": ["Cancelar", "Cancel"], "Cerrar": ["Fechar", "Close"], "Tildá al menos un partido.": ["Marque pelo menos um jogo.", "Tick at least one match."], "No hay acciones nuevas para traer (o ya las trajiste antes).": ["Não há ações novas para trazer (ou já foram trazidas).", "No new actions to import (or already imported)."], "Todavía no hay partidos taggeados en Videoanálisis. Taggeá el partido del rival allá y después traé las acciones acá.": ["Ainda não há jogos marcados na Videoanálise. Marque o jogo do adversário lá e depois traga as ações para cá.", "No tagged matches in Video analysis yet. Tag the opponent's match there, then import the actions here."], "Inicio desde el arco": ["Saída do goleiro", "Build-up from the goalkeeper"], "Presión y recuperación": ["Pressão e recuperação", "Press and recovery"], "Ataque": ["Ataque", "Attack"], "Transiciones": ["Transições", "Transitions"], "Pelota parada (a favor del rival)": ["Bola parada (a favor do adversário)", "Set pieces (for the opponent)"], "Otras observaciones": ["Outras observações", "Other notes"], "Para el plantel": ["Para o elenco", "For the squad"], "Una imagen simple, tamaño historia de celular (1080×1920), para mandar por WhatsApp antes del partido.": ["Uma imagem simples, tamanho story de celular (1080×1920), para mandar no WhatsApp antes do jogo.", "A simple phone-story-size image (1080×1920) to send on WhatsApp before the match."], "Todo el plantel": ["Todo o elenco", "Whole squad"], "Defensoras": ["Defensoras", "Defenders"], "Defensores": ["Defensores", "Defenders"], "Volantes": ["Meio-campistas", "Midfielders"], "Delanteras": ["Atacantes", "Forwards"], "Delanteros": ["Atacantes", "Forwards"], "⬇ Descargar imagen": ["⬇ Baixar imagem", "⬇ Download image"], "Compartir…": ["Compartilhar…", "Share…"]});PAT.push([new RegExp("^＋ Analizar otro partido de (.+)$"),["＋ Analisar outro jogo de $1", "＋ Scout another match of $1"]],[new RegExp("^Qué se repite en (\\d+) partidos$"),["O que se repete em $1 jogos", "What repeats across $1 matches"]],[new RegExp("^Historial contra (.+)$"),["Histórico contra $1", "History against $1"]],[new RegExp("^(\\d+) acciones para sumar$"),["$1 ações para somar", "$1 actions to add"]],[new RegExp("^— en (\\d+) de (\\d+)$"),["— em $1 de $2", "— in $1 of $2"]],[new RegExp("^¿Quién es (.+) en esos videos\\?$"),["Quem é $1 nesses vídeos?", "Who is $1 in those videos?"]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
