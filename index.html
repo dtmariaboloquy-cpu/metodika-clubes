@@ -240,14 +240,14 @@ body.pz-fs{overflow:hidden}
 .pzA-frames{display:flex;gap:8px;overflow-x:auto;flex:0 1 auto;min-width:0;padding:4px 2px;scrollbar-width:thin}
 .pzA-fr{position:relative;width:132px;flex:none;border:0;padding:0;border-radius:9px;overflow:hidden;cursor:pointer;opacity:.55;background:#000;outline:2px solid transparent}
 .pzA-fr svg{display:block;width:100%;height:auto}.pzA-fr.on{opacity:1;outline:3px solid #FFD400;outline-offset:1px}.pzA-fr:hover{opacity:.9}
-.pzA-fr span{position:absolute;left:5px;top:5px;background:#141412;color:#FFD400;font:800 12px Barlow;padding:1px 7px;border-radius:5px;z-index:1}
+.pzA-fr span{position:absolute;left:5px;top:5px;background:#141412;color:#FFD400;font:800 12px Barlow,'Segoe UI',Arial,sans-serif;padding:1px 7px;border-radius:5px;z-index:1}
 .pzA-add{width:70px;flex:none;border:2px dashed #6A6E62;border-radius:9px;background:transparent;color:#DAD6CA;font-size:22px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.pzA-add small{font-size:11px}
 .pzA-add:hover{border-color:#FFD400;color:#FFD400}
 .pzA-tlc{display:flex;gap:6px;align-items:center;margin-left:auto}.pzA-tlc b{font-size:13px;white-space:nowrap}
 .pzA select,.pzA input[type=text],.pzA textarea{background:#11120F;border:1px solid #33362F;color:var(--pzt);border-radius:8px;padding:6px 8px;font:500 13.5px Barlow,Arial;width:auto}
 .pzA textarea{width:100%;resize:vertical}
 .pzA-props{border-left:1px solid var(--pzl);padding:14px;overflow:auto;max-height:calc(68vh + 190px)}
-.pzA-h{font:700 10.5px Barlow;letter-spacing:2px;color:var(--pzs);text-transform:uppercase;margin:14px 0 7px}.pzA-props>.pzA-h:first-child,#panelSel .pzA-h:first-child{margin-top:0}
+.pzA-h{font:700 10.5px Barlow,'Segoe UI',Arial,sans-serif;letter-spacing:2px;color:var(--pzs);text-transform:uppercase;margin:14px 0 7px}.pzA-props>.pzA-h:first-child,#panelSel .pzA-h:first-child{margin-top:0}
 .pzA-card{background:var(--pzc);border:1px solid var(--pzl);border-radius:12px;padding:10px 12px}
 .pzA-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13.5px;padding:5px 0}.pzA-row b{color:#FFD400;font:700 16px 'Barlow Condensed',Arial}
 .pzA-row select,.pzA-row input{max-width:150px}
@@ -636,6 +636,13 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .vers-g{display:grid;gap:10px}.vers{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;border:1px solid var(--linea);border-radius:12px;padding:8px}.vers-m{border-radius:8px;overflow:hidden}.vers-i{display:flex;flex-direction:column;gap:3px}@media(max-width:560px){.vers{grid-template-columns:110px 1fr}.vers .btn{grid-column:1/-1}}
 .va-barras{display:grid;gap:6px}.va-f{display:grid;grid-template-columns:minmax(90px,150px) 1fr 30px 64px;gap:8px;align-items:center;font-size:13.5px}.va-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.va-b{height:8px;border-radius:5px;background:var(--carta2);overflow:hidden}.va-b i{display:block;height:100%;border-radius:5px}.va-r em{font-style:normal;font-weight:700;font-size:12px;margin-right:4px}.ok{color:var(--verde)}.mal{color:var(--rojo)}.va-js{display:flex;flex-wrap:wrap;gap:6px}.va-js em{font-style:normal;font-weight:700}
 @media(max-width:560px){.va-f{grid-template-columns:minmax(80px,1fr) 1fr 26px}.va-r{display:none}}
+.pzA-nota{width:100%;font-size:15px!important;line-height:1.35;min-height:72px;border-radius:10px}
+.pzA-ayuda{font-size:11.5px;color:var(--pzs);margin-top:5px}
+.pzA-med{display:flex;align-items:center;gap:5px}.pzA-med input{color:#FFD400!important;width:62px;min-width:0;padding:5px 6px;text-align:center;font:700 15px 'Barlow Condensed',Arial,sans-serif;color:#FFD400}.pzA-med i{font-style:normal;color:var(--pzs);font-size:12px}
+.pzA-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.pzA-kpis div{background:rgba(255,255,255,.04);border:1px solid var(--pzl);border-radius:9px;padding:7px 4px;text-align:center}.pzA-kpis b{display:block;color:#FFD400;font:700 19px/1 'Barlow Condensed',Arial,sans-serif}.pzA-kpis span{display:block;font-size:10.5px;color:var(--pzs);margin-top:3px;line-height:1.15}
+.pzA-props input,.pzA-props select,.pzA-props textarea{box-sizing:border-box;background:rgba(255,255,255,.06)!important;color:#F2F2EE!important;border:1px solid var(--pzl)!important;border-radius:8px}
+.pzA-props select option{color:#141412}.pzA-props input::placeholder,.pzA-props textarea::placeholder{color:rgba(255,255,255,.38)}
+.pzA-ficha>*,.pzA-2>*{min-width:0}.pzA-ficha{display:grid;gap:8px}.pzA-ficha label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--pzs)}.pzA-ficha input,.pzA-ficha select{width:100%;padding:6px 8px;font-size:13.5px}.pzA-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 </style>
 
 <div class="app">
@@ -2534,12 +2541,19 @@ VISTAS.pizarra=el=>{
     </div>
     <div class="pzA-props">
       <div id="panelSel"></div>
-      <div class="pzA-h">Tarea</div>
+      <div class="pzA-h">Consigna · paso ${FR+1} de ${PZ.pasos.length+1}</div>
+      <textarea id="pzNota" class="pzA-nota" maxlength="90" rows="3" placeholder="Ej.: La 6 fija a la central" aria-label="Consigna de este paso">${esc((PZ.notas||[])[FR]||'')}</textarea>
+      <div class="pzA-ayuda">Se muestra sobre la cancha, al presentar y en el PDF.</div>
+      <div class="pzA-h">Espacio</div>
       <div class="pzA-card"><div class="pzA-row"><span>Cancha</span><select id="pzFormato" aria-label="Cancha">${opts(Object.keys(FORMATOS),PZ.formato)}<option value="__medida">📐 A medida…</option></select></div>
-        <div class="pzA-row"><span>Espacio${zMay?' (zona)':''}</span><b>${espTxt}</b></div><div class="pzA-row"><span>${J('Pl')}</span><b>${nJ}</b></div>
-        <div class="pzA-row"><span>m² por ${J('sg')}</span><b>${jEn?Math.round(area/jEn):'–'}</b></div><div class="pzA-row"><span>Pasos</span><b>${PZ.pasos.length+1}</b></div></div>
-      <div class="pzA-h">Consigna del paso ${FR+1}</div>
-      <textarea id="pzNota" maxlength="90" rows="2" placeholder="Ej.: La 6 fija al central" aria-label="Consigna de este paso">${esc((PZ.notas||[])[FR]||'')}</textarea>
+        <div class="pzA-row"><span>${zMay?'Zona de trabajo':'Medidas'}</span><span class="pzA-med"><input type="number" id="pzMedW" min="3" max="120" step="0.5" value="${zMay?+zMay.w.toFixed(1):Wc}" aria-label="Largo en metros"><i>×</i><input type="number" id="pzMedH" min="3" max="90" step="0.5" value="${zMay?+zMay.h.toFixed(1):Hc}" aria-label="Ancho en metros"><i>m</i></span></div>
+        <div class="pzA-kpis"><div><b>${Math.round(area)}</b><span>m²</span></div><div><b>${nJ}</b><span>${J('pl')}</span></div><div><b>${jEn?Math.round(area/jEn):'–'}</b><span>m² por ${J('sg')}</span></div></div></div>
+      <div class="pzA-h">Ficha de la tarea</div>
+      <div class="pzA-card pzA-ficha">
+        <label>Objetivo<input type="text" id="pzfObj" maxlength="90" value="${esc((PZ.ficha||{}).objetivo||'')}" placeholder="Ej.: Progresar con pases entre líneas"></label>
+        <div class="pzA-2"><label>Duración (min)<input type="number" id="pzfDur" min="1" max="120" value="${esc((PZ.ficha||{}).dur||'')}" placeholder="15"></label><label>Dificultad<select id="pzfDif">${opts(['','Baja','Media','Alta'].map(v=>[v,v||'—']),(PZ.ficha||{}).dif||'')}</select></label></div>
+        <div class="pzA-2"><label>Series<input type="text" id="pzfSer" maxlength="20" value="${esc((PZ.ficha||{}).series||'')}" placeholder="4 × 4'"></label><label>Pausa<input type="text" id="pzfPau" maxlength="20" value="${esc((PZ.ficha||{}).pausa||'')}" placeholder="1'30&quot;"></label></div>
+        <div class="pzA-row" style="padding-top:8px"><span>Pasos de la jugada</span><b>${PZ.pasos.length+1}</b></div></div>
       <div class="pzA-h">Ordenar</div>
       <div class="pzA-card"><div class="pzA-row"><span>Categoría</span><select id="pzCat" aria-label="Categoría">${opts(CATEG_PZ,PZ.categoria)}</select></div>
         <div class="pzA-row"><span>Carpeta</span><input type="text" id="pzCarpeta" value="${esc(PZ.carpeta)}" list="dlCarp" placeholder="Opcional" aria-label="Carpeta"><datalist id="dlCarp">${carpetas.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div></div>
@@ -2570,6 +2584,13 @@ VISTAS.pizarra=el=>{
   $('#pzCfg').onclick=configCancha;
   $('#pzDist').onchange=e=>{PZ.verDist=e.target.checked;redibujar()};
   $('#pzNum').onchange=e=>{snap();PZ.numerar=e.target.checked;redibujar()};
+  {const fi=(id,k,num)=>{const x=$('#'+id);if(x)x.onchange=x.oninput=()=>{PZ.ficha=PZ.ficha||{};const v=x.value.trim();if(v==='')delete PZ.ficha[k];else PZ.ficha[k]=num?Math.max(1,Math.min(120,+v||0)):v}};fi('pzfObj','objetivo');fi('pzfDur','dur',true);fi('pzfSer','series');fi('pzfPau','pausa');{const d=$('#pzfDif');if(d)d.onchange=()=>{PZ.ficha=PZ.ficha||{};if(d.value)PZ.ficha.dif=d.value;else delete PZ.ficha.dif}}}
+  {const mw=$('#pzMedW'),mh=$('#pzMedH');const aplicar=()=>{const w=Math.round((+mw.value||0)*2)/2,h=Math.round((+mh.value||0)*2)/2;if(w<3||h<3)return;snap();
+      const zz=[...PZ.zonas].sort((a,b)=>areaZona(b)-areaZona(a))[0];
+      if(zz){const [W0,H0]=FORMATOS[PZ.formato]||[40,30];zz.w=Math.min(w,W0);zz.h=Math.min(h,H0);zz.x=Math.max(0,Math.min(zz.x,W0-zz.w));zz.y=Math.max(0,Math.min(zz.y,H0-zz.h));aviso('Zona de '+zz.w+' × '+zz.h+' m')}
+      else{const W=Math.min(120,w),H=Math.min(90,h);PZ.medida=[W,H];PZ.formato='A medida '+W+'×'+H+' m';FORMATOS[PZ.formato]=PZ.medida;aviso('Cancha de '+W+' × '+H+' m')}
+      const fid=document.activeElement&&document.activeElement.id;pintar();if(fid&&fid!=='pzMedW'&&fid!=='pzMedH'){const x=document.getElementById(fid);if(x){x.focus();try{const n=x.value.length;x.setSelectionRange&&x.setSelectionRange(n,n)}catch(e){}}}};
+    if(mw&&mh){let sucio=false;const ini=[mw.value,mh.value];[mw,mh].forEach(x=>{x.oninput=()=>{sucio=mw.value!==ini[0]||mh.value!==ini[1]};x.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();if(sucio)aplicar()}};x.onblur=()=>setTimeout(()=>{const ae=document.activeElement;if(sucio&&ae!==mw&&ae!==mh)aplicar()},0)})}}
   $('#frAuto').onclick=()=>{const todas=(PZ.flechas||[]).filter(a=>!a.sp);if(!todas.length){aviso('Primero dibujá la jugada con flechas: pase, conducción, movimiento o remate.');return}
     const hacer=()=>{snap();PZ.flechas.sort((a,b)=>(a.fr||0)-(b.fr||0));PZ.flechas.forEach(a=>a.fr=0);PZ.pasos=[];PZ.notas=[(PZ.notas||[])[0]||''];delete PZ.auto;
       if(animarDesdeFlechas(PZ)){if(PZ.numerar==null)PZ.numerar=true;FR=0;SEL=null;pintar();aviso('Listo: '+(PZ.pasos.length+1)+' pasos. Tocá ▶ para verla. Podés ajustar cada paso a mano.')}};
@@ -3389,7 +3410,8 @@ function pasarATarea(){
   if(ya){modal('Esta pizarra ya es una tarea',`<p style="margin:0">La tarea <b>${esc(ya.titulo)}</b> ya usa este diagrama. Los cambios que guardaste en la pizarra ya se ven en la tarea.</p><div class="modal-pie"><button class="btn" id="ptVer">Ver la tarea</button><button class="btn pri" id="ptSes">＋ Sumar a una sesión</button></div>`,{alMontar:m=>{$('#ptVer',m).onclick=()=>{cerrarModal();verTarea(ya.id)};$('#ptSes',m).onclick=()=>{cerrarModal();sumarASesion(ya.id)}}});return}
   const nj=PZ.elementos.filter(e=>e.t==='J').length,zg=[...PZ.zonas].sort((a,b)=>areaZona(b)-areaZona(a))[0];
   const fm=v=>{const t=Math.round(v*10)/10;return Number.isInteger(t)?String(t):t.toFixed(1).replace('.',',')};
-  const t={id:uid(),titulo:PZ.nombre||'',categoria:CATEG_TAREA[0],objetivo:'',contenido:CONT()[0],tipo:TIPOS_TAREA[0],nJug:nj?String(nj):'',espacio:'Medio',dificultad:'Media',duracion:12,descripcion:zg?'Espacio de trabajo: '+fm(zg.w)+' × '+fm(zg.h)+' m.':'',consignas:'',video:'',diagrama:PZ.id};
+  const fc=PZ.ficha||{},extra=[fc.series?'Series: '+fc.series:'',fc.pausa?'Pausa: '+fc.pausa:''].filter(Boolean).join(' · ');
+  const t={id:uid(),titulo:PZ.nombre||'',categoria:CATEG_TAREA[0],objetivo:fc.objetivo||'',contenido:CONT()[0],tipo:TIPOS_TAREA[0],nJug:nj?String(nj):'',espacio:'Medio',dificultad:fc.dif||'Media',duracion:fc.dur||12,descripcion:[zg?'Espacio de trabajo: '+fm(zg.w)+' × '+fm(zg.h)+' m.':'',extra].filter(Boolean).join('\n'),consignas:'',video:'',diagrama:PZ.id};
   editarTarea(t,{nueva:true,despues:id=>sumarASesion(id,true)});
 }
 function sumarASesion(tareaId,recien){
@@ -5180,6 +5202,7 @@ Object.assign(DIC_I18N,{"Animar desde flechas": ["Animar pelas setas", "Animate 
 Object.assign(DIC_I18N,{"📄 PDF de la sesión": ["📄 PDF da sessão", "📄 Session PDF"], "Tomar asistencia": ["Fazer chamada", "Take attendance"], "Armando…": ["Montando…", "Building…"]});
 Object.assign(DIC_I18N,{"🕘 Versiones": ["🕘 Versões", "🕘 Versions"], "Versiones": ["Versões", "Versions"], "Restaurar": ["Restaurar", "Restore"], "Volver a una versión guardada antes": ["Voltar para uma versão salva antes", "Go back to an earlier saved version"], "Entendido": ["Entendido", "Got it"], "Ejercicio guardado": ["Exercício salvo", "Exercise saved"]});
 Object.assign(DIC_I18N,{"Videoanálisis": ["Videoanálise", "Video analysis"], "Buscando análisis de video de este partido…": ["Buscando análise de vídeo deste jogo…", "Looking for this match's video analysis…"], "Abrir Videoanálisis": ["Abrir Videoanálise", "Open Video analysis"], "Acciones": ["Ações", "Actions"], "Salieron bien": ["Deram certo", "Went well"], "A mejorar": ["A melhorar", "To improve"], "Acciones por jugadora": ["Ações por jogadora", "Actions by player"], "Acciones por jugador": ["Ações por jogador", "Actions by player"], "Sin tags de tu equipo.": ["Sem tags da sua equipe.", "No tags for your team."], "Sin tags del rival.": ["Sem tags do adversário.", "No tags for the opponent."], "1 partido analizado": ["1 jogo analisado", "1 match analysed"], "Recorte en la pizarra: dibujá las flechas y tocá ✨ Animar desde flechas": ["Recorte na prancheta: desenhe as setas e toque em ✨ Animar pelas setas", "Clip on the board: draw the arrows and tap ✨ Animate from arrows"]});
+Object.assign(DIC_I18N,{"Espacio": ["Espaço", "Space"], "Zona de trabajo": ["Zona de trabalho", "Work area"], "Medidas": ["Medidas", "Size"], "Ficha de la tarea": ["Ficha da tarefa", "Drill sheet"], "Duración (min)": ["Duração (min)", "Duration (min)"], "Series": ["Séries", "Sets"], "Pausa": ["Pausa", "Rest"], "Pasos de la jugada": ["Passos da jogada", "Steps in the move"], "Se muestra sobre la cancha, al presentar y en el PDF.": ["Aparece sobre o campo, ao apresentar e no PDF.", "Shown on the pitch, when presenting and in the PDF."], "Ej.: Progresar con pases entre líneas": ["Ex.: Progredir com passes entre linhas", "E.g. Progress with passes between lines"], "Ej.: La 6 fija a la central": ["Ex.: A 6 fixa a zagueira", "E.g. The 6 pins the centre-back"], "Largo en metros": ["Comprimento em metros", "Length in metres"], "Ancho en metros": ["Largura em metros", "Width in metres"], "m²": ["m²", "m²"]});
 let IDIOMA='es';try{IDIOMA=localStorage.getItem('metodika_idioma')||'es'}catch(e){}
 if(!['es','pt','en'].includes(IDIOMA))IDIOMA='es';
 const I18N_HECHOS=new WeakSet();
@@ -5191,7 +5214,7 @@ const PAT_I18N=[
  [/^(\d+) pasos$/,['$1 passos','$1 steps']],[/^(\d+) pasos preparados$/,['$1 passos preparados','$1 steps ready']],[/^Usada en (\d+) sesi(ón|ones)$/,['Usada em $1 sessões','Used in $1 sessions']],
  [/^Paso (\d+): (.*)$/,['Passo $1: $2','Step $1: $2']],[/^Siguiente: (\d+) · tocá la cancha$/,['Próximo: $1 · toque no campo','Next: $1 · tap the pitch']],
  [/^Todas \((\d+)\)$/,['Todas ($1)','All ($1)']],[/^Creadas por mí \((\d+)\)$/,['Criadas por mim ($1)','Created by me ($1)']],[/^★ Favoritas \((\d+)\)$/,['★ Favoritas ($1)','★ Favourites ($1)']],
- [/^(\d+) partidos analizados$/,['$1 jogos analisados','$1 matches analysed']],[/^(\d+) tags$/,['$1 tags','$1 tags']], [/^Hoy es (.*)$/,['Hoje é $1','Today is $1']],[/^Nuevo ejercicio$/i,['Novo exercício','New exercise']],
+ [/^(\d+) partidos analizados$/,['$1 jogos analisados','$1 matches analysed']],[/^(\d+) tags$/,['$1 tags','$1 tags']], [/^Consigna · paso (\d+) de (\d+)$/,['Instrução · passo $1 de $2','Instruction · step $1 of $2']], [/^Hoy es (.*)$/,['Hoje é $1','Today is $1']],[/^Nuevo ejercicio$/i,['Novo exercício','New exercise']],
  [/^Un paseo de 1 minuto que muestra dónde está cada cosa\.$/,['Um tour de 1 minuto que mostra onde fica cada coisa.','A 1-minute tour showing where everything is.']]];
 function trI18n(t){const k=t.trim();if(!k)return null;const v=DIC_I18N[k];if(v){const r=v[IDIOMA==='pt'?0:1];return r&&r!==k?t.replace(k,r):null}
   const pre=k.match(/^(MÉTODO|EQUIPO|CANCHA|Configuración) · (.+)$/);if(pre){const tr=x=>{const v=DIC_I18N[x];return v?v[IDIOMA==='pt'?0:1]:null};const resto=pre[2].split(' · ').map(x=>{const r=tr(x)||(trI18n(x)||'').trim();return r||x}).join(' · ');return t.replace(k,(tr(pre[1])||pre[1])+' · '+resto)}

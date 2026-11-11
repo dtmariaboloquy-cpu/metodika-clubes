@@ -453,6 +453,28 @@ document.addEventListener("DOMContentLoaded", ()=>{
 })();
 
 </script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style id="mtk-diseno-b">
+/* Diseño B de Metodika: oscuro por defecto, modo claro con el mismo botón de la app */
+:root,:root[data-theme="light"]{color-scheme:light;
+  --bg:#F3F4F6;--card:#FFFFFF;--ink:#14171B;--sub:#5E6570;--mute:#8A9099;--line:#E2E5E9;--field:#F0F2F5;
+  --accent:#141412;--accent-ink:#FFD400;--accent-wash:#FFF6C2;--navy:#141412;--rival:#B3452F;--rival-wash:#F6E2DC;--ok:#2E6B4A;--ok-wash:#E1EFE6;--pink:#8A6D00;
+  --f-d:'Barlow','Segoe UI',Arial,sans-serif;--f-b:'Barlow','Segoe UI',Arial,sans-serif}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#0D0F12;--card:#14171C;--ink:#ECEDEF;--sub:#9AA0A9;--mute:#6E747D;--line:#232830;--field:#1A1E24;
+  --accent:#FFD400;--accent-ink:#141412;--accent-wash:#2D2911;--navy:#FFD400;--rival:#E48A72;--rival-wash:#33201B;--ok:#63AE83;--ok-wash:#18271F;--pink:#FFD400}
+h1,h2,h3{letter-spacing:-.2px}
+body:not(.vopen) .viewer{top:0}
+</style>
+<script>
+/* Toma el tema de la app (localStorage compartido) y lo sigue si cambia */
+(function(){function aplicar(){var t='';try{t=localStorage.getItem('metodika_tema')||''}catch(e){}
+  if(t==='oscuro')t='dark';if(t==='claro')t='light';if(!t)t='dark';
+  if(t==='auto')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+  document.documentElement.setAttribute('data-theme',t)}
+ aplicar();window.addEventListener('storage',function(e){if(!e.key||e.key==='metodika_tema')aplicar()});
+ window.mtkAplicarTema=aplicar})();
+</script>
 </head>
 <body>
 
@@ -472,7 +494,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
   <div class="how">Abrí el partido en el <b>visor</b> (tocá "Abrir video") y completá mientras lo mirás. <b>Se guarda solo.</b> Cuando veas una jugada, pausá, elegí la sección y tocá <b>Capturar</b>: queda como recorte con el minuto puesto, listo para dibujarle encima. Cuando termines, usá <b>Pantalla grande</b> para la charla o <b>Descargar PDF</b> para mandarlo al grupo.</div>
 
-  <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span style="display:flex;gap:12px;align-items:center"><span class="prog" id="prog"></span><button type="button" class="shot-add" id="pdfBtn" hidden>Descargar PDF</button><button type="button" class="shot-add" id="presentBtn2">Pantalla grande</button></span></div>
+  <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span style="display:flex;gap:12px;align-items:center"><span class="prog" id="prog"></span><button type="button" class="shot-add" id="planBtn">📄 Plan en 1 hoja</button><button type="button" class="shot-add" id="pdfBtn" hidden>Descargar PDF</button><button type="button" class="shot-add" id="presentBtn2">Pantalla grande</button></span></div>
 
 
   <div class="viewer" id="viewer">
@@ -548,15 +570,15 @@ const SECTIONS = [
     {id:"once", label:"Once probable", type:"once"},
     {id:"sis_notas", label:"Notas", type:"textarea", ph:"Ej: la 10 se suelta y queda como segunda punta; laterales muy abiertas…"}
   ]},
-  {id:"salida", title:"Salida desde el arco", hint:"Qué hacen cuando tienen la pelota la arquera o las centrales.", fields:[
-    {id:"sal_tipo", label:"Tipo de salida", type:"chips", opts:["Corta","Larga","Mixta"]},
+  {id:"salida", title:"Inicio desde el arco", hint:"Qué hacen cuando tienen la pelota la arquera o las centrales.", fields:[
+    {id:"sal_tipo", label:"Tipo de inicio", type:"chips", opts:["Corta","Larga","Mixta"]},
     {id:"sal_quien", label:"Quiénes participan", type:"chips", multi:true, opts:["Arquera","Centrales","Volante central baja","Laterales","Pelota a la 9"]},
     {id:"sal_notas", label:"Notas y minutos", type:"textarea", ph:"Ej: si las presionan, la arquera la tira larga a la 9 (min 12, 27)…"}
   ]},
   {id:"presion", title:"Presión y recuperación", hint:"Qué hacen cuando pierden la pelota y cuando la tiene el rival.", fields:[
     {id:"pre_altura", label:"Altura del bloque", type:"chips", opts:["Alta","Media","Baja","Cambia según el momento"]},
     {id:"pre_zona", label:"Dónde recuperan más", type:"chips", multi:true, opts:["Campo rival","Mitad de cancha","Cerca de su área","Bandas"]},
-    {id:"pre_notas", label:"Notas y minutos", type:"textarea", ph:"Ej: presionan la salida con 3; si las superan, quedan espacios entre líneas…"}
+    {id:"pre_notas", label:"Notas y minutos", type:"textarea", ph:"Ej: presionan el inicio con 3; si las superan, quedan espacios entre líneas…"}
   ]},
   {id:"ataque", title:"Ataque", hint:"Por dónde y cómo llegan al arco.", fields:[
     {id:"ata_zona", label:"Por dónde atacan más", type:"chips", multi:true, opts:["Banda izquierda","Centro","Banda derecha"]},
@@ -583,7 +605,7 @@ const SECTIONS = [
   ]},
   {id:"plan", cls:"plan", title:"Plan de partido", hint:"Lo que vamos a hacer nosotras. Es la pantalla con la que cierra la charla.", fields:[
     {id:"plan_con", label:"Con pelota", type:"list", n:3, ph:["Ej: atacar el espacio a espaldas de la lateral derecha","",""]},
-    {id:"plan_sin", label:"Sin pelota", type:"list", n:3, ph:["Ej: presionar la salida corta de la arquera","",""]},
+    {id:"plan_sin", label:"Sin pelota", type:"list", n:3, ph:["Ej: presionar el inicio corto de la arquera","",""]},
     {id:"plan_pp", label:"Pelota parada", type:"list", n:2, ph:["Ej: corners al segundo palo","",""]}
   ]},
   {id:"general", title:"Otras observaciones", hint:"", fields:[
@@ -644,7 +666,7 @@ function ramaClub(){
   if (!r) { try { if (window.parent && window.parent!==window) r = window.parent.eval('typeof S!=="undefined"&&S&&S.club?S.club.rama:""'); } catch(e) {} }
   return r || "F";
 }
-const GX_M = [["Jugadoras a tener en cuenta","Jugadores a tener en cuenta"],["Jugadoras clave","Jugadores clave"],["Las que más influyen","Los que más influyen"],["la arquera o las centrales","el arquero o los centrales"],["si las presionan, la arquera la tira larga a la 9","si los presionan, el arquero la tira larga al 9"],["la arquera sale poco","el arquero sale poco"],["salida corta de la arquera","salida corta del arquero"],["Pelota larga a la 9","Pelota larga al 9"],["Pelota a la 9","Pelota al 9"],["Arquera","Arquero"],["Jugadora ","Jugador "],["Defensora","Defensor"],["Delantera","Delantero"]];
+const GX_M = [["Jugadoras a tener en cuenta","Jugadores a tener en cuenta"],["Jugadoras clave","Jugadores clave"],["Las que más influyen","Los que más influyen"],["la arquera o las centrales","el arquero o los centrales"],["si las presionan, la arquera la tira larga a la 9","si los presionan, el arquero la tira larga al 9"],["la arquera sale poco","el arquero sale poco"],["inicio corto de la arquera","inicio corto del arquero"],["Pelota larga a la 9","Pelota larga al 9"],["Pelota a la 9","Pelota al 9"],["Arquera","Arquero"],["Jugadora ","Jugador "],["Defensora","Defensor"],["Delantera","Delantero"]];
 const GX_X = [["Jugadoras a tener en cuenta","Jugadoras/es a tener en cuenta"],["Jugadoras clave","Jugadoras/es clave"],["Las que más influyen","Quienes más influyen"],["la arquera o las centrales","quien ataja o quienes juegan de centrales"],["la arquera","quien ataja"],["Arquera","Arquera/o"],["Jugadora ","Jugador/a "],["Defensora","Defensor/a"],["Delantera","Delantera/o"]];
 function gx(t){ const r = ramaClub(); const L = r==="M" ? GX_M : r==="X" ? GX_X : null; if (!L) return t; let o = String(t); L.forEach(([a,b])=>{ o = o.split(a).join(b); }); return o; }
 function aplicarRama(){
@@ -671,11 +693,11 @@ function renderField(f) {
     f.opts.forEach(o=>{
       const cur = state[f.id];
       const on = f.multi ? Array.isArray(cur) && cur.includes(o) : cur===o;
-      const b = el("button",{type:"button",class:"chip","aria-pressed":on?"true":"false",text:o});
+      const b = el("button",{type:"button",class:"chip","aria-pressed":on?"true":"false",text:o}); b.dataset.v=o;
       b.addEventListener("click",()=>{
         if (f.multi) { const arr = Array.isArray(state[f.id]) ? [...state[f.id]] : []; const i=arr.indexOf(o); if(i>=0) arr.splice(i,1); else arr.push(o); state[f.id]=arr; }
         else state[f.id] = state[f.id]===o ? "" : o;
-        box.querySelectorAll(".chip").forEach(c=>{ const v=c.textContent; const on2 = f.multi ? state[f.id].includes(v) : state[f.id]===v; c.setAttribute("aria-pressed",on2?"true":"false"); });
+        box.querySelectorAll(".chip").forEach(c=>{ const v=(c.dataset.v!=null?c.dataset.v:c.textContent); const on2 = f.multi ? state[f.id].includes(v) : state[f.id]===v; c.setAttribute("aria-pressed",on2?"true":"false"); });
         if (f.id==="sis_con") refreshField("once");
         changed();
       });
@@ -722,7 +744,7 @@ function renderField(f) {
     wrap.appendChild(box);
   } else if (f.type==="players" || f.type==="clips") {
     const isClip = f.type==="clips";
-    const cols = isClip ? [["min","Minuto","Ej: 23:40"],["txt","Qué se ve","Ej: salida corta y pérdida en la mitad"]]
+    const cols = isClip ? [["min","Minuto","Ej: 23:40"],["txt","Qué se ve","Ej: inicio corto y pérdida en la mitad"]]
                         : [["dor","Dorsal","Ej: 10"],["pos","Posición","Ej: volante"],["car","Qué hace bien / cómo frenarla","Ej: gambeta hacia adentro, pierna derecha"]];
     const head = el("div",{class:"rowhead"+(isClip?" clip":"")}); cols.forEach(c=>head.appendChild(el("span",{text:c[1]}))); wrap.appendChild(head);
     const rows = el("div",{class:"rows"});
@@ -880,6 +902,23 @@ const fileIn = document.getElementById("fileIn");
 const shotKey = id => "shots_" + id;
 const shotUrl = id => window.__mtkBlobUrl(id);
 
+
+/* Recorte → pizarra de Metodika: la imagen va de fondo y encima se dibuja y anima */
+async function recorteAPizarra(imgEl, sh, s, btn){
+  try{
+    btn.disabled=true; btn.textContent="Enviando…";
+    if (!imgEl.complete) await new Promise(r=>{ imgEl.onload=imgEl.onerror=r; });
+    const w0=imgEl.naturalWidth, h0=imgEl.naturalHeight; if(!w0||!h0) throw new Error("imagen vacía");
+    const k=Math.min(1,1100/Math.max(w0,h0)), c=document.createElement("canvas"); c.width=Math.round(w0*k); c.height=Math.round(h0*k);
+    c.getContext("2d").drawImage(imgEl,0,0,c.width,c.height);
+    const img=c.toDataURL("image/jpeg",0.74), rival=String(state.rival||"").trim();
+    const nombre=[rival?"vs "+rival:"", sh.min?"min "+sh.min:"", sh.cap||s.title].filter(Boolean).join(" · ").slice(0,80);
+    let par=null; try{ par = (window.parent && window.parent!==window && typeof window.parent.crearPizarraDesdeImagen==="function") ? window.parent : null; }catch(e){ par=null; }
+    if (par){ const ar=c.width/c.height; par.setTimeout(()=>par.crearPizarraDesdeImagen(img, nombre, ar, rival), 60); setStatus("saved","Abriendo el recorte en la pizarra…"); }
+    else { localStorage.setItem("metodika_pz_pendiente", JSON.stringify({img, nombre, ar:c.width/c.height, rival, t:Date.now()})); setStatus("saved","Recorte enviado: abrí la Pizarra en Metodika y aparece listo para dibujar"); }
+  }catch(e){ console.error(e); setStatus("err","No se pudo pasar el recorte a la pizarra"); }
+  finally{ btn.disabled=false; btn.textContent="→ Pizarra"; }
+}
 function renderShots(s){
   const box = el("div",{class:"shots",id:"shots-"+s.id});
   const head = el("div",{class:"shots-head"});
@@ -904,6 +943,7 @@ function renderShots(s){
     m.appendChild(tIn); m.appendChild(cIn); it.appendChild(m);
     const tools = el("div",{class:"tools2"});
     if (!sh.video && assets) { const dr = el("button",{type:"button",text: sh.ann ? "Editar dibujo" : "Dibujar"}); dr.addEventListener("click",()=>openDraw(s.id, idx)); tools.appendChild(dr); }
+    if (!sh.video) { const pz = el("button",{type:"button",text:"→ Pizarra",title:"Abrir este recorte en la pizarra para dibujar y animar la jugada"}); pz.addEventListener("click",()=>recorteAPizarra(media, sh, s, pz)); tools.appendChild(pz); }
     const del = el("button",{type:"button",class:"del",text:"Quitar"});
     del.addEventListener("click",async ()=>{
       if (!del.classList.contains("confirm")) { del.classList.add("confirm"); del.textContent="Tocá de nuevo"; setTimeout(()=>{ del.classList.remove("confirm"); del.textContent="Quitar"; },3000); return; }
@@ -1095,8 +1135,8 @@ function buildSlides(){
     noteOrNothing(w,"Detalle","sis_notas"); if(!a&&!b&&!val("sis_notas")) empty(w); });
   const once = list("once"); if (once.some(p=>p&&(p.dor||p.ref))) slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker","Sistema")); w.appendChild(D("h3",null,"Once probable"));
     const f = isFormation(val("sis_con")) ? val("sis_con") : "4-4-2"; const svg = pitchSVG(f,"Once probable",once); svg.style.maxHeight="58vh"; w.appendChild(svg); return w; });
-  sectionSlide(S("salida"), w=>{ w.appendChild(D("h3",null,"Salida desde el arco"));
-    if (val("sal_tipo")) w.appendChild(pills(["Salida "+val("sal_tipo").toLowerCase()]));
+  sectionSlide(S("salida"), w=>{ w.appendChild(D("h3",null,"Inicio desde el arco"));
+    if (val("sal_tipo")) w.appendChild(pills(["Inicio "+val("sal_tipo").toLowerCase()]));
     if (list("sal_quien").length) block(w,"Participan",pills(list("sal_quien")));
     noteOrNothing(w,"Detalle","sal_notas"); if(!val("sal_tipo")&&!list("sal_quien").length&&!val("sal_notas")) empty(w); });
   sectionSlide(S("presion"), w=>{ w.appendChild(D("h3",null,"Presión y recuperación"));
@@ -1259,8 +1299,83 @@ async function exportPdf(){
   pdfBtns.forEach(b=>{ b.disabled = false; }); document.getElementById("dPdf").textContent = "Descargar PDF";
 }
 pdfBtns.forEach(b=>b.addEventListener("click",e=>{ e.stopPropagation(); exportPdf(); }));
+/* ---------- Plan de partido en 1 hoja (PDF A4) ---------- */
+async function planUnaHoja(){
+  const b=document.getElementById("planBtn");if(b){b.disabled=true;b.textContent="Armando…";}
+  try{
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+    const doc=new window.jspdf.jsPDF({orientation:"landscape",unit:"mm",format:"a4"}),PW=297,PH=210,M=12,c=window.MTK_CLUB||{};
+    const tx=v=>Array.isArray(v)?v.filter(Boolean).join(" · "):String(v||"").trim();
+    const lista=v=>(Array.isArray(v)?v:[]).map(x=>String(x||"").trim()).filter(Boolean);
+    const T=(sz,st,col)=>{doc.setFont("helvetica",st||"normal");doc.setFontSize(sz);doc.setTextColor(...(col||[20,20,18]))};
+    const NE=[20,20,18],GR=[110,108,100],AM=[255,212,0],RO=[179,69,47];
+    // encabezado
+    doc.setFillColor(...NE);doc.rect(0,0,PW,30,"F");doc.setFillColor(...AM);doc.rect(0,30,PW,1.6,"F");
+    let x=M;if(c.escudo){try{doc.addImage(c.escudo,c.escudo.includes("image/png")?"PNG":"JPEG",M,5,20,20);x=M+25}catch(e){}}
+    T(9,"bold",AM);doc.text(("Plan de partido"+(c.nombre?" · "+c.nombre:"")+(c.categoria?" · "+c.categoria:"")).toUpperCase(),x,11);
+    T(21,"bold",[255,255,255]);doc.text(("vs "+(tx(state.rival)||"Rival")).toUpperCase().slice(0,40),x,21);
+    T(9.5,"normal",[200,200,195]);doc.text(tx(state.proximo)||"",x,27);
+    // ---- columna izquierda: cómo juega el rival ----
+    const L=M,LW=128;let y=40;
+    T(8,"bold",RO);doc.text("CÓMO JUEGA EL RIVAL",L,y);y+=4;
+    // cancha con el once probable
+    const cx=L,cy=y,cw=56,ch=78;doc.setFillColor(86,145,52);doc.roundedRect(cx,cy,cw,ch,2,2,"F");doc.setDrawColor(255,255,255);doc.setLineWidth(.4);
+    doc.rect(cx+3,cy+3,cw-6,ch-6);doc.line(cx+3,cy+ch/2,cx+cw-3,cy+ch/2);doc.circle(cx+cw/2,cy+ch/2,6);doc.rect(cx+cw/2-13,cy+3,26,11);doc.rect(cx+cw/2-13,cy+ch-14,26,11);
+    const sis=/^\d(-\d){2,3}$/.test(state.sis_con||"")?state.sis_con.split("-").map(Number):null,once=Array.isArray(state.once)?state.once:[];
+    const ficha=(px,py,lab)=>{doc.setFillColor(...RO);doc.setDrawColor(20,20,18);doc.setLineWidth(.3);doc.circle(px,py,3.2,"FD");T(6.5,"bold",[255,255,255]);doc.text(String(lab).slice(0,3),px,py+1.2,{align:"center"})};
+    if(sis){ficha(cx+cw/2,cy+ch-6,(once[0]&&once[0].dor)||"1");let k=1;sis.forEach((n,li)=>{const py=cy+ch-14-(li+1)*((ch-22)/(sis.length+.4));for(let i=0;i<n;i++){const px=cx+6+(cw-12)*(i+1)/(n+1);ficha(px,py,(once[k]&&once[k].dor)||String(k+1));k++}})}
+    else{T(8,"normal",[235,235,230]);doc.text("Elegí el sistema en la sección 2",cx+cw/2,cy+ch/2+12,{align:"center"})}
+    // datos al lado de la cancha
+    let ty=cy+3;const dx=cx+cw+6,dw=LW-cw-6;
+    const dato=(k,v)=>{if(!v)return;T(7,"bold",GR);doc.text(k.toUpperCase(),dx,ty);ty+=4;T(9.5,"bold");const l=doc.splitTextToSize(v,dw).slice(0,2);doc.text(l,dx,ty);ty+=l.length*4.2+2.5};
+    dato("Sistema con pelota",tx(state.sis_con));dato("Sistema sin pelota",tx(state.sis_sin));dato("Inicio",tx(state.sal_tipo)+(tx(state.sal_quien)?" · "+tx(state.sal_quien):""));
+    dato("Altura del bloque",tx(state.pre_altura));dato("Dónde recuperan",tx(state.pre_zona));dato("Por dónde atacan",tx(state.ata_zona));dato("Cómo llegan",tx(state.ata_como));
+    y=cy+ch+7;
+    const figs=(Array.isArray(state.jug)?state.jug:[]).filter(j=>j&&(j.dor||j.pos||j.car)).slice(0,3);
+    if(figs.length){T(8,"bold",RO);doc.text("FIGURAS DEL RIVAL",L,y);y+=5;figs.forEach(j=>{ficha(L+3.2,y-1.2,j.dor||"?");T(9.5,"bold");doc.text(tx(j.pos)||"—",L+9,y);T(8.5,"normal",GR);const l=doc.splitTextToSize(tx(j.car),LW-10).slice(0,2);doc.text(l,L+9,y+4);y+=5+l.length*3.8})}
+    const ppF=tx(state.pp_favor),ppC=tx(state.pp_contra);
+    if((ppF||ppC)&&y<PH-30){y+=2;T(8,"bold",RO);doc.text("PELOTA PARADA DEL RIVAL",L,y);y+=4.5;[["A favor",ppF],["En contra",ppC]].forEach(([k,v])=>{if(!v||y>PH-20)return;T(8.5,"bold");doc.text(k+":",L,y);T(8.5,"normal");const l=doc.splitTextToSize(v,LW-20).slice(0,2);doc.text(l,L+19,y);y+=l.length*3.8+1.5})}
+    // ---- columna derecha: nuestro plan ----
+    const R=L+LW+10,RW=PW-M-R;let ry=40;
+    T(8,"bold",[30,30,28]);doc.text("NUESTRO PLAN",R,ry);ry+=4;
+    const bloque=(tit,items,col)=>{const its=items.length?items:["—"];const lines=its.map(t=>doc.splitTextToSize(t,RW-14));const h=8+lines.reduce((a,l)=>a+l.length*4.4+2.2,0);
+      doc.setFillColor(246,244,238);doc.roundedRect(R,ry,RW,h,2.5,2.5,"F");doc.setFillColor(...col);doc.rect(R,ry,1.6,h,"F");T(8,"bold",col);doc.text(tit.toUpperCase(),R+6,ry+6);let yy=ry+11.5;
+      lines.forEach((l,i)=>{T(10.5,"bold",NE);doc.text(String(i+1),R+6,yy);T(10.5,"normal",NE);doc.text(l,R+11,yy);yy+=l.length*4.4+2.2});ry+=h+4};
+    bloque("Con pelota",lista(state.plan_con),[34,120,70]);bloque("Sin pelota",lista(state.plan_sin),[179,69,47]);bloque("Pelota parada",lista(state.plan_pp),[150,110,10]);
+    const deb=tx(state.deb);if(deb&&ry<PH-24){T(8,"bold",GR);doc.text("DEBILIDADES PARA APROVECHAR",R,ry+2);T(9.5,"normal");const l=doc.splitTextToSize(deb,RW).slice(0,Math.max(2,Math.floor((PH-18-ry)/4.2)));doc.text(l,R,ry+7)}
+    // pie
+    doc.setDrawColor(225,222,214);doc.line(M,PH-10,PW-M,PH-10);T(7.5,"bold",[150,120,0]);doc.text("METODIKA · MÉTODO · CANCHA · EQUIPO",M,PH-5.5);T(7.5,"normal",GR);doc.text("Análisis de rival · "+(tx(state.visto)||""),PW-M,PH-5.5,{align:"right"});
+    const blob=doc.output("blob"),nom="Plan vs "+(tx(state.rival)||"rival")+".pdf";
+    if(downloads)await downloads.save({filename:nom,data:blob});else{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+    setStatus("saved","Plan de partido listo");
+  }catch(e){console.error(e);setStatus("err","No se pudo armar el plan: "+(e&&e.message||e))}
+  finally{if(b){b.disabled=false;b.textContent="📄 Plan en 1 hoja";}}
+}
+document.getElementById("planBtn").addEventListener("click",e=>{e.stopPropagation();planUnaHoja()});
+
 (async ()=>{ try { downloads = window.claude ? await window.claude.use("downloads") : null; } catch(e) { downloads = null; } pdfBtns.forEach(b=>{ b.hidden = !downloads; }); })();
 </script>
 
+<script id="mtk-i18n">
+/* Idioma de la app (localStorage compartido con Metodika Clubes): traduce menús y botones del módulo */
+(function(){var L='es';try{L=localStorage.getItem('metodika_idioma')||'es'}catch(e){}if(L!=='pt'&&L!=='en')return;
+ var I=L==='pt'?0:1,DIC={"Rival nuevo":["Novo adversário","New opponent"],"+ Nuevo rival":["+ Novo adversário","+ New opponent"],"Borrar rival":["Apagar adversário","Delete opponent"],"Crear":["Criar","Create"],"Análisis de rival ·":["Análise do adversário ·","Opponent analysis ·"],"Presentar en pantalla grande":["Apresentar em tela grande","Present on big screen"],"Abrí el partido en el":["Abra o jogo no","Open the match in the"],"visor":["visualizador","viewer"],"(tocá \"Abrir video\") y completá mientras lo mirás.":["(toque em \"Abrir vídeo\") e preencha enquanto assiste.","(tap \"Open video\") and fill it in while you watch."],"Se guarda solo.":["Salva sozinho.","Saves automatically."],"Cuando veas una jugada, pausá, elegí la sección y tocá":["Quando vir uma jogada, pause, escolha a seção e toque em","When you see a move, pause, pick the section and tap"],"Capturar":["Capturar","Capture"],": queda como recorte con el minuto puesto, listo para dibujarle encima. Cuando termines, usá":[": fica como recorte com o minuto, pronto para desenhar em cima. Quando terminar, use",": it becomes a clip with the minute, ready to draw on. When you finish, use"],"Pantalla grande":["Tela grande","Big screen"],"para la charla o":["para a palestra ou","for the team talk or"],"Descargar PDF":["Baixar PDF","Download PDF"],"para mandarlo al grupo.":["para mandar ao grupo.","to send it to the group."],"Sin conexión con la nube de Metodika. Mientras tanto, lo que completes queda guardado solo en este navegador.":["Sem conexão com a nuvem do Metodika. Enquanto isso, o que você preencher fica salvo só neste navegador.","No connection to the Metodika cloud. Meanwhile, what you fill in is saved only in this browser."],"Guardado solo en este navegador":["Salvo só neste navegador","Saved only in this browser"],"Visor del partido":["Visualizador do jogo","Match viewer"],"Abrí el video desde tu computadora. No se sube: se reproduce acá.":["Abra o vídeo do seu computador. Não é enviado: toca aqui.","Open the video from your computer. It isn't uploaded: it plays here."],"Abrir video":["Abrir vídeo","Open video"],"Poner arriba":["Colocar em cima","Move to top"],"Minimizar":["Minimizar","Minimise"],"Sección":["Seção","Section"],"Sistema y once probable":["Sistema e provável escalação","System and likely XI"],"Inicio desde el arco":["Saída de bola desde o goleiro","Build-up from the goalkeeper"],"Presión y recuperación":["Pressão e recuperação","Pressing and recovery"],"Ataque":["Ataque","Attack"],"Jugadoras clave":["Jogadoras-chave","Key players"],"Jugadores clave":["Jogadores-chave","Key players"],"Debilidades para aprovechar":["Fraquezas para aproveitar","Weaknesses to exploit"],"Jugadas para mostrarle al plantel":["Jogadas para mostrar ao elenco","Clips to show the squad"],"Otras observaciones":["Outras observações","Other notes"],"Capturar (C)":["Capturar (C)","Capture (C)"],"Partido y ficha del rival":["Jogo e ficha do adversário","Match and opponent profile"],"Datos del partido que miraste y cómo viene el rival en la tabla.":["Dados do jogo que você assistiu e como o adversário está na tabela.","Details of the match you watched and the opponent's league form."],"Partido que miraste":["Jogo que você assistiu","Match you watched"],"Link del video":["Link do vídeo","Video link"],"Partido que preparamos":["Jogo que estamos preparando","Match we're preparing"],"Resultado del partido que miraste":["Resultado do jogo que você assistiu","Result of the match you watched"],"Ficha en la tabla":["Situação na tabela","League position"],"Últimos 5 partidos (del más viejo al más reciente)":["Últimos 5 jogos (do mais antigo ao mais recente)","Last 5 matches (oldest to newest)"],"Tocá cada casilla para cambiar: V (ganó), E (empató), D (perdió).":["Toque em cada casa para mudar: V (venceu), E (empatou), D (perdeu).","Tap each box to change: W (won), D (drew), L (lost)."],"Cómo se paran. Mirá un saque de arco propio y uno rival.":["Como se posicionam. Veja um tiro de meta próprio e um do adversário.","How they line up. Watch one of their goal kicks and one of their opponent's."],"No se distingue":["Não dá para distinguir","Can't tell"],"Once probable":["Provável escalação","Likely XI"],"Elegí primero el sistema con pelota, así se acomodan por línea en la cancha.":["Escolha primeiro o sistema com bola, assim elas se organizam por linha no campo.","Pick the in-possession system first so players line up by unit on the pitch."],"Notas":["Notas","Notes"],"Recortes (capturas o clips)":["Recortes (capturas ou clipes)","Clips (captures or videos)"],"Sin conexión con la nube de Metodika: no se pueden subir recortes":["Sem conexão com a nuvem do Metodika: não é possível enviar recortes","No connection to the Metodika cloud: clips can't be uploaded"],"+ Agregar recorte":["+ Adicionar recorte","+ Add clip"],"Qué hacen cuando tienen la pelota la arquera o las centrales.":["O que fazem quando a goleira ou as zagueiras têm a bola.","What they do when the goalkeeper or centre-backs have the ball."],"Qué hacen cuando tienen la pelota el arquero o los centrales.":["O que fazem quando o goleiro ou os zagueiros têm a bola.","What they do when the goalkeeper or centre-backs have the ball."],"Tipo de inicio":["Tipo de saída","Build-up type"],"Corta":["Curta","Short"],"Larga":["Longa","Long"],"Mixta":["Mista","Mixed"],"Quiénes participan":["Quem participa","Who's involved"],"Centrales":["Zagueiras","Centre-backs"],"Volante central baja":["Volante recua","Holding midfielder drops"],"Laterales":["Laterais","Full-backs"],"Pelota a la 9":["Bola na 9","Ball to the 9"],"Pelota al 9":["Bola no 9","Ball to the 9"],"Notas y minutos":["Notas e minutos","Notes and minutes"],"Qué hacen cuando pierden la pelota y cuando la tiene el rival.":["O que fazem quando perdem a bola e quando o adversário a tem.","What they do when they lose the ball and when the opponent has it."],"Altura del bloque":["Altura do bloco","Block height"],"Cambia según el momento":["Muda conforme o momento","Changes with the moment"],"Dónde recuperan más":["Onde mais recuperam","Where they win the ball most"],"Campo rival":["Campo adversário","Opponent's half"],"Mitad de cancha":["Meio-campo","Midfield"],"Cerca de su área":["Perto da área","Near their box"],"Bandas":["Laterais do campo","Wings"],"Por dónde y cómo llegan al arco.":["Por onde e como chegam ao gol.","Where and how they get to goal."],"Por dónde atacan más":["Por onde mais atacam","Where they attack most"],"Banda izquierda":["Lado esquerdo","Left wing"],"Banda derecha":["Lado direito","Right wing"],"Cómo llegan":["Como chegam","How they get there"],"Centros":["Cruzamentos","Crosses"],"Pases filtrados":["Passes em profundidade","Through balls"],"Gambeta 1 vs 1":["Drible 1 x 1","1v1 dribbles"],"Pelota larga a la 9":["Bola longa na 9","Long ball to the 9"],"Pelota larga al 9":["Bola longa no 9","Long ball to the 9"],"Remates de afuera":["Chutes de fora","Shots from distance"],"Contragolpe":["Contra-ataque","Counter-attack"],"Los segundos después de ganar o perder la pelota.":["Os segundos depois de ganhar ou perder a bola.","The seconds after winning or losing the ball."],"Cuando pierden":["Quando perdem","When they lose it"],"Presionan enseguida":["Pressionam na hora","Press immediately"],"Repliegan rápido":["Recuam rápido","Drop back quickly"],"Quedan desordenadas":["Ficam desorganizadas","Get disorganised"],"Quedan desordenados":["Ficam desorganizados","Get disorganised"],"Cuando recuperan":["Quando recuperam","When they win it"],"Contragolpe rápido":["Contra-ataque rápido","Fast counter"],"Aseguran la pelota":["Seguram a bola","Keep the ball"],"Pelota larga":["Bola longa","Long ball"],"Corners, tiros libres y laterales. Anotá quién patea y a dónde va.":["Escanteios, faltas e laterais. Anote quem cobra e para onde vai.","Corners, free kicks and throw-ins. Note who takes them and where they go."],"A favor":["A favor","For"],"En contra":["Contra","Against"],"Las que más influyen. Si no se ve el dorsal, poné la posición y alguna seña (pelo, botines).":["As que mais influenciam. Se não der para ver o número, coloque a posição e alguma característica (cabelo, chuteira).","The most influential ones. If you can't see the number, write the position and a feature (hair, boots)."],"Qué hace bien / cómo frenarla":["O que faz bem / como pará-la","What she does well / how to stop her"],"Qué hace bien / cómo frenarlo":["O que faz bem / como pará-lo","What he does well / how to stop him"],"+ Agregar jugadora":["+ Adicionar jogadora","+ Add player"],"+ Agregar jugador":["+ Adicionar jogador","+ Add player"],"Lo que más te sirve para el plan de juego.":["O que mais serve para o plano de jogo.","What's most useful for the game plan."],"Qué les cuesta":["O que têm dificuldade","What they struggle with"],"Minuto del video y qué se ve.":["Minuto do vídeo e o que se vê.","Video minute and what you see."],"Minuto":["Minuto","Minute"],"Qué se ve":["O que se vê","What you see"],"+ Agregar jugada":["+ Adicionar jogada","+ Add clip"],"Plan de partido":["Plano de jogo","Game plan"],"Lo que vamos a hacer nosotras. Es la pantalla con la que cierra la charla.":["O que nós vamos fazer. É a tela que fecha a palestra.","What we're going to do. It's the screen that closes the team talk."],"Lo que vamos a hacer nosotros. Es la pantalla con la que cierra la charla.":["O que nós vamos fazer. É a tela que fecha a palestra.","What we're going to do. It's the screen that closes the team talk."],"Otras cosas que viste":["Outras coisas que você viu","Other things you saw"],"← Anterior":["← Anterior","← Previous"],"Siguiente →":["Próximo →","Next →"],"Flecha":["Seta","Arrow"],"Flecha punteada":["Seta tracejada","Dashed arrow"],"Zona":["Zona","Zone"],"Borrar todo":["Apagar tudo","Clear all"],"Guardar dibujo":["Salvar desenho","Save drawing"],"Arrastrá sobre la imagen para dibujar. Para el texto, escribilo arriba y tocá donde lo querés poner.":["Arraste sobre a imagem para desenhar. Para o texto, escreva em cima e toque onde quer colocar.","Drag over the image to draw. For text, type it above and tap where you want it."],"Nombre del rival":["Nome do adversário","Opponent name"],"Nombre o seña":["Nome ou característica","Name or feature"],"Borrar esta fila":["Apagar esta linha","Delete this row"],"Texto a poner":["Texto a colocar","Text to add"],"Amarillo":["Amarelo","Yellow"],"Rojo":["Vermelho","Red"],"Blanco":["Branco","White"],"Celeste":["Azul-claro","Light blue"],"Verde":["Verde","Green"],"Ej: volante":["Ex: volante","E.g. midfielder"],"Videoanálisis · Metodika Clubes":["Videoanálise · Metodika Clubes","Video analysis · Metodika Clubes"],"Nuevo análisis":["Nova análise","New analysis"],"+ Nuevo análisis":["+ Nova análise","+ New analysis"],"Datos del partido":["Dados do jogo","Match details"],"Cargá el video del partido":["Carregue o vídeo do jogo","Load the match video"],"Elegí un archivo de tu compu (mp4) o pegá un link de YouTube.":["Escolha um arquivo do seu computador (mp4) ou cole um link do YouTube.","Choose a file from your computer (mp4) or paste a YouTube link."],"Elegir archivo":["Escolher arquivo","Choose file"],"Pegar link de YouTube":["Colar link do YouTube","Paste YouTube link"],"Pausado · dibujá sobre la imagen. Se va a ver cuando reproduzcas este clip.":["Pausado · desenhe sobre a imagem. Vai aparecer quando você reproduzir este clipe.","Paused · draw on the image. It will show when you play this clip."],"✥ Mover":["✥ Mover","✥ Move"],"➝ Flecha":["➝ Seta","➝ Arrow"],"⇢ Punteada":["⇢ Tracejada","⇢ Dashed"],"— Línea":["— Linha","— Line"],"◯ Marcar":["◯ Marcar","◯ Highlight"],"▭ Zona":["▭ Zona","▭ Zone"],"✎ Lápiz":["✎ Lápis","✎ Pen"],"T Texto":["T Texto","T Text"],"Fino":["Fino","Thin"],"Grueso":["Grosso","Thick"],"－ Chico":["－ Menor","－ Smaller"],"＋ Grande":["＋ Maior","＋ Bigger"],"⧉ Copiar":["⧉ Copiar","⧉ Copy"],"🗑 Borrar":["🗑 Apagar","🗑 Delete"],"Limpiar":["Limpar","Clear"],"Sin pausa":["Sem pausa","No pause"],"Marcar inicio 1T":["Marcar início 1T","Mark 1st-half start"],"Marcar inicio 2T":["Marcar início 2T","Mark 2nd-half start"],"Cambiar video":["Trocar vídeo","Change video"],"Línea de tiempo":["Linha do tempo","Timeline"],"Tocá una franja para ir a ese momento · tocá un tag para verlo":["Toque em uma faixa para ir a esse momento · toque em uma tag para vê-la","Tap a band to jump there · tap a tag to see it"],"Cargá el video para ver la línea de tiempo.":["Carregue o vídeo para ver a linha do tempo.","Load the video to see the timeline."],"Botonera":["Botoeira","Tag panel"],"Editar botones":["Editar botões","Edit buttons"],"Mi equipo":["Minha equipe","My team"],"Ataque organizado":["Ataque organizado","Organised attack"],"Inicio de juego":["Saída de bola","Build-up"],"Progresión":["Progressão","Progression"],"Llegada a último tercio":["Chegada ao último terço","Final-third entry"],"Gol":["Gol","Goal"],"Posesión larga":["Posse longa","Long possession"],"Transición ofensiva":["Transição ofensiva","Attacking transition"],"Recuperación":["Recuperação","Ball recovery"],"Contraataque":["Contra-ataque","Counter-attack"],"Defensa organizada":["Defesa organizada","Organised defence"],"Presión alta":["Pressão alta","High press"],"Bloque medio":["Bloco médio","Mid block"],"Bloque bajo":["Bloco baixo","Low block"],"Duelo":["Duelo","Duel"],"Falta":["Falta","Foul"],"Transición defensiva":["Transição defensiva","Defensive transition"],"Pérdida":["Perda","Turnover"],"Presión tras pérdida":["Pressão pós-perda","Counter-press"],"Repliegue":["Recomposição","Recovery run"],"Córner":["Escanteio","Corner"],"Tiro libre":["Falta","Free kick"],"Saque de arco":["Tiro de meta","Goal kick"],"Penal":["Pênalti","Penalty"],"Después de marcar una acción, acá le agregás el/la jugador/a, la zona, si salió bien o mal y una nota.":["Depois de marcar uma ação, aqui você adiciona o/a jogador/a, a zona, se deu certo ou errado e uma nota.","After tagging an action, add the player, the zone, whether it went well or badly and a note here."],"Tags":["Tags","Tags"],"Listas de clips":["Listas de clipes","Clip playlists"],"Jugadoras/es":["Jogadoras/es","Players"],"Estadísticas":["Estatísticas","Stats"],"Exportar / importar":["Exportar / importar","Export / import"],"Atajos y ayuda":["Atalhos e ajuda","Shortcuts and help"],"Todas las acciones":["Todas as ações","All actions"],"Ambos equipos":["Ambas as equipes","Both teams"],"Todas las jugadoras/es":["Todas as jogadoras/es","All players"],"Cualquier resultado":["Qualquer resultado","Any outcome"],"Positivas":["Positivas","Positive"],"Negativas":["Negativas","Negative"],"Sin calificar":["Sem avaliação","Unrated"],"Todo el partido":["Todo o jogo","Whole match"],"Presentación en pantalla completa":["Apresentação em tela cheia","Full-screen presentation"],"◀︎ Anterior":["◀︎ Anterior","◀︎ Previous"],"Siguiente ▶︎":["Próximo ▶︎","Next ▶︎"],"Min":["Min","Min"],"Acción":["Ação","Action"],"Equipo":["Equipe","Team"],"Jugador/a":["Jogador/a","Player"],"Res.":["Res.","Result"],"Nota":["Nota","Note"],"Dur.":["Dur.","Dur."],"Todavía no hay tags. Cargá el video y usá la botonera (o las teclas).":["Ainda não há tags. Carregue o vídeo e use a botoeira (ou as teclas).","No tags yet. Load the video and use the tag panel (or the keys)."],"Proyecto":["Projeto","Project"],"Borrar este análisis":["Apagar esta análise","Delete this analysis"],"Mover, agrandar o achicar un dibujo":["Mover, aumentar ou diminuir um desenho","Move, enlarge or shrink a drawing"],"Flecha (pase / movimiento)":["Seta (passe / movimento)","Arrow (pass / run)"],"Flecha punteada (desmarque / conducción)":["Seta tracejada (desmarque / condução)","Dashed arrow (run / dribble)"],"Línea (líneas del equipo)":["Linha (linhas da equipe)","Line (team lines)"],"Marcar a quien hace la acción":["Marcar quem faz a ação","Highlight who makes the action"],"Zona / espacio":["Zona / espaço","Zone / space"],"Mano alzada":["Mão livre","Freehand"],"Grosor de la línea":["Espessura da linha","Line width"],"Achicar el dibujo elegido (tecla -)":["Diminuir o desenho escolhido (tecla -)","Shrink the selected drawing (key -)"],"Agrandar el dibujo elegido (tecla +)":["Aumentar o desenho escolhido (tecla +)","Enlarge the selected drawing (key +)"],"Duplicar el dibujo elegido (Ctrl+D)":["Duplicar o desenho escolhido (Ctrl+D)","Duplicate the selected drawing (Ctrl+D)"],"Borrar el dibujo elegido (Supr)":["Apagar o desenho escolhido (Supr)","Delete the selected drawing (Del)"],"Borrar todo el dibujo":["Apagar todo o desenho","Clear the whole drawing"],"Cuántos segundos se frena el clip mostrando el dibujo":["Quantos segundos o clipe para mostrando o desenho","How many seconds the clip freezes on the drawing"],"Dibujar sobre el tag seleccionado":["Desenhar sobre a tag selecionada","Draw on the selected tag"],"El número en cada botón es la cantidad de tags marcados":["O número em cada botão é a quantidade de tags marcadas","The number on each button is how many tags were made"],"Tildar todos":["Marcar todos","Select all"],"Nombre del análisis":["Nome da análise","Analysis name"],"Competencia / resultado":["Competição / resultado","Competition / result"],"Rival":["Adversário","Opponent"],"✏️ Dibujar":["✏️ Desenhar","✏️ Draw"],"Pantalla completa":["Tela cheia","Full screen"],"Borrar":["Apagar","Delete"],"Conectado a la nube del club":["Conectado à nuvem do clube","Connected to the club cloud"],"Guardado":["Salvo","Saved"],"Guardando…":["Salvando…","Saving…"]},HECHO=new WeakSet();Object.assign(DIC,{"Abriendo el recorte en la pizarra…": ["Abrindo o recorte na prancheta…", "Opening the clip on the board…"], "Recorte enviado: abrí la Pizarra en Metodika y aparece listo para dibujar": ["Recorte enviado: abra a Prancheta no Metodika e ele aparece pronto para desenhar", "Clip sent: open the Board in Metodika and it'll be ready to draw on"]});Object.assign(DIC,{"📄 Plan en 1 hoja": ["📄 Plano em 1 página", "📄 1-page game plan"], "→ Pizarra": ["→ Prancheta", "→ Board"], "Enviando…": ["Enviando…", "Sending…"], "Armando…": ["Montando…", "Building…"], "Abrir este recorte en la pizarra para dibujar y animar la jugada": ["Abrir este recorte na prancheta para desenhar e animar a jogada", "Open this clip on the board to draw and animate the move"], "Plan de partido listo": ["Plano de jogo pronto", "Game plan ready"]});Object.assign(DIC,{"Centro": ["Centro", "Centre"], "Sin pelota": ["Sem bola", "Out of possession"], "Con pelota": ["Com bola", "In possession"], "Arquera": ["Goleira", "Goalkeeper"], "Arquero": ["Goleiro", "Goalkeeper"], "Pelota parada": ["Bola parada", "Set pieces"], "Jugadora": ["Jogadora", "Player"], "Jugador": ["Jogador", "Player"]});
+ var PAT=[[/^Jugadora (\d+)$/,['Jogadora $1','Player $1']],[/^Jugador (\d+)$/,['Jogador $1','Player $1']],[/^Jugadora (\d+) dorsal$/,['Jogadora $1 número','Player $1 number']],[/^Jugador (\d+) dorsal$/,['Jogador $1 número','Player $1 number']],
+  [/^Jugadora (\d+) nombre$/,['Jogadora $1 nome','Player $1 name']],[/^Jugador (\d+) nombre$/,['Jogador $1 nome','Player $1 name']],[/^Arquera (dorsal|nombre)$/,['Goleira $1','Goalkeeper $1']],[/^Arquero (dorsal|nombre)$/,['Goleiro $1','Goalkeeper $1']],
+  [/^Partido (\d+)$/,['Jogo $1','Match $1']],[/^Con pelota (\d+)$/,['Com bola $1','In possession $1']],[/^Sin pelota (\d+)$/,['Sem bola $1','Out of possession $1']],[/^Pelota parada (\d+)$/,['Bola parada $1','Set piece $1']],
+  [/^Pausa (\d+) s$/,['Pausa $1 s','Pause $1 s']],[/^Nuevo análisis · (.+)$/,['Nova análise · $1','New analysis · $1']],[/^▶︎ Reproducir selección \((\d+)\)$/,['▶︎ Reproduzir seleção ($1)','▶︎ Play selection ($1)']],
+  [/^🎬 Video \((\d+)\)$/,['🎬 Vídeo ($1)','🎬 Video ($1)']],[/^⬇ PDF \((\d+)\)$/,['⬇ PDF ($1)','⬇ PDF ($1)']],[/^＋ Agregar\s+tildados a una lista$/,['＋ Adicionar marcados a uma lista','＋ Add selected to a playlist']],
+  [/^(\d+) de (\d+) secciones con datos$/,['$1 de $2 seções com dados','$1 of $2 sections filled']],[/^inicio\/fin · (\d+)$/,['início/fim · $1','start/end · $1']],[/^Ej: (.*)$/,['Ex: $1','E.g. $1']]];
+ function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
+  if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
+  for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
+ function arbol(root){if(!root)return;var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),n,c=[];while(n=w.nextNode()){if(HECHO.has(n))continue;var pe=n.parentElement;if(!pe||pe.closest('textarea,script,style,[contenteditable="true"],[data-noi18n]'))continue;var r=tr(n.nodeValue);HECHO.add(n);if(r!=null)c.push([n,r])}
+  c.forEach(function(x){x[0].nodeValue=x[1];HECHO.add(x[0])});
+  var els=root.querySelectorAll?root.querySelectorAll('[placeholder],[title],[aria-label]'):[];[root].concat([].slice.call(els)).forEach(function(e){if(!e.getAttribute||HECHO.has(e))return;['placeholder','title','aria-label'].forEach(function(a){var v=e.getAttribute(a);if(v){var r=tr(v);if(r!=null)e.setAttribute(a,r)}});HECHO.add(e)})}
+ function iniciar(){document.documentElement.lang=L==='pt'?'pt-BR':'en';arbol(document.body);var pend=false,cola=new Set();
+  new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(x){cola.add(x.nodeType===3?x.parentElement:x)});if(m.type==='attributes'&&m.target){HECHO.delete(m.target);cola.add(m.target)}});
+   if(!pend){pend=true;Promise.resolve().then(function(){pend=false;var l=Array.from(cola);cola.clear();l.forEach(function(x){if(x&&x.isConnected)arbol(x)})})}}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['placeholder','title','aria-label']})}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',iniciar);else iniciar()})();
+</script>
 </body>
 </html>
