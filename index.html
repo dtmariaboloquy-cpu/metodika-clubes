@@ -590,6 +590,46 @@ main{padding-top:0}
 .pdfp{aspect-ratio:1.414/1;background:#fff;border:1px solid var(--linea);border-radius:10px;overflow:hidden;display:grid;grid-template-columns:46% 1fr;grid-template-rows:1fr 1fr 1fr auto;position:relative}
 .pdfp-top{grid-row:1/5;background:var(--pc);color:var(--pt);padding:12px;display:flex;flex-direction:column;gap:4px}.pdfp-top img{height:30px;width:auto;align-self:flex-start;margin-bottom:6px}.pdfp-top small{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}.pdfp-top b{font:800 18px/1 var(--f-d,'Barlow Condensed');text-transform:uppercase}.pdfp-top span{font-size:10px}
 .pdfp-l{margin:10px 12px 0;border-radius:6px;background:repeating-linear-gradient(90deg,#5c9a2c 0 12px,#67a733 12px 24px)}.pdfp-l.c{background:#efece4}.pdfp-pie{grid-column:2;font:800 8px Barlow,Arial;letter-spacing:.14em;color:#999;padding:6px 12px;text-align:right}
+
+/* ===================== DISEÑO B · Oscuro profesional + modo claro ===================== */
+:root,:root[data-theme="light"]{color-scheme:light;--suelo:#F3F4F6;--carta:#FFFFFF;--carta2:#F0F2F5;--tinta:#14171B;--sub:#5E6570;--tenue:#8A9099;--linea:#E2E5E9;--negro:#14171B;--negro2:#1E2228;--amarillo-t:#FFF6C2;--barra:#FFFFFF;--barra-t:#14171B;--barra-l:#E2E5E9;--acento:#8A6D00;--cesped:#2F6B45;--cesped2:#2A613F}
+:root[data-theme="dark"]{color-scheme:dark;--suelo:#0D0F12;--carta:#14171C;--carta2:#1A1E24;--tinta:#ECEDEF;--sub:#9AA0A9;--tenue:#6E747D;--linea:#232830;--negro:#090B0D;--negro2:#14171C;--amarillo-t:#2D2911;--barra:#0D0F12;--barra-t:#ECEDEF;--barra-l:#1E2228;--acento:#FFD400;--bronce:#CF9A5C;--verde:#63AE83;--verde-t:#18271F;--rojo:#E48A72;--rojo-t:#33201B;--ambar:#E0AA45;--ambar-t:#30260F;--cesped:#24533A;--cesped2:#204B34}
+body{font-family:var(--f-t)}
+/* barra superior */
+.lateral{background:var(--barra);color:var(--barra-t);box-shadow:none;border-bottom:1px solid var(--barra-l)}
+.lateral .marca b{color:var(--barra-t)}
+nav.menu a.pilar{font:800 15.5px/1 var(--f-d);letter-spacing:2.2px;color:var(--tenue);padding:10px 15px;border-radius:10px}
+nav.menu a.pilar:hover{color:var(--tinta);background:var(--carta2)}
+nav.menu a.pilar.activo,nav.menu a.pilar.p-cancha.activo,nav.menu a.pilar.p-equipo.activo{background:var(--carta2);color:var(--tinta);box-shadow:inset 0 -2px 0 var(--met)}
+nav.menu a.pilar.p-cancha.activo{box-shadow:inset 0 -2px 0 var(--can)}nav.menu a.pilar.p-equipo.activo{box-shadow:inset 0 -2px 0 var(--equ)}
+nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-cancha.activo i{background:var(--can)!important}nav.menu a.pilar.p-equipo.activo i{background:var(--equ)!important}
+.lateral .club-mini{background:var(--carta2);color:var(--tinta)}.lateral .club-mini div{color:var(--sub)}
+.pie-lat .util{color:var(--sub)}.pie-lat .util:hover,.pie-lat .util.activo{background:var(--carta2);color:var(--tinta)}
+/* cabecera de cada sección: limpia, sin bloque de color */
+.cab,.cab.p-cancha,.cab.p-equipo{background:transparent;color:var(--tinta);margin:0 -32px 22px;padding:26px 32px 0;border-bottom:1px solid var(--linea)}
+.cab:before,.cab .letra{display:none}
+.cab .eyebrow{color:var(--acento);opacity:1;font:800 11.5px/1 var(--f-t);letter-spacing:2px}
+.cab.p-cancha .eyebrow{color:var(--can)}.cab.p-equipo .eyebrow{color:var(--equ)}
+.cab h1{font:800 clamp(26px,3.2vw,36px)/1.1 var(--f-t);text-transform:none;letter-spacing:-.3px;margin-bottom:2px}
+.cab h1 .mk,.cab.p-cancha h1 .mk,.cab.p-equipo h1 .mk{background:none;padding:0;color:inherit}
+.cab p{color:var(--sub);opacity:1;font-weight:400}
+.cab .subnav{gap:24px;margin-top:14px}
+.cab .subnav a{background:none;color:var(--sub);padding:10px 0 12px;border-radius:0;font-weight:600;font-size:14px;border-bottom:2px solid transparent}
+.cab .subnav a:hover{background:none;color:var(--tinta)}
+.cab .subnav a.activo,.cab.p-cancha .subnav a.activo,.cab.p-equipo .subnav a.activo{background:none;color:var(--tinta);border-bottom-color:var(--met)}
+.cab.p-cancha .subnav a.activo{border-bottom-color:var(--can)}.cab.p-equipo .subnav a.activo{border-bottom-color:var(--equ)}
+.cab.solo-nav{padding-top:6px;padding-bottom:0}
+.cab .acc .btn:not(.pri):not(.ama){background:var(--carta2);border-color:var(--linea);color:var(--tinta)}
+.cab .acc .btn.pri{background:var(--met);border-color:var(--met);color:#141412}
+.nota-dt{display:none}
+/* tarjetas */
+.panel,:root:not([data-theme="dark"]) .panel{border-radius:16px;border:1px solid var(--linea);box-shadow:none}
+:root[data-theme="light"] .panel{box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.dato{font-family:var(--f-t)!important;font-weight:800!important;letter-spacing:-.5px}
+.demo-banda{border-radius:12px}
+.lateral .club-mini b{color:var(--tinta)}
+.panel-cab h3,.panel>h3{font:700 15px/1.2 var(--f-t);text-transform:uppercase;letter-spacing:1.4px;color:var(--sub)}
+@media (max-width:860px){.cab,.cab.p-cancha,.cab.p-equipo{margin:0 -16px 16px;padding:18px 16px 0}.cab .subnav{gap:18px}nav.menu a.pilar{font-size:13.5px;letter-spacing:1.6px;padding:8px 10px;gap:7px}}
 </style>
 
 <div class="app">
@@ -1105,7 +1145,9 @@ function pintarMenu(){
   const nSol=(typeof esAdmin==='function'&&esAdmin())?SOLIC.length:0;
   const util=(r,tit,extra='')=>`<button class="util ${ruta===r?'activo':''}" data-util="${r}" title="${tit}" aria-label="${tit}"><svg viewBox="0 0 24 24">${ICO[ICO_R[r]]}</svg>${extra}</button>`;
   const nube=typeof MODO!=='undefined'&&MODO==='nube'&&USR,nom=nube?((PERFIL&&PERFIL.nombre)||USR.displayName||USR.email||''):'';
-  $('.pie-lat').innerHTML=(nube?'<span class="chip" id="estadoNube">☁ Guardado</span>':'')+util('tienda','Tienda Metodika')+util('sugerencia','Enviar sugerencia')+util('ajustes','Ajustes',nSol?`<span class="n">${nSol}</span>`:'')+(nube?`<span class="yo" title="${esc(nom)}">${esc(nom.split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase())}</span>`:'');
+  const osc=document.documentElement.getAttribute('data-theme')!=='light';
+  $('.pie-lat').innerHTML=(nube?'<span class="chip" id="estadoNube">☁ Guardado</span>':'')+`<button class="util" id="temaRap" title="${osc?'Pasar a modo claro (mejor con sol)':'Pasar a modo oscuro'}" aria-label="Cambiar modo claro u oscuro"><svg viewBox="0 0 24 24">${osc?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'}</svg></button>`+util('tienda','Tienda Metodika')+util('sugerencia','Enviar sugerencia')+util('ajustes','Ajustes',nSol?`<span class="n">${nSol}</span>`:'')+(nube?`<span class="yo" title="${esc(nom)}">${esc(nom.split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase())}</span>`:'');
+  {const tb=$('#temaRap');if(tb)tb.onclick=()=>{const nuevo=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';try{localStorage.setItem('metodika_tema',nuevo)}catch(e){}aplicarTema();pintar();aviso(nuevo==='light'?'Modo claro activado':'Modo oscuro activado')}}
   $$('.pie-lat [data-util]').forEach(b=>b.onclick=()=>{if(b.dataset.util==='sugerencia')return enviarSugerencia();ir(b.dataset.util)});
   if(puedeInstalar()&&!$('#btnInstalar')){const bi=document.createElement('button');bi.className='util inst';bi.id='btnInstalar';bi.title='Instalar la app';bi.setAttribute('aria-label','Instalar la app');bi.innerHTML='<svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7m-3-3 3 3 3-3"/></svg>';bi.onclick=instalarApp;$('.pie-lat').prepend(bi)}
   const c=S.club;
@@ -4907,7 +4949,7 @@ function conectarSugerencias(el){
 }
 VISTAS.ajustes=el=>{
   const c=S.club;let esc0=c.escudo;
-  let tema='';try{tema=localStorage.getItem('metodika_tema')||''}catch(e){}
+  const tema=temaActual();
   const nube=MODO==='nube';
   el.innerHTML=cabecera('Configuración','Ajustes','')+panelAppHtml()+`<div class="panel panel-tour"><div style="flex:1"><h3 style="margin:0 0 4px">Recorrido por Metodika</h3><p class="tenue" style="margin:0">Un paseo de 1 minuto que muestra dónde está cada cosa.</p></div><button class="btn" id="tourAj">▶ Ver tutorial</button></div>`+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+(nube&&esAdmin()?panelRolesHtml():'')+(nube?panelPapeleraHtml():'')+
   `<div class="grilla g2" style="align-items:start"><div class="panel"><h3>Datos del club</h3><form class="form" id="fC" style="margin-top:6px">
@@ -4918,7 +4960,7 @@ VISTAS.ajustes=el=>{
   </form><div class="modal-pie"><button class="btn pri" id="gC">Guardar</button></div></div>
   <div style="display:flex;flex-direction:column;gap:16px">
     ${panelCategoriasHtml()}
-    <div class="panel"><h3>Apariencia</h3><div class="seg" style="margin-top:4px">${[['','Automático'],['light','Claro'],['dark','Oscuro']].map(([v,t])=>`<button data-tema="${v}" class="${tema===v?'activo':''}">${t}</button>`).join('')}</div></div>
+    <div class="panel"><h3>Apariencia</h3><div class="seg" style="margin-top:4px">${[['dark','Oscuro'],['light','Claro'],['auto','Según el dispositivo']].map(([v,t])=>`<button data-tema="${v}" class="${tema===v?'activo':''}">${t}</button>`).join('')}</div></div>
     <div class="panel"><h3>Contenidos de entrenamiento</h3><p class="sub" style="margin:0 0 10px;font-size:14px">Son los conceptos que usás en sesiones, microciclos y tareas. Agregá los de tu metodología.</p>
       <div class="chips" id="listaCont">${CONT().map(c=>`<span class="chip">${esc(c)} <button type="button" class="btn fantasma chico" style="padding:0 2px;font-size:12px" data-qc="${esc(c)}" aria-label="Quitar ${esc(c)}">✕</button></span>`).join('')}</div>
       <div style="display:flex;gap:6px;margin-top:10px;max-width:380px"><input type="text" id="aCont" placeholder="Nuevo concepto, ej.: Salida de juego" aria-label="Nuevo concepto"><button class="btn chico" id="aContB">＋ Agregar</button></div></div>
@@ -4937,7 +4979,7 @@ VISTAS.ajustes=el=>{
   conectarPanelEquipo(el);
   if(nube){conectarPapelera(el);panelRespaldos(el);conectarRoles(el)}
   conectarCategorias(el);
-  $$('[data-tema]').forEach(b=>b.onclick=()=>{const v=b.dataset.tema;try{v?localStorage.setItem('metodika_tema',v):localStorage.removeItem('metodika_tema')}catch(e){}aplicarTema();pintar()});
+  $$('[data-tema]').forEach(b=>b.onclick=()=>{const v=b.dataset.tema;try{localStorage.setItem('metodika_tema',v)}catch(e){}aplicarTema();pintar()});
   $('#desD').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='metodika-copia-'+iso(HOY)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);aviso('Copia descargada')};
   $('#expD').onclick=()=>{const txt=JSON.stringify(S);modal('Copia de tus datos',`<p class="sub" style="margin:0 0 10px">Copiá este texto y guardalo en un archivo de texto (por ejemplo en el Bloc de notas) con el nombre <b>metodika-copia.json</b>.</p><textarea id="txtD" readonly style="min-height:200px;font-family:monospace;font-size:12px">${escRaw(txt)}</textarea><div class="modal-pie"><button class="btn pri" id="copD">Copiar</button></div>`,{alMontar:m=>$('#copD',m).onclick=()=>{const ta=$('#txtD',m);navigator.clipboard.writeText(txt).then(()=>aviso('Copiado'),()=>{ta.focus();ta.select();aviso('Seleccionado: apretá Ctrl + C')})}})};
   const restaurar=txt=>{try{const d=JSON.parse(txt);if(!d.club||!Array.isArray(d.jugadores))throw 0;confirmar('¿Restaurar esta copia?','Reemplaza todos los datos actuales por los de la copia.'+(MODO==='nube'?' Lo que no esté en la copia queda en la Papelera.':''),'Restaurar',()=>{(d.jugadores||[]).forEach(j=>{if(!j.foto&&FOTOS[j.id])j.foto=FOTOS[j.id]});S=d;migrar();migrarTareasBase();S.pizarras.forEach(normalizar);guardar();ir('inicio');aviso('Datos restaurados')})}catch(e){aviso('El archivo no es una copia válida de Metodika.')}};
@@ -4946,7 +4988,8 @@ VISTAS.ajustes=el=>{
   if($('#verDemo'))$('#verDemo').onclick=()=>confirmar('¿Cargar el club de ejemplo?','Reemplaza los datos actuales por el club ficticio.','Cargar ejemplo',()=>{S=crearDemo();guardar();ir('inicio')});
   if($('#vaciar'))$('#vaciar').onclick=()=>confirmar('¿Borrar todo?','Se eliminan plantel, sesiones, partidos, asistencia y evaluaciones.'+(MODO==='nube'?' Quedan en la Papelera '+PAPEL_DIAS+' días por si te arrepentís.':' Hacé una copia antes si la necesitás.'),'Borrar todo',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Empezá cargando los datos del club.')});
 };
-function aplicarTema(){let t='';try{t=localStorage.getItem('metodika_tema')||''}catch(e){}if(t)document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme')}
+function temaActual(){let t='';try{t=localStorage.getItem('metodika_tema')||''}catch(e){}return t||'dark'}
+function aplicarTema(){let t=temaActual();if(t==='auto')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}
 
 /* ================= ARRANQUE ================= */
 aplicarTema();
