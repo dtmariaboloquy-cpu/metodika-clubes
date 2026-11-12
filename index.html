@@ -551,12 +551,12 @@ main{padding-top:0}
 .cg-med b{position:absolute;top:-4px;width:4px;height:16px;margin-left:-2px;background:var(--tinta,#141412);border-radius:2px;box-shadow:0 0 0 2px var(--papel,#fff)}
 .cg-esc{position:relative;height:14px;font-size:11px;color:var(--sub,#777);margin:4px 8px 10px}.cg-esc span{position:absolute;transform:translateX(-50%)}
 .cg-como p{font-size:14px;margin:0 0 10px}.pt{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 6px 0 0;vertical-align:middle}.pt.v{background:#1F9D55}.pt.a{background:#F5A524}.pt.r{background:#E5484D}
-.cg-tabla{display:flex;flex-direction:column}.cg-f{display:grid;grid-template-columns:44px 1.6fr .8fr .8fr 1.2fr 1.1fr 1.3fr;gap:12px;align-items:center;padding:10px 6px;border-top:1px solid var(--linea,#e6e1d6)}
+.cg-tabla{display:flex;flex-direction:column}.cg-f{display:grid;grid-template-columns:44px 1.6fr .8fr .8fr 1.2fr 1.1fr .9fr 1.3fr;gap:12px;align-items:center;padding:10px 6px;border-top:1px solid var(--linea,#e6e1d6)}
 .cg-h{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--sub,#777);border-top:0;font-weight:700}
 .cg-f.click{cursor:pointer;border-left:4px solid transparent}.cg-f.click:hover{background:rgba(0,0,0,.03)}.cg-f.e3{border-left-color:#E5484D}.cg-f.e2{border-left-color:#F5A524}.cg-f.e1{border-left-color:#1F9D55}
 .cg-n{display:flex;flex-direction:column;min-width:0}.cg-n i{font-style:normal;font-size:12px;color:var(--sub,#777)}.cg-f .num i{font-style:normal;font-size:11px;color:var(--sub,#777)}
 .cg-r b{font:400 22px var(--f-x)}
-@media (max-width:900px){.cg-res{grid-template-columns:repeat(2,1fr)}.cg-h{display:none}.cg-f{grid-template-columns:44px 1fr 1fr;row-gap:6px}.cg-n{grid-column:2/4}.cg-f>[data-t]{font-size:13px}.cg-f>[data-t]::before{content:attr(data-t);display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--sub,#777)}.cg-f>[data-t='Esta semana']{grid-column:2/3}.cg-f>[data-t='Prom. mes']{grid-column:3/4}.cg-sp{grid-column:2/3}.cg-b{grid-column:3/4}.cg-r{grid-column:2/4}}
+@media (max-width:900px){.cg-res{grid-template-columns:repeat(2,1fr)}.cg-h{display:none}.cg-f{grid-template-columns:44px 1fr 1fr;row-gap:6px}.cg-n{grid-column:2/4}.cg-f>[data-t]{font-size:13px}.cg-f>[data-t]::before{content:attr(data-t);display:block;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--sub,#777)}.cg-f>[data-t='Esta semana']{grid-column:2/3}.cg-f>[data-t='Prom. mes']{grid-column:3/4}.cg-sp{grid-column:2/3}.cg-m{grid-column:3/4}.cg-b{grid-column:2/4}.cg-r{grid-column:2/4}}
 #tour{position:fixed;inset:0;z-index:9000}
 .tour-velo{position:fixed;inset:0;width:100%;height:100%}.tour-velo path{fill:rgba(10,10,9,.72)}
 .tour-foco{position:fixed;border-radius:14px;box-shadow:0 0 0 3px #FFD400,0 0 24px rgba(255,212,0,.5);transition:all .35s cubic-bezier(.3,.7,.2,1);pointer-events:none}
@@ -641,6 +641,35 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .vaj-n{font-weight:600;min-width:0}.vaj-n small{display:block;font-weight:400;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vaj-r{font-weight:800;text-align:center}.vaj-r.ok{color:#2E8B57}.vaj-r.mal{color:#C0442E}.vaj-play{width:26px;height:26px;border-radius:50%;background:#FFD400;color:#141412;display:flex;align-items:center;justify-content:center;font-size:11px}
 .vaj-mas{font-size:12.5px;color:var(--sub);padding:2px 4px}
+.est-chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:color-mix(in srgb,var(--ec) 16%,transparent);color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 45%,transparent);white-space:nowrap}
+.pj-chips .est-chip{background:var(--ec);color:#fff;border-color:transparent}.est-chip.chico{font-size:11px;padding:2px 7px}
+.disp-est{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--ec) 10%,transparent);border:1px solid color-mix(in srgb,var(--ec) 35%,transparent)}
+.disp-dot{width:12px;height:12px;border-radius:50%;background:var(--ec);margin-top:5px;flex:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--ec) 25%,transparent)}
+.disp-hist{margin-top:12px}.disp-hist .etq{margin-bottom:4px}
+.obj{border:1px solid var(--linea);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--carta2)}.obj.hecho{opacity:.8}
+.obj-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.obj-top .der{margin-left:auto}.obj-txt{font-weight:700;margin:6px 0 8px;line-height:1.35}
+.obj-bar{height:8px;border-radius:5px;background:var(--linea);overflow:hidden}.obj-bar i{display:block;height:100%;background:#FFD400;border-radius:5px}.obj.hecho .obj-bar i{background:#2E8B57}
+.obj-pie{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}.obj-link{font-size:12.5px;font-weight:600}.obj-link .ok,.obj-pie .ok{color:#2E8B57}.obj-link .mal,.obj-pie .mal{color:#C0442E}
+.obj-seg{margin-top:8px;font-size:12.5px;color:var(--sub);display:grid;gap:2px}.obj-hechos summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--sub);margin:6px 0}
+.nodisp-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.nodisp-i{display:flex;align-items:center;gap:10px;text-align:left;font:inherit;color:inherit;background:var(--carta2);border:1px solid var(--linea);border-left:4px solid var(--ec);border-radius:10px;padding:8px 10px;cursor:pointer}
+.nd-t{flex:1;min-width:0;display:flex;flex-direction:column}.nd-t small{color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nd-v{font-size:11.5px;color:var(--sub);text-align:right;line-height:1.25}
+.conv-nd{opacity:.65}
+@media(max-width:760px){.pj-seg{grid-template-columns:1fr}}
+.rot-av{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;margin-bottom:12px}.rot-a{border-radius:10px;padding:9px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
+.rot-a.amar{background:color-mix(in srgb,#E0A100 14%,transparent);border:1px solid color-mix(in srgb,#E0A100 45%,transparent)}.rot-a.rojo{background:color-mix(in srgb,#D0402F 12%,transparent);border:1px solid color-mix(in srgb,#D0402F 40%,transparent)}
+.rot-t td,.rot-t th{white-space:nowrap}.rot-t td.n,.rot-t th.n{text-align:center}.rot-bar{display:inline-block;width:110px;height:8px;border-radius:5px;background:var(--linea);overflow:hidden;vertical-align:middle;margin-right:6px}.rot-bar i{display:block;height:100%}
+.conv-m{font-size:11.5px;font-weight:700;color:var(--sub);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+.fi-g{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}.fi-prev img{width:100%;border-radius:10px;border:1px solid var(--linea);display:block}@media(max-width:640px){.fi-g{grid-template-columns:1fr}.fi-prev{max-width:240px;margin:0 auto}}
+.cg-fuentes{margin-top:10px;font-size:12.5px;border-top:1px solid var(--linea);padding-top:8px}.cg-fuentes summary{cursor:pointer;font-weight:700}.cg-fuentes p{margin:6px 0;color:var(--sub)}.cg-fuentes a{color:inherit}
+.us-prev{margin-top:10px;border-top:1px solid var(--linea);padding-top:6px;max-height:220px;overflow:auto}
+.cont-fases{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--linea)}.cont-fases i{display:block;height:100%}
+.cont-ley{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:13px}.cont-ley i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.cont-f{display:grid;grid-template-columns:minmax(100px,170px) 1fr 44px;gap:8px;align-items:center;font-size:13.5px;margin-bottom:5px}.cont-f span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cont-f b{text-align:right}
+.cont-b{height:8px;border-radius:5px;background:var(--linea);overflow:hidden}.cont-b i{display:block;height:100%;background:#FFD400}
+.cont-sem{font-size:12.5px}.cont-sem td,.cont-sem th{text-align:center;padding:4px 6px;white-space:nowrap}.cont-sem td:first-child{text-align:left;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.cont-sem td span{display:inline-block;min-width:34px;padding:3px 4px;border-radius:6px;background:rgba(255,212,0,var(--a));font-weight:700;color:#141412}
+.cont-pend{margin-top:14px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,#E0A100 10%,transparent);border:1px solid color-mix(in srgb,#E0A100 35%,transparent);font-size:13.5px}
 .va-barras{display:grid;gap:6px}.va-f{display:grid;grid-template-columns:minmax(90px,150px) 1fr 30px 64px;gap:8px;align-items:center;font-size:13.5px}.va-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.va-b{height:8px;border-radius:5px;background:var(--carta2);overflow:hidden}.va-b i{display:block;height:100%;border-radius:5px}.va-r em{font-style:normal;font-weight:700;font-size:12px;margin-right:4px}.ok{color:var(--verde)}.mal{color:var(--rojo)}.va-js{display:flex;flex-wrap:wrap;gap:6px}.va-js em{font-style:normal;font-weight:700}
 @media(max-width:560px){.va-f{grid-template-columns:minmax(80px,1fr) 1fr 26px}.va-r{display:none}}
 .pzA-nota{width:100%;font-size:15px!important;line-height:1.35;min-height:72px;border-radius:10px}
@@ -737,7 +766,7 @@ const DIM_EVAL=[['tecnica','Técnica'],['tactica','Táctica'],['conPelota','Con 
 
 let S=null;
 /* versión de los módulos: cambia en cada actualización para que el navegador no muestre una copia vieja */
-const MOD_V='2026-11-12';
+const MOD_V='2026-11-12b';
 function guardar(){try{asignarCatsNuevos()}catch(e){}if(typeof MODO!=='undefined'){if(MODO==='nube'){programarSync();return}if(MODO==='demo')return}try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}}
 function cargar(){try{const t=localStorage.getItem(CLAVE);if(t)return JSON.parse(t)}catch(e){}return null}
 
@@ -1452,9 +1481,10 @@ VISTAS.plantel=el=>{
   el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button>${SJ().length?'<button class="btn" id="fotosJ">📷 Cargar fotos</button>':''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
   `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
    <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select>${SJ().length?`<button class="btn ${SELJ?'pri':''}" id="selModo" style="margin-left:auto">${SELJ?'✕ Terminar selección':'☑ Seleccionar varias'}</button>`:''}</div>`+(SELJ?`<div class="selj-barra"><b>${SELJ.size}</b> ${SELJ.size===1?'elegida':'elegidas'}<span class="sub">Tocá las tarjetas para elegir</span><span style="flex:1"></span><button class="btn chico" id="selTodas">${lista.length&&lista.every(j=>SELJ.has(j.id))?'Ninguna':'Todas'}</button><button class="btn chico peligro" id="selBorrar" ${SELJ.size?'':'disabled'}>🗑 Eliminar ${SELJ.size||''}</button></div>`:'')+
-  (lista.length?(()=>{const CT=coloresTarjeta();el.style.setProperty('--ct-osc',CT.osc);el.style.setProperty('--ct-clr',CT.clr);const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj ${SELJ?'selmodo':''} ${SELJ&&SELJ.has(j.id)?'sel':''}" data-id="${j.id}">${SELJ?`<span class="cj-check">${SELJ.has(j.id)?'✓':''}</span>`:''}<div class="cj-foto" style="${j.foto?'':'background:'+CT.fondo}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(puestoTxt(j))}</small><div class="chips" style="margin-top:5px"><span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
+  (!SELJ&&!filtroPos&&!filtroCat?panelNoDisp():'')+(lista.length?(()=>{const CT=coloresTarjeta();el.style.setProperty('--ct-osc',CT.osc);el.style.setProperty('--ct-clr',CT.clr);const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj ${SELJ?'selmodo':''} ${SELJ&&SELJ.has(j.id)?'sel':''}" data-id="${j.id}">${SELJ?`<span class="cj-check">${SELJ.has(j.id)?'✓':''}</span>`:''}<div class="cj-foto" style="${j.foto?'':'background:'+CT.fondo}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(puestoTxt(j))}</small><div class="chips" style="margin-top:5px">${chipEstado(j,true)}<span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
     if(filtroPos)return `<div class="cartas-j">${lista.map(carta).join('')}</div>`;
     return LINEAS.map(([k])=>{const g=lista.filter(j=>lineaDe(j)===k);return g.length?`<h2 class="linea-tit">${g.length} ${esc(nombreLinea(k,g.length))}</h2><div class="cartas-j">${g.map(carta).join('')}</div>`:''}).join('')})():`<div class="vacio">Todavía no cargaste ${J('pl')}.<br><button class="btn pri" style="margin-top:12px" id="nuevaJ2">＋ Agregar ${J('sg')}</button></div>`);
+  $$('[data-ndj]',el).forEach(b=>b.onclick=()=>ir('plantel',b.dataset.ndj));
   $('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
   $('#fCat').onchange=e=>{filtroCat=e.target.value;pintar()};
   $('#nuevaJ').onclick=()=>editarJugador();
@@ -1582,6 +1612,80 @@ async function tablaJugadoresExcel(){
   const ws=X.utils.aoa_to_sheet(aoa);ws['!cols']=aoa[0].map((h,i)=>({wch:i===1?16:Math.max(9,String(h).length+2)}));
   const wb=X.utils.book_new();X.utils.book_append_sheet(wb,ws,J('Pl'));X.writeFile(wb,'tabla-'+J('pl')+'.xlsx');
 }
+
+/* ================= disponibilidad, lesiones y objetivos individuales ================= */
+const EST_J={disp:['Disponible','#2E8B57'],molestia:['Con molestia','#C99000'],lesion:['Lesión','#D0402F'],enferma:['Enfermedad','#D0402F'],otro:['Otro motivo','#7A756A']};
+function estTxt(k){return k==='disp'?gRama('Disponible','Disponible','Disponible'):k==='molestia'?'Con molestia':k==='lesion'?gRama('Lesionada','Lesionado','Lesionada/o'):k==='enferma'?gRama('Enferma','Enfermo','Enferma/o'):'No disponible'}
+function estadoJ(j){return j&&j.estado&&EST_J[j.estado.k]?j.estado:{k:'disp'}}
+function noDisp(j){const k=estadoJ(j).k;return k==='lesion'||k==='enferma'||k==='otro'}
+function diasEntre(a,b){return Math.max(0,Math.round((deIso(b)-deIso(a))/864e5))}
+function chipEstado(j,chico){const e=estadoJ(j);if(e.k==='disp')return '';const c=EST_J[e.k][1];return `<span class="est-chip${chico?' chico':''}" style="--ec:${c}" title="${esc(estTxt(e.k)+(e.zona?' · '+e.zona:'')+(e.vuelta?' · vuelta '+fCorta(e.vuelta):''))}">${e.k==='molestia'?'⚠':'✚'} ${esc(estTxt(e.k))}${!chico&&e.vuelta?' · vuelve '+esc(fCorta(e.vuelta)):''}</span>`}
+function diasFueraTemp(j){let d=0;(j.lesiones||[]).forEach(l=>{if(l.k!=='molestia'&&l.desde&&l.hasta)d+=diasEntre(l.desde,l.hasta)});const e=estadoJ(j);if(noDisp(j)&&e.desde)d+=diasEntre(e.desde,iso(HOY));return d}
+function panelDisponibilidad(j){
+  const e=estadoJ(j),hist=(j.lesiones||[]).slice().sort((a,b)=>String(b.desde).localeCompare(String(a.desde))),df=diasFueraTemp(j);
+  const falta=e.vuelta?Math.round((deIso(e.vuelta)-HOY)/864e5):null;
+  return `<div class="panel disp-p" style="margin-bottom:16px"><div class="panel-cab"><h3>Disponibilidad</h3><div class="der"><button class="btn chico" id="estJ">✚ Cambiar estado</button></div></div>
+    <div class="disp-est" style="--ec:${EST_J[e.k][1]}"><span class="disp-dot"></span><div><b>${esc(estTxt(e.k))}</b>${e.k!=='disp'?`<div class="sub" style="font-size:13px">${[e.zona,e.desde?'desde el '+fCorta(e.desde)+' ('+diasEntre(e.desde,iso(HOY))+' días)':'',e.vuelta?(falta>0?'vuelta prevista '+fCorta(e.vuelta)+' (faltan '+falta+' días)':falta===0?'vuelta prevista: hoy':'vuelta prevista '+fCorta(e.vuelta)+' · revisar'):''].filter(Boolean).map(esc).join(' · ')}</div>${e.nota?`<div style="font-size:13.5px;margin-top:4px">${esc(e.nota)}</div>`:''}`:`<div class="sub" style="font-size:13px">Puede entrenar y jugar con normalidad.</div>`}</div></div>
+    ${hist.length||df?`<div class="disp-hist"><div class="etq">Historial · ${hist.length} ${hist.length===1?'registro':'registros'} · ${df} días sin estar disponible</div>${hist.slice(0,6).map(l=>`<div class="fila" style="padding:5px 0;font-size:13.5px"><span style="color:${(EST_J[l.k]||EST_J.otro)[1]}">●</span><span style="flex:1">${esc(estTxt(l.k))}${l.zona?' · '+esc(l.zona):''}</span><span class="sub">${esc(fCorta(l.desde))} → ${esc(fCorta(l.hasta))} · ${diasEntre(l.desde,l.hasta)} d</span></div>`).join('')}</div>`:''}
+  </div>`}
+function editarEstado(j,alListo){
+  const e=estadoJ(j);
+  modal('Disponibilidad de '+j.nombre+' '+j.apellido,`<form class="form" id="fEst">
+    <label class="campo ancho">Estado<select name="k">${Object.keys(EST_J).map(k=>`<option value="${k}" ${e.k===k?'selected':''}>${esc(estTxt(k))}</option>`).join('')}</select></label>
+    <label class="campo ancho est-x">Qué tiene<input type="text" name="zona" value="${esc(e.zona||'')}" placeholder="Ej.: esguince de tobillo derecho"></label>
+    <label class="campo est-x">Desde<input type="date" name="desde" value="${esc(e.desde||iso(HOY))}"></label>
+    <label class="campo est-x">Vuelta prevista<input type="date" name="vuelta" value="${esc(e.vuelta||'')}"></label>
+    <label class="campo ancho est-x">Nota para el cuerpo técnico<textarea name="nota" rows="2" placeholder="Ej.: trabaja diferenciado con la preparadora física">${esc(e.nota||'')}</textarea></label>
+  </form><p class="sub" style="font-size:12.5px;margin:6px 0 0">Cuando ${gRama('vuelve a estar disponible','vuelve a estar disponible','vuelve a estar disponible')}, elegí “Disponible” y queda guardado en su historial.</p>
+  <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okEst">Guardar</button></div>`,{alMontar:m=>{
+    const sel=$('[name=k]',m),vis=()=>$$('.est-x',m).forEach(x=>x.style.display=sel.value==='disp'?'none':'');sel.onchange=vis;vis();
+    $('#okEst',m).onclick=()=>{const d=leerForm($('#fEst',m)),prev=estadoJ(j);
+      if(d.k==='disp'){if(prev.k!=='disp'){j.lesiones=j.lesiones||[];j.lesiones.push({k:prev.k,zona:prev.zona||'',desde:prev.desde||iso(HOY),hasta:iso(HOY),nota:prev.nota||''})}delete j.estado}
+      else{if(prev.k!=='disp'&&prev.k!==d.k){j.lesiones=j.lesiones||[];j.lesiones.push({k:prev.k,zona:prev.zona||'',desde:prev.desde||iso(HOY),hasta:d.desde||iso(HOY),nota:prev.nota||''})}
+        j.estado={k:d.k,zona:d.zona.trim().slice(0,80),desde:d.desde||iso(HOY),vuelta:d.vuelta||'',nota:d.nota.trim().slice(0,300)}}
+      guardar();cerrarModal();aviso('Estado guardado');if(alListo)alListo();else pintar()}}})}
+/* ---------- objetivos individuales ---------- */
+const AREAS_OBJ=['Técnica','Táctica','Física','Mental','Otro'];
+function objetivosJ(j){return Array.isArray(j.objetivos)?j.objetivos:[]}
+function panelObjetivos(j){
+  const L=objetivosJ(j),act=L.filter(o=>o.estado!=='logrado'),hech=L.filter(o=>o.estado==='logrado');
+  const ev=evalsJugador(j.id);
+  const fila=o=>{const dim=DIM_EVAL.find(d=>d[0]===o.dim);let evTxt='';if(dim&&ev.length){const u=+ev[ev.length-1][o.dim],ini=ev.find(x=>x.fecha>=(o.desde||''))||ev[0],v0=+ini[o.dim];evTxt=`<span class="obj-link" title="Evaluación de ${esc(dim[1])}">📊 ${esc(dim[1])} ${isFinite(u)?u.toFixed(1).replace('.',','):'—'}${isFinite(u)&&isFinite(v0)&&ev.length>1&&u!==v0?` <b class="${u>v0?'ok':'mal'}">${u>v0?'▲':'▼'} ${Math.abs(u-v0).toFixed(1).replace('.',',')}</b>`:''}</span>`}
+    const venc=o.plazo&&o.estado!=='logrado'&&deIso(o.plazo)<HOY;
+    return `<div class="obj ${o.estado==='logrado'?'hecho':''}" data-obj="${esc(o.id)}"><div class="obj-top"><span class="chip">${esc(o.area||'Otro')}</span>${o.estado==='pausa'?'<span class="chip aviso">En pausa</span>':''}${o.estado==='logrado'?'<span class="chip ok">✓ Logrado</span>':''}${o.plazo?`<span class="sub ${venc?'mal':''}" style="font-size:12.5px">${venc?'Venció':'Plazo'} ${esc(fCorta(o.plazo))}</span>`:''}<button class="btn chico fantasma der" data-objed="${esc(o.id)}">✏️</button></div>
+      <div class="obj-txt">${esc(o.txt)}</div>
+      <div class="obj-bar"><i style="width:${Math.max(0,Math.min(100,+o.prog||0))}%"></i></div><div class="obj-pie"><span class="sub" style="font-size:12.5px">${+o.prog||0}% de avance</span>${evTxt}<span class="obj-va" data-objva="${esc(o.va||'')}"></span></div>
+      ${(o.seg||[]).length?`<div class="obj-seg">${o.seg.slice(-2).reverse().map(s=>`<div><b>${esc(fCorta(s.f))}</b> ${esc(s.t)}</div>`).join('')}</div>`:''}</div>`};
+  return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>Objetivos individuales</h3><span class="chip">${act.length} en curso</span><div class="der"><button class="btn chico" id="objN">＋ Objetivo</button></div></div>
+    ${L.length?act.map(fila).join('')+(hech.length?`<details class="obj-hechos"><summary>${hech.length} ${hech.length===1?'objetivo logrado':'objetivos logrados'}</summary>${hech.map(fila).join('')}</details>`:''):`<div class="vacio" style="padding:14px 6px">Sumá 2 o 3 objetivos para ${gRama('ella','él','ella/él')} (ej.: “perfilarse antes de recibir”). Podés conectarlos con su evaluación y con sus acciones de Videoanálisis.</div>`}</div>`}
+function editarObjetivo(j,o,alListo){
+  const nuevo=!o;o=o||{id:uid(),txt:'',area:'Táctica',dim:'',va:'',desde:iso(HOY),plazo:'',prog:0,estado:'curso',seg:[]};
+  const acciones=[...new Set((VA_CACHE||[]).flatMap(a=>(a.tags||[]).map(t=>t.nombre)).filter(Boolean))].sort();
+  modal(nuevo?'Nuevo objetivo':'Objetivo',`<form class="form" id="fObj">
+    <label class="campo ancho">Objetivo<input type="text" name="txt" value="${esc(o.txt)}" placeholder="Ej.: perfilarse antes de recibir para jugar hacia adelante" maxlength="140"></label>
+    <label class="campo">Área<select name="area">${opts(AREAS_OBJ,o.area)}</select></label>
+    <label class="campo">Plazo<input type="date" name="plazo" value="${esc(o.plazo||'')}"></label>
+    <label class="campo">Conectar con evaluación<select name="dim"><option value="">— Ninguna —</option>${opts(DIM_EVAL,o.dim)}</select></label>
+    <label class="campo">Acción de Videoanálisis<input type="text" name="va" list="objVaL" value="${esc(o.va||'')}" placeholder="Ej.: Recuperación"><datalist id="objVaL">${acciones.map(a=>`<option value="${esc(a)}">`).join('')}</datalist></label>
+    <label class="campo ancho">Avance: <b id="objPv">${+o.prog||0}%</b><input type="range" name="prog" min="0" max="100" step="10" value="${+o.prog||0}"></label>
+    <label class="campo">Estado<select name="estado">${opts([['curso','En curso'],['pausa','En pausa'],['logrado','Logrado']],o.estado)}</select></label>
+    <label class="campo ancho">Seguimiento de hoy (opcional)<input type="text" name="seg" placeholder="Ej.: en el partido del sábado lo hizo 3 veces"></label>
+  </form><div class="modal-pie">${nuevo?'':'<button class="btn peligro" id="delObj" style="margin-right:auto">🗑 Borrar</button>'}<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okObj">Guardar</button></div>`,{alMontar:m=>{
+    const r=$('[name=prog]',m);r.oninput=()=>{$('#objPv',m).textContent=r.value+'%'};
+    const d0=$('#delObj',m);if(d0)d0.onclick=()=>{j.objetivos=objetivosJ(j).filter(x=>x.id!==o.id);guardar();cerrarModal();alListo?alListo():pintar()};
+    $('#okObj',m).onclick=()=>{const d=leerForm($('#fObj',m));if(!d.txt.trim()){$('[name=txt]',m).focus();return}
+      Object.assign(o,{txt:d.txt.trim(),area:d.area,plazo:d.plazo||'',dim:d.dim||'',va:d.va.trim().slice(0,60),prog:+d.prog||0,estado:d.estado});
+      if(o.estado==='logrado')o.prog=100;
+      if(d.seg.trim()){o.seg=o.seg||[];o.seg.push({f:iso(HOY),t:d.seg.trim().slice(0,200)})}
+      if(nuevo){j.objetivos=objetivosJ(j);j.objetivos.push(o)}
+      guardar();cerrarModal();aviso('Objetivo guardado');alListo?alListo():pintar()}}})}
+async function pintarObjVA(box,j){if(!box)return;let L=[];try{L=await cargarVA()}catch(e){}
+  $$('[data-objva]',box).forEach(s=>{const n=normTxt(s.dataset.objva);if(!n)return;const ts=L.flatMap(a=>a.tags.filter(t=>t.equipo!=='rival'&&esDeJugador(t,j)&&normTxt(t.nombre)===n));if(!ts.length){s.innerHTML=`<span class="obj-link">🎥 ${esc(s.dataset.objva)}: sin clips aún</span>`;return}
+    const p=ts.filter(t=>t.resultado==='pos').length,q=ts.filter(t=>t.resultado==='neg').length;s.innerHTML=`<span class="obj-link">🎥 ${esc(s.dataset.objva)}: ${ts.length} · <b class="ok">${p} ✓</b> <b class="mal">${q} ✗</b></span>`})}
+function panelNoDisp(){const L=ordenJ(SJ()).filter(j=>estadoJ(j).k!=='disp');if(!L.length)return '';
+  return `<div class="panel nodisp" style="margin-bottom:16px"><div class="panel-cab"><h3>Fuera o en duda</h3><span class="chip mal">${L.filter(noDisp).length} sin poder jugar</span>${L.some(j=>!noDisp(j))?`<span class="chip aviso">${L.filter(j=>!noDisp(j)).length} con molestia</span>`:''}</div>
+    <div class="nodisp-l">${L.map(j=>{const e=estadoJ(j);return `<button class="nodisp-i" data-ndj="${j.id}" style="--ec:${EST_J[e.k][1]}"><span class="dorsal">${j.dorsal||'–'}</span><span class="nd-t"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc([estTxt(e.k),e.zona].filter(Boolean).join(' · '))}</small></span><span class="nd-v">${e.vuelta?'Vuelve<br><b>'+esc(fCorta(e.vuelta))+'</b>':''}</span></button>`}).join('')}</div></div>`}
+
 function perfilJugador(el,j){
   const st=statsJugador(j.id),a=asistJugador(j.id),ev=evalsJugador(j.id),ult=ev[ev.length-1];
   const edad=j.nacimiento?Math.floor((HOY-deIso(j.nacimiento))/31557600000):'';
@@ -1594,7 +1698,7 @@ function perfilJugador(el,j){
     <div class="pj-info">
       <div class="pj-pos"><b>#${j.dorsal||'–'}</b> ${esc(puestoTxt(j))} <button class="pj-lapiz" id="editPos" title="Editar perfil" aria-label="Editar perfil">✏️</button></div>
       <h1 class="pj-nom"><span>${esc(j.nombre)}</span>${esc(j.apellido)}</h1>
-      <div class="pj-chips"><span>${esc(j.categoria||'Sin categoría')}</span>${edad?`<span>${edad} años</span>`:''}${j.pie?`<span>Pie ${esc(j.pie.toLowerCase())}</span>`:''}${j.altura?`<span>${j.altura} cm</span>`:''}</div>
+      <div class="pj-chips">${chipEstado(j)}<span>${esc(j.categoria||'Sin categoría')}</span>${edad?`<span>${edad} años</span>`:''}${j.pie?`<span>Pie ${esc(j.pie.toLowerCase())}</span>`:''}${j.altura?`<span>${j.altura} cm</span>`:''}</div>
       <div class="pj-stats">${[['PJ',st.pj],['Min',st.min],['Goles',st.gol],['Asist.',st.asis],['Asistencia',a.t?a.pct+'%':'—'],['Nota',pe!=null?pe.toFixed(1):'—']].map(([t,v])=>`<div><b>${v}</b><i>${t}</i></div>`).join('')}</div>
       <div class="pj-acc"><button class="btn pri" id="cartaJ">🖼 Carta para compartir</button><button class="btn" id="infJ">📄 Informe de temporada</button><button class="btn" id="editJ">✏️ Editar perfil</button><button class="btn pj-del" id="delJ">🗑 Eliminar</button></div>
     </div>
@@ -1607,10 +1711,13 @@ function perfilJugador(el,j){
     <div class="panel"><div class="panel-cab"><h3>Evaluación</h3><div class="der"><button class="btn chico" id="evalJ">＋ Evaluar</button></div></div>
       ${ult?`<div style="display:flex;align-items:center;gap:12px"><div class="dato">${promEval(ult).toFixed(1)}</div><div class="sub" style="font-size:13px">Promedio al ${fFecha(ult.fecha)}</div></div><div style="margin-top:8px">${sparkline(ev.map(x=>+promEval(x).toFixed(1)),{w:220,h:48})}</div>`:'<div class="vacio">Sin evaluaciones.</div>'}</div>
   </div>
+  <div class="grilla g2 pj-seg" style="margin-bottom:0;align-items:start"><div id="pjDisp">${panelDisponibilidad(j)}</div><div id="pjObj">${panelObjetivos(j)}</div></div>
   ${ev.length?`<div class="panel" style="margin-bottom:16px"><h3>Evolución por dimensión</h3><div class="grilla g4" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">${DIM_EVAL.map(([c,t])=>`<div><div class="etq">${t}</div><div style="display:flex;align-items:center;gap:8px"><span class="dato" style="font-size:26px">${ult[c]}</span>${sparkline(ev.map(x=>+x[c]),{w:120,h:36})}</div></div>`).join('')}</div></div>`:''}
   ${analisisAvanzado(j)}
   <div class="panel"><h3>Observaciones</h3><p style="margin:0;white-space:pre-wrap" class="${j.obs?'':'tenue'}">${esc(j.obs||'Sin observaciones.')}</p></div><div id="vaJug"></div>`;
   panelVAJugador($('#vaJug',el),j);
+  {const rp=()=>{const y=scrollY;pintar();scrollTo(0,y)};
+   const ligar=()=>{$('#estJ',el).onclick=()=>editarEstado(j,rp);$('#objN',el).onclick=()=>editarObjetivo(j,null,rp);$$('[data-objed]',el).forEach(b=>b.onclick=()=>editarObjetivo(j,objetivosJ(j).find(o=>o.id===b.dataset.objed),rp));pintarObjVA($('#pjObj',el),j)};ligar()}
   $('#volver').onclick=()=>ir('plantel');
   $('#editJ').onclick=$('#editPos').onclick=()=>editarJugador(j);
   $('#infJ').onclick=()=>informeJugador(j);
@@ -1733,7 +1840,7 @@ async function escudoPDF(src){const im=await cargarImagen(src);if(!im)return nul
 
 function informeJugador(j){
   const inf=j.informe||{};
-  modal('Informe de temporada',`<p class="sub" style="margin:0 0 12px">Se arma un PDF de 4 páginas con los partidos, la asistencia y las evaluaciones de ${esc(j.nombre+' '+j.apellido)}. Lo que escribas acá aparece en “Valoración del cuerpo técnico” y queda guardado para la próxima vez.</p>
+  modal('Informe de temporada',`<p class="sub" style="margin:0 0 12px">Se arma un PDF con los partidos, la asistencia, las evaluaciones, los objetivos, la disponibilidad y el videoanálisis de ${esc(j.nombre+' '+j.apellido)}. Lo que escribas acá aparece en “Valoración del cuerpo técnico” y queda guardado para la próxima vez.</p>
   <form class="form" id="fInf">
     <label class="campo ancho">Fortalezas<textarea name="fortalezas" rows="3">${esc(inf.fortalezas||'')}</textarea></label>
     <label class="campo ancho">Aspectos a mejorar<textarea name="mejorar" rows="3">${esc(inf.mejorar||'')}</textarea></label>
@@ -1908,6 +2015,47 @@ async function informeTemporadaPDF(j){
   T(9,'bold',C.tinta);doc.text('Cuerpo técnico'+(club.categoria?' · '+club.categoria:''),W-49,y+5,{align:'center',maxWidth:72});
   T(8,'normal',C.gris);doc.text([club.cuerpoTecnico,club.nombre].filter(Boolean).join(' · '),W-49,y+9.5,{align:'center',maxWidth:72});
 
+
+  // ================= SEGUIMIENTO INDIVIDUAL: objetivos, disponibilidad y videoanálisis =================
+  {
+    const objs=objetivosJ(j),eJ=estadoJ(j),hist=(j.lesiones||[]),dfu=diasFueraTemp(j);
+    let vaL=[];try{vaL=await cargarVA()}catch(e){}
+    const vt=vaL.flatMap(a=>(a.tags||[]).filter(t=>t.equipo!=='rival'&&esDeJugador(t,j)));
+    if(objs.length||hist.length||eJ.k!=='disp'||vt.length){
+      doc.addPage();y=22;
+      if(objs.length){
+        y=titulo('Objetivos individuales',y);
+        objs.slice(0,8).forEach(o=>{
+          const lines=doc.splitTextToSize(o.txt,W-60);const alto=14+lines.length*4.6+((o.seg||[]).length?7:0);y=nueva(y,alto+4);
+          card(14,y,W-28,alto);
+          T(7.5,'bold',C.gris);doc.text(((o.area||'Otro')+(o.plazo?'  ·  plazo '+fl(o.plazo):'')).toUpperCase(),19,y+5.5,{charSpace:.3});
+          const est=o.estado==='logrado'?['LOGRADO',C.verde]:o.estado==='pausa'?['EN PAUSA',C.naranja]:['EN CURSO',C.azul];
+          T(7.5,'bold',est[1]);doc.text(est[0],W-19,y+5.5,{align:'right'});
+          T(10.5,'bold',C.tinta);doc.text(lines,19,y+11);
+          const by=y+11+lines.length*4.6-1.5;doc.setFillColor(...C.gris2);doc.roundedRect(19,by,W-75,3,1.5,1.5,'F');const pv=Math.max(0,Math.min(100,+o.prog||0));if(pv){doc.setFillColor(...(o.estado==='logrado'?C.verde:C.ama));doc.roundedRect(19,by,(W-75)*pv/100,3,1.5,1.5,'F')}
+          T(8.5,'bold',C.tinta);doc.text(pv+'%',W-52,by+2.6);
+          const dim=DIM_EVAL.find(d=>d[0]===o.dim);if(dim&&evs.length){const u=+evs[evs.length-1][o.dim];if(isFinite(u)){T(8,'normal',C.gris);doc.text(dim[1]+' '+u.toFixed(1),W-19,by+2.6,{align:'right'})}}
+          if((o.seg||[]).length){const s=o.seg[o.seg.length-1];T(8,'normal',C.gris);doc.text(doc.splitTextToSize(fc(s.f)+' · '+s.t,W-40)[0],19,by+8)}
+          y+=alto+4});
+        y+=4}
+      if(eJ.k!=='disp'||hist.length){
+        y=nueva(y,40);y=titulo('Disponibilidad',y);
+        y=cajas(y,[[eJ.k==='disp'?'Sí':'No','Disponible hoy'],[hist.filter(l=>l.k==='lesion').length+(eJ.k==='lesion'?1:0),'Lesiones'],[dfu,'Días sin estar disp.']],20);y+=4;
+        const regs=[...(eJ.k!=='disp'?[{...eJ,hasta:''}]:[]),...hist.slice().reverse()].slice(0,8);
+        regs.forEach(l=>{y=nueva(y,8);T(9,'bold',C.tinta);doc.text(estTxt(l.k)+(l.zona?' · '+l.zona:''),14,y);T(8.5,'normal',C.gris);doc.text((l.desde?'del '+fl(l.desde):'')+(l.hasta?' al '+fl(l.hasta):' · sigue'+(l.vuelta?' (vuelta prevista '+fl(l.vuelta)+')':'')),W-14,y,{align:'right'});doc.setDrawColor(...C.linea);doc.setLineWidth(.2);doc.line(14,y+2.2,W-14,y+2.2);y+=7});
+        y+=6}
+      if(vt.length){
+        y=nueva(y,50);y=titulo('Videoanálisis',y);
+        const pz=vt.filter(t=>t.resultado==='pos').length,ng=vt.filter(t=>t.resultado==='neg').length,nP=new Set(vaL.filter(a=>(a.tags||[]).some(t=>t.equipo!=='rival'&&esDeJugador(t,j))).map(a=>a.id)).size;
+        y=cajas(y,[[vt.length,'Acciones'],[nP,'Partidos'],[pz,'Positivas'],[ng,'Negativas'],[pz+ng?Math.round(100*pz/(pz+ng))+'%':'—','Efectividad']],20);y+=5;
+        const ac={};vt.forEach(t=>{const o=ac[t.nombre]=ac[t.nombre]||{n:0,p:0,q:0};o.n++;if(t.resultado==='pos')o.p++;if(t.resultado==='neg')o.q++});
+        const mx=Math.max(1,...Object.values(ac).map(o=>o.n));
+        Object.entries(ac).sort((a,b)=>b[1].n-a[1].n).slice(0,8).forEach(([n,o])=>{y=nueva(y,8);T(9,'bold',C.tinta);doc.text(n,14,y+3.4);const bx=70,bw=W-14-bx-30;doc.setFillColor(...C.gris2);doc.roundedRect(bx,y,bw,4.5,2,2,'F');
+          if(o.p){doc.setFillColor(...C.verde);doc.rect(bx,y,bw*o.p/mx,4.5,'F')}if(o.q){doc.setFillColor(...C.rojo);doc.rect(bx+bw*o.p/mx,y,bw*o.q/mx,4.5,'F')}const rest=o.n-o.p-o.q;if(rest){doc.setFillColor(...C.claro);doc.rect(bx+bw*(o.p+o.q)/mx,y,bw*rest/mx,4.5,'F')}
+          T(8.5,'normal',C.gris);doc.text(o.n+'  ('+o.p+' / '+o.q+')',W-14,y+3.4,{align:'right'});y+=7.5});
+        T(7.5,'normal',C.gris);y=nueva(y,8);doc.text('Verde: salieron bien · Rojo: para mejorar · Gris: sin resultado marcado',14,y+2)}
+    }
+  }
   // ---------- encabezado y pie ----------
   const N=doc.internal.getNumberOfPages(),gen='Metodika · Generado el '+HOY.toLocaleDateString('es-AR');
   for(let p=1;p<=N;p++){doc.setPage(p);
@@ -1951,19 +2099,22 @@ function editarJugador(j){
 VISTAS.planificacion=el=>{
   const micros=[...SMc()].sort((a,b)=>b.inicio.localeCompare(a.inicio));
   const sinMicro=SS().filter(s=>!S.microciclos.find(m=>m.id===s.microId));
-  el.innerHTML=cabecera('Microciclos y sesiones','Planificación','Organizá la semana, armá cada sesión con tareas de la biblioteca y controlá la carga.',`<button class="btn" id="nMicro">＋ Microciclo</button><button class="btn pri" id="nSes">＋ Sesión</button>`)+
-  (micros.length||sinMicro.length?micros.map(m=>{
+  el.innerHTML=cabecera('Microciclos y sesiones','Planificación','Organizá la semana, armá cada sesión con tareas de la biblioteca y controlá la carga.',`<button class="btn" id="usST">📋 Usar semana tipo</button><button class="btn" id="nMicro">＋ Microciclo</button><button class="btn pri" id="nSes">＋ Sesión</button>`)+
+  panelContenidos()+(micros.length||sinMicro.length?micros.map(m=>{
     const ses=SS().filter(s=>s.microId===m.id).sort((a,b)=>a.fecha.localeCompare(b.fecha));
     const actual=deIso(m.inicio)<=HOY&&HOY<=deIso(m.fin);
     const carga=ses.reduce((a,s)=>a+cargaSesion(s),0);
     return `<div class="panel" style="margin-bottom:16px;${actual?'border-color:var(--tinta);border-width:1.5px':''}">
       <div class="panel-cab"><div><div class="etq" style="color:var(--bronce)">${fCorta(m.inicio)} al ${fCorta(m.fin)}${actual?' · semana actual':''}</div><h3 style="margin-top:3px">${esc(m.nombre)} · ${esc(m.foco)}</h3><div class="sub" style="font-size:14px">${esc(m.objetivo)}</div></div>
-        <div class="der"><span class="chip">${ses.length} sesiones</span><span class="chip">Carga ${carga} UA</span><button class="btn chico" data-em="${m.id}">Editar</button><button class="btn chico" data-ns="${m.id}">＋ Sesión</button></div></div>
+        <div class="der"><span class="chip">${ses.length} sesiones</span><span class="chip">Carga ${carga} UA</span><button class="btn chico" data-st="${m.id}" title="Guardar esta semana como modelo">⭐ Semana tipo</button><button class="btn chico" data-em="${m.id}">Editar</button><button class="btn chico" data-ns="${m.id}">＋ Sesión</button></div></div>
       ${ses.length?`<div class="grilla g2" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)"><div class="lista">${ses.map(s=>`<div class="fila click" data-s="${s.id}"><div style="min-width:78px"><b>${fFecha(s.fecha)}</b><div class="sub" style="font-size:12.5px">${esc(s.hora||'')}</div></div><div style="min-width:0"><b>${esc(s.titulo)}</b><div class="sub" style="font-size:13px">${s.tareas.map(t=>esc((tarea(t.tareaId)||{}).titulo||'Tarea')).join(' · ')}</div></div><div class="der"><span class="chip">${durSesion(s)}′</span></div></div>`).join('')}</div>
         <div>${barras(ses.map(s=>({et:DIAS[deIso(s.fecha).getDay()],v:cargaSesion(s),tip:s.titulo+': '+cargaSesion(s)+' UA (RPE '+s.rpe+' × '+durSesion(s)+' min)'})),{h:140,color:'var(--bronce)',unidad:' UA'})}<div class="sub" style="font-size:12px">Carga = RPE planificado × minutos</div></div></div>`:'<div class="vacio">Este microciclo todavía no tiene sesiones.</div>'}
     </div>`}).join('')+(sinMicro.length?`<div class="panel"><h3>Sesiones sin microciclo</h3><div class="lista">${sinMicro.map(s=>`<div class="fila click" data-s="${s.id}"><b>${fFecha(s.fecha)}</b><span>${esc(s.titulo)}</span></div>`).join('')}</div></div>`:'')
   :`<div class="vacio">Empezá creando un microciclo (una semana de trabajo) y después sumale sesiones.<br><button class="btn pri" style="margin-top:12px" id="nMicro2">＋ Crear microciclo</button></div>`);
   $('#nMicro').onclick=()=>editarMicro();
+  $('#usST').onclick=()=>usarSemanaTipo();
+  $$('[data-st]',el).forEach(b=>b.onclick=()=>guardarSemanaTipo(S.microciclos.find(m=>m.id===b.dataset.st)));
+  $$('[data-contp]',el).forEach(b=>b.onclick=()=>{CONT_P=b.dataset.contp;const y=scrollY;pintar();scrollTo(0,y)});
   const n2=$('#nMicro2');if(n2)n2.onclick=()=>editarMicro();
   $('#nSes').onclick=()=>editarSesion();
   $$('[data-em]',el).forEach(b=>b.onclick=()=>editarMicro(S.microciclos.find(m=>m.id===b.dataset.em)));
@@ -3540,6 +3691,9 @@ VISTAS.partido=el=>{
     const fila=x=>`<div class="fila click" data-p="${x.id}"><div style="min-width:86px"><b>${fFecha(x.fecha)}</b><div class="sub" style="font-size:12.5px">${esc(x.hora)}</div></div><div><b>vs ${esc(x.rival)}</b><div class="sub" style="font-size:13px">${esc(x.competicion)} · ${esc(x.condicion)}</div></div><div class="der">${x.estado==='finalizado'?`<span class="chip ${x.golesF>x.golesC?'ok':x.golesF<x.golesC?'mal':''}">${x.golesF}-${x.golesC}</span>`:x.estado==='en juego'?'<span class="chip ama">En juego</span>':'<span class="chip">Programado</span>'}</div></div>`;
     el.innerHTML=cabecera('Previa, en vivo y análisis','Partido','Elegí un partido para armar la convocatoria, registrar las acciones en vivo y ver el análisis.',`<button class="btn pri" id="nP">＋ Nuevo partido</button>`)+
     `<div class="grilla g2"><div class="panel"><h3>Próximos</h3>${prox.length?`<div class="lista">${prox.map(fila).join('')}</div>`:'<div class="vacio">Sin partidos programados.</div>'}</div><div class="panel"><h3>Jugados</h3>${jug.length?`<div class="lista">${jug.map(fila).join('')}</div>`:'<div class="vacio">Todavía no hay partidos jugados.</div>'}</div></div>`;
+    el.insertAdjacentHTML('beforeend',panelRotacion());
+    $$('[data-rotn]',el).forEach(b=>b.onclick=()=>{ROT_N=+b.dataset.rotn;const y=scrollY;pintar();scrollTo(0,y)});
+    $$('[data-rotj]',el).forEach(b=>b.onclick=()=>ir('plantel',b.dataset.rotj));
     $('#nP').onclick=()=>editarPartido();
     $$('[data-p]',el).forEach(b=>b.onclick=()=>{tabPartido=S.partidos.find(x=>x.id===b.dataset.p).estado==='finalizado'?'analisis':'previa';ir('partido',b.dataset.p)});
     return;
@@ -3550,11 +3704,12 @@ VISTAS.partido=el=>{
   <div class="panel" style="margin-bottom:16px"><div class="etq" style="text-align:center;margin-bottom:8px">${[esc(p.competicion),fFecha(p.fecha),esc(p.hora)].filter(Boolean).join(' · ')}</div>
     <div class="marcador"><div class="eq">${escudoHtml(loc?S.club.escudo:p.rivalEscudo,loc?S.club.nombre:p.rival,40)}<div>${esc(loc?S.club.nombre:p.rival)}</div></div><div class="gol" id="gL">${loc?g.f:g.c}</div><div class="gol tenue">–</div><div class="gol" id="gV">${loc?g.c:g.f}</div><div class="eq">${escudoHtml(loc?p.rivalEscudo:S.club.escudo,loc?p.rival:S.club.nombre,40)}<div>${esc(loc?p.rival:S.club.nombre)}</div></div></div>
     <div style="text-align:center;margin-top:6px"><span class="chip ${p.estado==='en juego'?'ama':p.estado==='finalizado'?'':''}">${p.estado==='en juego'?'En juego':p.estado==='finalizado'?'Finalizado':'Programado'}</span> <button class="btn chico fantasma" id="edP">Editar datos</button>${p.estado==='programado'&&deIso(p.fecha)>=HOY?` <span class="chip ama">${(()=>{const dd=Math.round((deIso(p.fecha)-HOY)/864e5);return dd===0?'¡Es hoy!':dd===1?'Falta 1 día':'Faltan '+dd+' días'})()}</span>`:''}</div>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px"><button class="btn chico pri" id="shP">📲 Compartir</button><button class="btn chico" id="pdfP">📄 PDF</button></div></div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px"><button class="btn chico pri" id="shP">📲 Compartir</button>${p.estado!=='programado'?'<button class="btn chico" id="fiPa">🖼 Ficha en imagen</button>':''}<button class="btn chico" id="pdfP">📄 PDF</button></div></div>
   <div class="tabs" role="tablist">${[['previa','Convocatoria'],['datos','Datos y camisetas'],['aline','Alineación'],['rival','Rival'],['piz','Pizarras'],['cita','Citación'],['vivo','En vivo'],['analisis','Análisis']].map(([k,t])=>`<button role="tab" data-tab="${k}" class="${tabPartido===k?'activo':''}">${t}</button>`).join('')}</div><div id="tabP"></div>`;
   $('#volverP').onclick=()=>{pend=null;ir('partido')};
   $('#edP').onclick=()=>editarPartido(p);
   $$('[data-tab]',el).forEach(b=>b.onclick=()=>{tabPartido=b.dataset.tab;pend=null;pintar()});
+  {const fb=$('#fiPa',el);if(fb)fb.onclick=()=>fichaPartido(p)}
   $('#shP',el).onclick=()=>{tabPartido='cita';pintar();aviso('Revisá la citación y tocá “Compartir por WhatsApp”')};
   $('#pdfP',el).onclick=()=>elegirPDFPartido(p);
   ({previa:previaPartido,datos:datosPartido,aline:alineacionPartido,rival:rivalPartido,piz:pizarrasPartido,cita:citacionPartido,vivo:vivoPartido,analisis:analisisPartido}[tabPartido]||previaPartido)(el.querySelector('#tabP'),p);
@@ -4023,11 +4178,84 @@ async function hojaPartidoPDF(p){
   const w3=[14,(cw-14)/2,(cw-14)/2];bloque('SUSTITUCIONES',['MIN','SALE','ENTRA'],w3);bloque('GOLES / ASISTENCIAS',['MIN','AUTOR/A','ASISTENCIA'],w3);
   pie();guardarComo('hoja-de-partido');
 }
+
+/* ================= minutos y rotación de la temporada ================= */
+let ROT_N=0;
+function datosRotacion(n){
+  const jug=SP().filter(p=>p.estado!=='programado').sort((a,b)=>a.fecha.localeCompare(b.fecha));const L=n?jug.slice(-n):jug;
+  return {L,filas:ordenJ(SJ()).map(j=>{const fs=L.map(p=>filaPartidoJug(p,j.id)),min=fs.reduce((a,f)=>a+f.min,0),pos=fs.reduce((a,f)=>a+f.posibles,0);
+    const u3=jug.slice(-3).map(p=>filaPartidoJug(p,j.id)),u3min=u3.reduce((a,f)=>a+f.min,0),u3pos=u3.reduce((a,f)=>a+f.posibles,0);
+    return {j,pj:fs.filter(f=>f.min>0).length,tit:fs.filter(f=>f.estado==='tit').length,sup:fs.filter(f=>f.estado==='sup'&&f.min>0).length,banco:fs.filter(f=>f.estado==='sup'&&!f.min).length,nc:fs.filter(f=>f.estado==='nc').length,min,pct:pos?Math.round(100*min/pos):0,
+      u3:u3pos?Math.round(100*u3min/u3pos):null,racha:u3.length>=3&&u3.every(f=>f.posibles&&f.min>=f.posibles-1),poco:L.length>=3&&pos&&min/pos<.25&&!noDisp(j)}})}}
+function panelRotacion(){
+  const {L,filas}=datosRotacion(ROT_N);if(!L.length)return '';
+  const ord=[...filas].sort((a,b)=>b.min-a.min),mx=Math.max(1,...ord.map(f=>f.min));
+  const poco=ord.filter(f=>f.poco),mucho=ord.filter(f=>f.racha);
+  return `<div class="panel rot" style="margin-top:16px"><div class="panel-cab"><h3>Minutos y rotación</h3><div class="seg" style="margin-left:auto">${[[0,'Temporada ('+SP().filter(p=>p.estado!=='programado').length+')'],[5,'Últimos 5']].map(([v,t])=>`<button data-rotn="${v}" class="${ROT_N===v?'activo':''}" aria-pressed="${ROT_N===v}">${t}</button>`).join('')}</div></div>
+    ${poco.length||mucho.length?`<div class="rot-av">${poco.length?`<div class="rot-a amar"><b>Vienen sumando poco</b><span>${poco.slice(0,8).map(f=>esc(f.j.nombre+' '+f.j.apellido)+' ('+f.pct+'%)').join(' · ')}${poco.length>8?' · y '+(poco.length-8)+' más':''}</span></div>`:''}${mucho.length?`<div class="rot-a rojo"><b>Jugaron todo los últimos 3 partidos</b><span>${mucho.map(f=>esc(f.j.nombre+' '+f.j.apellido)).join(' · ')}</span></div>`:''}</div>`:''}
+    <div class="tabla-c"><table class="rot-t"><thead><tr><th>${J('Sg')}</th><th class="n">PJ</th><th class="n">Titular</th><th class="n">Entró</th><th class="n">Banco</th><th class="n">No conv.</th><th class="n">Minutos</th><th>% de los minutos posibles</th><th class="n">Últ. 3</th></tr></thead><tbody>
+    ${ord.map(f=>`<tr class="click" data-rotj="${f.j.id}"><td><span class="dorsal">${f.j.dorsal||'–'}</span> ${esc(f.j.nombre+' '+f.j.apellido)} ${chipEstado(f.j,true)}</td><td class="n">${f.pj}</td><td class="n">${f.tit}</td><td class="n">${f.sup}</td><td class="n">${f.banco}</td><td class="n">${f.nc}</td><td class="n"><b>${f.min}'</b></td>
+      <td><div class="rot-bar"><i style="width:${Math.round(100*f.min/mx)}%;background:${f.pct>=60?'var(--verde)':f.pct>=25?'var(--ambar)':'var(--rojo)'}"></i></div><span class="sub" style="font-size:12px">${f.pct}%</span></td><td class="n">${f.u3==null?'—':f.u3+'%'}</td></tr>`).join('')}</tbody></table></div>
+    <p class="sub" style="font-size:12.5px;margin:8px 0 0">% de los minutos posibles = minutos que jugó ÷ minutos de todos los partidos ${ROT_N?'de los últimos 5':'de la temporada'}. “Vienen sumando poco”: menos del 25% ${gRama('estando disponibles','estando disponibles','estando disponibles')}.</p></div>`}
+/* ================= ficha del partido en imagen ================= */
+function cargarImg(src){return new Promise(ok=>{if(!src)return ok(null);const i=new Image();i.crossOrigin='anonymous';const t=setTimeout(()=>ok(null),5000);i.onload=()=>{clearTimeout(t);ok(i)};i.onerror=()=>{clearTimeout(t);ok(null)};i.src=src})}
+async function lienzoFicha(p,fmt,figuraId){
+  const W=1080,H=fmt==='cuad'?1080:1920,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  const AM='#FFD400',BG='#141412',TX='#F4F1EA',SB='#A9A396',FD='Georama, Barlow, Arial, sans-serif',FB='Barlow, Arial, sans-serif';
+  const club=S.club||{},loc=p.condicion==='Local',gg=p.eventos.length?goles(p):{f:p.golesF??0,c:p.golesC??0};
+  const [eC,eR]=await Promise.all([cargarImg(club.escudo),cargarImg(p.rivalEscudo)]);
+  g.fillStyle=BG;g.fillRect(0,0,W,H);g.fillStyle='#1B1A17';for(let x=0;x<W;x+=90)g.fillRect(x,0,45,H*(fmt==='cuad'?.52:.42));g.fillStyle=AM;g.fillRect(0,0,W,14);
+  const C=(t,x,y,f,c,al)=>{g.font=f;g.fillStyle=c;g.textAlign=al||'center';g.fillText(t,x,y);g.textAlign='left'};
+  let y=fmt==='cuad'?90:130;
+  C([p.competicion,fCorta(p.fecha),p.condicion].filter(Boolean).join('  ·  ').toUpperCase(),W/2,y,`700 30px ${FB}`,AM);
+  const res=gg.f>gg.c?'VICTORIA':gg.f<gg.c?'DERROTA':'EMPATE';
+  y+=fmt==='cuad'?50:70;C(p.estado==='finalizado'?res:'EN JUEGO',W/2,y,`800 34px ${FD}`,TX);
+  const yE=y+(fmt==='cuad'?140:180),r=fmt==='cuad'?72:88;
+  const escudo=(img,nom,cx)=>{g.fillStyle='#fff';g.beginPath();g.arc(cx,yE,r,0,Math.PI*2);g.fill();if(img){const k=Math.min(1.4*r/img.width,1.4*r/img.height);g.drawImage(img,cx-img.width*k/2,yE-img.height*k/2,img.width*k,img.height*k)}else C(String(nom||'?').replace(/^(club|atl[eé]tico|deportivo)\s+/i,'').slice(0,1).toUpperCase(),cx,yE+r*.35,`800 ${Math.round(r)}px ${FD}`,BG);
+    g.font=`700 28px ${FB}`;const pal=String(nom||'').split(/\s+/),ls=[];let l='';pal.forEach(w=>{const t=l?l+' '+w:w;if(g.measureText(t).width>300&&l){ls.push(l);l=w}else l=t});if(l)ls.push(l);ls.slice(0,2).forEach((x,i)=>C(x,cx,yE+r+44+i*32,`700 28px ${FB}`,TX))};
+  const L=[loc?[eC,club.nombre]:[eR,p.rival],loc?[eR,p.rival]:[eC,club.nombre]];escudo(L[0][0],L[0][1],W*0.17);escudo(L[1][0],L[1][1],W*0.83);
+  C((loc?gg.f:gg.c)+'  –  '+(loc?gg.c:gg.f),W/2,yE+48,`800 ${fmt==='cuad'?118:140}px ${FD}`,'#fff');
+  y=yE+r+130;
+  const gol=p.eventos.filter(e=>e.tipo==='gol'||e.tipo==='golRival').sort((a,b)=>(a.min||0)-(b.min||0));
+  if(gol.length){g.fillStyle='rgba(255,255,255,.12)';g.fillRect(90,y-40,W-180,2);
+    const fil=gol.slice(0,fmt==='cuad'?4:8);fil.forEach((e,i)=>{const nuestro=e.tipo==='gol',j=nuestro&&e.jug&&jugador(e.jug),as=nuestro&&e.jug2&&jugador(e.jug2);
+      const t=nuestro?(j?(j.dorsal?j.dorsal+' · ':'')+j.nombre+' '+j.apellido:'Gol'):p.rival||'Rival';const yy=y+i*58;
+      C('⚽',W/2+(nuestro===loc?-60:60),yy,`32px ${FB}`,'#fff');C((e.min!=null?e.min+"'  ":'')+t,nuestro===loc?W/2-110:W/2+110,yy,`${nuestro?700:600} 32px ${FB}`,nuestro?TX:SB,nuestro===loc?'right':'left');
+      if(as&&fmt!=='cuad')C('asist. '+as.apellido,nuestro===loc?W/2-110:W/2+110,yy+26,`500 22px ${FB}`,SB,nuestro===loc?'right':'left')});
+    y+=fil.length*58+(fmt==='cuad'?10:40)}
+  const fig=figuraId&&jugador(figuraId);
+  if(fmt!=='cuad'){
+    const tit=ordenParaCancha(p.titulares.map(jugador).filter(Boolean));
+    if(tit.length>=5){const sis=(p.aline&&p.aline.sistema&&String(p.aline.sistema).split('-').map(Number).reduce((a,b)=>a+b,0)===tit.length-1)?p.aline.sistema:(SISTEMAS[tit.length>=11?'11 vs 11':tit.length>=9?'9 vs 9':tit.length>=8?'8 vs 8':tit.length>=7?'7 vs 7':'5 vs 5']||['4-3-3'])[0];
+      C('FORMACIÓN INICIAL · '+sis,W/2,y+10,`800 28px ${FB}`,AM);const x0=120,w=W-240,h=Math.min(560,H-y-(fig?330:150)),y0=y+34;
+      if(h>300){g.fillStyle='#16432B';g.beginPath();g.roundRect?g.roundRect(x0,y0,w,h,18):g.rect(x0,y0,w,h);g.fill();g.strokeStyle='rgba(255,255,255,.45)';g.lineWidth=3;g.strokeRect(x0+16,y0+16,w-32,h-32);g.beginPath();g.moveTo(x0+16,y0+h/2);g.lineTo(x0+w-16,y0+h/2);g.stroke();g.beginPath();g.arc(x0+w/2,y0+h/2,60,0,Math.PI*2);g.stroke();g.strokeRect(x0+w/2-130,y0+h-16-90,260,90);
+        const lines=sis.split('-').map(Number),pts=[[x0+w/2,y0+h-80]];lines.forEach((n,i)=>{const yy=y0+h-90-(h-150)*(i+1)/lines.length;for(let k=0;k<n;k++)pts.push([x0+w*(k+1)/(n+1),yy])});
+        tit.slice(0,pts.length).forEach((j,i)=>{const [cx,cy]=pts[i];g.fillStyle=i===0?'#F08A24':AM;g.beginPath();g.arc(cx,cy,30,0,Math.PI*2);g.fill();C(String(j.dorsal||''),cx,cy+10,`800 28px ${FD}`,BG);C(String(j.apellido||j.nombre).slice(0,12),cx,cy+56,`700 24px ${FB}`,'#fff')});
+        y=y0+h+40}}
+  }
+  if(fig){const yy=fmt==='cuad'?H-250:Math.min(y+20,H-260);g.fillStyle='#1F1E1A';g.beginPath();g.roundRect?g.roundRect(90,yy,W-180,130,20):g.rect(90,yy,W-180,130);g.fill();g.fillStyle=AM;g.fillRect(90,yy,10,130);
+    C('★ FIGURA DEL PARTIDO',130,yy+48,`800 26px ${FB}`,AM,'left');C(((fig.dorsal?fig.dorsal+' · ':'')+fig.nombre+' '+fig.apellido).slice(0,30),130,yy+100,`800 48px ${FD}`,'#fff','left')}
+  g.fillStyle='rgba(255,255,255,.12)';g.fillRect(70,H-96,W-140,2);C([club.nombre,club.categoria].filter(Boolean).join(' · ')||'Metodika',70,H-50,`600 26px ${FB}`,SB,'left');C('Metodika',W-70,H-50,`700 26px ${FB}`,SB,'right');
+  return cv}
+function fichaPartido(p){
+  const conv=p.convocados.map(jugador).filter(Boolean);
+  modal('Ficha del partido',`<div class="fi-g"><div><p class="sub" style="margin:0 0 10px;font-size:13.5px">Imagen lista para mandar por WhatsApp o subir a redes, con el resultado, los goles, la formación y la figura.</p>
+    <label class="campo ancho">Formato<select id="fiF">${opts([['story','Historia (1080×1920)'],['cuad','Cuadrado (1080×1080)']],'story')}</select></label>
+    <label class="campo ancho" style="margin-top:8px">Figura del partido<select id="fiJ"><option value="">— Sin figura —</option>${opts(ordenJ(conv).map(j=>[j.id,(j.dorsal?j.dorsal+' · ':'')+j.nombre+' '+j.apellido]),p.figura||'')}</select></label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:14px"><button class="btn pri" id="fiB">⬇ Descargar imagen</button><button class="btn" id="fiS" hidden>Compartir…</button></div></div><div class="fi-prev" id="fiP"><div class="sub">Armando…</div></div></div>
+    <div class="modal-pie"><button class="btn" data-cerrar>Cerrar</button></div>`,{ancho:true,alMontar:m=>{let cv=null;
+      const nom=()=>'ficha-vs-'+String(p.rival||'rival').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-')+'-'+p.fecha+'.png';
+      const dib=async()=>{const f=$('#fiF',m).value,fg=$('#fiJ',m).value;if((p.figura||'')!==fg){if(fg)p.figura=fg;else delete p.figura;guardar()}cv=await lienzoFicha(p,f,fg);const pr=$('#fiP',m);pr.innerHTML='';const im=new Image();im.alt='Vista previa';im.src=cv.toDataURL('image/png');pr.appendChild(im)};
+      $('#fiF',m).onchange=dib;$('#fiJ',m).onchange=dib;
+      $('#fiB',m).onclick=()=>cv&&cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nom();document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);aviso('Imagen descargada')},'image/png');
+      try{if(navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'])],'x.png',{type:'image/png'})]})){const sb=$('#fiS',m);sb.hidden=false;sb.onclick=()=>cv&&cv.toBlob(async b=>{try{await navigator.share({files:[new File([b],nom(),{type:'image/png'})]})}catch(e){}},'image/png')}}catch(e){}
+      dib()}})}
+
 function previaPartido(el,p){
-  const todos=ordenJ(SJ());
+  const todos=ordenJ(SJ()),ult3=SP().filter(x=>x.estado!=='programado'&&x.id!==p.id).sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(-3),m3=id=>ult3.reduce((a,x)=>a+filaPartidoJug(x,id).min,0);
   el.innerHTML=`<div class="grilla g2">
-    <div class="panel"><div class="panel-cab"><h3>Convocatoria</h3><span class="chip" id="nConv">${p.convocados.length}</span><div class="der"><button class="btn chico" id="convTodas">Todo el plantel</button><button class="btn chico fantasma" id="convNinguna">Ninguna/o</button></div></div>
-      <div class="lista">${todos.map(j=>`<label class="fila" style="cursor:pointer"><input type="checkbox" data-conv="${j.id}" ${p.convocados.includes(j.id)?'checked':''}><span class="dorsal">${j.dorsal||'–'}</span><span style="flex:1">${esc(j.nombre+' '+j.apellido)}</span><span class="sub" style="font-size:12.5px">${esc(puestoTxt(j))}</span></label>`).join('')||'<div class="vacio">Cargá el plantel primero.</div>'}</div></div>
+    <div class="panel"><div class="panel-cab"><h3>Convocatoria</h3><span class="chip" id="nConv">${p.convocados.length}</span><div class="der"><button class="btn chico" id="convTodas">${SJ().some(noDisp)?'Todo el plantel disponible':'Todo el plantel'}</button><button class="btn chico fantasma" id="convNinguna">Ninguna/o</button></div></div>
+      <div class="lista">${todos.map(j=>`<label class="fila ${noDisp(j)?'conv-nd':''}" style="cursor:pointer"><input type="checkbox" data-conv="${j.id}" ${p.convocados.includes(j.id)?'checked':''}><span class="dorsal">${j.dorsal||'–'}</span><span style="flex:1">${esc(j.nombre+' '+j.apellido)} ${chipEstado(j,true)}</span><span class="sub" style="font-size:12.5px">${esc(puestoTxt(j))}</span>${ult3.length?`<span class="conv-m" title="Minutos en los últimos ${ult3.length} partidos">${m3(j.id)}'</span>`:''}</label>`).join('')||'<div class="vacio">Cargá el plantel primero.</div>'}</div></div>
     <div class="panel"><div class="panel-cab"><h3>Titulares y suplentes</h3><span class="chip ${p.titulares.length===11?'ok':'aviso'}" id="nTit">${p.titulares.length} titulares</span></div>
       <p class="sub" style="margin:0 0 10px;font-size:13.5px">Tocá para pasar de suplente a titular.</p>
       <div class="en-cancha" id="titSup"></div>
@@ -4038,7 +4266,7 @@ function previaPartido(el,p){
     $$('[data-ts]',el).forEach(b=>b.onclick=()=>{const id=b.dataset.ts;p.titulares=p.titulares.includes(id)?p.titulares.filter(x=>x!==id):[...p.titulares,id];guardar();pintarTS()})};
   pintarTS();
   $$('[data-conv]',el).forEach(c=>c.onchange=()=>{const id=c.dataset.conv;if(c.checked)p.convocados.push(id);else{p.convocados=p.convocados.filter(x=>x!==id);p.titulares=p.titulares.filter(x=>x!==id)}guardar();pintarTS()});
-  $('#convTodas',el).onclick=()=>{p.convocados=SJ().map(j=>j.id);guardar();pintar()};
+  $('#convTodas',el).onclick=()=>{p.convocados=SJ().filter(j=>!noDisp(j)).map(j=>j.id);guardar();pintar()};
   $('#convNinguna',el).onclick=()=>{p.convocados=[];p.titulares=[];guardar();pintar()};
   $('#durT',el).onchange=e=>{p.duracionTiempo=+e.target.value||45;guardar()};
   $('#aVivo',el).onclick=()=>{tabPartido='vivo';pintar()};
@@ -4641,12 +4869,68 @@ let tabEval='plantel',evalJug='';
 function cargaSemanas(fn,n=6){const a=[];for(let i=n-1;i>=0;i--)a.push(Math.round(fn(sumarDias(HOY,-6-7*i),sumarDias(HOY,1-7*i))));return a}
 function medidorCarga(r){const max=2,p=v=>Math.min(100,v/max*100);const pos=r==null?null:p(r);
   return `<div class="cg-med" title="Relación ${r==null?'sin datos':r.toFixed(2).replace('.',',')}"><i class="z1" style="left:0;width:${p(.8)}%"></i><i class="z2" style="left:${p(.8)}%;width:${p(1.3)-p(.8)}%"></i><i class="z1" style="left:${p(1.3)}%;width:${p(1.5)-p(1.3)}%"></i><i class="z3" style="left:${p(1.5)}%;width:${100-p(1.5)}%"></i>${pos!=null?`<b style="left:${pos}%"></b>`:''}</div>`}
+
+/* ================= monotonía y tensión (Foster, 1998) ================= */
+function monotonia(fnDia){const v=[];for(let i=6;i>=0;i--){const d=sumarDias(HOY,-i);v.push(fnDia(d,sumarDias(d,1)))}const tot=v.reduce((a,b)=>a+b,0);if(!tot)return {m:null,tot:0,ten:0};
+  const media=tot/7,sd=Math.sqrt(v.reduce((a,b)=>a+(b-media)*(b-media),0)/6);const m=sd?media/sd:null;return {m,tot,ten:m!=null?Math.round(tot*m):null}}
+function chipMono(m){if(m==null)return '<span class="tenue">—</span>';const t=m.toFixed(1).replace('.',',');return m>2?`<span class="chip mal" title="Semana muy pareja: casi sin días de descarga">${t} · alta</span>`:m>1.5?`<span class="chip aviso">${t}</span>`:`<span class="chip ok">${t}</span>`}
+const FUENTES_CARGA=`<details class="cg-fuentes"><summary>Fuentes y cómo leerlo con criterio</summary>
+  <p><b>Carga de la sesión</b> = RPE × minutos: Foster C. y col. (2001). A new approach to monitoring exercise training. <i>J Strength Cond Res</i>, 15(1), 109–115.</p>
+  <p><b>Relación aguda:crónica</b> (esta semana ÷ promedio de las últimas 4) y la franja 0,8–1,3: Gabbett T.J. (2016). The training–injury prevention paradox. <i>Br J Sports Med</i>, 50(5), 273–280. <a href="https://doi.org/10.1136/bjsports-2015-095788" target="_blank" rel="noopener">doi:10.1136/bjsports-2015-095788</a></p>
+  <p><b>Monotonía</b> (promedio diario de la semana ÷ desvío estándar de los 7 días, contando los días sin entrenar como 0) y <b>tensión</b> (carga semanal × monotonía): Foster C. (1998). Monitoring training in athletes with reference to overtraining syndrome. <i>Med Sci Sports Exerc</i>, 30(7), 1164–1168. <a href="https://pubmed.ncbi.nlm.nih.gov/9662690/" target="_blank" rel="noopener">PubMed 9662690</a>. Una monotonía mayor a 2 se usa como señal de semana sin variación.</p>
+  <p><b>Ojo:</b> estos números son una guía para charlar y ajustar, no predicen lesiones por sí solos. Hay autores que discuten la relación aguda:crónica: Impellizzeri F.M. y col. (2020). Acute:Chronic Workload Ratio: conceptual issues and fundamental pitfalls. <i>Int J Sports Physiol Perform</i>, 15(6), 907–913. <a href="https://doi.org/10.1123/ijspp.2019-0864" target="_blank" rel="noopener">doi:10.1123/ijspp.2019-0864</a></p></details>`;
+/* ================= semana tipo ================= */
+function semanasTipo(){return Array.isArray(S.semanasTipo)?S.semanasTipo:[]}
+function guardarSemanaTipo(m){
+  const ses=SS().filter(s=>s.microId===m.id);if(!ses.length){aviso('Ese microciclo todavía no tiene sesiones.');return}
+  modal('Guardar como semana tipo',`<form class="form" id="fST"><label class="campo ancho">Nombre de la semana tipo<input type="text" name="n" value="${esc((m.foco||m.nombre)+' · semana tipo')}" maxlength="60"></label></form>
+    <p class="sub" style="font-size:13px;margin:6px 0 0">Se guardan ${ses.length} sesiones con su día, horario, tareas, minutos y RPE. Después la aplicás a cualquier semana con “📋 Usar semana tipo”.</p>
+    <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okST">Guardar</button></div>`,{alMontar:md=>{$('#okST',md).onclick=()=>{const n=leerForm($('#fST',md)).n.trim()||'Semana tipo';
+      S.semanasTipo=semanasTipo();S.semanasTipo.push({id:uid(),nombre:n.slice(0,60),foco:m.foco||'',objetivo:m.objetivo||'',creada:iso(HOY),sesiones:ses.map(s=>({dia:diasEntre(m.inicio,s.fecha),hora:s.hora||'',titulo:s.titulo||'',objetivo:s.objetivo||'',contenidos:[...(s.contenidos||[])],tareas:JSON.parse(JSON.stringify(s.tareas||[])),rpe:s.rpe}))});
+      guardar();cerrarModal();aviso('Semana tipo guardada')}}})}
+function usarSemanaTipo(){
+  const L=semanasTipo();const lunes=sumarDias(HOY,-((HOY.getDay()+6)%7)),prox=sumarDias(lunes,7);
+  if(!L.length){modal('Semana tipo',`<p style="margin:0">Todavía no guardaste ninguna. Abrí un microciclo que te haya servido y tocá <b>⭐ Guardar como semana tipo</b>.</p><div class="modal-pie"><button class="btn pri" data-cerrar>Entendido</button></div>`);return}
+  modal('Usar semana tipo',`<form class="form" id="fUS"><label class="campo ancho">Semana tipo<select name="st">${opts(L.map(x=>[x.id,x.nombre+' ('+x.sesiones.length+' sesiones)']))}</select></label>
+    <label class="campo">Empieza el<input type="date" name="ini" value="${iso(prox)}"></label><label class="campo">Nombre del microciclo<input type="text" name="nom" value="Microciclo ${SMc().length+1}"></label></form>
+    <div id="usPrev" class="us-prev"></div>
+    <div class="modal-pie"><button class="btn peligro" id="delST" style="margin-right:auto">🗑 Borrar esta semana tipo</button><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okUS">Crear la semana</button></div>`,{alMontar:md=>{
+      const sel=$('[name=st]',md),prev=()=>{const st=L.find(x=>x.id===sel.value);if(!st)return;const ini=$('[name=ini]',md).value||iso(prox);
+        $('#usPrev',md).innerHTML=st.sesiones.map(s=>`<div class="fila" style="padding:5px 0;font-size:13.5px"><b style="min-width:92px">${fFecha(iso(sumarDias(deIso(ini),s.dia)))}</b><span style="flex:1">${esc(s.titulo||'Sesión')}</span><span class="sub">${s.tareas.length} tareas · RPE ${s.rpe||'—'}</span></div>`).join('')};
+      sel.onchange=prev;$('[name=ini]',md).onchange=prev;prev();
+      $('#delST',md).onclick=()=>{S.semanasTipo=semanasTipo().filter(x=>x.id!==sel.value);guardar();cerrarModal();aviso('Semana tipo borrada')};
+      $('#okUS',md).onclick=()=>{const d=leerForm($('#fUS',md)),st=L.find(x=>x.id===d.st);if(!st)return;const ini=deIso(d.ini||iso(prox));
+        const m={id:uid(),nombre:(d.nom||'Microciclo').trim(),inicio:iso(ini),fin:iso(sumarDias(ini,6)),foco:st.foco||CONT()[0],objetivo:st.objetivo||''};S.microciclos.push(m);
+        st.sesiones.forEach(s=>S.sesiones.push({id:uid(),microId:m.id,fecha:iso(sumarDias(ini,s.dia)),hora:s.hora,titulo:s.titulo,objetivo:s.objetivo,contenidos:[...s.contenidos],tareas:JSON.parse(JSON.stringify(s.tareas)),rpe:s.rpe,obs:'',jugadores:SJ().map(j=>j.id)}));
+        guardar();cerrarModal();aviso('Semana creada con '+st.sesiones.length+' sesiones');pintar()}}})}
+/* ================= contenidos trabajados ================= */
+let CONT_P='mes';
+function rangoCont(){const y=HOY.getFullYear(),mo=HOY.getMonth();if(CONT_P==='mes')return [new Date(y,mo,1),new Date(y,mo+1,1)];if(CONT_P==='ant')return [new Date(y,mo-1,1),new Date(y,mo,1)];if(CONT_P==='4s')return [sumarDias(HOY,-27),sumarDias(HOY,1)];return [new Date(1990,0,1),new Date(2999,0,1)]}
+function panelContenidos(){
+  const [d0,d1]=rangoCont(),ses=SS().filter(s=>{const f=deIso(s.fecha);return f>=d0&&f<d1});
+  const porFase={},porCont={},semanas={};
+  ses.forEach(s=>{const lun=iso(sumarDias(deIso(s.fecha),-((deIso(s.fecha).getDay()+6)%7)));(s.tareas||[]).forEach(x=>{const t=S.tareas.find(t=>t.id===x.tareaId),min=+x.min||0;if(!min)return;
+    const fa=(t&&t.categoria)||'Sin fase',co=(t&&t.contenido)||'Sin contenido';porFase[fa]=(porFase[fa]||0)+min;porCont[co]=(porCont[co]||0)+min;(semanas[lun]=semanas[lun]||{})[co]=(semanas[lun][co]||0)+min})});
+  const tot=Object.values(porFase).reduce((a,b)=>a+b,0);
+  const cols=['#2F6FDB','#D0402F','#E08A24','#2E8B57','#8B5CF6','#C99000','#7A756A'];
+  const fases=Object.entries(porFase).sort((a,b)=>b[1]-a[1]),conts=Object.entries(porCont).sort((a,b)=>b[1]-a[1]),mx=Math.max(1,...conts.map(c=>c[1]));
+  const pend=CONT().filter(c=>!porCont[c]);const sems=Object.keys(semanas).sort();
+  const nomP={mes:'Este mes',ant:'Mes anterior','4s':'Últimas 4 semanas',temp:'Temporada'};
+  return `<div class="panel cont-p" style="margin-bottom:16px"><div class="panel-cab"><h3>Contenidos trabajados</h3><div class="seg" style="margin-left:auto">${Object.entries(nomP).map(([k,t])=>`<button data-contp="${k}" class="${CONT_P===k?'activo':''}" aria-pressed="${CONT_P===k}">${t}</button>`).join('')}</div></div>
+    ${!tot?`<div class="vacio" style="padding:16px 6px">No hay sesiones con tareas en este período.</div>`:`
+    <div class="sub" style="font-size:13px;margin-bottom:8px">${ses.length} sesiones · ${tot} minutos de tareas</div>
+    <div class="cont-fases">${fases.map(([f,m],i)=>`<i style="width:${100*m/tot}%;background:${cols[i%cols.length]}" title="${esc(f)}: ${m} min"></i>`).join('')}</div>
+    <div class="cont-ley">${fases.map(([f,m],i)=>`<span><i style="background:${cols[i%cols.length]}"></i>${esc(f)} <b>${Math.round(100*m/tot)}%</b></span>`).join('')}</div>
+    <div class="grilla g2" style="margin-top:14px;align-items:start"><div><div class="etq" style="margin-bottom:6px">Minutos por contenido</div>${conts.slice(0,12).map(([c,m])=>`<div class="cont-f"><span>${esc(c)}</span><div class="cont-b"><i style="width:${100*m/mx}%"></i></div><b>${m}'</b></div>`).join('')}</div>
+      <div>${sems.length>1?`<div class="etq" style="margin-bottom:6px">Semana por semana</div><div class="tabla-c"><table class="cont-sem"><thead><tr><th></th>${sems.map(w=>`<th>${fCorta(w)}</th>`).join('')}</tr></thead><tbody>${conts.slice(0,8).map(([c])=>`<tr><td>${esc(c)}</td>${sems.map(w=>{const v=(semanas[w]||{})[c]||0;return `<td><span style="--a:${v?(.25+.75*v/mx).toFixed(2):0}">${v||''}</span></td>`}).join('')}</tr>`).join('')}</tbody></table></div>`:''}
+      ${pend.length?`<div class="cont-pend"><b>Sin trabajar en el período</b><div class="chips" style="margin-top:6px">${pend.slice(0,16).map(c=>`<span class="chip aviso">${esc(c)}</span>`).join('')}</div></div>`:''}</div></div>`}</div>`}
+
 VISTAS.cargas=el=>{
   const hace3=sumarDias(HOY,-3),bien={};[...SS()].filter(s=>s.bienestar&&deIso(s.fecha)>=hace3).sort((a,b)=>b.fecha.localeCompare(a.fecha)).forEach(s=>Object.entries(s.bienestar).forEach(([k,v])=>{if(!bien[k])bien[k]={a:alertasBien(v),f:s.fecha}}));
-  const filas=SJ().map(j=>{const fn=(d0,d1)=>cargaJugadorEntre(j.id,d0,d1),x=acwr(fn);const r=x.cr>0?x.r:null;const est=r==null?0:r>1.5?3:(r>1.3||r<.8)?2:1;return {j,...x,r,est,sem:cargaSemanas(fn),b:bien[j.id]}})
+  const filas=SJ().map(j=>{const fn=(d0,d1)=>cargaJugadorEntre(j.id,d0,d1),x=acwr(fn);const r=x.cr>0?x.r:null;const est=r==null?0:r>1.5?3:(r>1.3||r<.8)?2:1;return {j,...x,r,est,sem:cargaSemanas(fn),b:bien[j.id],mo:monotonia(fn)}})
     .sort((a,b)=>(b.est===3)-(a.est===3)||((b.b&&b.b.a.length?1:0)-(a.b&&a.b.a.length?1:0))||b.est-a.est||(b.r||0)-(a.r||0));
   const n=k=>filas.filter(f=>f.est===k).length,nb=filas.filter(f=>f.b&&f.b.a.length).length;
-  const eq=acwr(cargaEquipoEntre),[tEq,cEq]=estadoCarga(eq.r);
+  const eq=acwr(cargaEquipoEntre),[tEq,cEq]=estadoCarga(eq.r),moEq=monotonia(cargaEquipoEntre);
   const sem=cargaSemanas(cargaEquipoEntre).map((v,i,a)=>({et:i===a.length-1?'Esta sem.':'-'+(a.length-1-i)+' sem',v}));
   const hay=filas.some(f=>f.cr>0)||sem.some(x=>x.v);
   el.innerHTML=cabecera('Prevención de lesiones','Control de cargas',`Cuánto entrenó cada ${J('sg')} esta semana comparado con su promedio del último mes. Sirve para prevenir lesiones: los cambios bruscos de carga son el mayor riesgo.`)+
@@ -4662,12 +4946,12 @@ VISTAS.cargas=el=>{
     <div class="panel cg-como"><h3>¿Cómo se lee?</h3>
       <p><b>Carga</b> = esfuerzo (RPE 1 a 10) × minutos. Los partidos suman sus minutos jugados con esfuerzo 8.</p>
       ${medidorCarga(1.05)}<div class="cg-esc"><span style="left:0">0</span><span style="left:40%">0,8</span><span style="left:65%">1,3</span><span style="left:75%">1,5</span><span style="left:100%">2</span></div>
-      <p><b>Relación</b> = carga de esta semana ÷ promedio semanal del último mes.</p><p><span class="pt v"></span>Verde: carga pareja.<br><span class="pt a"></span>Amarillo: cuidado.<br><span class="pt r"></span>Rojo: bajar la carga y charlar antes de entrenar.</p>
-      <p class="tenue" style="font-size:12.5px">Si ${J('pl')} cargan su propio RPE desde el celular, se usa ese valor.</p></div>
+      <p><b>Relación</b> = carga de esta semana ÷ promedio semanal del último mes.</p><p><b>Monotonía</b> = qué tan pareja fue la semana (promedio diario ÷ variación entre días). Más de 2: faltan días suaves o de descanso.${moEq.m!=null?` Equipo esta semana: <b>${moEq.m.toFixed(1).replace('.',',')}</b>.`:''}</p><p><span class="pt v"></span>Verde: carga pareja.<br><span class="pt a"></span>Amarillo: cuidado.<br><span class="pt r"></span>Rojo: bajar la carga y charlar antes de entrenar.</p>
+      <p class="tenue" style="font-size:12.5px">Si ${J('pl')} cargan su propio RPE desde el celular, se usa ese valor.</p>${FUENTES_CARGA}</div>
   </div>
   <div class="panel"><div class="panel-cab"><h3>${J('Pl')} · semáforo</h3><span class="sub" style="margin-left:auto;font-size:13px">Tocá para ver el perfil</span></div>
-    <div class="cg-tabla"><div class="cg-f cg-h"><span></span><span>${J('Sg')}</span><span>Esta semana</span><span>Prom. mes</span><span>Relación</span><span>Últimas 6 semanas</span><span>Bienestar</span></div>
-    ${filas.map(f=>`<div class="cg-f click e${f.est}" data-jug="${f.j.id}">${avatar(f.j)}<span class="cg-n"><b>${esc(f.j.nombre+' '+f.j.apellido)}</b><i>${esc(puestoTxt(f.j))}</i></span><span class="num" data-t="Esta semana">${Math.round(f.ag)} <i>UA</i></span><span class="num" data-t="Prom. mes">${Math.round(f.cr)} <i>UA</i></span><span class="cg-r" data-t="Relación"><b>${f.r==null?'—':f.r.toFixed(2).replace('.',',')}</b>${medidorCarga(f.r)}</span><span class="cg-sp">${sparkline(f.sem,{w:130,h:34,max:Math.max(1,...f.sem),color:f.est===3?'var(--rojo)':f.est===2?'var(--ambar)':'var(--verde)'})}</span><span class="cg-b">${f.b&&f.b.a.length?`<span class="chip mal">⚠ ${esc(f.b.a.join(', '))}</span>`:f.b?'<span class="chip ok">Bien</span>':'<span class="tenue">—</span>'}</span></div>`).join('')}</div></div>`);
+    <div class="cg-tabla"><div class="cg-f cg-h"><span></span><span>${J('Sg')}</span><span>Esta semana</span><span>Prom. mes</span><span>Relación</span><span>Últimas 6 semanas</span><span>Monotonía</span><span>Bienestar</span></div>
+    ${filas.map(f=>`<div class="cg-f click e${f.est}" data-jug="${f.j.id}">${avatar(f.j)}<span class="cg-n"><b>${esc(f.j.nombre+' '+f.j.apellido)}</b><i>${esc(puestoTxt(f.j))}</i></span><span class="num" data-t="Esta semana">${Math.round(f.ag)} <i>UA</i></span><span class="num" data-t="Prom. mes">${Math.round(f.cr)} <i>UA</i></span><span class="cg-r" data-t="Relación"><b>${f.r==null?'—':f.r.toFixed(2).replace('.',',')}</b>${medidorCarga(f.r)}</span><span class="cg-sp">${sparkline(f.sem,{w:130,h:34,max:Math.max(1,...f.sem),color:f.est===3?'var(--rojo)':f.est===2?'var(--ambar)':'var(--verde)'})}</span><span class="cg-m" data-t="Monotonía" title="${f.mo.ten!=null?'Tensión de la semana: '+f.mo.ten+' UA':''}">${chipMono(f.mo.m)}</span><span class="cg-b">${f.b&&f.b.a.length?`<span class="chip mal">⚠ ${esc(f.b.a.join(', '))}</span>`:f.b?'<span class="chip ok">Bien</span>':'<span class="tenue">—</span>'}</span></div>`).join('')}</div></div>`);
   $$('[data-jug]',el).forEach(x=>x.onclick=()=>ir('plantel',x.dataset.jug));
 };
 VISTAS.evaluaciones=el=>{
@@ -5251,7 +5535,10 @@ let IDIOMA='es';try{IDIOMA=localStorage.getItem('metodika_idioma')||'es'}catch(e
 if(!['es','pt','en'].includes(IDIOMA))IDIOMA='es';
 const I18N_HECHOS=new WeakSet();
 Object.assign(DIC_I18N,{"Sus recortes": ["Seus clipes", "Their clips"], "▶ Verlos en Videoanálisis": ["▶ Ver na Videoanálise", "▶ Watch in Video analysis"], "Ver este recorte": ["Ver este clipe", "Watch this clip"], "No hay recortes con ese filtro.": ["Não há clipes com esse filtro.", "No clips with that filter."]});
-const PAT_I18N=[[new RegExp("^Todos \\((\\d+)\\)$"),["Todos ($1)", "All ($1)"]],[new RegExp("^✓ Bien \\((\\d+)\\)$"),["✓ Bem ($1)", "✓ Good ($1)"]],[new RegExp("^✗ Para mejorar \\((\\d+)\\)$"),["✗ Para melhorar ($1)", "✗ To improve ($1)"]],[new RegExp("^(\\d+) recortes?$"),["$1 clipe(s)", "$1 clip(s)"]],[new RegExp("^…y (\\d+) más en Videoanálisis$"),["…e mais $1 na Videoanálise", "…and $1 more in Video analysis"]],
+Object.assign(DIC_I18N,{"Disponibilidad": ["Disponibilidade", "Availability"], "✚ Cambiar estado": ["✚ Mudar estado", "✚ Change status"], "Disponible": ["Disponível", "Available"], "Con molestia": ["Com desconforto", "Niggle"], "Lesionada": ["Lesionada", "Injured"], "Lesionado": ["Lesionado", "Injured"], "Lesionada/o": ["Lesionada/o", "Injured"], "Enferma": ["Doente", "Ill"], "Enfermo": ["Doente", "Ill"], "Enferma/o": ["Doente", "Ill"], "No disponible": ["Indisponível", "Unavailable"], "Puede entrenar y jugar con normalidad.": ["Pode treinar e jogar normalmente.", "Can train and play as normal."], "Estado": ["Estado", "Status"], "Qué tiene": ["O que tem", "What's wrong"], "Desde": ["Desde", "Since"], "Vuelta prevista": ["Retorno previsto", "Expected return"], "Nota para el cuerpo técnico": ["Nota para a comissão técnica", "Note for the staff"], "Guardar": ["Salvar", "Save"], "Estado guardado": ["Estado salvo", "Status saved"], "Objetivos individuales": ["Objetivos individuais", "Individual goals"], "＋ Objetivo": ["＋ Objetivo", "＋ Goal"], "Nuevo objetivo": ["Novo objetivo", "New goal"], "Objetivo": ["Objetivo", "Goal"], "Área": ["Área", "Area"], "Plazo": ["Prazo", "Deadline"], "Conectar con evaluación": ["Conectar com avaliação", "Link to evaluation"], "Acción de Videoanálisis": ["Ação da Videoanálise", "Video analysis action"], "En curso": ["Em andamento", "In progress"], "En pausa": ["Em pausa", "Paused"], "Logrado": ["Alcançado", "Achieved"], "✓ Logrado": ["✓ Alcançado", "✓ Achieved"], "Seguimiento de hoy (opcional)": ["Acompanhamento de hoje (opcional)", "Today's follow-up (optional)"], "Objetivo guardado": ["Objetivo salvo", "Goal saved"], "— Ninguna —": ["— Nenhuma —", "— None —"], "Técnica": ["Técnica", "Technical"], "Táctica": ["Tática", "Tactical"], "Física": ["Física", "Physical"], "Mental": ["Mental", "Mental"], "Otro": ["Outro", "Other"], "Fuera o en duda": ["Fora ou em dúvida", "Out or doubtful"], "Todo el plantel disponible": ["Todo o elenco disponível", "Whole available squad"], "Vence": ["Vence", "Due"], "Venció": ["Venceu", "Overdue"]});
+Object.assign(DIC_I18N,{"Minutos y rotación": ["Minutos e rodízio", "Minutes and rotation"], "Últimos 5": ["Últimos 5", "Last 5"], "Vienen sumando poco": ["Somando poucos minutos", "Low minutes lately"], "Jugaron todo los últimos 3 partidos": ["Jogaram tudo nos últimos 3 jogos", "Played every minute of the last 3"], "Titular": ["Titular", "Starter"], "Entró": ["Entrou", "Sub on"], "Banco": ["Banco", "Unused"], "No conv.": ["Não conv.", "Not called"], "Minutos": ["Minutos", "Minutes"], "% de los minutos posibles": ["% dos minutos possíveis", "% of possible minutes"], "Últ. 3": ["Últ. 3", "Last 3"], "🖼 Ficha en imagen": ["🖼 Ficha em imagem", "🖼 Match card image"], "Ficha del partido": ["Ficha do jogo", "Match card"], "Formato": ["Formato", "Format"], "Figura del partido": ["Destaque do jogo", "Player of the match"], "— Sin figura —": ["— Sem destaque —", "— None —"], "Historia (1080×1920)": ["Story (1080×1920)", "Story (1080×1920)"], "Cuadrado (1080×1080)": ["Quadrado (1080×1080)", "Square (1080×1080)"], "⬇ Descargar imagen": ["⬇ Baixar imagem", "⬇ Download image"], "Compartir…": ["Compartilhar…", "Share…"], "Imagen descargada": ["Imagem baixada", "Image downloaded"], "Imagen lista para mandar por WhatsApp o subir a redes, con el resultado, los goles, la formación y la figura.": ["Imagem pronta para WhatsApp ou redes, com resultado, gols, escalação e destaque.", "Image ready for WhatsApp or social media, with the score, goals, line-up and player of the match."]});
+Object.assign(DIC_I18N,{"Monotonía": ["Monotonia", "Monotony"], "Fuentes y cómo leerlo con criterio": ["Fontes e como ler com critério", "Sources and how to read it wisely"], "📋 Usar semana tipo": ["📋 Usar semana modelo", "📋 Use template week"], "⭐ Semana tipo": ["⭐ Semana modelo", "⭐ Template week"], "Guardar como semana tipo": ["Salvar como semana modelo", "Save as template week"], "Nombre de la semana tipo": ["Nome da semana modelo", "Template week name"], "Semana tipo guardada": ["Semana modelo salva", "Template week saved"], "Usar semana tipo": ["Usar semana modelo", "Use template week"], "Semana tipo": ["Semana modelo", "Template week"], "Empieza el": ["Começa em", "Starts on"], "Nombre del microciclo": ["Nome do microciclo", "Microcycle name"], "Crear la semana": ["Criar a semana", "Create the week"], "🗑 Borrar esta semana tipo": ["🗑 Apagar esta semana modelo", "🗑 Delete this template"], "Entendido": ["Entendido", "Got it"], "Contenidos trabajados": ["Conteúdos trabalhados", "Contents worked on"], "Este mes": ["Este mês", "This month"], "Mes anterior": ["Mês anterior", "Last month"], "Últimas 4 semanas": ["Últimas 4 semanas", "Last 4 weeks"], "Minutos por contenido": ["Minutos por conteúdo", "Minutes per content"], "Semana por semana": ["Semana a semana", "Week by week"], "Sin trabajar en el período": ["Não trabalhados no período", "Not worked on in this period"], "No hay sesiones con tareas en este período.": ["Não há sessões com tarefas neste período.", "No sessions with drills in this period."]});
+const PAT_I18N=[[new RegExp("^(\\d+) sesiones · (\\d+) minutos de tareas$"),["$1 sessões · $2 minutos de tarefas", "$1 sessions · $2 minutes of drills"]],[new RegExp("^Semana creada con (\\d+) sesiones$"),["Semana criada com $1 sessões", "Week created with $1 sessions"]],[new RegExp("^Temporada \\((\\d+)\\)$"),["Temporada ($1)", "Season ($1)"]],[new RegExp("^(\\d+) en curso$"),["$1 em andamento", "$1 in progress"]],[new RegExp("^(\\d+) sin poder jugar$"),["$1 sem poder jogar", "$1 unavailable"]],[new RegExp("^(\\d+) con molestia$"),["$1 com desconforto", "$1 with a niggle"]],[new RegExp("^(\\d+)% de avance$"),["$1% de avanço", "$1% done"]],[new RegExp("^Disponibilidad de (.+)$"),["Disponibilidade de $1", "Availability: $1"]],[new RegExp("^Avance: (\\d+)%$"),["Avanço: $1%", "Progress: $1%"]],[new RegExp("^Todos \\((\\d+)\\)$"),["Todos ($1)", "All ($1)"]],[new RegExp("^✓ Bien \\((\\d+)\\)$"),["✓ Bem ($1)", "✓ Good ($1)"]],[new RegExp("^✗ Para mejorar \\((\\d+)\\)$"),["✗ Para melhorar ($1)", "✗ To improve ($1)"]],[new RegExp("^(\\d+) recortes?$"),["$1 clipe(s)", "$1 clip(s)"]],[new RegExp("^…y (\\d+) más en Videoanálisis$"),["…e mais $1 na Videoanálise", "…and $1 more in Video analysis"]],
  [/^Últimos (\d+)$/,['Últimos $1','Last $1']],[/^Últimas (\d+) semanas$/,['Últimas $1 semanas','Last $1 weeks']],
  [/^(\d+) partidos? jugados?$/,['$1 jogos disputados','$1 matches played']],[/^(\d+) tareas?$/,['$1 tarefas','$1 drills']],
  [/^(\d+) jugadoras$/,['$1 jogadoras','$1 players']],[/^(\d+) jugadores$/,['$1 jogadores','$1 players']],[/^(\d+) convocad[ao]s$/,['$1 convocadas','$1 called up']],

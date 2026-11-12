@@ -493,6 +493,17 @@ body:not(.vopen) .viewer{top:0}
 .xm-ops{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;font-size:13.5px}.xm-ops select{font:inherit;font-size:13.5px;margin-left:6px;padding:4px 6px;border-radius:7px;border:1px solid var(--line);background:var(--field);color:var(--ink);max-width:100%}
 .xm-pl{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start}.xm-pl-op{display:flex;flex-direction:column;gap:6px}
 .xm-pl-prev img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+.rvn-t{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px}.rvn-h,.rvn-f{display:grid;grid-template-columns:150px 1fr 26px 1fr;gap:8px;align-items:center}
+.rvn-h span{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--sub)}.rvn-h span:nth-child(2){text-align:right}
+.rvn-l{font-size:13.5px;font-weight:600}.rvn-vs{font-size:11px;color:var(--mute);text-align:center}
+.rvn-v{display:flex;align-items:center;gap:6px;height:22px}.rvn-v i{display:block;height:12px;border-radius:6px;min-width:2px}.rvn-v b{font-size:13.5px;min-width:30px}
+.rvn-v.r{justify-content:flex-end}.rvn-v.r b{text-align:right}.rvn-v.r i{background:#E5484D}.rvn-v.n i{background:#FFD400}
+.rvn-z{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.rvn-pitch{position:relative;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);aspect-ratio:105/68;background:#1E7A46;border-radius:8px;overflow:hidden;border:2px solid rgba(255,255,255,.5)}
+.rvn-pitch div{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;border:1px dashed rgba(255,255,255,.22);text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.rvn-pitch span{position:absolute;left:6px;bottom:3px;font-size:10px;color:#fff;opacity:.85}
+.rvn-alert{font-size:13.5px;margin:8px 0 4px;padding:8px 10px;border-radius:8px;background:var(--field);color:var(--sub)}.rvn-alert.on{background:rgba(255,212,0,.16);color:var(--ink);font-weight:600}
+@media (max-width:620px){.rvn-h,.rvn-f{grid-template-columns:100px 1fr 18px 1fr}.rvn-z{grid-template-columns:1fr}}
 @media (max-width:600px){.status{flex-wrap:wrap}.status>span:last-child{flex-wrap:wrap;gap:6px!important}}
 @media (max-width:620px){.xm-pl{grid-template-columns:1fr}.xm-pl-prev{max-width:240px;margin:0 auto}.xm-kpis{grid-template-columns:repeat(3,1fr)}}
 </style>
@@ -527,6 +538,7 @@ body:not(.vopen) .viewer{top:0}
     <button type="button" class="xbtn" id="xHist"><b>📜 Historial</b><span>Partidos jugados contra este rival y qué funcionó</span></button>
     <button type="button" class="xbtn" id="xAcum"><b>🔁 Rival acumulado</b><span>Juntá 2–3 partidos vistos y mirá qué se repite</span></button>
     <button type="button" class="xbtn" id="xVA"><b>🎥 Traer de Videoanálisis</b><span>Suma las acciones taggeadas a cada sección</span></button>
+    <button type="button" class="xbtn" id="xRvn"><b>⚖ Rival vs nosotras</b><span>Sus números al lado de los nuestros y las zonas que se cruzan</span></button>
     <button type="button" class="xbtn" id="xPlantel"><b>📲 Para el plantel</b><span>Imagen simple por línea para WhatsApp</span></button>
   </div>
 
@@ -1342,6 +1354,70 @@ function guiaAN(){
   ]);
 }
 
+
+/* ---------- rival vs nosotras ---------- */
+const MET_RVN = [["rec","Recuperaciones",/recuper/],["per","Pérdidas",/perdid/],["rem","Remates",/remate|tiro al arco|disparo|^gol\b|penal/],["gol","Goles",/^gol\b/],["cen","Centros",/centro/],["pre","Presión alta",/presion alta/],["ptp","Presión tras pérdida",/presion tras/],["cor","Córners",/corner/],["due","Duelos",/duelo/],["con","Contraataques",/contraataque|contragolpe/]];
+const ZN = ["DI","MI","OI","DC","MC","OC","DD","MD","OD"], ZN_NOM = {DI:"Def. izq",MI:"Medio izq",OI:"Of. izq",DC:"Def. centro",MC:"Medio centro",OC:"Of. centro",DD:"Def. der",MD:"Medio der",OD:"Of. der"};
+const espejo = z => z ? ({D:"O",M:"M",O:"D"}[z[0]]+({I:"D",C:"C",D:"I"}[z[1]])) : z;
+function grillaZonas(cuenta, col){
+  const tot = Object.values(cuenta).reduce((a,b)=>a+b,0), mx = Math.max(1, ...Object.values(cuenta));
+  return `<div class="rvn-pitch">${ZN.map(z=>{ const n = cuenta[z]||0; return `<div style="background:${n?col.replace("A",(0.18+0.7*n/mx).toFixed(2)):"transparent"}" title="${escH(ZN_NOM[z])}">${n?Math.round(100*n/tot)+"%":""}</div>`; }).join("")}<span>← nuestro arco</span></div>`;
+}
+async function abrirRivalVsNosotras(){
+  const c = xModal(g3("Rival vs nosotras","Rival vs nosotros","Rival vs nosotras/os"), "<p class='xm-load'>Juntando los videoanálisis…</p>");
+  const L = (await proyectosVA()).filter(p=>(p.tags||[]).length);
+  c.textContent = "";
+  const delRival = L.filter(p=>parecido(p.rival, state.rival) || parecido(p.nombre, state.rival));
+  const nuestros = L;
+  if (!L.length){ c.appendChild(el("p",{class:"xm-sub",text:"Para comparar hacen falta partidos taggeados en Videoanálisis: los nuestros y, si se puede, uno del rival."})); return; }
+  const op = el("div",{class:"xm-ops"});
+  op.innerHTML = `<label>Datos del rival: <select id="rvnEq"><option value="rival">Sus acciones en nuestros partidos contra ${escH(state.rival||"el rival")} (equipo “Rival”)</option><option value="propio">Un partido del rival que taggeaste como equipo propio</option></select></label>`;
+  c.appendChild(op);
+  const res = el("div"); c.appendChild(res);
+  const pintar = ()=>{
+    const eqR = op.querySelector("#rvnEq").value;
+    const tR = delRival.flatMap(p=>(p.tags||[]).filter(t=>(t.equipo==="propio"?"propio":"rival")===eqR));
+    const idsR = new Set(eqR==="propio" ? delRival.map(p=>p.id) : []);
+    const misP = nuestros.filter(p=>!idsR.has(p.id)), tN = misP.flatMap(p=>(p.tags||[]).filter(t=>t.equipo==="propio"));
+    const nR = Math.max(1, delRival.length), nN = Math.max(1, misP.filter(p=>(p.tags||[]).some(t=>t.equipo==="propio")).length);
+    res.textContent = "";
+    if (!tR.length){ res.appendChild(el("p",{class:"xm-sub",text:"Todavía no hay acciones del rival taggeadas. En Videoanálisis taggeá un partido contra "+(state.rival||"este rival")+" (o un partido suyo) y volvé acá."})); }
+    if (!tN.length){ res.appendChild(el("p",{class:"xm-sub",text:"Todavía no hay acciones de tu equipo taggeadas en Videoanálisis."})); }
+    if (!tR.length || !tN.length) return;
+    const cuenta = (ts, re)=>ts.filter(t=>re.test(nrm(t.nombre))).length;
+    const ef = ts=>{ const p = ts.filter(t=>t.resultado==="pos").length, q = ts.filter(t=>t.resultado==="neg").length; return p+q ? Math.round(100*p/(p+q)) : null; };
+    res.appendChild(el("p",{class:"xm-small",text:`Promedio por partido · rival: ${delRival.length} partido${delRival.length===1?"":"s"} · ${g3("nosotras","nosotros","nosotras/os")}: ${nN} partido${nN===1?"":"s"}`}));
+    const tb = el("div",{class:"rvn-t"});
+    tb.innerHTML = `<div class="rvn-h"><span></span><span>${escH(state.rival||"Rival")}</span><span></span><span>${escH(g3("Nosotras","Nosotros","Nosotras/os"))}</span></div>`;
+    MET_RVN.forEach(([k,lab,re])=>{ const a = cuenta(tR,re)/nR, b = cuenta(tN,re)/nN; if (!a && !b) return; const mx = Math.max(a,b,0.1);
+      tb.insertAdjacentHTML("beforeend", `<div class="rvn-f"><span class="rvn-l">${escH(lab)}</span><span class="rvn-v r"><b>${a.toFixed(1).replace(".",",")}</b><i style="width:${Math.round(100*a/mx)}%"></i></span><span class="rvn-vs">vs</span><span class="rvn-v n"><i style="width:${Math.round(100*b/mx)}%"></i><b>${b.toFixed(1).replace(".",",")}</b></span></div>`); });
+    const eR = ef(tR), eN = ef(tN);
+    if (eR!=null || eN!=null) tb.insertAdjacentHTML("beforeend", `<div class="rvn-f"><span class="rvn-l">Efectividad ✓/✗</span><span class="rvn-v r"><b>${eR==null?"—":eR+"%"}</b><i style="width:${eR||0}%"></i></span><span class="rvn-vs">vs</span><span class="rvn-v n"><i style="width:${eN||0}%"></i><b>${eN==null?"—":eN+"%"}</b></span></div>`);
+    res.appendChild(tb);
+    /* zonas: dónde recupera el rival vs dónde perdemos (vistas desde nuestro arco) */
+    const zR = {}, zN = {}, zA = {}, zD = {};
+    tR.filter(t=>t.zona && /recuper/.test(nrm(t.nombre))).forEach(t=>{ const z = espejo(t.zona); zR[z] = (zR[z]||0)+1; });
+    tN.filter(t=>t.zona && /perdid/.test(nrm(t.nombre)) && !/tras perdid|presion/.test(nrm(t.nombre))).forEach(t=>{ zN[t.zona] = (zN[t.zona]||0)+1; });
+    tR.filter(t=>t.zona && /remate|centro|llegada|progresion/.test(nrm(t.nombre))).forEach(t=>{ const z = espejo(t.zona); zA[z] = (zA[z]||0)+1; });
+    tN.filter(t=>t.zona && /recuper/.test(nrm(t.nombre))).forEach(t=>{ zD[t.zona] = (zD[t.zona]||0)+1; });
+    const bloque = (tit1, c1, col1, tit2, c2, col2, msg)=>{
+      if (!Object.keys(c1).length || !Object.keys(c2).length) return;
+      const t1 = Object.values(c1).reduce((a,b)=>a+b,0), t2 = Object.values(c2).reduce((a,b)=>a+b,0);
+      const cruces = ZN.map(z=>({z, a:(c1[z]||0)/t1, b:(c2[z]||0)/t2})).filter(x=>x.a>=0.2 && x.b>=0.15).sort((x,y)=>(y.a+y.b)-(x.a+x.b));
+      const w = el("div",{class:"rvn-z"});
+      w.innerHTML = `<div><div class="xm-tl">${escH(tit1)}</div>${grillaZonas(c1,col1)}</div><div><div class="xm-tl">${escH(tit2)}</div>${grillaZonas(c2,col2)}</div>`;
+      res.appendChild(w);
+      res.appendChild(el("p",{class:"rvn-alert"+(cruces.length?" on":""),text: cruces.length ? cruces.slice(0,2).map(x=>msg(ZN_NOM[x.z], Math.round(100*x.a), Math.round(100*x.b))).join(" ") : "No se ve una zona donde coincidan las dos cosas."}));
+    };
+    res.appendChild(el("h4",{text:"Zonas vistas desde nuestro arco (atacando hacia la derecha)"}));
+    bloque("Dónde recupera el rival", zR, "rgba(229,72,77,A)", g3("Dónde perdemos nosotras","Dónde perdemos nosotros","Dónde perdemos"), zN, "rgba(255,212,0,A)", (z,a,b)=>`Ojo en ${z}: el rival recupera ahí el ${a}% de sus pelotas y ${g3("nosotras","nosotros","nosotras/os")} perdemos ahí el ${b}%.`);
+    bloque("Por dónde ataca el rival", zA, "rgba(229,72,77,A)", g3("Dónde recuperamos nosotras","Dónde recuperamos nosotros","Dónde recuperamos"), zD, "rgba(46,139,87,A)", (z,a,b)=>`Bien en ${z}: el rival llega mucho por ahí (${a}%) y es donde más recuperamos (${b}%).`);
+    if (state.pre_zona || state.ata_zona) res.appendChild(el("p",{class:"xm-small",text:"En tu análisis anotaste: "+[comoLista(state.pre_zona).length?"recuperan en "+comoLista(state.pre_zona).join(", ").toLowerCase():"", comoLista(state.ata_zona).length?"atacan por "+comoLista(state.ata_zona).join(", ").toLowerCase():""].filter(Boolean).join(" · ")+"."}));
+  };
+  op.querySelector("#rvnEq").addEventListener("change", pintar);
+  pintar();
+}
+
 /* ---------- recortes por sección ---------- */
 let assets = null, lastSection = SECTIONS[1].id, pendingSection = null;
 const fileIn = document.getElementById("fileIn");
@@ -1806,6 +1882,8 @@ document.getElementById("guiaBtn").addEventListener("click",e=>{e.stopPropagatio
 document.getElementById("xAcum").addEventListener("click",abrirAcumulado);
 document.getElementById("xVA").addEventListener("click",abrirVA);
 document.getElementById("xPlantel").addEventListener("click",abrirPlantel);
+document.getElementById("xRvn").addEventListener("click",abrirRivalVsNosotras);
+{ const b = document.querySelector("#xRvn b"); if (b) b.textContent = "⚖ " + g3("Rival vs nosotras","Rival vs nosotros","Rival vs nosotras/os"); }
 
 (async ()=>{ try { downloads = window.claude ? await window.claude.use("downloads") : null; } catch(e) { downloads = null; } pdfBtns.forEach(b=>{ b.hidden = !downloads; }); })();
 </script>
@@ -1822,6 +1900,8 @@ document.getElementById("xPlantel").addEventListener("click",abrirPlantel);
   [/^(\d+) de (\d+) secciones con datos$/,['$1 de $2 seções com dados','$1 of $2 sections filled']],[/^inicio\/fin · (\d+)$/,['início/fim · $1','start/end · $1']],[/^Ej: (.*)$/,['Ex: $1','E.g. $1']]];
 Object.assign(DIC,{"📜 Historial": ["📜 Histórico", "📜 History"], "Partidos jugados contra este rival y qué funcionó": ["Jogos contra este adversário e o que funcionou", "Matches played against this opponent and what worked"], "🔁 Rival acumulado": ["🔁 Adversário acumulado", "🔁 Combined opponent"], "Juntá 2–3 partidos vistos y mirá qué se repite": ["Junte 2–3 jogos vistos e veja o que se repete", "Combine 2–3 scouted matches and see what repeats"], "🎥 Traer de Videoanálisis": ["🎥 Trazer da Videoanálise", "🎥 Import from Video analysis"], "Suma las acciones taggeadas a cada sección": ["Soma as ações marcadas a cada seção", "Adds tagged actions to each section"], "📲 Para el plantel": ["📲 Para o elenco", "📲 For the squad"], "Imagen simple por línea para WhatsApp": ["Imagem simples por linha para WhatsApp", "Simple image per unit for WhatsApp"], "→ Pizarra con el once": ["→ Prancheta com o onze", "→ Board with the line-up"], "Sumar a nuestro equipo enfrente": ["Incluir nosso time em frente", "Add our team opposite"], "Rival acumulado": ["Adversário acumulado", "Combined opponent"], "Buscando los análisis guardados…": ["Buscando as análises salvas…", "Looking for saved analyses…"], "Juntá 2 o 3 partidos que miraste del mismo rival y mirá qué se repite. Tildá los análisis a sumar:": ["Junte 2 ou 3 jogos que você viu do mesmo adversário e veja o que se repete. Marque as análises:", "Combine 2 or 3 matches you scouted of the same opponent and see what repeats. Tick the analyses to add:"], "Completar lo vacío con lo que se repite": ["Completar o vazio com o que se repete", "Fill empty fields with what repeats"], "Tildá al menos 2 análisis.": ["Marque pelo menos 2 análises.", "Tick at least 2 analyses."], "Debilidades que anotaste": ["Fraquezas que você anotou", "Weaknesses you noted"], "Buscando…": ["Buscando…", "Searching…"], "Abrí el Análisis de rival desde Metodika para ver los partidos que jugaste contra este rival.": ["Abra a Análise do adversário pela Metodika para ver os jogos contra este adversário.", "Open Opponent analysis from Metodika to see the matches played against this opponent."], "No hay partidos contra este rival en el fixture. Si ya jugaron, cargalo en Partidos con el mismo nombre.": ["Não há jogos contra este adversário no calendário. Se já jogaram, cadastre em Jogos com o mesmo nome.", "No matches against this opponent in the fixtures. If you already played, add it in Matches with the same name."], "PJ": ["J", "P"], "Ganados": ["Vitórias", "Won"], "Empates": ["Empates", "Drawn"], "Perdidos": ["Derrotas", "Lost"], "Goles": ["Gols", "Goals"], "Fecha": ["Data", "Date"], "Competencia": ["Competição", "Competition"], "Condición": ["Mando", "Venue"], "Resultado": ["Resultado", "Result"], "Por jugar": ["A jogar", "To play"], "Planes que armaste antes contra este rival": ["Planos que você montou antes contra este adversário", "Plans you made before against this opponent"], "Sin plan cargado": ["Sem plano", "No plan yet"], "Qué nos funcionó contra este rival": ["O que funcionou contra este adversário", "What worked against this opponent"], "Qué no nos funcionó": ["O que não funcionou", "What didn't work"], "Se guarda con este análisis.": ["Fica salvo com esta análise.", "Saved with this analysis."], "Traer de Videoanálisis": ["Trazer da Videoanálise", "Import from Video analysis"], "Buscando los videoanálisis del club…": ["Buscando as videoanálises do clube…", "Looking for the club's video analyses…"], "Elegí los partidos taggeados. Las acciones se suman a las notas de cada sección (Inicio, Presión, Ataque, Transiciones, Pelota parada) con su minuto.": ["Escolha os jogos marcados. As ações entram nas notas de cada seção (Saída, Pressão, Ataque, Transições, Bola parada) com o minuto.", "Pick the tagged matches. Actions are added to each section's notes (Build-up, Press, Attack, Transitions, Set pieces) with their minute."], "El equipo marcado como “Rival”": ["O time marcado como “Adversário”", "The team tagged as “Opponent”"], "El equipo propio (taggeaste un partido del rival contra otro)": ["O próprio time (você marcou um jogo do adversário contra outro)", "Own team (you tagged the opponent's match against someone else)"], "Sumar también a “Jugadas para mostrarle al plantel” las que tienen nota": ["Somar também a “Jogadas para mostrar ao elenco” as que têm nota", "Also add the ones with a note to “Clips to show the squad”"], "Agregar al análisis": ["Adicionar à análise", "Add to analysis"], "Cancelar": ["Cancelar", "Cancel"], "Cerrar": ["Fechar", "Close"], "Tildá al menos un partido.": ["Marque pelo menos um jogo.", "Tick at least one match."], "No hay acciones nuevas para traer (o ya las trajiste antes).": ["Não há ações novas para trazer (ou já foram trazidas).", "No new actions to import (or already imported)."], "Todavía no hay partidos taggeados en Videoanálisis. Taggeá el partido del rival allá y después traé las acciones acá.": ["Ainda não há jogos marcados na Videoanálise. Marque o jogo do adversário lá e depois traga as ações para cá.", "No tagged matches in Video analysis yet. Tag the opponent's match there, then import the actions here."], "Inicio desde el arco": ["Saída do goleiro", "Build-up from the goalkeeper"], "Presión y recuperación": ["Pressão e recuperação", "Press and recovery"], "Ataque": ["Ataque", "Attack"], "Transiciones": ["Transições", "Transitions"], "Pelota parada (a favor del rival)": ["Bola parada (a favor do adversário)", "Set pieces (for the opponent)"], "Otras observaciones": ["Outras observações", "Other notes"], "Para el plantel": ["Para o elenco", "For the squad"], "Una imagen simple, tamaño historia de celular (1080×1920), para mandar por WhatsApp antes del partido.": ["Uma imagem simples, tamanho story de celular (1080×1920), para mandar no WhatsApp antes do jogo.", "A simple phone-story-size image (1080×1920) to send on WhatsApp before the match."], "Todo el plantel": ["Todo o elenco", "Whole squad"], "Defensoras": ["Defensoras", "Defenders"], "Defensores": ["Defensores", "Defenders"], "Volantes": ["Meio-campistas", "Midfielders"], "Delanteras": ["Atacantes", "Forwards"], "Delanteros": ["Atacantes", "Forwards"], "⬇ Descargar imagen": ["⬇ Baixar imagem", "⬇ Download image"], "Compartir…": ["Compartilhar…", "Share…"]});PAT.push([new RegExp("^＋ Analizar otro partido de (.+)$"),["＋ Analisar outro jogo de $1", "＋ Scout another match of $1"]],[new RegExp("^Qué se repite en (\\d+) partidos$"),["O que se repete em $1 jogos", "What repeats across $1 matches"]],[new RegExp("^Historial contra (.+)$"),["Histórico contra $1", "History against $1"]],[new RegExp("^(\\d+) acciones para sumar$"),["$1 ações para somar", "$1 actions to add"]],[new RegExp("^— en (\\d+) de (\\d+)$"),["— em $1 de $2", "— in $1 of $2"]],[new RegExp("^¿Quién es (.+) en esos videos\\?$"),["Quem é $1 nesses vídeos?", "Who is $1 in those videos?"]]);
 Object.assign(DIC,{"❓ Cómo se usa": ["❓ Como usar", "❓ How to use"]});
+Object.assign(DIC,{"Sus números al lado de los nuestros y las zonas que se cruzan": ["Os números deles ao lado dos nossos e as zonas que se cruzam", "Their numbers next to ours and where zones overlap"], "Juntando los videoanálisis…": ["Juntando as videoanálises…", "Gathering video analyses…"], "Recuperaciones": ["Recuperações", "Recoveries"], "Pérdidas": ["Perdas", "Turnovers"], "Remates": ["Finalizações", "Shots"], "Goles": ["Gols", "Goals"], "Centros": ["Cruzamentos", "Crosses"], "Presión alta": ["Pressão alta", "High press"], "Presión tras pérdida": ["Pressão pós-perda", "Counter-press"], "Córners": ["Escanteios", "Corners"], "Duelos": ["Duelos", "Duels"], "Contraataques": ["Contra-ataques", "Counter-attacks"], "Efectividad ✓/✗": ["Eficácia ✓/✗", "Success rate ✓/✗"], "Zonas vistas desde nuestro arco (atacando hacia la derecha)": ["Zonas vistas do nosso gol (atacando para a direita)", "Zones seen from our goal (attacking to the right)"], "Dónde recupera el rival": ["Onde o adversário recupera", "Where the opponent wins the ball"], "Dónde perdemos nosotras": ["Onde perdemos", "Where we lose the ball"], "Dónde perdemos nosotros": ["Onde perdemos", "Where we lose the ball"], "Dónde perdemos": ["Onde perdemos", "Where we lose the ball"], "Por dónde ataca el rival": ["Por onde o adversário ataca", "Where the opponent attacks"], "Dónde recuperamos nosotras": ["Onde recuperamos", "Where we win the ball"], "Dónde recuperamos nosotros": ["Onde recuperamos", "Where we win the ball"], "Dónde recuperamos": ["Onde recuperamos", "Where we win the ball"], "No se ve una zona donde coincidan las dos cosas.": ["Não há uma zona onde as duas coisas coincidam.", "No zone where both overlap."], "← nuestro arco": ["← nosso gol", "← our goal"], "Nosotras": ["Nós", "Us"], "Nosotros": ["Nós", "Us"], "Nosotras/os": ["Nós", "Us"]});PAT.push([new RegExp("^⚖ Rival vs (nosotras|nosotros|nosotras/os)$"),["⚖ Adversário vs nós", "⚖ Opponent vs us"]],[new RegExp("^Rival vs (nosotras|nosotros|nosotras/os)$"),["Adversário vs nós", "Opponent vs us"]],[new RegExp("^Datos del rival:$"),["Dados do adversário:", "Opponent data:"]]);
+Object.assign(DIC,{"Un partido del rival que taggeaste como equipo propio": ["Um jogo do adversário marcado como time próprio", "An opponent match you tagged as your own team"]});PAT.push([new RegExp("^Sus acciones en nuestros partidos contra (.+) \\(equipo “Rival”\\)$"),["Ações deles em nossos jogos contra $1 (time “Adversário”)", "Their actions in our matches vs $1 (team “Opponent”)"]],[new RegExp("^Promedio por partido · rival: (\\d+) partidos? · (.+): (\\d+) partidos?$"),["Média por jogo · adversário: $1 jogo(s) · nós: $3 jogo(s)", "Average per match · opponent: $1 match(es) · us: $3 match(es)"]],[new RegExp("^Ojo en (.+): el rival recupera ahí el (\\d+)% de sus pelotas y (.+) perdemos ahí el (\\d+)%\\.(.*)$"),["Atenção em $1: o adversário recupera ali $2% das bolas e nós perdemos ali $4%.$5", "Watch $1: the opponent wins $2% of their balls there and we lose $4% of ours there.$5"]],[new RegExp("^Bien en (.+): el rival llega mucho por ahí \\((\\d+)%\\) y es donde más recuperamos \\((\\d+)%\\)\\.(.*)$"),["Bom em $1: o adversário chega muito por ali ($2%) e é onde mais recuperamos ($3%).$4", "Good in $1: the opponent attacks a lot there ($2%) and it's where we win the ball most ($3%).$4"]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
