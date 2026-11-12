@@ -505,6 +505,14 @@ body:not(.vopen) .viewer{top:0}
 .rvn-pitch span{position:absolute;left:6px;bottom:3px;font-size:10px;color:#fff;opacity:.85}
 .rvn-alert{font-size:13.5px;margin:8px 0 4px;padding:8px 10px;border-radius:8px;background:var(--field);color:var(--sub)}.rvn-alert.on{background:rgba(255,212,0,.16);color:var(--ink);font-weight:600}
 @media (max-width:620px){.rvn-h,.rvn-f{grid-template-columns:100px 1fr 18px 1fr}.rvn-z{grid-template-columns:1fr}}
+.vyt{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden}.vyt iframe,.vyt>div{position:absolute;inset:0;width:100%!important;height:100%!important}
+#vClip.rec{background:#E5484D;border-color:#E5484D;color:#fff;animation:recp 1s infinite}@keyframes recp{50%{opacity:.7}}
+.clip-th{position:relative;display:block;width:100%;padding:0;border:0;background:#000;cursor:pointer;border-radius:8px 8px 0 0;overflow:hidden}.clip-th img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;opacity:.85}
+.clip-pl{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:#FFD400;color:#141412;font-size:18px;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+.clip-tm{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.72);color:#fff;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:6px}
+.clip-yt{position:relative;aspect-ratio:16/9;background:#000}.clip-yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.clip-sl{position:relative;width:100%;max-height:60vh;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}.clip-sl img,.clip-sl video,.clip-sl iframe{width:100%;height:100%;object-fit:contain;border:0}
+.clip-slb{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);font:inherit;font-weight:800;font-size:18px;background:#FFD400;color:#141412;border:0;border-radius:999px;padding:12px 24px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 @media (max-width:600px){.status{flex-wrap:wrap}.status>span:last-child{flex-wrap:wrap;gap:6px!important}}
 @media (max-width:620px){.xm-pl{grid-template-columns:1fr}.xm-pl-prev{max-width:240px;margin:0 auto}.xm-kpis{grid-template-columns:repeat(3,1fr)}}
 </style>
@@ -535,6 +543,7 @@ body:not(.vopen) .viewer{top:0}
   <button type="button" class="present-btn" id="presentBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Presentar en pantalla grande</button>
 
   <div class="how">Abrí el partido en el <b>visor</b> (tocá "Abrir video") y completá mientras lo mirás. <b>Se guarda solo.</b> Cuando veas una jugada, pausá, elegí la sección y tocá <b>Capturar</b>: queda como recorte con el minuto puesto, listo para dibujarle encima. Cuando termines, usá <b>Pantalla grande</b> para la charla o <b>Descargar PDF</b> para mandarlo al grupo.</div>
+  <div class="how">Con <b>✂ Clip</b> marcás el inicio y el fin de una jugada: el video no se sube, se guarda solo el minuto. Funciona con el archivo o con un link de YouTube.</div>
   <div class="xtra" id="xtra">
     <button type="button" class="xbtn" id="xHist"><b>📜 Historial</b><span>Partidos jugados contra este rival y qué funcionó</span></button>
     <button type="button" class="xbtn" id="xAcum"><b>🔁 Rival acumulado</b><span>Juntá 2–3 partidos vistos y mirá qué se repite</span></button>
@@ -550,7 +559,7 @@ body:not(.vopen) .viewer{top:0}
     <div class="vhead">
       <b>Visor del partido</b>
       <span class="vsub" id="vName">Abrí el video desde tu computadora. No se sube: se reproduce acá.</span>
-      <span class="vbtns"><button type="button" class="btn2 solid" id="vOpen">Abrir video</button><button type="button" class="btn2" id="vSide" hidden>Poner arriba</button><button type="button" class="btn2" id="vMin" hidden>Minimizar</button></span>
+      <span class="vbtns"><button type="button" class="btn2 solid" id="vOpen">Abrir video</button><button type="button" class="btn2" id="vYTbtn">▶ Link de YouTube</button><button type="button" class="btn2" id="vSide" hidden>Poner arriba</button><button type="button" class="btn2" id="vMin" hidden>Minimizar</button></span>
     </div>
     <div class="vbody" id="vBody" hidden>
       <video id="vVideo" controls playsinline preload="auto"></video>
@@ -563,7 +572,7 @@ body:not(.vopen) .viewer{top:0}
         <span class="vsep"></span>
         <label for="vSec">Sección</label>
         <select id="vSec"></select>
-        <button type="button" class="btn2 solid" id="vCap">Capturar (C)</button>
+        <button type="button" class="btn2 solid" id="vCap">Capturar (C)</button><button type="button" class="btn2" id="vClip" title="Marcá el inicio y el fin de la jugada. No se sube el video: solo el minuto (tecla X)">✂ Clip</button>
         <span class="vmsg" id="vMsg"></span>
       </div>
     </div>
@@ -1396,9 +1405,9 @@ function guiaAN(){
       `<p>Cada adversário tem sua análise. Escolha na lista ou toque em <b>+ Novo adversário</b>.</p>`,
       `<p>Each opponent has its own analysis. Pick it from the list or tap <b>+ New opponent</b>.</p>`)},
     {sel:"#viewer", t:L("Mirá el partido acá","Assista ao jogo aqui","Watch the match here"), d:L(
-      `<p>Tocá <b>Abrir video</b> y elegí el archivo (no se sube). Cuando veas una jugada, pausá, elegí la <b>sección</b> y tocá <b>Capturar</b> (o la tecla C): queda el recorte con el minuto.</p>`,
-      `<p>Toque em <b>Abrir vídeo</b> e escolha o arquivo. Ao ver uma jogada, pause, escolha a <b>seção</b> e toque em <b>Capturar</b> (tecla C).</p>`,
-      `<p>Tap <b>Open video</b> and choose the file. When you see a play, pause, pick the <b>section</b> and tap <b>Capture</b> (key C).</p>`)},
+      `<p>Tocá <b>Abrir video</b> y elegí el archivo (no se sube). Cuando veas una jugada, pausá, elegí la <b>sección</b> y tocá <b>Capturar</b> (o la tecla C): queda el recorte con el minuto.</p><p>También podés pegar un <b>link de YouTube</b>. Con <b>✂ Clip</b> (tecla X) marcás inicio y fin de la jugada: el video nunca se sube, se guarda solo el minuto y se ve igual en Pantalla grande.</p>`,
+      `<p>Toque em <b>Abrir vídeo</b> e escolha o arquivo. Ao ver uma jogada, pause, escolha a <b>seção</b> e toque em <b>Capturar</b> (tecla C).</p><p>Também pode colar um <b>link do YouTube</b>. Com <b>✂ Clipe</b> (tecla X) marca início e fim da jogada: o vídeo nunca é enviado, só o minuto.</p>`,
+      `<p>Tap <b>Open video</b> and choose the file. When you see a play, pause, pick the <b>section</b> and tap <b>Capture</b> (key C).</p><p>You can also paste a <b>YouTube link</b>. With <b>✂ Clip</b> (key X) you mark the start and end of a play: the video is never uploaded, only the minute.</p>`)},
     {sel:"#sec-datos", t:L("Completá las secciones","Preencha as seções","Fill in the sections"), d:L(
       `<p>Vas de arriba hacia abajo: datos, sistema, inicio desde el arco, presión, ataque, transiciones, pelota parada, ${pl} clave y debilidades. Tocás las opciones y escribís notas con el minuto. <b>Se guarda solo.</b></p>`,
       `<p>De cima para baixo: dados, sistema, saída, pressão, ataque, transições, bola parada, peças-chave e fraquezas. <b>Salva sozinho.</b></p>`,
@@ -1522,7 +1531,7 @@ function renderShots(s){
   const head = el("div",{class:"shots-head"});
   head.appendChild(el("label",{class:"lbl",text:"Recortes (capturas o clips)"}));
   const right = el("div",{style:"display:flex;gap:10px;align-items:center;flex-wrap:wrap"});
-  right.appendChild(el("small",{text: assets ? "También podés pegar una captura con Ctrl+V" : "Sin conexión con la nube de Metodika: no se pueden subir recortes"}));
+  right.appendChild(el("small",{text: assets ? "Capturá o marcá un ✂ Clip desde el visor, o pegá una captura con Ctrl+V" : "Sin conexión con la nube de Metodika: no se pueden subir recortes"}));
   const add = el("button",{type:"button",class:"shot-add",text:"+ Agregar recorte"});
   if (!assets) add.disabled = true;
   add.addEventListener("click",()=>{ pendingSection = s.id; fileIn.value=""; fileIn.click(); });
@@ -1530,8 +1539,10 @@ function renderShots(s){
   const grid = el("div",{class:"shot-grid"});
   (state[shotKey(s.id)]||[]).forEach((sh,idx)=>{
     const it = el("div",{class:"shot-item"});
-    const media = sh.video ? el("video",{src:shotUrl(sh.id),controls:"",preload:"metadata"}) : el("img",{src:shotUrl(sh.ann||sh.id),alt:sh.cap||"Recorte"});
-    it.appendChild(media);
+    let media;
+    if (sh.clip){ const w = el("button",{type:"button",class:"clip-th",title:"Ver el clip"}); media = el("img",{src: sh.id ? shotUrl(sh.ann||sh.id) : (sh.yt ? "https://img.youtube.com/vi/"+sh.yt+"/mqdefault.jpg" : "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"), alt:sh.cap||"Clip"});
+      w.appendChild(media); w.appendChild(el("span",{class:"clip-pl",text:"▶"})); w.appendChild(el("span",{class:"clip-tm",text:fmtT(sh.ini)+" → "+fmtT(sh.fin)+(sh.yt?" · YouTube":"")})); w.addEventListener("click",()=>verClip(sh)); it.appendChild(w); }
+    else { media = sh.video ? el("video",{src:shotUrl(sh.id),controls:"",preload:"metadata"}) : el("img",{src:shotUrl(sh.ann||sh.id),alt:sh.cap||"Recorte"}); it.appendChild(media); }
     if (sh.ann) it.appendChild(el("div",{class:"badge2",text:"Con dibujo"}));
     const m = el("div",{class:"meta2"});
     const tIn = el("input",{type:"text",id:"shot_"+s.id+"_"+idx+"_t",placeholder:"Minuto","aria-label":"Minuto"}); tIn.value = sh.min||"";
@@ -1540,13 +1551,13 @@ function renderShots(s){
     cIn.addEventListener("input",()=>{ sh.cap=cIn.value; changed(); });
     m.appendChild(tIn); m.appendChild(cIn); it.appendChild(m);
     const tools = el("div",{class:"tools2"});
-    if (!sh.video && assets) { const dr = el("button",{type:"button",text: sh.ann ? "Editar dibujo" : "Dibujar"}); dr.addEventListener("click",()=>openDraw(s.id, idx)); tools.appendChild(dr); }
-    if (!sh.video) { const pz = el("button",{type:"button",text:"→ Pizarra",title:"Abrir este recorte en la pizarra para dibujar y animar la jugada"}); pz.addEventListener("click",()=>recorteAPizarra(media, sh, s, pz)); tools.appendChild(pz); }
+    if (!sh.video && assets && (!sh.clip || sh.id)) { const dr = el("button",{type:"button",text: sh.ann ? "Editar dibujo" : "Dibujar"}); dr.addEventListener("click",()=>openDraw(s.id, idx)); tools.appendChild(dr); }
+    if (!sh.video && (!sh.clip || sh.id)) { const pz = el("button",{type:"button",text:"→ Pizarra",title:"Abrir este recorte en la pizarra para dibujar y animar la jugada"}); pz.addEventListener("click",()=>recorteAPizarra(media, sh, s, pz)); tools.appendChild(pz); }
     const del = el("button",{type:"button",class:"del",text:"Quitar"});
     del.addEventListener("click",async ()=>{
       if (!del.classList.contains("confirm")) { del.classList.add("confirm"); del.textContent="Tocá de nuevo"; setTimeout(()=>{ del.classList.remove("confirm"); del.textContent="Quitar"; },3000); return; }
       state[shotKey(s.id)].splice(idx,1); changed(); refreshShots(s.id);
-      if (assets) { try { await assets.delete(sh.id); } catch(e) {} if (sh.ann) { try { await assets.delete(sh.ann); } catch(e) {} } }
+      if (assets) { if (sh.id) { try { await assets.delete(sh.id); } catch(e) {} } if (sh.ann) { try { await assets.delete(sh.ann); } catch(e) {} } }
     });
     if (assets) tools.appendChild(del);
     if (tools.children.length) it.appendChild(tools);
@@ -1567,10 +1578,11 @@ async function uploadFiles(files, secId){
   for (const f of files) {
     const isVid = f.type.startsWith("video/");
     if (!f.type.startsWith("image/") && !isVid) { msg().textContent = "Solo se pueden subir imágenes o videos."; continue; }
-    if (f.size > 15*1024*1024) { msg().textContent = "“" + (f.name||"El archivo") + "” pesa más de 15 MB. Cortá un clip más corto o subí una captura."; continue; }
+    if (isVid && f.size > 5*1024*1024) { msg().textContent = "“" + (f.name||"El video") + "” pesa más de 5 MB. Para clips largos abrí el partido en el visor y usá ✂ Clip: no ocupa espacio en la nube."; continue; }
+    if (!isVid && f.size > 25*1024*1024) { msg().textContent = "“" + (f.name||"La imagen") + "” es demasiado pesada."; continue; }
     msg().textContent = ""; setStatus("saving","Subiendo recorte…");
     try {
-      const r = await assets.upload(f);
+      const r = await assets.upload(isVid ? f : await achicarImagen(f, 1280, 0.8), isVid ? undefined : {type:"image/jpeg"});
       const arr = Array.isArray(state[shotKey(secId)]) ? state[shotKey(secId)] : (state[shotKey(secId)] = []);
       arr.push({id:r.id, video:isVid, min:"", cap:""});
       changed(); refreshShots(secId);
@@ -1654,8 +1666,8 @@ document.getElementById("drawSave").addEventListener("click",async ()=>{
   try {
     const sh = dTarget.sh, oldAnn = sh.ann;
     if (dShapes.length) {
-      const blob = await new Promise(res=>cv.toBlob(res,"image/png"));
-      const r = await assets.upload(blob, {type:"image/png"});
+      const blob = await new Promise(res=>cv.toBlob(res,"image/jpeg",0.85));
+      const r = await assets.upload(blob, {type:"image/jpeg"});
       sh.ann = r.id; sh.shapes = dShapes;
     } else { delete sh.ann; sh.shapes = []; }
     changed(); refreshShots(dTarget.secId);
@@ -1698,10 +1710,17 @@ const isFormation = v => typeof v==="string" && /^\d(-\d){2,3}$/.test(v);
 
 function sectionSlide(s, build){
   slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker",s.title)); build(w);
-    const sh = list(shotKey(s.id)); if (sh.length){ const th=D("div","thumbs"); sh.filter(x=>!x.video).slice(0,6).forEach(x=>{ const i=D("img"); i.src=shotUrl(x.ann||x.id); i.alt=x.cap||""; th.appendChild(i); }); if (th.children.length) block(w,"Recortes (en las siguientes)",th); }
+    const sh = list(shotKey(s.id)); if (sh.length){ const th=D("div","thumbs"); sh.filter(x=>!x.video&&(!x.clip||x.id||x.yt)).slice(0,6).forEach(x=>{ const i=D("img"); i.src=x.id?shotUrl(x.ann||x.id):"https://img.youtube.com/vi/"+x.yt+"/mqdefault.jpg"; i.alt=x.cap||""; th.appendChild(i); }); if (th.children.length) block(w,"Recortes (en las siguientes)",th); }
     return w; });
   list(shotKey(s.id)).forEach(x=>slides.push(()=>{ const w=D("div","shot"); w.appendChild(D("p","kicker",s.title));
-    const m = x.video ? (pdfMode ? D("p","empty","Clip de video: miralo en la planilla") : Object.assign(D("video"),{src:shotUrl(x.id),controls:true,preload:"metadata"})) : Object.assign(D("img"),{src:shotUrl(x.ann||x.id),alt:x.cap||""});
+    let m;
+    if (x.clip){ m = D("div","clip-sl"); const im = D("img"); im.src = x.id ? shotUrl(x.ann||x.id) : (x.yt ? "https://img.youtube.com/vi/"+x.yt+"/hqdefault.jpg" : ""); im.alt = x.cap||""; m.appendChild(im);
+      if (!pdfMode){ const b = D("button","clip-slb","▶ Ver el clip ("+fmtT(x.ini)+" → "+fmtT(x.fin)+")"); b.type = "button"; m.appendChild(b);
+        b.addEventListener("click",e=>{ e.stopPropagation();
+          if (x.yt){ m.innerHTML = '<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(x.yt)+'?start='+Math.floor(x.ini)+'&end='+Math.ceil(x.fin)+'&autoplay=1&rel=0" allow="autoplay; fullscreen" allowfullscreen></iframe>'; return; }
+          if (vUrl && vKind==="file" && (!x.file || x.file===vNombre)){ const v = Object.assign(D("video"),{src:vUrl+"#t="+x.ini+","+x.fin,controls:true,autoplay:true}); m.innerHTML = ""; m.appendChild(v); return; }
+          b.textContent = "Abrí el video del partido en el visor (Salir → Abrir video) para ver el clip"; }); } }
+    else m = x.video ? (pdfMode ? D("p","empty","Clip de video: miralo en la planilla") : Object.assign(D("video"),{src:shotUrl(x.id),controls:true,preload:"metadata"})) : Object.assign(D("img"),{src:shotUrl(x.ann||x.id),alt:x.cap||""});
     m.addEventListener("click",e=>e.stopPropagation()); w.appendChild(m);
     if (x.min||x.cap){ const c=D("div","cap"); if(x.min) c.appendChild(D("span","t",x.min)); c.appendChild(document.createTextNode(x.cap||"")); w.appendChild(c); }
     return w; }));
@@ -1794,13 +1813,14 @@ let vUrl=null;
 SECTIONS.filter(s=>s.id!=="datos"&&s.id!=="plan").forEach(s=>vSec.appendChild(el("option",{value:s.id,text:s.title})));
 vSec.value="salida";
 document.getElementById("vOpen").addEventListener("click",()=>{ vFile.value=""; vFile.click(); });
-vFile.addEventListener("change",()=>{ const f=vFile.files[0]; if(!f) return; if(vUrl) URL.revokeObjectURL(vUrl); vUrl=URL.createObjectURL(f); vVideo.src=vUrl; vBody.hidden=false; vMin.hidden=false; vMin.textContent="Minimizar"; document.body.classList.add("vopen"); document.getElementById("vName").textContent=f.name; setSplit(lsGet("scout_split")!=="0"); });
+vFile.addEventListener("change",()=>{ const f=vFile.files[0]; if(!f) return; usarArchivoEnVisor(); vNombre=f.name; if(vUrl) URL.revokeObjectURL(vUrl); vUrl=URL.createObjectURL(f); vVideo.src=vUrl; vBody.hidden=false; vMin.hidden=false; vMin.textContent="Minimizar"; document.body.classList.add("vopen"); document.getElementById("vName").textContent=f.name; setSplit(lsGet("scout_split")!=="0"); });
 const vSide=document.getElementById("vSide");
 function setSplit(on){ document.body.classList.toggle("split",on); vSide.hidden=false; vSide.textContent=on?"Poner arriba":"Poner al costado"; lsSet("scout_split",on?"1":"0"); }
 vSide.addEventListener("click",()=>setSplit(!document.body.classList.contains("split")));
 vMin.addEventListener("click",()=>{ vBody.hidden=!vBody.hidden; vMin.textContent=vBody.hidden?"Mostrar":"Minimizar"; if (vBody.hidden) document.body.classList.remove("split"); else if (lsGet("scout_split")!=="0") document.body.classList.add("split"); });
 let vTarget=null, vSeekTimer=null;
 document.querySelectorAll("#viewer [data-skip]").forEach(b=>b.addEventListener("click",()=>{
+  if (vKind==="yt"){ if (ytP && ytListo) ytP.seekTo(Math.max(0, ytP.getCurrentTime()+Number(b.dataset.skip)), true); return; }
   const base = vTarget!=null ? vTarget : vVideo.currentTime;
   vTarget = Math.max(0, Math.min((vVideo.duration||1e9)-0.5, base+Number(b.dataset.skip)));
   clearTimeout(vSeekTimer); vSeekTimer = setTimeout(()=>{ const t=vTarget; if (typeof vVideo.fastSeek==="function") vVideo.fastSeek(t); else vVideo.currentTime=t; }, 180);
@@ -1809,18 +1829,87 @@ vVideo.addEventListener("seeking",()=>{ vMsg.className="vmsg"; vMsg.textContent=
 vVideo.addEventListener("seeked",()=>{ vTarget=null; if (vMsg.textContent==="Buscando el minuto…") vMsg.textContent=""; });
 vVideo.addEventListener("waiting",()=>{ vMsg.className="vmsg"; vMsg.textContent="Cargando video…"; });
 vVideo.addEventListener("playing",()=>{ if (/^(Cargando|Buscando)/.test(vMsg.textContent)) vMsg.textContent=""; });
-document.querySelectorAll("#viewer [data-rate]").forEach(b=>b.addEventListener("click",()=>{ vVideo.playbackRate=Number(b.dataset.rate); }));
+document.querySelectorAll("#viewer [data-rate]").forEach(b=>b.addEventListener("click",()=>{ if (vKind==="yt"){ if (ytP && ytListo) ytP.setPlaybackRate(Number(b.dataset.rate)); return; } vVideo.playbackRate=Number(b.dataset.rate); }));
 const fmtT=t=>{ t=Math.floor(t); const h=Math.floor(t/3600), m=Math.floor((t%3600)/60), s=t%60; return (h? h+":"+String(m).padStart(2,"0") : m)+":"+String(s).padStart(2,"0"); };
+
+/* ================= clips sin subir video (igual que Videoanálisis) ================= */
+const ytIdDe = u => { const m = String(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : null; };
+let ytP = null, ytListo = false, vKind = "", vNombre = "", clipIni = null, clipFinT = null;
+const vp = {
+  t(){ return vKind==="yt" ? (ytP && ytListo ? ytP.getCurrentTime() : 0) : vVideo.currentTime; },
+  seek(t){ if (vKind==="yt"){ if (ytP && ytListo) ytP.seekTo(t, true); } else vVideo.currentTime = t; },
+  play(){ if (vKind==="yt"){ if (ytP && ytListo) ytP.playVideo(); } else vVideo.play().catch(()=>{}); },
+  pause(){ if (vKind==="yt"){ if (ytP && ytListo) ytP.pauseVideo(); } else vVideo.pause(); },
+  listo(){ return vKind==="yt" ? (ytP && ytListo) : (vVideo.src && vVideo.readyState>=1); }
+};
+function cargarYTApi(){ return new Promise(ok=>{ if (window.YT && window.YT.Player) return ok(); const prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = ()=>{ if (prev) try{prev()}catch(e){} ok(); }; if (!document.querySelector('script[src*="youtube.com/iframe_api"]')){ const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); } }); }
+async function abrirYouTube(){
+  const def = ytIdDe(state.video) ? state.video : "";
+  const u = prompt("Pegá el link de YouTube del partido:", def);
+  if (!u) return; const id = ytIdDe(u);
+  if (!id){ vMsg.className = "vmsg err"; vMsg.textContent = "Ese link no parece de YouTube."; return; }
+  if (!state.video || !ytIdDe(state.video)){ state.video = u.trim(); changed(); refreshField("video"); header(); }
+  vKind = "yt"; vNombre = id; ytListo = false;
+  vVideo.pause(); vVideo.hidden = true; let box = document.getElementById("vYT");
+  if (!box){ box = el("div",{id:"vYT",class:"vyt"}); vVideo.parentNode.insertBefore(box, vVideo); }
+  box.hidden = false; box.innerHTML = '<div id="vYTp"></div>';
+  vBody.hidden = false; vMin.hidden = false; vMin.textContent = "Minimizar"; document.body.classList.add("vopen");
+  document.getElementById("vName").textContent = "YouTube · " + id;
+  vMsg.className = "vmsg"; vMsg.textContent = "Cargando YouTube…";
+  setTimeout(()=>{ if (vKind==="yt" && !ytListo){ vMsg.className = "vmsg err"; vMsg.textContent = "No se pudo cargar YouTube. Revisá la conexión o que el video sea público / no listado."; } }, 12000);
+  await cargarYTApi();
+  ytP = new YT.Player("vYTp", {videoId:id, width:"100%", height:"100%", playerVars:{rel:0, modestbranding:1, playsinline:1}, events:{onReady:()=>{ ytListo = true; vMsg.textContent = ""; }}});
+}
+function usarArchivoEnVisor(){ vKind = "file"; vVideo.hidden = false; const b = document.getElementById("vYT"); if (b){ b.hidden = true; b.innerHTML = ""; } ytP = null; ytListo = false; }
+async function marcarClip(){
+  if (!vp.listo()){ vMsg.className = "vmsg err"; vMsg.textContent = "Primero abrí el video (archivo o YouTube)."; return; }
+  const bt = document.getElementById("vClip");
+  if (clipIni==null){ clipIni = vp.t(); bt.classList.add("rec"); bt.textContent = "■ Terminar clip"; vMsg.className = "vmsg"; vMsg.textContent = "Clip desde el "+fmtT(clipIni)+" · tocá “Terminar clip” cuando termine la jugada."; return; }
+  let ini = clipIni, fin = vp.t(); clipIni = null; bt.classList.remove("rec"); bt.textContent = "✂ Clip";
+  if (fin < ini) [ini, fin] = [fin, ini];
+  if (fin - ini < 2) fin = ini + 6;
+  vp.pause();
+  const sec = vSec.value, sh = {id:"", clip:true, ini:+ini.toFixed(1), fin:+fin.toFixed(1), min:fmtT(ini), cap:"", video:false};
+  if (vKind==="yt") sh.yt = vNombre; else sh.file = vNombre;
+  vMsg.className = "vmsg"; vMsg.textContent = "Guardando clip…";
+  if (vKind!=="yt" && assets && vVideo.videoWidth){
+    try{ const sc = Math.min(1, 960/vVideo.videoWidth), c = document.createElement("canvas"); c.width = Math.round(vVideo.videoWidth*sc); c.height = Math.round(vVideo.videoHeight*sc);
+      vVideo.currentTime = ini + Math.min(1.5, (fin-ini)/2); await new Promise(r=>{ const f = ()=>{ vVideo.removeEventListener("seeked", f); r(); }; vVideo.addEventListener("seeked", f); setTimeout(r, 2500); });
+      c.getContext("2d").drawImage(vVideo, 0, 0, c.width, c.height); const blob = await new Promise(r=>c.toBlob(r, "image/jpeg", 0.75)); const r = await assets.upload(blob, {type:"image/jpeg"}); sh.id = r.id; }catch(e){ console.warn(e); }
+  }
+  const arr = Array.isArray(state[shotKey(sec)]) ? state[shotKey(sec)] : (state[shotKey(sec)] = []);
+  arr.push(sh); changed(); refreshShots(sec);
+  vMsg.textContent = "Clip "+fmtT(sh.ini)+" → "+fmtT(sh.fin)+" guardado en "+((SECTIONS.find(x=>x.id===sec)||{}).title||"")+". No se subió el video: solo el minuto.";
+}
+let clipStop = null;
+function verClip(sh){
+  if (sh.yt){ const o = el("div",{class:"xm",id:"xm"}); o.innerHTML = `<div class="xm-box" style="width:min(960px,100%)"><div class="xm-h"><b>${escH(sh.cap||"Clip")} · ${escH(fmtT(sh.ini))}</b><button type="button" class="xm-x" aria-label="Cerrar">×</button></div><div class="clip-yt"><iframe src="https://www.youtube.com/embed/${encodeURIComponent(sh.yt)}?start=${Math.floor(sh.ini)}&end=${Math.ceil(sh.fin)}&autoplay=1&rel=0&playsinline=1" allow="autoplay; fullscreen" allowfullscreen></iframe></div></div>`;
+    cerrarX(); document.body.appendChild(o); o.querySelector(".xm-x").onclick = cerrarX; o.addEventListener("click",e=>{ if (e.target===o) cerrarX(); }); return; }
+  if (vKind==="file" && vVideo.src && (!sh.file || sh.file===vNombre)){
+    document.getElementById("viewer").scrollIntoView({behavior:"smooth", block:"start"}); if (vBody.hidden){ vBody.hidden = false; vMin.textContent = "Minimizar"; }
+    vVideo.currentTime = sh.ini; vVideo.play().catch(()=>{}); if (clipStop) vVideo.removeEventListener("timeupdate", clipStop);
+    clipStop = ()=>{ if (vVideo.currentTime >= sh.fin){ vVideo.pause(); vVideo.removeEventListener("timeupdate", clipStop); clipStop = null; } }; vVideo.addEventListener("timeupdate", clipStop); return; }
+  toast("Para ver este clip abrí en el visor el video del partido"+(sh.file?" (“"+sh.file+"”)":"")+". El clip empieza en el "+fmtT(sh.ini)+".");
+  document.getElementById("viewer").scrollIntoView({behavior:"smooth", block:"start"});
+}
+/* imágenes más livianas antes de subirlas */
+async function achicarImagen(file, max, q){
+  try{ const url = URL.createObjectURL(file); const img = await new Promise((ok,no)=>{ const i = new Image(); i.onload = ()=>ok(i); i.onerror = no; i.src = url; });
+    const k = Math.min(1, (max||1280)/Math.max(img.width, img.height)), c = document.createElement("canvas"); c.width = Math.round(img.width*k); c.height = Math.round(img.height*k);
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+    const b = await new Promise(r=>c.toBlob(r, "image/jpeg", q||0.8)); return b && b.size < file.size ? b : file; }catch(e){ return file; }
+}
 async function capture(){
+  if (vKind==="yt"){ vMsg.className="vmsg err"; vMsg.textContent="Con YouTube no se puede sacar la imagen: usá ✂ Clip, que guarda el minuto y lo reproduce."; return; }
   if(!vVideo.src || !vVideo.videoWidth){ vMsg.className="vmsg err"; vMsg.textContent="Primero abrí el video."; return; }
   if(!assets){ vMsg.className="vmsg err"; vMsg.textContent="Sin conexión con la nube de Metodika: no se puede capturar."; return; }
   vVideo.pause();
-  const sc=Math.min(1,1920/vVideo.videoWidth), c=document.createElement("canvas"); c.width=Math.round(vVideo.videoWidth*sc); c.height=Math.round(vVideo.videoHeight*sc);
+  const sc=Math.min(1,1280/vVideo.videoWidth), c=document.createElement("canvas"); c.width=Math.round(vVideo.videoWidth*sc); c.height=Math.round(vVideo.videoHeight*sc);
   c.getContext("2d").drawImage(vVideo,0,0,c.width,c.height);
   const t=fmtT(vVideo.currentTime), sec=vSec.value;
   vMsg.className="vmsg"; vMsg.textContent="Guardando captura…";
   try{
-    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.9));
+    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.8));
     const r=await assets.upload(blob,{type:"image/jpeg"});
     const arr=Array.isArray(state[shotKey(sec)])?state[shotKey(sec)]:(state[shotKey(sec)]=[]);
     arr.push({id:r.id,video:false,min:t,cap:""}); changed(); refreshShots(sec);
@@ -1828,7 +1917,10 @@ async function capture(){
   }catch(e){ vMsg.className="vmsg err"; vMsg.textContent="No se pudo guardar la captura. Probá de nuevo."; }
 }
 document.getElementById("vCap").addEventListener("click",capture);
-document.addEventListener("keydown",e=>{ if((e.key==="c"||e.key==="C") && !vBody.hidden && vVideo.src && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); capture(); } });
+document.getElementById("vClip").addEventListener("click",marcarClip);
+document.getElementById("vYTbtn").addEventListener("click",abrirYouTube);
+document.addEventListener("keydown",e=>{ if((e.key==="x"||e.key==="X") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); marcarClip(); return; }
+  if((e.key==="c"||e.key==="C") && !vBody.hidden && vVideo.src && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); capture(); } });
 /* ---------- inicio ---------- */
 (async ()=>{
   slug = lsGet("scout_last") || "rival-nuevo";
@@ -1974,6 +2066,8 @@ Object.assign(DIC,{"📜 Historial": ["📜 Histórico", "📜 History"], "Parti
 Object.assign(DIC,{"❓ Cómo se usa": ["❓ Como usar", "❓ How to use"]});
 Object.assign(DIC,{"Sus números al lado de los nuestros y las zonas que se cruzan": ["Os números deles ao lado dos nossos e as zonas que se cruzam", "Their numbers next to ours and where zones overlap"], "Juntando los videoanálisis…": ["Juntando as videoanálises…", "Gathering video analyses…"], "Recuperaciones": ["Recuperações", "Recoveries"], "Pérdidas": ["Perdas", "Turnovers"], "Remates": ["Finalizações", "Shots"], "Goles": ["Gols", "Goals"], "Centros": ["Cruzamentos", "Crosses"], "Presión alta": ["Pressão alta", "High press"], "Presión tras pérdida": ["Pressão pós-perda", "Counter-press"], "Córners": ["Escanteios", "Corners"], "Duelos": ["Duelos", "Duels"], "Contraataques": ["Contra-ataques", "Counter-attacks"], "Efectividad ✓/✗": ["Eficácia ✓/✗", "Success rate ✓/✗"], "Zonas vistas desde nuestro arco (atacando hacia la derecha)": ["Zonas vistas do nosso gol (atacando para a direita)", "Zones seen from our goal (attacking to the right)"], "Dónde recupera el rival": ["Onde o adversário recupera", "Where the opponent wins the ball"], "Dónde perdemos nosotras": ["Onde perdemos", "Where we lose the ball"], "Dónde perdemos nosotros": ["Onde perdemos", "Where we lose the ball"], "Dónde perdemos": ["Onde perdemos", "Where we lose the ball"], "Por dónde ataca el rival": ["Por onde o adversário ataca", "Where the opponent attacks"], "Dónde recuperamos nosotras": ["Onde recuperamos", "Where we win the ball"], "Dónde recuperamos nosotros": ["Onde recuperamos", "Where we win the ball"], "Dónde recuperamos": ["Onde recuperamos", "Where we win the ball"], "No se ve una zona donde coincidan las dos cosas.": ["Não há uma zona onde as duas coisas coincidam.", "No zone where both overlap."], "← nuestro arco": ["← nosso gol", "← our goal"], "Nosotras": ["Nós", "Us"], "Nosotros": ["Nós", "Us"], "Nosotras/os": ["Nós", "Us"]});PAT.push([new RegExp("^⚖ Rival vs (nosotras|nosotros|nosotras/os)$"),["⚖ Adversário vs nós", "⚖ Opponent vs us"]],[new RegExp("^Rival vs (nosotras|nosotros|nosotras/os)$"),["Adversário vs nós", "Opponent vs us"]],[new RegExp("^Datos del rival:$"),["Dados do adversário:", "Opponent data:"]]);
 Object.assign(DIC,{"Un partido del rival que taggeaste como equipo propio": ["Um jogo do adversário marcado como time próprio", "An opponent match you tagged as your own team"]});PAT.push([new RegExp("^Sus acciones en nuestros partidos contra (.+) \\(equipo “Rival”\\)$"),["Ações deles em nossos jogos contra $1 (time “Adversário”)", "Their actions in our matches vs $1 (team “Opponent”)"]],[new RegExp("^Promedio por partido · rival: (\\d+) partidos? · (.+): (\\d+) partidos?$"),["Média por jogo · adversário: $1 jogo(s) · nós: $3 jogo(s)", "Average per match · opponent: $1 match(es) · us: $3 match(es)"]],[new RegExp("^Ojo en (.+): el rival recupera ahí el (\\d+)% de sus pelotas y (.+) perdemos ahí el (\\d+)%\\.(.*)$"),["Atenção em $1: o adversário recupera ali $2% das bolas e nós perdemos ali $4%.$5", "Watch $1: the opponent wins $2% of their balls there and we lose $4% of ours there.$5"]],[new RegExp("^Bien en (.+): el rival llega mucho por ahí \\((\\d+)%\\) y es donde más recuperamos \\((\\d+)%\\)\\.(.*)$"),["Bom em $1: o adversário chega muito por ali ($2%) e é onde mais recuperamos ($3%).$4", "Good in $1: the opponent attacks a lot there ($2%) and it's where we win the ball most ($3%).$4"]]);
+Object.assign(DIC,{"▶ Link de YouTube": ["▶ Link do YouTube", "▶ YouTube link"], "✂ Clip": ["✂ Clipe", "✂ Clip"], "■ Terminar clip": ["■ Terminar clipe", "■ End clip"], "Ver el clip": ["Ver o clipe", "Watch the clip"], "Guardando clip…": ["Salvando clipe…", "Saving clip…"], "Cargando YouTube…": ["Carregando YouTube…", "Loading YouTube…"], "Primero abrí el video (archivo o YouTube).": ["Primeiro abra o vídeo (arquivo ou YouTube).", "Open the video first (file or YouTube)."], "No se pudo cargar YouTube. Revisá la conexión o que el video sea público / no listado.":["Não foi possível carregar o YouTube. Verifique a conexão ou se o vídeo é público / não listado.","YouTube couldn't load. Check the connection or that the video is public / unlisted."],"Ese link no parece de YouTube.": ["Esse link não parece do YouTube.", "That doesn't look like a YouTube link."], "Con YouTube no se puede sacar la imagen: usá ✂ Clip, que guarda el minuto y lo reproduce.": ["Com YouTube não dá para capturar a imagem: use ✂ Clipe, que salva o minuto e reproduz.", "With YouTube the frame can't be captured: use ✂ Clip, which saves the minute and plays it."], "Capturá o marcá un ✂ Clip desde el visor, o pegá una captura con Ctrl+V": ["Capture ou marque um ✂ Clipe no visualizador, ou cole uma captura com Ctrl+V", "Capture or mark a ✂ Clip in the viewer, or paste a screenshot with Ctrl+V"], "Abrí el video del partido en el visor (Salir → Abrir video) para ver el clip": ["Abra o vídeo do jogo no visualizador (Sair → Abrir vídeo) para ver o clipe", "Open the match video in the viewer (Exit → Open video) to watch the clip"]});PAT.push([new RegExp("^Clip desde el (.+) · tocá “Terminar clip” cuando termine la jugada\\.$"),["Clipe desde $1 · toque em “Terminar clipe” quando a jogada acabar.", "Clip from $1 · tap “End clip” when the play ends."]],[new RegExp("^Clip (.+) → (.+) guardado en (.*)\\. No se subió el video: solo el minuto\\.$"),["Clipe $1 → $2 salvo em $3. O vídeo não foi enviado: só o minuto.", "Clip $1 → $2 saved in $3. The video wasn't uploaded: only the minute."]],[new RegExp("^▶ Ver el clip \\((.+) → (.+)\\)$"),["▶ Ver o clipe ($1 → $2)", "▶ Watch the clip ($1 → $2)"]]);
+Object.assign(DIC,{"Con": ["Com", "With"], ": marcás el inicio y el fin de una jugada: el video no se sube, se guarda solo el minuto. Funciona con el archivo o con un link de YouTube.": [": marca o início e o fim de uma jogada: o vídeo não é enviado, só o minuto. Funciona com o arquivo ou com um link do YouTube.", ": mark the start and end of a play: the video isn't uploaded, only the minute is saved. Works with the file or a YouTube link."]});
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
