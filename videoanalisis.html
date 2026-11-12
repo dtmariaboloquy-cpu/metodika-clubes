@@ -298,7 +298,7 @@ h1,h2,h3{letter-spacing:-.2px}
           <button data-tool="lapiz" title="Mano alzada">✎ Lápiz</button>
           <button data-tool="texto" title="Texto">T Texto</button>
           <button data-tool="foco" title="Foco: ilumina a quien hace la acción y oscurece el resto">◉ Foco</button>
-          <button data-tool="regla" title="Distancia entre líneas o entre dos posiciones">📏 Distancia</button>
+          <button data-tool="regla" title="Mostrá cuánto espacio hubo: entre líneas, entre dos jugadoras o el largo de un pase">📏 Distancia</button>
           <span class="vs"></span>
           <button class="sw on" data-col="#FFD60A" style="background:#FFD60A" title="Amarillo"></button>
           <button class="sw" data-col="#FF3B30" style="background:#FF3B30" title="Rojo"></button>
@@ -1562,7 +1562,7 @@ function guiaVA(){
       `<p>No tag recém-marcado adicione a ${jp}, a <b>zona</b> do campo, se deu certo <b>✓</b> ou errado <b>✗</b> e uma nota.</p>`,
       `<p>On the new tag add the player, the pitch <b>zone</b>, whether it went well <b>✓</b> or badly <b>✗</b>, and a note.</p>`)},
     {sel:"#bDibujar", t:L("Dibujar sobre el clip","Desenhar no clipe","Draw on the clip"), d:L(
-      `<p>Pausá y tocá <b>✏️ Dibujar</b> para marcar flechas, ${J("pl")} y zonas. Con <b>◉ Foco</b> iluminás a quien hace la acción y con <b>📏 Distancia</b> marcás los metros entre líneas. El clip se frena solo en ese momento y muestra el dibujo.</p>`,
+      `<p>Pausá y tocá <b>✏️ Dibujar</b> para marcar flechas, ${J("pl")} y zonas. Con <b>◉ Foco</b> iluminás a quien hace la acción y con <b>📏 Distancia</b> mostrás cuánto espacio hubo (ej.: 25 m entre defensa y volantes, para ver si el equipo quedó largo). Los metros los calculás vos usando las líneas de la cancha. El clip se frena solo en ese momento y muestra el dibujo.</p>`,
       `<p>Pause e toque em <b>✏️ Desenhar</b> para marcar setas, ${jpl} e zonas. O clipe para sozinho e mostra o desenho.</p>`,
       `<p>Pause and tap <b>✏️ Draw</b> to add arrows, players and zones. The clip stops there and shows the drawing.</p>`)},
     {sel:'#tabs [data-t="lista"]', antes:ir("lista"), t:L("Tags","Tags","Tags"), d:L(
@@ -2060,7 +2060,7 @@ function actualizarHint(){
   $(".drawhint").textContent = herramienta==="mover"
     ? "Mover · tocá un dibujo y arrastralo. El cuadradito blanco lo agranda o achica. Doble clic en un texto para cambiarlo."
     : herramienta==="foco" ? "Foco · tocá a quien hace la acción y arrastrá para el tamaño: el resto de la imagen se oscurece."
-    : herramienta==="regla" ? "Distancia · arrastrá de una línea a la otra (o entre dos posiciones) y poné los metros aproximados."
+    : herramienta==="regla" ? "Distancia · uní dos puntos (ej.: la línea de defensa y la de volantes) y escribí los metros. Sirve para mostrar si el equipo quedó largo, corto o abierto."
     : "Pausado · dibujá sobre la imagen. Se va a ver cuando reproduzcas este clip.";
 }
 
@@ -2142,7 +2142,7 @@ function finPuntero(){
   if (!trazo) return;
   const [a,b] = [trazo.pts[0], trazo.pts[trazo.pts.length-1]];
   if (trazo.k==="lapiz" ? trazo.pts.length>2 : Math.hypot(b[0]-a[0], b[1]-a[1])>0.01){ const t2 = trazo; trazo = null;
-    if (t2.k==="regla"){ repintarEditor(); const m = prompt("Distancia aproximada (ej.: 12). Dejalo vacío si no querés poner número:", ""); if (m && m.trim()) t2.txt = /^\d+([.,]\d+)?$/.test(m.trim()) ? m.trim()+" m" : m.trim().slice(0,20); }
+    if (t2.k==="regla"){ repintarEditor(); const m = prompt("¿Cuántos metros hay entre esos dos puntos?\n\nPara calcularlo usá las líneas de la cancha como referencia:\n• el área grande tiene 16,5 m de largo\n• el área chica, 5,5 m\n• del punto del penal al arco hay 11 m\n• el círculo central tiene 9,15 m de radio\n\nPodés escribir solo el número (ej.: 25) o un texto corto (ej.: 25 m · muy largas). Dejalo vacío para que salga solo la línea.", ""); if (m && m.trim()) t2.txt = /^\d+([.,]\d+)?$/.test(m.trim()) ? m.trim()+" m" : m.trim().slice(0,28); }
     histGuardar(); formasEd.push(t2); }
   trazo = null; repintarEditor();
 }
@@ -2151,9 +2151,9 @@ cv.addEventListener("pointercancel", finPuntero);
 cv.addEventListener("dblclick", ()=>{
   if (!dibujando || herramienta!=="mover") return;
   const f = formasEd[selIdx]; if (!f || (f.k!=="texto" && f.k!=="regla")) return;
-  const txt = prompt(f.k==="regla" ? "Distancia (ej.: 12 m):" : "Cambiar texto:", f.txt||"");
+  const txt = prompt(f.k==="regla" ? "Metros entre los dos puntos (ej.: 25, o 25 m · muy largas):" : "Cambiar texto:", f.txt||"");
   if (txt===null) return;
-  if (f.k==="regla"){ histGuardar(); f.txt = txt.trim() ? (/^\d+([.,]\d+)?$/.test(txt.trim()) ? txt.trim()+" m" : txt.trim().slice(0,20)) : ""; if (!f.txt) delete f.txt; repintarEditor(); return; }
+  if (f.k==="regla"){ histGuardar(); f.txt = txt.trim() ? (/^\d+([.,]\d+)?$/.test(txt.trim()) ? txt.trim()+" m" : txt.trim().slice(0,28)) : ""; if (!f.txt) delete f.txt; repintarEditor(); return; }
   if (txt.trim() && txt.trim()!==f.txt){ histGuardar(); f.txt = txt.trim(); repintarEditor(); }
 });
 $("#drawBar").addEventListener("click", e=>{
@@ -2876,6 +2876,7 @@ Object.assign(DIC,{"Comparar partidos": ["Comparar jogos", "Compare matches"], "
 Object.assign(DIC,{"❓ Cómo se usa": ["❓ Como usar", "❓ How to use"], "Qué partidos": ["Quais jogos", "Which matches"], "⬇ Descargar imagen": ["⬇ Baixar imagem", "⬇ Download image"], "Compartir…": ["Compartilhar…", "Share…"], "Cerrar": ["Fechar", "Close"], "Tamaño historia de celular (1080×1920), para mandarle por WhatsApp. Muestra sus números, lo que hace bien, lo que tiene que mejorar y tus notas.": ["Tamanho story de celular (1080×1920), para mandar no WhatsApp. Mostra os números, o que faz bem, o que precisa melhorar e suas notas.", "Phone-story size (1080×1920) to send on WhatsApp. Shows their numbers, what they do well, what to improve and your notes."]});PAT.push([new RegExp("^📲 Imagen para (la jugadora|el jugador|el/la jugador/a)$"),["📲 Imagem para a/o atleta", "📲 Image for the player"]],[new RegExp("^Imagen para (la jugadora|el jugador|el/la jugador/a)$"),["Imagem para a/o atleta", "Image for the player"]],[new RegExp("^Mensaje para (la jugadora|el jugador|el/la jugador/a) \\(opcional\\)$"),["Mensagem para a/o atleta (opcional)", "Message for the player (optional)"]],[new RegExp("^Toda la temporada \\((\\d+)\\)$"),["Toda a temporada ($1)", "Whole season ($1)"]]);
 Object.assign(DIC,{"Detalle": ["Detalhe", "Detail"], "✎ opciones": ["✎ opções", "✎ options"], "quitar": ["remover", "remove"], "Zonas": ["Zonas", "Zones"], "Puntos": ["Pontos", "Points"], "Detalle de las acciones": ["Detalhe das ações", "Action details"], "Sin resultado": ["Sem resultado", "No result"], "▶︎ Ver de corrido": ["▶︎ Ver em sequência", "▶︎ Play through"], "🔗 Jugadas completas de este partido": ["🔗 Jogadas completas deste jogo", "🔗 Full plays in this match"], "En Tags tildá 2 o más acciones seguidas y tocá “🔗 Unir como jugada”.": ["Em Tags marque 2 ou mais ações seguidas e toque em “🔗 Unir como jogada”.", "In Tags tick 2 or more consecutive actions and tap “🔗 Join as a play”."], "Todavía no hay jugadas armadas en este partido.": ["Ainda não há jogadas montadas neste jogo.", "No plays built in this match yet."], "Tocá un número para ver esos clips.": ["Toque num número para ver esses clipes.", "Tap a number to see those clips."], "◉ Foco": ["◉ Foco", "◉ Spotlight"], "📏 Distancia": ["📏 Distância", "📏 Distance"], "Total": ["Total", "Total"], "Al arco": ["No gol", "On target"], "Afuera": ["Para fora", "Off target"], "Bloqueado": ["Bloqueado", "Blocked"], "Gol": ["Gol", "Goal"], "Pie derecho": ["Pé direito", "Right foot"], "Pie izquierdo": ["Pé esquerdo", "Left foot"], "Cabeza": ["Cabeça", "Header"], "Primer palo": ["Primeiro poste", "Near post"], "Segundo palo": ["Segundo poste", "Far post"], "Atrás": ["Para trás", "Cut-back"], "Alto": ["Alto", "High"], "Rasante": ["Rasteiro", "Low"], "Intercepción": ["Interceptação", "Interception"], "Duelo": ["Duelo", "Duel"], "Presión": ["Pressão", "Press"], "Segunda pelota": ["Segunda bola", "Second ball"], "Error rival": ["Erro adversário", "Opponent error"], "Pase": ["Passe", "Pass"], "Conducción": ["Condução", "Carry"], "Control": ["Controle", "Control"], "Corto": ["Curto", "Short"], "Largo": ["Longo", "Long"], "Por derecha": ["Pela direita", "Right side"], "Por el centro": ["Pelo centro", "Through the middle"], "Por izquierda": ["Pela esquerda", "Left side"], "Entre líneas": ["Entre linhas", "Between the lines"], "Por afuera": ["Por fora", "Out wide"], "Cambio de frente": ["Inversão", "Switch of play"], "Área chica": ["Pequena área", "Six-yard box"], "Directo": ["Direto", "Direct"], "Aéreo": ["Aéreo", "Aerial"], "Por abajo": ["Por baixo", "Ground"], "Terminó en remate": ["Terminou em finalização", "Ended in a shot"], "Se cortó": ["Foi cortado", "Broken up"], "Falta": ["Falta", "Foul"], "A tiempo": ["A tempo", "In time"], "Tarde": ["Atrasado", "Late"], "Al área": ["Na área", "Into the box"], "Recuperamos": ["Recuperamos", "Won it back"], "Nos superaron": ["Fomos superados", "Bypassed"]});PAT.push([new RegExp("^🔗 Unir como jugada( \\((\\d+)\\))?$"),["🔗 Unir como jogada$1", "🔗 Join as a play$1"]],[new RegExp("^Dónde pasó · tocá el punto exacto \\(atacando →\\)$"),["Onde aconteceu · toque o ponto exato (atacando →)", "Where it happened · tap the exact spot (attacking →)"]],[new RegExp("^Cuadro (.+) × acciones$"),["Quadro atletas × ações", "Players × actions grid"]],[new RegExp("^(\\d+) con punto exacto(.*)$"),["$1 com ponto exato$2", "$1 with an exact spot$2"]],[new RegExp("^(\\d+) con detalle$"),["$1 com detalhe", "$1 with detail"]]);
 Object.assign(DIC,{"Jugada creada: la ves en Listas de clips.": ["Jogada criada: veja em Listas de clipes.", "Play created: find it in Playlists."], "Tildá al menos 2 tags para unirlos.": ["Marque pelo menos 2 tags para unir.", "Tick at least 2 tags to join them."]});
+Object.assign(DIC,{"Mostrá cuánto espacio hubo: entre líneas, entre dos jugadoras o el largo de un pase": ["Mostre quanto espaço houve: entre linhas, entre duas atletas ou o comprimento de um passe", "Show how much space there was: between lines, between two players or the length of a pass"]});PAT.push([new RegExp("^Distancia · uní dos puntos.*$"),["Distância · ligue dois pontos (ex.: a linha de defesa e a do meio) e escreva os metros. Serve para mostrar se o time ficou longo, curto ou aberto.", "Distance · join two points (e.g. the back line and the midfield line) and type the meters. Shows whether the team was stretched, compact or wide."]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
