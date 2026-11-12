@@ -673,7 +673,7 @@ setTimeout(()=>{ if(!iniciado && (typeof firebase==="undefined")) window.VA.onUs
 function renSal(arr){ (arr||[]).forEach(x=>{ if (x && x.nombre==="Salida de juego") x.nombre="Inicio de juego"; }); }
 function abrirProyecto(id, mantenerLista){
   if (dibujando) cerrarDibujo(false);
-  pausar(); if(!mantenerLista) playlist=null; recording={}; clipFin=null; marcados.clear();
+  pausar(); if(!mantenerLista) playlist=null; recording={}; clipFin=null; marcados.clear(); clipTag=null; mostrarOverlay(null); limpiarCanvas();
   let data = null;
   try{ data = JSON.parse(lsGet("va_p_"+id)||"null"); }catch(e){}
   if (!data){ toast("No se encontró ese análisis."); return; }
@@ -2084,7 +2084,10 @@ function cerrarDibujo(guardar){
     tagDib.dibujos = tagDib.dibujos || [];
     const t = +player.time().toFixed(2);
     if (dibEditId) tagDib.dibujos = tagDib.dibujos.filter(d=>d.id!==dibEditId);
-    if (formasEd.length) tagDib.dibujos.push({id:dibEditId||uid(), t, pausa:+$("#dPausa").value, formas:formasEd});
+    if (formasEd.length){ tagDib.dibujos.push({id:dibEditId||uid(), t, pausa:+$("#dPausa").value, formas:formasEd});
+      /* si el dibujo quedó fuera del recorte, se agranda el clip para que se vea al reproducirlo */
+      if (t >= tagDib.fin - 0.3) tagDib.fin = +(t + 1.5).toFixed(2);
+      if (t < tagDib.ini) tagDib.ini = Math.max(0, +(t - 1).toFixed(2)); }
     tagDib.dibujos.sort((a,b)=>a.t-b.t);
     changed(); toast(formasEd.length ? "Dibujo guardado en el clip." : "Dibujo borrado.");
   }
