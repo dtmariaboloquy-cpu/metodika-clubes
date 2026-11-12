@@ -125,8 +125,9 @@ label.lbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
 
 /* mini cancha (zonas) */
 .pitch{position:relative;width:100%;max-width:440px;margin:0 auto;aspect-ratio:105/68;background:linear-gradient(90deg,#1E7A46,#23864E);border-radius:8px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
-.pitch::before{content:"";position:absolute;inset:6%;border:1.5px solid rgba(255,255,255,.65);pointer-events:none}
-.pitch::after{content:"";position:absolute;left:50%;top:6%;bottom:6%;border-left:1.5px solid rgba(255,255,255,.65);pointer-events:none}
+.pitch-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}.pitch .pz{z-index:1;background-color:transparent}
+.pitch::before{display:none;content:"";position:absolute;inset:6%;border:1.5px solid rgba(255,255,255,.65);pointer-events:none}
+.pitch::after{display:none;content:"";position:absolute;left:50%;top:6%;bottom:6%;border-left:1.5px solid rgba(255,255,255,.65);pointer-events:none}
 .pz{position:relative;border:1px dashed rgba(255,255,255,.25);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .pz:hover{background:rgba(255,255,255,.12)}
 .pz.on{background:rgba(255,255,255,.35)}
@@ -170,6 +171,9 @@ table.t tr:hover td{background:var(--field)}
 .jg-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--line)}
 .jg-info{display:flex;flex-direction:column;gap:2px;min-width:0}.jg-chain{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12.5px}.jg-chain span{display:inline-flex;align-items:center;gap:4px}.jg-chain i{display:inline-block}.jg-chain b{color:var(--sub)}
 .jg-btns{display:flex;gap:5px;flex-wrap:wrap}
+.avj{display:inline-grid;place-items:center;border-radius:50%;overflow:hidden;background:var(--ink);color:var(--accent-ink,#FFD400);font-weight:800;flex:none;border:2px solid var(--line)}.avj img{width:100%;height:100%;object-fit:cover;object-position:top}
+.jug-cab{display:flex;align-items:center;gap:14px;margin:4px 0 12px}.jug-cab b{display:block;font-size:20px}.jug-cab span{font-size:13px;color:var(--sub)}
+.dj-row{display:flex;align-items:center;gap:8px}
 .statgrid>div,.vapro-card{min-width:0;overflow-x:auto}
 .dev-grid{display:grid;grid-template-columns:1fr 230px;gap:16px;align-items:start}.dev-prev img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
 @media (max-width:600px){.dev-grid{grid-template-columns:1fr}.dev-prev{max-width:230px;margin:0 auto}}
@@ -512,7 +516,7 @@ async function cargarPlantel(){
   if (!S){ try{ const t = localStorage.getItem("metodika_clubes_v1"); if (t){ const x = JSON.parse(t); S = {club:x.club, jugadores:x.jugadores, partidos:x.partidos}; } }catch(e){} }
   S = S || {};
   CLUB = S.club || {};
-  JUGADORAS = (S.jugadores||[]).map(j=>{ const nombre = ((j.nombre||"")+" "+(j.apellido||"")).trim(); const dorsal = (j.dorsal!=null && j.dorsal!=="") ? j.dorsal : ""; return {num:String(j.id), dorsal, apellido:j.apellido||"", nombre, pos:j.posicion||"", label:(dorsal!==""?dorsal+" · ":"")+nombre}; })
+  JUGADORAS = (S.jugadores||[]).map(j=>{ const nombre = ((j.nombre||"")+" "+(j.apellido||"")).trim(); const dorsal = (j.dorsal!=null && j.dorsal!=="") ? j.dorsal : ""; return {num:String(j.id), dorsal, apellido:j.apellido||"", nombre, pos:j.posicion||"", foto:j.foto||"", label:(dorsal!==""?dorsal+" · ":"")+nombre}; })
     .sort((a,b)=>(+a.dorsal||99)-(+b.dorsal||99) || a.nombre.localeCompare(b.nombre));
   PARTIDOS = (S.partidos||[]).filter(p=>p && p.rival).map(p=>({id:p.id, fecha:fechaAR(p.fecha), fechaISO:String(p.fecha||""), rival:p.rival, golesFavor:(p.golesF!=null?p.golesF:null), golesContra:(p.golesC!=null?p.golesC:null)}));
   pintarMarca();
@@ -940,9 +944,9 @@ function renderDesc(){
       <button class="chip neg ${tag.resultado==="neg"?"on":""}" data-res="neg">✗ Negativa</button>
     </div>
     ${htmlDetalle(tag)}
-    ${jug}
+    <div class="dj-row">${actual?avatarVA(actual,34):""}<div style="flex:1;min-width:0">${jug}</div></div>
     <div style="margin-top:8px"><label class="lbl">Dónde pasó · tocá el punto exacto (atacando →)</label>
-      <div class="pitch" id="dPitch">${[0,1,2].map(r=>[0,1,2].map(c=>{ const z=ZONAS[r*3+c]; return `<div class="pz ${tag.zona===z[0]?"on":""}" data-z="${z[0]}" title="${z[1]}">${tag.zona===z[0]&&!tag.pt?"●":""}</div>`; }).join("")).join("")}${tag.pt?`<span class="ptd" style="left:${(tag.pt[0]*100).toFixed(1)}%;top:${(tag.pt[1]*100).toFixed(1)}%"></span>`:""}<span class="dir">ataque →</span></div>
+      <div class="pitch" id="dPitch"><svg class="pitch-bg" viewBox="0 0 105 68" preserveAspectRatio="none" aria-hidden="true">${svgCanchaPro(0,0,105,68,"d")}</svg>${[0,1,2].map(r=>[0,1,2].map(c=>{ const z=ZONAS[r*3+c]; return `<div class="pz ${tag.zona===z[0]?"on":""}" data-z="${z[0]}" title="${z[1]}">${tag.zona===z[0]&&!tag.pt?"●":""}</div>`; }).join("")).join("")}${tag.pt?`<span class="ptd" style="left:${(tag.pt[0]*100).toFixed(1)}%;top:${(tag.pt[1]*100).toFixed(1)}%"></span>`:""}<span class="dir">ataque →</span></div>
       ${tag.zona?`<div class="small muted" style="margin-top:4px">${esc(ZONA_NOMBRE[tag.zona]||"")}${tag.pt?" · punto exacto":""} · <button class="linkb" id="dPtDel">quitar</button></div>`:""}
     </div>
     <div class="row2">
@@ -1094,6 +1098,80 @@ function renderStats(){
   </div>`;
 }
 
+
+function avatarVA(j, t){ t = t||36; if (!j) return ""; const ini = String(j.nombre||j.label||"?").split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase(); return `<span class="avj" style="width:${t}px;height:${t}px;font-size:${Math.round(t*.38)}px">${j.foto?`<img src="${esc(j.foto)}" alt="">`:esc(j.dorsal!==""&&j.dorsal!=null?j.dorsal:ini)}</span>`; }
+/* ---------- cancha profesional (mismo estilo que la pizarra de Metodika) ---------- */
+const CP_C1 = "#5A9216", CP_C2 = "#6BA328";
+/* SVG: dibuja la cancha ocupando el rectángulo x,y,w,h (largo en horizontal). */
+function svgCanchaPro(x, y, w, h, uid){
+  const id = "cp" + (uid || Math.random().toString(36).slice(2,7)), m = Math.min(w,h)*0.045, X = x+m, Y = y+m, L = w-2*m, A = h-2*m, sx = L/105, sy = A/68, lw = Math.max(1.2, Math.min(w,h)*0.007);
+  let s = `<defs><clipPath id="${id}c"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(w,h)*0.035}"/></clipPath><radialGradient id="${id}v" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient>
+    <pattern id="${id}n" width="${lw*2.2}" height="${lw*2.2}" patternUnits="userSpaceOnUse"><path d="M0 0L${lw*2.2} ${lw*2.2}M${lw*2.2} 0L0 ${lw*2.2}" stroke="#fff" stroke-opacity=".45" stroke-width="${lw*.35}"/></pattern></defs><g clip-path="url(#${id}c)"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${CP_C1}"/>`;
+  const n = 12, sw = w/n; for (let i=0;i<n;i+=2) s += `<rect x="${(x+i*sw).toFixed(2)}" y="${y}" width="${sw.toFixed(2)}" height="${h}" fill="${CP_C2}"/>`;
+  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#${id}v)"/></g>`;
+  const P = (a,b)=>[(X+a*sx).toFixed(2),(Y+b*sy).toFixed(2)];
+  const ln = `fill="none" stroke="#fff" stroke-opacity=".92" stroke-width="${lw}" stroke-linejoin="round"`;
+  s += `<rect x="${X}" y="${Y}" width="${L}" height="${A}" ${ln}/><line x1="${X+L/2}" y1="${Y}" x2="${X+L/2}" y2="${Y+A}" ${ln}/>`;
+  s += `<ellipse cx="${X+L/2}" cy="${Y+A/2}" rx="${9.15*sx}" ry="${9.15*sy}" ${ln}/><circle cx="${X+L/2}" cy="${Y+A/2}" r="${lw*1.3}" fill="#fff"/>`;
+  [0,1].forEach(side=>{ const dir = side?-1:1, x0 = side?105:0;
+    const pa = [x0, 34-20.16], ga = [x0, 34-9.16];
+    s += `<rect x="${P(side?105-16.5:0, pa[1])[0]}" y="${P(0,pa[1])[1]}" width="${16.5*sx}" height="${40.32*sy}" ${ln}/>`;
+    s += `<rect x="${P(side?105-5.5:0, ga[1])[0]}" y="${P(0,ga[1])[1]}" width="${5.5*sx}" height="${18.32*sy}" ${ln}/>`;
+    const ps = P(x0+dir*11, 34); s += `<circle cx="${ps[0]}" cy="${ps[1]}" r="${lw*1.2}" fill="#fff"/>`;
+    const ang = Math.acos(5.5/9.15), cx = X+(x0+dir*11)*sx, cy = Y+34*sy, rx = 9.15*sx, ry = 9.15*sy;
+    const a1 = [cx+dir*rx*Math.cos(ang), cy-ry*Math.sin(ang)], a2 = [cx+dir*rx*Math.cos(ang), cy+ry*Math.sin(ang)];
+    s += `<path d="M${a1[0].toFixed(2)} ${a1[1].toFixed(2)}A${rx} ${ry} 0 0 ${side?0:1} ${a2[0].toFixed(2)} ${a2[1].toFixed(2)}" ${ln}/>`;
+    const gx = side ? X+L : X-2.2*sx, gy = Y+(34-3.66)*sy; s += `<rect x="${gx}" y="${gy}" width="${2.2*sx}" height="${7.32*sy}" fill="url(#${id}n)" ${ln}/>`;
+    [[x0,0],[x0,68]].forEach(([cxx,cyy])=>{ const c0 = P(cxx,cyy), r = 1.2*Math.min(sx,sy); s += `<path d="M${(+c0[0]+dir*r).toFixed(2)} ${c0[1]}A${r} ${r} 0 0 ${(side?1:0)^(cyy?1:0)} ${c0[0]} ${(+c0[1]+(cyy?-r:r)).toFixed(2)}" ${ln}/>`; });
+  });
+  return s;
+}
+/* Canvas: misma cancha. vertical=true → se ataca hacia arriba. Devuelve una función para pasar de metros (0-105, 0-68) a píxeles. */
+function canchaPro(g, x, y, w, h, vertical){
+  g.save();
+  const r = Math.min(w,h)*0.035;
+  g.beginPath(); g.roundRect ? g.roundRect(x,y,w,h,r) : g.rect(x,y,w,h); g.clip();
+  g.fillStyle = CP_C1; g.fillRect(x,y,w,h);
+  const n = 12; g.fillStyle = CP_C2;
+  for (let i=0;i<n;i+=2){ if (vertical) g.fillRect(x, y+i*h/n, w, h/n); else g.fillRect(x+i*w/n, y, w/n, h); }
+  const vg = g.createRadialGradient(x+w/2, y+h/2, Math.min(w,h)*0.3, x+w/2, y+h/2, Math.max(w,h)*0.75); vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.3)"); g.fillStyle = vg; g.fillRect(x,y,w,h);
+  g.restore(); g.save();
+  const m = Math.min(w,h)*0.045, X = x+m, Y = y+m, L = (vertical?h:w)-2*m, A = (vertical?w:h)-2*m, sx = L/105, sy = A/68;
+  const P = (a,b)=> vertical ? [X + b*sy, Y + (105-a)*sx] : [X + a*sx, Y + b*sy];
+  g.strokeStyle = "rgba(255,255,255,.92)"; g.fillStyle = "#fff"; g.lineWidth = Math.max(2, Math.min(w,h)*0.0065); g.lineJoin = "round";
+  const poly = pts=>{ g.beginPath(); pts.forEach((p,i)=>{ const q = P(p[0],p[1]); i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]); }); g.stroke(); };
+  const rect = (a,b,c,d)=>poly([[a,b],[c,b],[c,d],[a,d],[a,b]]);
+  const arc = (cx,cy,rr,a0,a1)=>{ g.beginPath(); for (let k=0;k<=40;k++){ const t = a0+(a1-a0)*k/40, q = P(cx+rr*Math.cos(t), cy+rr*Math.sin(t)); k?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]); } g.stroke(); };
+  const dot = (a,b,rr)=>{ const q = P(a,b); g.beginPath(); g.arc(q[0],q[1],rr,0,Math.PI*2); g.fill(); };
+  rect(0,0,105,68); poly([[52.5,0],[52.5,68]]); arc(52.5,34,9.15,0,Math.PI*2); dot(52.5,34,g.lineWidth*1.3);
+  [0,105].forEach(x0=>{ const d = x0 ? -1 : 1;
+    rect(x0, 34-20.16, x0+d*16.5, 34+20.16); rect(x0, 34-9.16, x0+d*5.5, 34+9.16); dot(x0+d*11, 34, g.lineWidth*1.2);
+    const ang = Math.acos(5.5/9.15); if (d>0) arc(11,34,9.15,-ang,ang); else arc(94,34,9.15,Math.PI-ang,Math.PI+ang);
+    rect(x0, 34-3.66, x0-d*2.2, 34+3.66);
+    arc(x0,0,1.2, d>0?0:Math.PI/2, d>0?Math.PI/2:Math.PI); arc(x0,68,1.2, d>0?-Math.PI/2:Math.PI, d>0?0:1.5*Math.PI);
+  });
+  g.restore();
+  return P;
+}
+/* ficha de jugadora (mismo estilo que la pizarra): foto si hay, si no número */
+function fichaCanvas(g, cx, cy, r, o){
+  const col = o.color || "#FFD400", tx = o.tinta || "#141412";
+  g.save(); g.fillStyle = "rgba(0,0,0,.28)"; g.beginPath(); g.arc(cx+r*.12, cy+r*.18, r, 0, Math.PI*2); g.fill(); g.restore();
+  if (o.img){ g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.closePath(); g.fillStyle = "#ddd"; g.fill(); g.clip();
+    const iw = o.img.width, ih = o.img.height, k = Math.max(2*r/iw, 2*r/ih); g.drawImage(o.img, cx-iw*k/2, cy-r, iw*k, ih*k); g.restore();
+    g.lineWidth = r*.18; g.strokeStyle = col; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.stroke();
+    if (o.n!=null && o.n!==""){ g.fillStyle = col; g.beginPath(); g.arc(cx+r*.78, cy-r*.74, r*.42, 0, Math.PI*2); g.fill(); g.lineWidth = r*.06; g.strokeStyle = "#141412"; g.stroke();
+      g.fillStyle = tx; g.font = `700 ${Math.round(r*.48)}px 'Barlow Condensed', Barlow, Arial`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(String(o.n), cx+r*.78, cy-r*.72); }
+  } else {
+    g.fillStyle = col; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.fill(); g.lineWidth = r*.12; g.strokeStyle = "#141412"; g.stroke();
+    const gr = g.createRadialGradient(cx-r*.3, cy-r*.35, r*.1, cx, cy, r); gr.addColorStop(0,"rgba(255,255,255,.35)"); gr.addColorStop(1,"rgba(0,0,0,.18)"); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r*.94, 0, Math.PI*2); g.fill();
+    if (o.n!=null && o.n!==""){ g.fillStyle = tx; g.font = `700 ${Math.round(r*1.02)}px 'Barlow Condensed', Barlow, Arial`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(String(o.n), cx, cy+r*.06); }
+  }
+  if (o.nombre){ g.font = `700 ${Math.round(r*.62)}px Barlow, Arial`; g.textAlign = "center"; g.textBaseline = "alphabetic"; g.lineWidth = r*.18; g.strokeStyle = "rgba(0,0,0,.65)"; g.lineJoin = "round"; g.strokeText(o.nombre, cx, cy+r*2.05); g.fillStyle = "#fff"; g.fillText(o.nombre, cx, cy+r*2.05); }
+  g.textAlign = "left"; g.textBaseline = "alphabetic";
+}
+function cargarImgP(src){ return new Promise(ok=>{ if (!src) return ok(null); const i = new Image(); const t = setTimeout(()=>ok(null), 5000); i.onload = ()=>{ clearTimeout(t); ok(i); }; i.onerror = ()=>{ clearTimeout(t); ok(null); }; i.src = src; }); }
+
 /* ---------- análisis pro: momentum, mapa de calor, informe, comparar ---------- */
 let mapaTipo = lsGet("va_mapa") || "rec", mapaEq = lsGet("va_mapaEq") || "propio", momMet = lsGet("va_mom") || "ataque", jugFil = "", cmpAcc = lsGet("va_cmp") || "__total";
 function minDe(p, t){ if (p.ini2!=null && t>=p.ini2) return 45+(t-p.ini2)/60; if (p.ini1!=null && t>=p.ini1) return (t-p.ini1)/60; return null; }
@@ -1154,18 +1232,16 @@ function resumenMomentum(B){
 }
 /* mapa de calor por zonas (3x3) */
 function svgMapa(cuenta, color, dirTxt){
-  const W = 420, H = 272, mx = 14, my = 12, cw = (W-2*mx)/3, ch = (H-2*my)/3;
+  const W = 420, H = 272, mx = Math.min(W,H)*0.045, my = mx, cw = (W-2*mx)/3, ch = (H-2*my)/3;
   const tot = Object.values(cuenta).reduce((a,b)=>a+b,0), max = Math.max(1, ...Object.values(cuenta));
-  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:460px;height:auto;display:block;margin:0 auto" role="img" aria-label="Mapa de calor"><rect width="${W}" height="${H}" rx="10" fill="#1E7A46"/>`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:460px;height:auto;display:block;margin:0 auto" role="img" aria-label="Mapa de calor">${svgCanchaPro(0,0,W,H,"m")}`;
   for (let r=0;r<3;r++) for (let c=0;c<3;c++){
-    const z = ZONAS[r*3+c][0], n = cuenta[z]||0, a = n ? 0.18 + n/max*0.7 : 0;
+    const z = ZONAS[r*3+c][0], n = cuenta[z]||0, a = n ? 0.2 + n/max*0.55 : 0;
     const x = mx+c*cw, y = my+r*ch;
     s += `<rect x="${x}" y="${y}" width="${cw}" height="${ch}" fill="${color}" fill-opacity="${a.toFixed(2)}" stroke="rgba(255,255,255,.22)" stroke-dasharray="3 3"><title>${esc(ZONA_NOMBRE[z])}: ${n}</title></rect>`;
     if (n) s += `<text x="${x+cw/2}" y="${y+ch/2+2}" text-anchor="middle" font-size="22" font-weight="800" fill="#fff" style="paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:3px">${n}</text><text x="${x+cw/2}" y="${y+ch/2+20}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" opacity=".9">${Math.round(n/tot*100)}%</text>`;
   }
-  s += `<g fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.6"><rect x="${mx}" y="${my}" width="${W-2*mx}" height="${H-2*my}"/><line x1="${W/2}" y1="${my}" x2="${W/2}" y2="${H-my}"/><circle cx="${W/2}" cy="${H/2}" r="30"/>
-    <rect x="${mx}" y="${H/2-58}" width="52" height="116"/><rect x="${W-mx-52}" y="${H/2-58}" width="52" height="116"/></g>`;
-  s += `<text x="${W-mx-6}" y="${H-my-6}" text-anchor="end" font-size="11" font-weight="700" fill="#fff" opacity=".9">${esc(dirTxt||"")} →</text>`;
+  s += `<text x="${W-mx-6}" y="${H-my-6}" text-anchor="end" font-size="11" font-weight="700" fill="#fff" opacity=".9" style="paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2px">${esc(dirTxt||"")} →</text>`;
   return s + `</svg>`;
 }
 function bloqueAnalisisPro(ts){
@@ -1516,6 +1592,7 @@ function guiaVA(){
 
 /* ---------- devolución por jugadora: imagen 1080×1920 ---------- */
 function wrapC(g, txt, maxW){ const out = []; String(txt||"").split(/\n+/).forEach(par=>{ let line = ""; par.split(/\s+/).forEach(w=>{ const t = line ? line+" "+w : w; if (g.measureText(t).width > maxW && line){ out.push(line); line = w; } else line = t; }); if (line) out.push(line); }); return out; }
+let imgDevol = null;
 function lienzoDevolucion(key, pid, msg){
   let cs = clipsDeJugadora(key); if (pid) cs = cs.filter(c=>c.p.id===pid);
   const W = 1080, H = 1920, HT = 3600, M = 70, cv = document.createElement("canvas"); cv.width = W; cv.height = HT;
@@ -1523,12 +1600,14 @@ function lienzoDevolucion(key, pid, msg){
   const FD = "Georama, Barlow, Arial, sans-serif", FB = "Barlow, Arial, sans-serif";
   g.fillStyle = BG; g.fillRect(0,0,W,HT);
   let y = 96;
-  g.fillStyle = AM; g.font = `700 30px ${FB}`; g.fillText((subtituloClub()+" · Devolución").toUpperCase().slice(0,52), M, y);
-  y += 96; g.fillStyle = TX; g.font = `800 84px ${FD}`;
-  wrapC(g, nombreJug(key), W-2*M).slice(0,2).forEach(l=>{ g.fillText(l, M, y); y += 90; }); y -= 18;
+  { const cab = (subtituloClub()+" · Devolución").toUpperCase(); let fs = 30; g.font = `700 ${fs}px ${FB}`; while (fs>18 && g.measureText(cab).width > W-2*M){ fs--; g.font = `700 ${fs}px ${FB}`; } g.fillStyle = AM; g.fillText(cab, M, y); }
+  const jx = JUGADORAS.find(x=>String(x.num)===String(key)), fimg = jx && jx.foto ? imgDevol : null, tx0 = fimg ? M+200 : M;
+  if (fimg) fichaCanvas(g, M+82, y+112, 80, {img:fimg, n:jx.dorsal, color:AM});
+  y += 96; g.fillStyle = TX; g.font = `800 ${fimg?72:84}px ${FD}`;
+  wrapC(g, fimg ? jx.nombre : nombreJug(key), W-tx0-M).slice(0,2).forEach(l=>{ g.fillText(l, tx0, y); y += fimg?78:90; }); y -= 18; if (fimg) y = Math.max(y, 96+262);
   const p1 = pid && cs[0] ? cs[0].p : null;
   const partidos = new Set(cs.map(c=>c.p.id)).size;
-  g.font = `600 34px ${FB}`; g.fillStyle = SB;
+  g.font = `600 34px ${FB}`; g.fillStyle = SB; if (fimg && y < 96+262) y = 96+262;
   g.fillText(p1 ? ("vs "+(p1.rival||p1.nombre||"")+(p1.fecha?" · "+fechaCorta(p1.fecha):"")).slice(0,56) : (partidos+" partido"+(partidos===1?"":"s")+" analizado"+(partidos===1?"":"s")), M, y); y += 44;
   g.fillStyle = "rgba(255,255,255,.12)"; g.fillRect(M, y, W-2*M, 2); y += 40;
   const pos = cs.filter(c=>c.t.resultado==="pos").length, neg = cs.filter(c=>c.t.resultado==="neg").length;
@@ -1552,14 +1631,13 @@ function lienzoDevolucion(key, pid, msg){
   const zt = Object.values(zonas).reduce((a,b)=>a+b,0);
   if (zt >= 3){
     titulo("Dónde jugás más");
-    const x0 = M, w = W-2*M, h = 380, y0 = y+24, mx = Math.max(1, ...Object.values(zonas));
-    g.fillStyle = "#1E7A46"; g.beginPath(); g.roundRect ? g.roundRect(x0,y0,w,h,16) : g.rect(x0,y0,w,h); g.fill();
+    const x0 = M, w = W-2*M, h = Math.round(w*68/105), y0 = y+24, mx = Math.max(1, ...Object.values(zonas));
+    canchaPro(g, x0, y0, w, h, false);
+    const m0 = Math.min(w,h)*0.045, fx = x0+m0, fy = y0+m0, fw = w-2*m0, fh = h-2*m0;
     for (let r=0;r<3;r++) for (let c=0;c<3;c++){ const z = ZONAS[r*3+c][0], n = zonas[z]||0; if (!n) continue; const a = 0.2+n/mx*0.7;
-      g.fillStyle = `rgba(255,212,0,${a.toFixed(2)})`; g.fillRect(x0+c*w/3, y0+r*h/3, w/3, h/3);
-      g.fillStyle = "#141412"; g.font = `800 40px ${FD}`; g.textAlign = "center"; g.fillText(Math.round(n/zt*100)+"%", x0+c*w/3+w/6, y0+r*h/3+h/6+14); g.textAlign = "left"; }
-    g.strokeStyle = "rgba(255,255,255,.7)"; g.lineWidth = 3; g.strokeRect(x0+12,y0+12,w-24,h-24); g.beginPath(); g.moveTo(x0+w/2,y0+12); g.lineTo(x0+w/2,y0+h-12); g.stroke(); g.beginPath(); g.arc(x0+w/2,y0+h/2,50,0,Math.PI*2); g.stroke();
-    g.strokeRect(x0+12, y0+h/2-90, 84, 180); g.strokeRect(x0+w-96, y0+h/2-90, 84, 180);
-    g.fillStyle = "#fff"; g.font = `700 24px ${FB}`; g.textAlign = "right"; g.fillText("atacamos →", x0+w-26, y0+h-26); g.textAlign = "left";
+      g.fillStyle = `rgba(255,212,0,${(a*0.8).toFixed(2)})`; g.fillRect(fx+c*fw/3, fy+r*fh/3, fw/3, fh/3);
+      g.font = `800 40px ${FD}`; g.textAlign = "center"; g.lineWidth = 6; g.strokeStyle = "rgba(0,0,0,.45)"; g.lineJoin = "round"; const tt = Math.round(n/zt*100)+"%"; g.strokeText(tt, fx+c*fw/3+fw/6, fy+r*fh/3+fh/6+14); g.fillStyle = "#fff"; g.fillText(tt, fx+c*fw/3+fw/6, fy+r*fh/3+fh/6+14); g.textAlign = "left"; }
+    g.fillStyle = "#fff"; g.font = `700 24px ${FB}`; g.textAlign = "right"; g.fillText("atacamos →", x0+w-30, y0+h-24); g.textAlign = "left";
     y = y0 + h + 6;
   }
   const notas = cs.filter(c=>c.t.nota).sort((a,b)=>(b.t.resultado==="neg")-(a.t.resultado==="neg")).slice(0,3);
@@ -1591,6 +1669,7 @@ function abrirDevolucion(){
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px"><button class="btn solid" id="devBajar">⬇ Descargar imagen</button><button class="btn" id="devShare" hidden>Compartir…</button><button class="btn" id="devCerrar">Cerrar</button></div>
     </div><div class="dev-prev" id="devPrev"></div></div>`);
   let cv = null, t = null;
+  { const jx = JUGADORAS.find(x=>String(x.num)===String(jugSel)); imgDevol = null; if (jx && jx.foto){ cargarImgP(jx.foto).then(im=>{ imgDevol = im; if (im && m.isConnected) dibujar(); }); } }
   const nombre = ()=> slug("devolucion "+nombreJug(jugSel)+" "+(m.querySelector("#devP").value?fechaCorta((ps.find(p=>p.id===m.querySelector("#devP").value)||{}).fecha).replace(/\//g,"-"):"temporada"))+".png";
   const dibujar = ()=>{ cv = lienzoDevolucion(jugSel, m.querySelector("#devP").value, m.querySelector("#devMsg").value); const prev = m.querySelector("#devPrev"); prev.innerHTML = ""; const im = new Image(); im.alt = "Vista previa"; im.src = cv.toDataURL("image/png"); prev.appendChild(im); };
   m.querySelector("#devP").addEventListener("change", dibujar);
@@ -1632,13 +1711,11 @@ function htmlDetalle(tag){
 /* ---------- mapa de puntos exactos ---------- */
 let mapaVista = lsGet("va_mapaV") || "zonas";
 function svgPuntos(tags){
-  const W = 420, H = 272, mx = 14, my = 12, cw = W-2*mx, ch = H-2*my;
-  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:460px;height:auto;display:block;margin:0 auto" role="img" aria-label="Mapa de puntos"><rect width="${W}" height="${H}" rx="10" fill="#1E7A46"/>`;
-  s += `<g fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.6"><rect x="${mx}" y="${my}" width="${cw}" height="${ch}"/><line x1="${W/2}" y1="${my}" x2="${W/2}" y2="${H-my}"/><circle cx="${W/2}" cy="${H/2}" r="30"/>
-    <rect x="${mx}" y="${H/2-58}" width="52" height="116"/><rect x="${W-mx-52}" y="${H/2-58}" width="52" height="116"/><rect x="${mx}" y="${H/2-26}" width="20" height="52"/><rect x="${W-mx-20}" y="${H/2-26}" width="20" height="52"/></g>`;
+  const W = 420, H = 272, mx = Math.min(W,H)*0.045, my = mx, cw = W-2*mx, ch = H-2*my;
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:460px;height:auto;display:block;margin:0 auto" role="img" aria-label="Mapa de puntos">${svgCanchaPro(0,0,W,H,"p")}`;
   tags.forEach(t=>{ const x = mx + t.pt[0]*cw, y = my + t.pt[1]*ch, col = t.resultado==="pos" ? "#3DDC84" : t.resultado==="neg" ? "#FF5A4D" : "#FFD400";
     s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6.5" fill="${col}" stroke="#141412" stroke-width="1.6"><title>${esc(t.nombre)} · ${esc(etiquetaMin(t.t))}${t.jugadora?" · "+esc(t.jugadora):""}</title></circle>`; });
-  s += `<text x="${W-mx-6}" y="${H-my-6}" text-anchor="end" font-size="11" font-weight="700" fill="#fff" opacity=".9">${esc("Ataca "+EQ())} →</text>`;
+  s += `<text x="${W-mx-6}" y="${H-my-6}" text-anchor="end" font-size="11" font-weight="700" fill="#fff" opacity=".9" style="paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2px">${esc("Ataca "+EQ())} →</text>`;
   return s + `</svg>`;
 }
 function bloqueDetalles(ts){
@@ -1746,6 +1823,7 @@ function renderJugadoras(){
   if (!cs.length) return html + `<p class="muted">Todavía no tiene acciones taggeadas. Asignale ${J("la")} a los tags desde el panel de la derecha.</p>`;
   const pos = cs.filter(c=>c.t.resultado==="pos").length, neg = cs.filter(c=>c.t.resultado==="neg").length;
   const partidos = new Set(cs.map(c=>c.p.id)).size;
+  { const jj = JUGADORAS.find(x=>String(x.num)===String(jugSel)); if (jj) html += `<div class="jug-cab">${avatarVA(jj,64)}<div><b>${esc(jj.nombre)}</b><span>${[jj.dorsal!==""?"#"+jj.dorsal:"", jj.pos].filter(Boolean).map(esc).join(" · ")}</span></div></div>`; }
   const acc = {}; cs.forEach(c=>{ const a = acc[c.t.nombre] = acc[c.t.nombre]||{n:0,pos:0,neg:0,color:c.t.color}; a.n++; if(c.t.resultado==="pos")a.pos++; if(c.t.resultado==="neg")a.neg++; });
   html += `<div class="kpis">
       <div class="kpi"><b>${cs.length}</b><span>Acciones</span></div>

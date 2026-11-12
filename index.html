@@ -654,7 +654,7 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .nodisp-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
 .nodisp-i{display:flex;align-items:center;gap:10px;text-align:left;font:inherit;color:inherit;background:var(--carta2);border:1px solid var(--linea);border-left:4px solid var(--ec);border-radius:10px;padding:8px 10px;cursor:pointer}
 .nd-t{flex:1;min-width:0;display:flex;flex-direction:column}.nd-t small{color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nd-v{font-size:11.5px;color:var(--sub);text-align:right;line-height:1.25}
-.conv-nd{opacity:.65}
+.conv-nd{opacity:.65}.rot-j{display:flex;align-items:center;gap:8px}.rot-j .av{width:30px;height:30px;font-size:12px}.nodisp-i .av{width:34px;height:34px;font-size:13px}
 @media(max-width:760px){.pj-seg{grid-template-columns:1fr}}
 .rot-av{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;margin-bottom:12px}.rot-a{border-radius:10px;padding:9px 12px;font-size:13.5px;display:flex;flex-direction:column;gap:2px}
 .rot-a.amar{background:color-mix(in srgb,#E0A100 14%,transparent);border:1px solid color-mix(in srgb,#E0A100 45%,transparent)}.rot-a.rojo{background:color-mix(in srgb,#D0402F 12%,transparent);border:1px solid color-mix(in srgb,#D0402F 40%,transparent)}
@@ -675,6 +675,7 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .pzA-nota{width:100%;font-size:15px!important;line-height:1.35;min-height:72px;border-radius:10px}
 .pzA-ayuda{font-size:11.5px;color:var(--pzs);margin-top:5px}
 .pzA-med{display:flex;align-items:center;gap:5px}.pzA-med input{color:#FFD400!important;width:62px;min-width:0;padding:5px 6px;text-align:center;font:700 15px 'Barlow Condensed',Arial,sans-serif;color:#FFD400}.pzA-med i{font-style:normal;color:var(--pzs);font-size:12px}
+.pzA-fotos{cursor:pointer}.pzA-fotos input{width:18px;height:18px;accent-color:#FFD400}
 .pzA-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.pzA-kpis div{background:rgba(255,255,255,.04);border:1px solid var(--pzl);border-radius:9px;padding:7px 4px;text-align:center}.pzA-kpis b{display:block;color:#FFD400;font:700 19px/1 'Barlow Condensed',Arial,sans-serif}.pzA-kpis span{display:block;font-size:10.5px;color:var(--pzs);margin-top:3px;line-height:1.15}
 .pzA-props input,.pzA-props select,.pzA-props textarea{box-sizing:border-box;background:rgba(255,255,255,.06)!important;color:#F2F2EE!important;border:1px solid var(--pzl)!important;border-radius:8px}
 .pzA-props select option{color:#141412}.pzA-props input::placeholder,.pzA-props textarea::placeholder{color:rgba(255,255,255,.38)}
@@ -766,7 +767,7 @@ const DIM_EVAL=[['tecnica','Técnica'],['tactica','Táctica'],['conPelota','Con 
 
 let S=null;
 /* versión de los módulos: cambia en cada actualización para que el navegador no muestre una copia vieja */
-const MOD_V='2026-11-12b';
+const MOD_V='2026-11-12c';
 function guardar(){try{asignarCatsNuevos()}catch(e){}if(typeof MODO!=='undefined'){if(MODO==='nube'){programarSync();return}if(MODO==='demo')return}try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}}
 function cargar(){try{const t=localStorage.getItem(CLAVE);if(t)return JSON.parse(t)}catch(e){}return null}
 
@@ -1684,7 +1685,7 @@ async function pintarObjVA(box,j){if(!box)return;let L=[];try{L=await cargarVA()
     const p=ts.filter(t=>t.resultado==='pos').length,q=ts.filter(t=>t.resultado==='neg').length;s.innerHTML=`<span class="obj-link">🎥 ${esc(s.dataset.objva)}: ${ts.length} · <b class="ok">${p} ✓</b> <b class="mal">${q} ✗</b></span>`})}
 function panelNoDisp(){const L=ordenJ(SJ()).filter(j=>estadoJ(j).k!=='disp');if(!L.length)return '';
   return `<div class="panel nodisp" style="margin-bottom:16px"><div class="panel-cab"><h3>Fuera o en duda</h3><span class="chip mal">${L.filter(noDisp).length} sin poder jugar</span>${L.some(j=>!noDisp(j))?`<span class="chip aviso">${L.filter(j=>!noDisp(j)).length} con molestia</span>`:''}</div>
-    <div class="nodisp-l">${L.map(j=>{const e=estadoJ(j);return `<button class="nodisp-i" data-ndj="${j.id}" style="--ec:${EST_J[e.k][1]}"><span class="dorsal">${j.dorsal||'–'}</span><span class="nd-t"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc([estTxt(e.k),e.zona].filter(Boolean).join(' · '))}</small></span><span class="nd-v">${e.vuelta?'Vuelve<br><b>'+esc(fCorta(e.vuelta))+'</b>':''}</span></button>`}).join('')}</div></div>`}
+    <div class="nodisp-l">${L.map(j=>{const e=estadoJ(j);return `<button class="nodisp-i" data-ndj="${j.id}" style="--ec:${EST_J[e.k][1]}">${avatar(j)}<span class="nd-t"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc([estTxt(e.k),e.zona].filter(Boolean).join(' · '))}</small></span><span class="nd-v">${e.vuelta?'Vuelve<br><b>'+esc(fCorta(e.vuelta))+'</b>':''}</span></button>`}).join('')}</div></div>`}
 
 function perfilJugador(el,j){
   const st=statsJugador(j.id),a=asistJugador(j.id),ev=evalsJugador(j.id),ult=ev[ev.length-1];
@@ -2555,6 +2556,7 @@ function distTxt(m){return (Math.round(m*10)/10).toString().replace('.',',')+' m
 function conoJ(e,x,y,r,c){if(e.ori==null||e.ori==='')return '';const L=r*4.4,A=34*Math.PI/180,o=(+e.ori)*Math.PI/180,col=(c==='hueco'||c==='club'||!c)?'#FFFFFF':c;
   const p1=[x+L*Math.cos(o-A),y+L*Math.sin(o-A)],p2=[x+L*Math.cos(o+A),y+L*Math.sin(o+A)],gid='cg'+(++_idMat);
   return `<defs><radialGradient id="${gid}" cx="${x}" cy="${y}" r="${L}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${col}" stop-opacity=".55"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></radialGradient></defs><path d="M${x} ${y}L${p1[0]} ${p1[1]}A${L} ${L} 0 0 1 ${p2[0]} ${p2[1]}Z" fill="url(#${gid})"/><path d="M${x+r*1.05*Math.cos(o-.42)} ${y+r*1.05*Math.sin(o-.42)}L${x+r*1.55*Math.cos(o)} ${y+r*1.55*Math.sin(o)}L${x+r*1.05*Math.cos(o+.42)} ${y+r*1.05*Math.sin(o+.42)}Z" fill="${col}" stroke="#141412" stroke-width="${r*.08}"/>`}
+function fotoDeJ(id){const j=S&&S.jugadores&&S.jugadores.find(z=>z.id===id);return j&&j.foto||''}
 function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=null,rectSel=null,estilo=null}={}){
   normalizar(pz);const ES=estilo||estiloPz();if(!estilo&&!mini)try{document.documentElement.style.setProperty('--cesped',ES.a)}catch(e){}
   const [W,H]=FORMATOS[pz.formato]||[40,30],k=10,r=radio(pz.formato)*k*(pz.escala||1),pad=Math.max(W,H)*.045*k;
@@ -2580,7 +2582,7 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
     return `<path d="${d}" fill="none" stroke="rgba(0,0,0,.28)" stroke-width="${w*1.25}" ${da} stroke-linecap="round" stroke-linejoin="round" transform="translate(${r*.06} ${r*.08})"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" ${da} stroke-linecap="round" stroke-linejoin="round" ${a.sp?'':`marker-end="url(#${mkId(c)})"`}/>`};
   const el=e=>elR(e,r*(e.s||1));const elR=(e,r)=>{const [px,py]=pos(e),x=px*k,y=py*k,c=e.color==='club'&&e.foto?camisetaClub().c1:(e.color||'#fff'),rot=e.rot?` transform="rotate(${e.rot} ${x} ${y})"`:'';
     switch(e.t){
-      case 'J':return conoJ(e,x,y,r,c)+(()=>{const h=c==='hueco',club=c==='club',cam=club?camisetaClub():null;const tx=h||club?'#FFFFFF':tintaSobre(c);if(e.foto&&!h){const cid='fj'+(++_idMat);let s=`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r*1.25}" fill="rgba(0,0,0,.25)"/><clipPath id="${cid}"><circle cx="${x}" cy="${y}" r="${r*1.25}"/></clipPath><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="#ddd"/><image href="${e.foto}" x="${x-r*1.25}" y="${y-r*1.25}" width="${r*2.5}" height="${r*2.5}" clip-path="url(#${cid})" preserveAspectRatio="xMidYMin slice"/><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="none" stroke="${c}" stroke-width="${r*.22}"/>`;if(e.n!==undefined&&e.n!==''){s+=`<circle cx="${x+r*.95}" cy="${y-r*.9}" r="${r*.5}" fill="${c}" stroke="#141412" stroke-width="${r*.06}"/><text x="${x+r*.95}" y="${y-r*.9+r*.19}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${r*.55}" fill="${tx}">${esc(e.n)}</text>`}if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.15}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':club?(cam.t==='lisa'?cam.c1:'url(#camClub)'):c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`+(h?'':`<circle cx="${x}" cy="${y}" r="${r*.94}" fill="url(#gJug)"/>`);if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}"${club||(!h&&tx==='#FFFFFF')?` stroke="#141412" stroke-width="${r*.2}" paint-order="stroke"`:''}>${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s})();
+      case 'J':return conoJ(e,x,y,r,c)+(()=>{const h=c==='hueco',club=c==='club',cam=club?camisetaClub():null;const tx=h||club?'#FFFFFF':tintaSobre(c),fo=e.foto||(e.jid&&!pz.sinFotos&&!mini?fotoDeJ(e.jid):'');if(fo&&!h){const cid='fj'+(++_idMat);let s=`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r*1.25}" fill="rgba(0,0,0,.25)"/><clipPath id="${cid}"><circle cx="${x}" cy="${y}" r="${r*1.25}"/></clipPath><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="#ddd"/><image href="${fo}" x="${x-r*1.25}" y="${y-r*1.25}" width="${r*2.5}" height="${r*2.5}" clip-path="url(#${cid})" preserveAspectRatio="xMidYMin slice"/><circle cx="${x}" cy="${y}" r="${r*1.25}" fill="none" stroke="${c}" stroke-width="${r*.22}"/>`;if(e.n!==undefined&&e.n!==''){s+=`<circle cx="${x+r*.95}" cy="${y-r*.9}" r="${r*.5}" fill="${c}" stroke="#141412" stroke-width="${r*.06}"/><text x="${x+r*.95}" y="${y-r*.9+r*.19}" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="${r*.55}" fill="${tx}">${esc(e.n)}</text>`}if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.15}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s}let s=(h?'':`<circle cx="${x+r*.14}" cy="${y+r*.2}" r="${r}" fill="rgba(0,0,0,.25)"/>`)+`<circle cx="${x}" cy="${y}" r="${r}" fill="${h?'rgba(0,0,0,.18)':club?(cam.t==='lisa'?cam.c1:'url(#camClub)'):c}" stroke="${h?'#fff':'#141412'}" stroke-width="${r*(h?.2:.12)}"/>`+(h?'':`<circle cx="${x}" cy="${y}" r="${r*.94}" fill="url(#gJug)"/>`);if(e.n!==undefined&&e.n!=='')s+=`<text x="${x}" y="${y+r*.36}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${r*1.05}" fill="${tx}"${club||(!h&&tx==='#FFFFFF')?` stroke="#141412" stroke-width="${r*.2}" paint-order="stroke"`:''}>${esc(e.n)}</text>`;if(e.nombre&&!mini)s+=`<text x="${x}" y="${y+r*2.05}" text-anchor="middle" font-family="Barlow,Arial" font-weight="700" font-size="${r*.62}" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="${r*.16}" paint-order="stroke">${esc(e.nombre)}</text>`;return s})();
       case 'IMG':{const w=r*12,h=w/(e.ar||1);return `<image href="${e.img}" x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid meet"${rot}/>`}
       case 'I':{const rr=r*.78,f=c||'#FFFFFF',tx=tintaSobre(f);return `<rect x="${x-rr+r*.1}" y="${y-rr+r*.14}" width="${rr*2}" height="${rr*2}" rx="${rr*.35}" fill="rgba(0,0,0,.28)"/><rect x="${x-rr}" y="${y-rr}" width="${rr*2}" height="${rr*2}" rx="${rr*.35}" fill="${f}" stroke="#141412" stroke-width="${r*.1}"/><text x="${x}" y="${y+rr*.42}" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,Arial" font-weight="700" font-size="${rr*1.3}" fill="${tx}">${esc(e.n??'')}</text>`}
       default:return dibMat(e.t,x,y,r,c,e.rot,k);
@@ -2707,6 +2709,7 @@ VISTAS.pizarra=el=>{
       <div class="pzA-h">Espacio</div>
       <div class="pzA-card"><div class="pzA-row"><span>Cancha</span><select id="pzFormato" aria-label="Cancha">${opts(Object.keys(FORMATOS),PZ.formato)}<option value="__medida">📐 A medida…</option></select></div>
         <div class="pzA-row"><span>${zMay?'Zona de trabajo':'Medidas'}</span><span class="pzA-med"><input type="number" id="pzMedW" min="3" max="120" step="0.5" value="${zMay?+zMay.w.toFixed(1):Wc}" aria-label="Largo en metros"><i>×</i><input type="number" id="pzMedH" min="3" max="90" step="0.5" value="${zMay?+zMay.h.toFixed(1):Hc}" aria-label="Ancho en metros"><i>m</i></span></div>
+        ${PZ.elementos.some(e=>e.jid&&fotoDeJ(e.jid))?`<label class="pzA-row pzA-fotos"><span>Fotos de ${J('pl')}</span><input type="checkbox" id="pzFotos" ${PZ.sinFotos?'':'checked'}></label>`:''}
         <div class="pzA-kpis"><div><b>${Math.round(area)}</b><span>m²</span></div><div><b>${nJ}</b><span>${J('pl')}</span></div><div><b>${jEn?Math.round(area/jEn):'–'}</b><span>m² por ${J('sg')}</span></div></div></div>
       <div class="pzA-h">Ficha de la tarea</div>
       <div class="pzA-card pzA-ficha">
@@ -2744,6 +2747,7 @@ VISTAS.pizarra=el=>{
   $('#pzCfg').onclick=configCancha;
   $('#pzDist').onchange=e=>{PZ.verDist=e.target.checked;redibujar()};
   $('#pzNum').onchange=e=>{snap();PZ.numerar=e.target.checked;redibujar()};
+  {const fx=$('#pzFotos');if(fx)fx.onchange=()=>{if(fx.checked)delete PZ.sinFotos;else PZ.sinFotos=true;redibujar()}}
   {const fi=(id,k,num)=>{const x=$('#'+id);if(x)x.onchange=x.oninput=()=>{PZ.ficha=PZ.ficha||{};const v=x.value.trim();if(v==='')delete PZ.ficha[k];else PZ.ficha[k]=num?Math.max(1,Math.min(120,+v||0)):v}};fi('pzfObj','objetivo');fi('pzfDur','dur',true);fi('pzfSer','series');fi('pzfPau','pausa');{const d=$('#pzfDif');if(d)d.onchange=()=>{PZ.ficha=PZ.ficha||{};if(d.value)PZ.ficha.dif=d.value;else delete PZ.ficha.dif}}}
   {const mw=$('#pzMedW'),mh=$('#pzMedH');const aplicar=()=>{const w=Math.round((+mw.value||0)*2)/2,h=Math.round((+mh.value||0)*2)/2;if(w<3||h<3)return;snap();
       const zz=[...PZ.zonas].sort((a,b)=>areaZona(b)-areaZona(a))[0];
@@ -3124,7 +3128,7 @@ function pintarSel(){
   if(q('selDup'))q('selDup').onclick=()=>{snap();if(SEL.tipo==='el'){const e=PZ.elementos.find(x=>x.id===SEL.id);const [x,y]=posEn(PZ,e,FR);const c={...e,id:uid(),x:x+radio(PZ.formato)*2.4,y};if(c.t==='J'&&c.n!==undefined&&c.n!=='')c.n=PZ.elementos.filter(z=>z.t==='J'&&z.color===c.color).length+1;PZ.elementos.push(c);SEL={tipo:'el',id:c.id}}else{const z=PZ.zonas.find(x=>x.id===SEL.id);const c={...z,id:uid(),x:z.x+2,y:z.y+2};PZ.zonas.push(c);SEL={tipo:'zo',id:c.id}}redibujar();pintarSel()};
   $$('[data-sc]',box).forEach(b=>b.onclick=()=>{snap();const o=SEL.tipo==='zo'?PZ.zonas.find(x=>x.id===SEL.id):PZ.elementos.find(x=>x.id===SEL.id);o.color=b.dataset.sc;redibujar();pintarSel()});
   if(q('selN'))q('selN').oninput=e=>{PZ.elementos.find(x=>x.id===SEL.id).n=e.target.value;redibujar()};
-  if(q('selNom'))q('selNom').oninput=e=>{const el=PZ.elementos.find(x=>x.id===SEL.id);el.nombre=e.target.value;const j=S.jugadores.find(z=>z.apellido===e.target.value);if(j&&j.dorsal&&!el.n){el.n=j.dorsal;q('selN').value=j.dorsal}redibujar()};
+  if(q('selNom'))q('selNom').oninput=e=>{const el=PZ.elementos.find(x=>x.id===SEL.id);el.nombre=e.target.value;const j=S.jugadores.find(z=>z.apellido===e.target.value);if(j){el.jid=j.id;if(j.dorsal&&!el.n){el.n=j.dorsal;q('selN').value=j.dorsal}}else delete el.jid;redibujar()};
   $$('[data-ori]',box).forEach(b=>b.onclick=()=>{snap();const e=PZ.elementos.find(x=>x.id===SEL.id);if(!e)return;if(b.dataset.ori==='')delete e.ori;else e.ori=+b.dataset.ori;redibujar();pintarSel()});
   if(q('selRot'))q('selRot').onclick=()=>{snap();const e=PZ.elementos.find(x=>x.id===SEL.id);e.rot=((e.rot||0)+45)%360;redibujar()};
   const zw=q('zw'),zh=q('zh');if(zw){const upd=()=>{const z=PZ.zonas.find(x=>x.id===SEL.id);z.w=Math.max(1,+zw.value||1);z.h=Math.max(1,+zh.value||1);if(z.forma==='cuad')z.h=z.w;redibujar()};zw.onchange=upd;zh.onchange=upd}
@@ -3257,7 +3261,7 @@ function ordenParaCancha(js){const ord=[...js].sort((a,b)=>(POSICIONES.indexOf(a
 function colocarEquipo(formato,sistema,lado,col,arqNaranja,gente,colArq){
   const [W,H]=FORMATOS[formato],lineas=sistema.split('-').map(Number),X=x=>lado==='der'?x:W-x,pts=[{x:X(W*.045),y:H/2}];
   lineas.forEach((n,i)=>{const x=W*(.15+(lineas.length>1?i*(.31/(lineas.length-1)):.15));for(let q=0;q<n;q++)pts.push({x:X(x),y:H*(q+1)/(n+1)})});
-  return pts.map((p,i)=>{const g=gente&&gente[i];return {id:uid(),t:'J',x:p.x,y:p.y,color:i===0&&arqNaranja?(colArq||'#F08A24'):col,n:g?(g.dorsal||i+1):i+1,nombre:g?g.apellido:''}});
+  return pts.map((p,i)=>{const g=gente&&gente[i];return {id:uid(),t:'J',x:p.x,y:p.y,color:i===0&&arqNaranja?(colArq||'#F08A24'):col,n:g?(g.dorsal||i+1):i+1,nombre:g?g.apellido:'',...(g&&g.id&&S.jugadores.some(z=>z.id===g.id)?{jid:g.id}:{})}});
 }
 function agregarEquipo(){
   if(!COMPLETAS.includes(PZ.formato)){aviso('Para cargar un equipo completo elegí una cancha de 11, 9, 8, 7 o 5.');return}
@@ -4194,9 +4198,82 @@ function panelRotacion(){
   return `<div class="panel rot" style="margin-top:16px"><div class="panel-cab"><h3>Minutos y rotación</h3><div class="seg" style="margin-left:auto">${[[0,'Temporada ('+SP().filter(p=>p.estado!=='programado').length+')'],[5,'Últimos 5']].map(([v,t])=>`<button data-rotn="${v}" class="${ROT_N===v?'activo':''}" aria-pressed="${ROT_N===v}">${t}</button>`).join('')}</div></div>
     ${poco.length||mucho.length?`<div class="rot-av">${poco.length?`<div class="rot-a amar"><b>Vienen sumando poco</b><span>${poco.slice(0,8).map(f=>esc(f.j.nombre+' '+f.j.apellido)+' ('+f.pct+'%)').join(' · ')}${poco.length>8?' · y '+(poco.length-8)+' más':''}</span></div>`:''}${mucho.length?`<div class="rot-a rojo"><b>Jugaron todo los últimos 3 partidos</b><span>${mucho.map(f=>esc(f.j.nombre+' '+f.j.apellido)).join(' · ')}</span></div>`:''}</div>`:''}
     <div class="tabla-c"><table class="rot-t"><thead><tr><th>${J('Sg')}</th><th class="n">PJ</th><th class="n">Titular</th><th class="n">Entró</th><th class="n">Banco</th><th class="n">No conv.</th><th class="n">Minutos</th><th>% de los minutos posibles</th><th class="n">Últ. 3</th></tr></thead><tbody>
-    ${ord.map(f=>`<tr class="click" data-rotj="${f.j.id}"><td><span class="dorsal">${f.j.dorsal||'–'}</span> ${esc(f.j.nombre+' '+f.j.apellido)} ${chipEstado(f.j,true)}</td><td class="n">${f.pj}</td><td class="n">${f.tit}</td><td class="n">${f.sup}</td><td class="n">${f.banco}</td><td class="n">${f.nc}</td><td class="n"><b>${f.min}'</b></td>
+    ${ord.map(f=>`<tr class="click" data-rotj="${f.j.id}"><td><span class="rot-j">${avatar(f.j)}<span><span class="dorsal">${f.j.dorsal||'–'}</span> ${esc(f.j.nombre+' '+f.j.apellido)} ${chipEstado(f.j,true)}</span></span></td><td class="n">${f.pj}</td><td class="n">${f.tit}</td><td class="n">${f.sup}</td><td class="n">${f.banco}</td><td class="n">${f.nc}</td><td class="n"><b>${f.min}'</b></td>
       <td><div class="rot-bar"><i style="width:${Math.round(100*f.min/mx)}%;background:${f.pct>=60?'var(--verde)':f.pct>=25?'var(--ambar)':'var(--rojo)'}"></i></div><span class="sub" style="font-size:12px">${f.pct}%</span></td><td class="n">${f.u3==null?'—':f.u3+'%'}</td></tr>`).join('')}</tbody></table></div>
     <p class="sub" style="font-size:12.5px;margin:8px 0 0">% de los minutos posibles = minutos que jugó ÷ minutos de todos los partidos ${ROT_N?'de los últimos 5':'de la temporada'}. “Vienen sumando poco”: menos del 25% ${gRama('estando disponibles','estando disponibles','estando disponibles')}.</p></div>`}
+
+/* ---------- cancha profesional (mismo estilo que la pizarra de Metodika) ---------- */
+const CP_C1 = "#5A9216", CP_C2 = "#6BA328";
+/* SVG: dibuja la cancha ocupando el rectángulo x,y,w,h (largo en horizontal). */
+function svgCanchaPro(x, y, w, h, uid){
+  const id = "cp" + (uid || Math.random().toString(36).slice(2,7)), m = Math.min(w,h)*0.045, X = x+m, Y = y+m, L = w-2*m, A = h-2*m, sx = L/105, sy = A/68, lw = Math.max(1.2, Math.min(w,h)*0.007);
+  let s = `<defs><clipPath id="${id}c"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.min(w,h)*0.035}"/></clipPath><radialGradient id="${id}v" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient>
+    <pattern id="${id}n" width="${lw*2.2}" height="${lw*2.2}" patternUnits="userSpaceOnUse"><path d="M0 0L${lw*2.2} ${lw*2.2}M${lw*2.2} 0L0 ${lw*2.2}" stroke="#fff" stroke-opacity=".45" stroke-width="${lw*.35}"/></pattern></defs><g clip-path="url(#${id}c)"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${CP_C1}"/>`;
+  const n = 12, sw = w/n; for (let i=0;i<n;i+=2) s += `<rect x="${(x+i*sw).toFixed(2)}" y="${y}" width="${sw.toFixed(2)}" height="${h}" fill="${CP_C2}"/>`;
+  s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#${id}v)"/></g>`;
+  const P = (a,b)=>[(X+a*sx).toFixed(2),(Y+b*sy).toFixed(2)];
+  const ln = `fill="none" stroke="#fff" stroke-opacity=".92" stroke-width="${lw}" stroke-linejoin="round"`;
+  s += `<rect x="${X}" y="${Y}" width="${L}" height="${A}" ${ln}/><line x1="${X+L/2}" y1="${Y}" x2="${X+L/2}" y2="${Y+A}" ${ln}/>`;
+  s += `<ellipse cx="${X+L/2}" cy="${Y+A/2}" rx="${9.15*sx}" ry="${9.15*sy}" ${ln}/><circle cx="${X+L/2}" cy="${Y+A/2}" r="${lw*1.3}" fill="#fff"/>`;
+  [0,1].forEach(side=>{ const dir = side?-1:1, x0 = side?105:0;
+    const pa = [x0, 34-20.16], ga = [x0, 34-9.16];
+    s += `<rect x="${P(side?105-16.5:0, pa[1])[0]}" y="${P(0,pa[1])[1]}" width="${16.5*sx}" height="${40.32*sy}" ${ln}/>`;
+    s += `<rect x="${P(side?105-5.5:0, ga[1])[0]}" y="${P(0,ga[1])[1]}" width="${5.5*sx}" height="${18.32*sy}" ${ln}/>`;
+    const ps = P(x0+dir*11, 34); s += `<circle cx="${ps[0]}" cy="${ps[1]}" r="${lw*1.2}" fill="#fff"/>`;
+    const ang = Math.acos(5.5/9.15), cx = X+(x0+dir*11)*sx, cy = Y+34*sy, rx = 9.15*sx, ry = 9.15*sy;
+    const a1 = [cx+dir*rx*Math.cos(ang), cy-ry*Math.sin(ang)], a2 = [cx+dir*rx*Math.cos(ang), cy+ry*Math.sin(ang)];
+    s += `<path d="M${a1[0].toFixed(2)} ${a1[1].toFixed(2)}A${rx} ${ry} 0 0 ${side?0:1} ${a2[0].toFixed(2)} ${a2[1].toFixed(2)}" ${ln}/>`;
+    const gx = side ? X+L : X-2.2*sx, gy = Y+(34-3.66)*sy; s += `<rect x="${gx}" y="${gy}" width="${2.2*sx}" height="${7.32*sy}" fill="url(#${id}n)" ${ln}/>`;
+    [[x0,0],[x0,68]].forEach(([cxx,cyy])=>{ const c0 = P(cxx,cyy), r = 1.2*Math.min(sx,sy); s += `<path d="M${(+c0[0]+dir*r).toFixed(2)} ${c0[1]}A${r} ${r} 0 0 ${(side?1:0)^(cyy?1:0)} ${c0[0]} ${(+c0[1]+(cyy?-r:r)).toFixed(2)}" ${ln}/>`; });
+  });
+  return s;
+}
+/* Canvas: misma cancha. vertical=true → se ataca hacia arriba. Devuelve una función para pasar de metros (0-105, 0-68) a píxeles. */
+function canchaPro(g, x, y, w, h, vertical){
+  g.save();
+  const r = Math.min(w,h)*0.035;
+  g.beginPath(); g.roundRect ? g.roundRect(x,y,w,h,r) : g.rect(x,y,w,h); g.clip();
+  g.fillStyle = CP_C1; g.fillRect(x,y,w,h);
+  const n = 12; g.fillStyle = CP_C2;
+  for (let i=0;i<n;i+=2){ if (vertical) g.fillRect(x, y+i*h/n, w, h/n); else g.fillRect(x+i*w/n, y, w/n, h); }
+  const vg = g.createRadialGradient(x+w/2, y+h/2, Math.min(w,h)*0.3, x+w/2, y+h/2, Math.max(w,h)*0.75); vg.addColorStop(0,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(0,0,0,.3)"); g.fillStyle = vg; g.fillRect(x,y,w,h);
+  g.restore(); g.save();
+  const m = Math.min(w,h)*0.045, X = x+m, Y = y+m, L = (vertical?h:w)-2*m, A = (vertical?w:h)-2*m, sx = L/105, sy = A/68;
+  const P = (a,b)=> vertical ? [X + b*sy, Y + (105-a)*sx] : [X + a*sx, Y + b*sy];
+  g.strokeStyle = "rgba(255,255,255,.92)"; g.fillStyle = "#fff"; g.lineWidth = Math.max(2, Math.min(w,h)*0.0065); g.lineJoin = "round";
+  const poly = pts=>{ g.beginPath(); pts.forEach((p,i)=>{ const q = P(p[0],p[1]); i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]); }); g.stroke(); };
+  const rect = (a,b,c,d)=>poly([[a,b],[c,b],[c,d],[a,d],[a,b]]);
+  const arc = (cx,cy,rr,a0,a1)=>{ g.beginPath(); for (let k=0;k<=40;k++){ const t = a0+(a1-a0)*k/40, q = P(cx+rr*Math.cos(t), cy+rr*Math.sin(t)); k?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]); } g.stroke(); };
+  const dot = (a,b,rr)=>{ const q = P(a,b); g.beginPath(); g.arc(q[0],q[1],rr,0,Math.PI*2); g.fill(); };
+  rect(0,0,105,68); poly([[52.5,0],[52.5,68]]); arc(52.5,34,9.15,0,Math.PI*2); dot(52.5,34,g.lineWidth*1.3);
+  [0,105].forEach(x0=>{ const d = x0 ? -1 : 1;
+    rect(x0, 34-20.16, x0+d*16.5, 34+20.16); rect(x0, 34-9.16, x0+d*5.5, 34+9.16); dot(x0+d*11, 34, g.lineWidth*1.2);
+    const ang = Math.acos(5.5/9.15); if (d>0) arc(11,34,9.15,-ang,ang); else arc(94,34,9.15,Math.PI-ang,Math.PI+ang);
+    rect(x0, 34-3.66, x0-d*2.2, 34+3.66);
+    arc(x0,0,1.2, d>0?0:Math.PI/2, d>0?Math.PI/2:Math.PI); arc(x0,68,1.2, d>0?-Math.PI/2:Math.PI, d>0?0:1.5*Math.PI);
+  });
+  g.restore();
+  return P;
+}
+/* ficha de jugadora (mismo estilo que la pizarra): foto si hay, si no número */
+function fichaCanvas(g, cx, cy, r, o){
+  const col = o.color || "#FFD400", tx = o.tinta || "#141412";
+  g.save(); g.fillStyle = "rgba(0,0,0,.28)"; g.beginPath(); g.arc(cx+r*.12, cy+r*.18, r, 0, Math.PI*2); g.fill(); g.restore();
+  if (o.img){ g.save(); g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.closePath(); g.fillStyle = "#ddd"; g.fill(); g.clip();
+    const iw = o.img.width, ih = o.img.height, k = Math.max(2*r/iw, 2*r/ih); g.drawImage(o.img, cx-iw*k/2, cy-r, iw*k, ih*k); g.restore();
+    g.lineWidth = r*.18; g.strokeStyle = col; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.stroke();
+    if (o.n!=null && o.n!==""){ g.fillStyle = col; g.beginPath(); g.arc(cx+r*.78, cy-r*.74, r*.42, 0, Math.PI*2); g.fill(); g.lineWidth = r*.06; g.strokeStyle = "#141412"; g.stroke();
+      g.fillStyle = tx; g.font = `700 ${Math.round(r*.48)}px 'Barlow Condensed', Barlow, Arial`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(String(o.n), cx+r*.78, cy-r*.72); }
+  } else {
+    g.fillStyle = col; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI*2); g.fill(); g.lineWidth = r*.12; g.strokeStyle = "#141412"; g.stroke();
+    const gr = g.createRadialGradient(cx-r*.3, cy-r*.35, r*.1, cx, cy, r); gr.addColorStop(0,"rgba(255,255,255,.35)"); gr.addColorStop(1,"rgba(0,0,0,.18)"); g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r*.94, 0, Math.PI*2); g.fill();
+    if (o.n!=null && o.n!==""){ g.fillStyle = tx; g.font = `700 ${Math.round(r*1.02)}px 'Barlow Condensed', Barlow, Arial`; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(String(o.n), cx, cy+r*.06); }
+  }
+  if (o.nombre){ g.font = `700 ${Math.round(r*.62)}px Barlow, Arial`; g.textAlign = "center"; g.textBaseline = "alphabetic"; g.lineWidth = r*.18; g.strokeStyle = "rgba(0,0,0,.65)"; g.lineJoin = "round"; g.strokeText(o.nombre, cx, cy+r*2.05); g.fillStyle = "#fff"; g.fillText(o.nombre, cx, cy+r*2.05); }
+  g.textAlign = "left"; g.textBaseline = "alphabetic";
+}
+function cargarImgP(src){ return new Promise(ok=>{ if (!src) return ok(null); const i = new Image(); const t = setTimeout(()=>ok(null), 5000); i.onload = ()=>{ clearTimeout(t); ok(i); }; i.onerror = ()=>{ clearTimeout(t); ok(null); }; i.src = src; }); }
+
 /* ================= ficha del partido en imagen ================= */
 function cargarImg(src){return new Promise(ok=>{if(!src)return ok(null);const i=new Image();i.crossOrigin='anonymous';const t=setTimeout(()=>ok(null),5000);i.onload=()=>{clearTimeout(t);ok(i)};i.onerror=()=>{clearTimeout(t);ok(null)};i.src=src})}
 async function lienzoFicha(p,fmt,figuraId){
@@ -4227,14 +4304,15 @@ async function lienzoFicha(p,fmt,figuraId){
   if(fmt!=='cuad'){
     const tit=ordenParaCancha(p.titulares.map(jugador).filter(Boolean));
     if(tit.length>=5){const sis=(p.aline&&p.aline.sistema&&String(p.aline.sistema).split('-').map(Number).reduce((a,b)=>a+b,0)===tit.length-1)?p.aline.sistema:(SISTEMAS[tit.length>=11?'11 vs 11':tit.length>=9?'9 vs 9':tit.length>=8?'8 vs 8':tit.length>=7?'7 vs 7':'5 vs 5']||['4-3-3'])[0];
-      C('FORMACIÓN INICIAL · '+sis,W/2,y+10,`800 28px ${FB}`,AM);const x0=120,w=W-240,h=Math.min(560,H-y-(fig?330:150)),y0=y+34;
-      if(h>300){g.fillStyle='#16432B';g.beginPath();g.roundRect?g.roundRect(x0,y0,w,h,18):g.rect(x0,y0,w,h);g.fill();g.strokeStyle='rgba(255,255,255,.45)';g.lineWidth=3;g.strokeRect(x0+16,y0+16,w-32,h-32);g.beginPath();g.moveTo(x0+16,y0+h/2);g.lineTo(x0+w-16,y0+h/2);g.stroke();g.beginPath();g.arc(x0+w/2,y0+h/2,60,0,Math.PI*2);g.stroke();g.strokeRect(x0+w/2-130,y0+h-16-90,260,90);
-        const lines=sis.split('-').map(Number),pts=[[x0+w/2,y0+h-80]];lines.forEach((n,i)=>{const yy=y0+h-90-(h-150)*(i+1)/lines.length;for(let k=0;k<n;k++)pts.push([x0+w*(k+1)/(n+1),yy])});
-        tit.slice(0,pts.length).forEach((j,i)=>{const [cx,cy]=pts[i];g.fillStyle=i===0?'#F08A24':AM;g.beginPath();g.arc(cx,cy,30,0,Math.PI*2);g.fill();C(String(j.dorsal||''),cx,cy+10,`800 28px ${FD}`,BG);C(String(j.apellido||j.nombre).slice(0,12),cx,cy+56,`700 24px ${FB}`,'#fff')});
+      C('FORMACIÓN INICIAL · '+sis,W/2,y+10,`800 28px ${FB}`,AM);const h=Math.min(640,H-y-(fig?330:160)),w=Math.round(h*0.68),x0=Math.round((W-w)/2),y0=y+34;
+      if(h>320){const P=canchaPro(g,x0,y0,w,h,true),kP=kitDe(p,'propia'),kA=kitDe(p,'arquera'),fotos=await Promise.all(tit.map(j=>cargarImgP(j.foto)));
+        const lines=sis.split('-').map(Number),pts=[[5.5,34]];lines.forEach((n,i)=>{const a=lines.length>1?24+52*i/(lines.length-1):45;for(let k=0;k<n;k++)pts.push([a,68*(k+1)/(n+1)])});
+        const rr=Math.round(w*0.062);tit.slice(0,pts.length).forEach((j,i)=>{const q=P(pts[i][0],68-pts[i][1]),col=i===0?(kA.c1||'#F08A24'):(kP.c1||'#FFD400');fichaCanvas(g,q[0],q[1],rr,{img:fotos[i],n:j.dorsal||'',nombre:String(j.apellido||j.nombre).slice(0,12),color:col,tinta:tintaSobre(col)})});
         y=y0+h+40}}
   }
-  if(fig){const yy=fmt==='cuad'?H-250:Math.min(y+20,H-260);g.fillStyle='#1F1E1A';g.beginPath();g.roundRect?g.roundRect(90,yy,W-180,130,20):g.rect(90,yy,W-180,130);g.fill();g.fillStyle=AM;g.fillRect(90,yy,10,130);
-    C('★ FIGURA DEL PARTIDO',130,yy+48,`800 26px ${FB}`,AM,'left');C(((fig.dorsal?fig.dorsal+' · ':'')+fig.nombre+' '+fig.apellido).slice(0,30),130,yy+100,`800 48px ${FD}`,'#fff','left')}
+  if(fig){const yy=fmt==='cuad'?H-250:Math.min(y+20,H-260),fimg=await cargarImgP(fig.foto),tx0=fimg?250:130;g.fillStyle='#1F1E1A';g.beginPath();g.roundRect?g.roundRect(90,yy,W-180,130,20):g.rect(90,yy,W-180,130);g.fill();g.fillStyle=AM;g.fillRect(90,yy,10,130);
+    if(fimg)fichaCanvas(g,175,yy+65,50,{img:fimg,n:fig.dorsal||'',color:AM});
+    C('★ FIGURA DEL PARTIDO',tx0,yy+48,`800 26px ${FB}`,AM,'left');C((fimg?fig.nombre+' '+fig.apellido:(fig.dorsal?fig.dorsal+' · ':'')+fig.nombre+' '+fig.apellido).slice(0,26),tx0,yy+100,`800 46px ${FD}`,'#fff','left')}
   g.fillStyle='rgba(255,255,255,.12)';g.fillRect(70,H-96,W-140,2);C([club.nombre,club.categoria].filter(Boolean).join(' · ')||'Metodika',70,H-50,`600 26px ${FB}`,SB,'left');C('Metodika',W-70,H-50,`700 26px ${FB}`,SB,'right');
   return cv}
 function fichaPartido(p){
