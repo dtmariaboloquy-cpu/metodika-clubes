@@ -530,7 +530,7 @@ body:not(.vopen) .viewer{top:0}
     <button type="button" class="xbtn" id="xPlantel"><b>📲 Para el plantel</b><span>Imagen simple por línea para WhatsApp</span></button>
   </div>
 
-  <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span style="display:flex;gap:12px;align-items:center"><span class="prog" id="prog"></span><button type="button" class="shot-add" id="planBtn">📄 Plan en 1 hoja</button><button type="button" class="shot-add" id="pdfBtn" hidden>Descargar PDF</button><button type="button" class="shot-add" id="presentBtn2">Pantalla grande</button></span></div>
+  <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span style="display:flex;gap:12px;align-items:center"><span class="prog" id="prog"></span><button type="button" class="shot-add" id="guiaBtn">❓ Cómo se usa</button><button type="button" class="shot-add" id="planBtn">📄 Plan en 1 hoja</button><button type="button" class="shot-add" id="pdfBtn" hidden>Descargar PDF</button><button type="button" class="shot-add" id="presentBtn2">Pantalla grande</button></span></div>
 
 
   <div class="viewer" id="viewer">
@@ -1251,6 +1251,97 @@ function abrirPlantel(){
   dibujar();
 }
 
+
+/* ---------- guía paso a paso (señala cada parte de la pantalla) ---------- */
+(function(){
+  const css = `.mtg-hole{position:fixed;z-index:9990;border-radius:10px;box-shadow:0 0 0 9999px rgba(6,8,12,.66);outline:3px solid #FFD400;outline-offset:3px;transition:all .25s ease;pointer-events:none}
+.mtg-pop{position:fixed;z-index:9991;width:min(360px,calc(100vw - 24px));background:#141412;color:#F4F1EA;border:1px solid #2E2C26;border-radius:14px;padding:16px 16px 12px;box-shadow:0 18px 50px rgba(0,0,0,.45);font-family:Barlow,"Segoe UI",Arial,sans-serif;font-size:14.5px;line-height:1.45;transition:top .25s ease,left .25s ease}
+.mtg-pop .mtg-n{font-size:11.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#FFD400;margin-bottom:4px}
+.mtg-pop h4{margin:0 0 6px;font-size:18px;font-weight:800;color:#fff;font-family:Georama,Barlow,Arial,sans-serif}
+.mtg-pop p{margin:0 0 4px;color:#D9D4C7}.mtg-pop b{color:#fff}
+.mtg-bar{display:flex;align-items:center;gap:6px;margin-top:12px}.mtg-bar span{flex:1;display:flex;gap:4px}.mtg-bar i{width:7px;height:7px;border-radius:50%;background:#3A3830}.mtg-bar i.on{background:#FFD400}
+.mtg-bar button{font:inherit;font-size:13.5px;font-weight:700;border-radius:8px;padding:7px 12px;cursor:pointer;border:1px solid #3A3830;background:transparent;color:#F4F1EA}
+.mtg-bar button.ok{background:#FFD400;border-color:#FFD400;color:#141412}.mtg-bar button:disabled{opacity:.35;cursor:default}
+.mtg-x{position:absolute;top:8px;right:10px;background:none;border:0;color:#A9A396;font-size:22px;cursor:pointer;line-height:1}`;
+  let hole = null, pop = null, pasos = [], i = 0, onKey = null, onMove = null;
+  function visible(n){ if (!n) return false; const r = n.getBoundingClientRect(); return r.width>2 && r.height>2 && getComputedStyle(n).visibility!=="hidden"; }
+  function buscar(sel){ if (!sel) return null; for (const s of String(sel).split("||")){ const n = document.querySelector(s.trim()); if (visible(n)) return n; } return null; }
+  function ubicar(){
+    const p = pasos[i]; if (!p) return;
+    const n = buscar(p.sel);
+    const W = innerWidth, H = innerHeight, pw = pop.offsetWidth, ph = pop.offsetHeight;
+    if (!n){ hole.style.cssText = `left:${W/2}px;top:${H/2}px;width:0;height:0;outline-color:transparent`; pop.style.left = Math.max(12,(W-pw)/2)+"px"; pop.style.top = Math.max(12,(H-ph)/2)+"px"; return; }
+    const r = n.getBoundingClientRect(), pad = 6;
+    hole.style.cssText = `left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+2*pad}px;height:${r.height+2*pad}px`;
+    let top = r.bottom + 14; if (top + ph > H - 10) top = r.top - ph - 14; if (top < 10) top = Math.min(H - ph - 10, Math.max(10, r.top + 10));
+    let left = r.left + r.width/2 - pw/2; left = Math.max(12, Math.min(W - pw - 12, left));
+    pop.style.top = top+"px"; pop.style.left = left+"px";
+  }
+  function mostrar(k){
+    i = Math.max(0, Math.min(pasos.length-1, k)); const p = pasos[i];
+    try{ if (p.antes) p.antes(); }catch(e){}
+    const n = buscar(p.sel); if (n) n.scrollIntoView({block:"center", behavior:"instant" in document.documentElement.style ? "instant" : "auto"});
+    const tx = window.mtkTourTx || {};
+    pop.innerHTML = `<button class="mtg-x" aria-label="${tx.cerrar||"Cerrar"}">×</button><div class="mtg-n">${tx.paso||"Paso"} ${i+1} ${tx.de||"de"} ${pasos.length}</div><h4>${p.t}</h4>${p.d}
+      <div class="mtg-bar"><span>${pasos.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")}</span><button data-a="prev" ${i?"":"disabled"}>${tx.ant||"Anterior"}</button><button class="ok" data-a="next">${i===pasos.length-1?(tx.fin||"Terminar"):(tx.sig||"Siguiente")}</button></div>`;
+    requestAnimationFrame(()=>{ ubicar(); setTimeout(ubicar, 120); });
+  }
+  function cerrar(){ if (hole) hole.remove(); if (pop) pop.remove(); hole = pop = null; removeEventListener("keydown", onKey, true); removeEventListener("resize", onMove); removeEventListener("scroll", onMove, true); }
+  window.mtkTour = function(lista){
+    cerrar(); pasos = lista.filter(Boolean); if (!pasos.length) return;
+    if (!document.getElementById("mtg-css")){ const st = document.createElement("style"); st.id = "mtg-css"; st.textContent = css; document.head.appendChild(st); }
+    hole = document.createElement("div"); hole.className = "mtg-hole"; pop = document.createElement("div"); pop.className = "mtg-pop"; pop.setAttribute("role","dialog");
+    document.body.appendChild(hole); document.body.appendChild(pop);
+    pop.addEventListener("click", e=>{ const b = e.target.closest("button"); if (!b) return; if (b.classList.contains("mtg-x")) return cerrar(); if (b.dataset.a==="prev") mostrar(i-1); else if (i===pasos.length-1) cerrar(); else mostrar(i+1); });
+    onKey = e=>{ if (e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); cerrar(); } else if (e.key==="ArrowRight"){ e.preventDefault(); e.stopPropagation(); i===pasos.length-1 ? cerrar() : mostrar(i+1); } else if (e.key==="ArrowLeft"){ e.preventDefault(); e.stopPropagation(); mostrar(i-1); } };
+    onMove = ()=>ubicar();
+    addEventListener("keydown", onKey, true); addEventListener("resize", onMove); addEventListener("scroll", onMove, true);
+    mostrar(0);
+  };
+  window.mtkIdioma = function(){ try{ const l = localStorage.getItem("metodika_idioma"); return l==="pt"||l==="en" ? l : "es"; }catch(e){ return "es"; } };
+  window.mtkTourTx = ({es:{paso:"Paso",de:"de",ant:"Anterior",sig:"Siguiente",fin:"Terminar",cerrar:"Cerrar"},pt:{paso:"Passo",de:"de",ant:"Anterior",sig:"Próximo",fin:"Concluir",cerrar:"Fechar"},en:{paso:"Step",de:"of",ant:"Back",sig:"Next",fin:"Done",cerrar:"Close"}})[window.mtkIdioma()];
+})();
+
+/* ---------- guía de Análisis de rival ---------- */
+function guiaAN(){
+  const L = (es,pt,en)=>({es,pt,en})[mtkIdioma()];
+  const r = ramaClub(), pl = r==="M"?"jugadores":r==="X"?"jugadoras/es":"jugadoras", ar = r==="M"?"arquero":r==="X"?"arquero/a":"arquera";
+  mtkTour([
+    {sel:"#rivalSel", t:L("Elegí el rival","Escolha o adversário","Pick the opponent"), d:L(
+      `<p>Cada rival tiene su análisis. Elegilo en esta lista o tocá <b>+ Nuevo rival</b>. Si viste otro partido del mismo rival, armá otro análisis con el mismo nombre.</p>`,
+      `<p>Cada adversário tem sua análise. Escolha na lista ou toque em <b>+ Novo adversário</b>.</p>`,
+      `<p>Each opponent has its own analysis. Pick it from the list or tap <b>+ New opponent</b>.</p>`)},
+    {sel:"#viewer", t:L("Mirá el partido acá","Assista ao jogo aqui","Watch the match here"), d:L(
+      `<p>Tocá <b>Abrir video</b> y elegí el archivo (no se sube). Cuando veas una jugada, pausá, elegí la <b>sección</b> y tocá <b>Capturar</b> (o la tecla C): queda el recorte con el minuto.</p>`,
+      `<p>Toque em <b>Abrir vídeo</b> e escolha o arquivo. Ao ver uma jogada, pause, escolha a <b>seção</b> e toque em <b>Capturar</b> (tecla C).</p>`,
+      `<p>Tap <b>Open video</b> and choose the file. When you see a play, pause, pick the <b>section</b> and tap <b>Capture</b> (key C).</p>`)},
+    {sel:"#sec-datos", t:L("Completá las secciones","Preencha as seções","Fill in the sections"), d:L(
+      `<p>Vas de arriba hacia abajo: datos, sistema, inicio desde el arco, presión, ataque, transiciones, pelota parada, ${pl} clave y debilidades. Tocás las opciones y escribís notas con el minuto. <b>Se guarda solo.</b></p>`,
+      `<p>De cima para baixo: dados, sistema, saída, pressão, ataque, transições, bola parada, peças-chave e fraquezas. <b>Salva sozinho.</b></p>`,
+      `<p>Top to bottom: details, system, build-up, press, attack, transitions, set pieces, key players and weaknesses. <b>It saves automatically.</b></p>`)},
+    {sel:"#fld-once", t:L("Once probable","Onze provável","Probable line-up"), d:L(
+      `<p>Elegí el sistema y cargá dorsal y nombre por línea (${ar} primero). Con <b>→ Pizarra con el once</b> lo pasás a la pizarra para trabajarlo.</p>`,
+      `<p>Escolha o sistema e preencha número e nome. Com <b>→ Prancheta com o onze</b> vai para a prancheta.</p>`,
+      `<p>Choose the system and add number and name per line. <b>→ Board with the line-up</b> sends it to the board.</p>`)},
+    {sel:"#xtra", t:L("Herramientas","Ferramentas","Tools"), d:L(
+      `<p><b>📜 Historial</b>: partidos jugados contra este rival. <b>🔁 Rival acumulado</b>: qué se repite en 2–3 partidos. <b>🎥 Traer de Videoanálisis</b>: suma lo que taggeaste. <b>📲 Para el plantel</b>: imagen para WhatsApp.</p>`,
+      `<p><b>📜 Histórico</b>, <b>🔁 Adversário acumulado</b>, <b>🎥 Trazer da Videoanálise</b> e <b>📲 Para o elenco</b> (imagem para WhatsApp).</p>`,
+      `<p><b>📜 History</b>, <b>🔁 Combined opponent</b>, <b>🎥 Import from Video analysis</b> and <b>📲 For the squad</b> (WhatsApp image).</p>`)},
+    {sel:"#sec-plan", t:L("Plan de partido","Plano de jogo","Game plan"), d:L(
+      `<p>Lo que vamos a hacer ${r==="M"?"nosotros":r==="X"?"nosotras/os":"nosotras"}: 3 ideas con pelota, 3 sin pelota y 2 de pelota parada. Es la pantalla que cierra la charla.</p>`,
+      `<p>O que nós vamos fazer: 3 ideias com bola, 3 sem bola e 2 de bola parada.</p>`,
+      `<p>What we will do: 3 ideas in possession, 3 out of possession and 2 for set pieces.</p>`)},
+    {sel:"#presentBtn", t:L("Presentar","Apresentar","Present"), d:L(
+      `<p>Arma la charla en pantalla grande, una sección por pantalla, con los recortes y la cancha con el once.</p>`,
+      `<p>Monta a conversa em tela grande, uma seção por tela.</p>`,
+      `<p>Builds the team talk on a big screen, one section per slide.</p>`)},
+    {sel:"#planBtn", t:L("PDF y plan en 1 hoja","PDF e plano em 1 folha","PDF and 1-page plan"), d:L(
+      `<p><b>📄 Plan en 1 hoja</b> resume todo en una hoja para el cuerpo técnico. <b>Descargar PDF</b> baja el análisis completo.</p><p>Esta guía la volvés a abrir con <b>❓ Cómo se usa</b>.</p>`,
+      `<p><b>📄 Plano em 1 folha</b> resume tudo. <b>Baixar PDF</b> traz a análise completa.</p><p>Abra este guia de novo em <b>❓ Como usar</b>.</p>`,
+      `<p><b>📄 1-page plan</b> sums it all up. <b>Download PDF</b> exports the full analysis.</p><p>Reopen this guide with <b>❓ How to use</b>.</p>`)}
+  ]);
+}
+
 /* ---------- recortes por sección ---------- */
 let assets = null, lastSection = SECTIONS[1].id, pendingSection = null;
 const fileIn = document.getElementById("fileIn");
@@ -1711,6 +1802,7 @@ async function planUnaHoja(){
 }
 document.getElementById("planBtn").addEventListener("click",e=>{e.stopPropagation();planUnaHoja()});
 document.getElementById("xHist").addEventListener("click",abrirHistorial);
+document.getElementById("guiaBtn").addEventListener("click",e=>{e.stopPropagation();guiaAN()});
 document.getElementById("xAcum").addEventListener("click",abrirAcumulado);
 document.getElementById("xVA").addEventListener("click",abrirVA);
 document.getElementById("xPlantel").addEventListener("click",abrirPlantel);
@@ -1729,6 +1821,7 @@ document.getElementById("xPlantel").addEventListener("click",abrirPlantel);
   [/^🎬 Video \((\d+)\)$/,['🎬 Vídeo ($1)','🎬 Video ($1)']],[/^⬇ PDF \((\d+)\)$/,['⬇ PDF ($1)','⬇ PDF ($1)']],[/^＋ Agregar\s+tildados a una lista$/,['＋ Adicionar marcados a uma lista','＋ Add selected to a playlist']],
   [/^(\d+) de (\d+) secciones con datos$/,['$1 de $2 seções com dados','$1 of $2 sections filled']],[/^inicio\/fin · (\d+)$/,['início/fim · $1','start/end · $1']],[/^Ej: (.*)$/,['Ex: $1','E.g. $1']]];
 Object.assign(DIC,{"📜 Historial": ["📜 Histórico", "📜 History"], "Partidos jugados contra este rival y qué funcionó": ["Jogos contra este adversário e o que funcionou", "Matches played against this opponent and what worked"], "🔁 Rival acumulado": ["🔁 Adversário acumulado", "🔁 Combined opponent"], "Juntá 2–3 partidos vistos y mirá qué se repite": ["Junte 2–3 jogos vistos e veja o que se repete", "Combine 2–3 scouted matches and see what repeats"], "🎥 Traer de Videoanálisis": ["🎥 Trazer da Videoanálise", "🎥 Import from Video analysis"], "Suma las acciones taggeadas a cada sección": ["Soma as ações marcadas a cada seção", "Adds tagged actions to each section"], "📲 Para el plantel": ["📲 Para o elenco", "📲 For the squad"], "Imagen simple por línea para WhatsApp": ["Imagem simples por linha para WhatsApp", "Simple image per unit for WhatsApp"], "→ Pizarra con el once": ["→ Prancheta com o onze", "→ Board with the line-up"], "Sumar a nuestro equipo enfrente": ["Incluir nosso time em frente", "Add our team opposite"], "Rival acumulado": ["Adversário acumulado", "Combined opponent"], "Buscando los análisis guardados…": ["Buscando as análises salvas…", "Looking for saved analyses…"], "Juntá 2 o 3 partidos que miraste del mismo rival y mirá qué se repite. Tildá los análisis a sumar:": ["Junte 2 ou 3 jogos que você viu do mesmo adversário e veja o que se repete. Marque as análises:", "Combine 2 or 3 matches you scouted of the same opponent and see what repeats. Tick the analyses to add:"], "Completar lo vacío con lo que se repite": ["Completar o vazio com o que se repete", "Fill empty fields with what repeats"], "Tildá al menos 2 análisis.": ["Marque pelo menos 2 análises.", "Tick at least 2 analyses."], "Debilidades que anotaste": ["Fraquezas que você anotou", "Weaknesses you noted"], "Buscando…": ["Buscando…", "Searching…"], "Abrí el Análisis de rival desde Metodika para ver los partidos que jugaste contra este rival.": ["Abra a Análise do adversário pela Metodika para ver os jogos contra este adversário.", "Open Opponent analysis from Metodika to see the matches played against this opponent."], "No hay partidos contra este rival en el fixture. Si ya jugaron, cargalo en Partidos con el mismo nombre.": ["Não há jogos contra este adversário no calendário. Se já jogaram, cadastre em Jogos com o mesmo nome.", "No matches against this opponent in the fixtures. If you already played, add it in Matches with the same name."], "PJ": ["J", "P"], "Ganados": ["Vitórias", "Won"], "Empates": ["Empates", "Drawn"], "Perdidos": ["Derrotas", "Lost"], "Goles": ["Gols", "Goals"], "Fecha": ["Data", "Date"], "Competencia": ["Competição", "Competition"], "Condición": ["Mando", "Venue"], "Resultado": ["Resultado", "Result"], "Por jugar": ["A jogar", "To play"], "Planes que armaste antes contra este rival": ["Planos que você montou antes contra este adversário", "Plans you made before against this opponent"], "Sin plan cargado": ["Sem plano", "No plan yet"], "Qué nos funcionó contra este rival": ["O que funcionou contra este adversário", "What worked against this opponent"], "Qué no nos funcionó": ["O que não funcionou", "What didn't work"], "Se guarda con este análisis.": ["Fica salvo com esta análise.", "Saved with this analysis."], "Traer de Videoanálisis": ["Trazer da Videoanálise", "Import from Video analysis"], "Buscando los videoanálisis del club…": ["Buscando as videoanálises do clube…", "Looking for the club's video analyses…"], "Elegí los partidos taggeados. Las acciones se suman a las notas de cada sección (Inicio, Presión, Ataque, Transiciones, Pelota parada) con su minuto.": ["Escolha os jogos marcados. As ações entram nas notas de cada seção (Saída, Pressão, Ataque, Transições, Bola parada) com o minuto.", "Pick the tagged matches. Actions are added to each section's notes (Build-up, Press, Attack, Transitions, Set pieces) with their minute."], "El equipo marcado como “Rival”": ["O time marcado como “Adversário”", "The team tagged as “Opponent”"], "El equipo propio (taggeaste un partido del rival contra otro)": ["O próprio time (você marcou um jogo do adversário contra outro)", "Own team (you tagged the opponent's match against someone else)"], "Sumar también a “Jugadas para mostrarle al plantel” las que tienen nota": ["Somar também a “Jogadas para mostrar ao elenco” as que têm nota", "Also add the ones with a note to “Clips to show the squad”"], "Agregar al análisis": ["Adicionar à análise", "Add to analysis"], "Cancelar": ["Cancelar", "Cancel"], "Cerrar": ["Fechar", "Close"], "Tildá al menos un partido.": ["Marque pelo menos um jogo.", "Tick at least one match."], "No hay acciones nuevas para traer (o ya las trajiste antes).": ["Não há ações novas para trazer (ou já foram trazidas).", "No new actions to import (or already imported)."], "Todavía no hay partidos taggeados en Videoanálisis. Taggeá el partido del rival allá y después traé las acciones acá.": ["Ainda não há jogos marcados na Videoanálise. Marque o jogo do adversário lá e depois traga as ações para cá.", "No tagged matches in Video analysis yet. Tag the opponent's match there, then import the actions here."], "Inicio desde el arco": ["Saída do goleiro", "Build-up from the goalkeeper"], "Presión y recuperación": ["Pressão e recuperação", "Press and recovery"], "Ataque": ["Ataque", "Attack"], "Transiciones": ["Transições", "Transitions"], "Pelota parada (a favor del rival)": ["Bola parada (a favor do adversário)", "Set pieces (for the opponent)"], "Otras observaciones": ["Outras observações", "Other notes"], "Para el plantel": ["Para o elenco", "For the squad"], "Una imagen simple, tamaño historia de celular (1080×1920), para mandar por WhatsApp antes del partido.": ["Uma imagem simples, tamanho story de celular (1080×1920), para mandar no WhatsApp antes do jogo.", "A simple phone-story-size image (1080×1920) to send on WhatsApp before the match."], "Todo el plantel": ["Todo o elenco", "Whole squad"], "Defensoras": ["Defensoras", "Defenders"], "Defensores": ["Defensores", "Defenders"], "Volantes": ["Meio-campistas", "Midfielders"], "Delanteras": ["Atacantes", "Forwards"], "Delanteros": ["Atacantes", "Forwards"], "⬇ Descargar imagen": ["⬇ Baixar imagem", "⬇ Download image"], "Compartir…": ["Compartilhar…", "Share…"]});PAT.push([new RegExp("^＋ Analizar otro partido de (.+)$"),["＋ Analisar outro jogo de $1", "＋ Scout another match of $1"]],[new RegExp("^Qué se repite en (\\d+) partidos$"),["O que se repete em $1 jogos", "What repeats across $1 matches"]],[new RegExp("^Historial contra (.+)$"),["Histórico contra $1", "History against $1"]],[new RegExp("^(\\d+) acciones para sumar$"),["$1 ações para somar", "$1 actions to add"]],[new RegExp("^— en (\\d+) de (\\d+)$"),["— em $1 de $2", "— in $1 of $2"]],[new RegExp("^¿Quién es (.+) en esos videos\\?$"),["Quem é $1 nesses vídeos?", "Who is $1 in those videos?"]]);
+Object.assign(DIC,{"❓ Cómo se usa": ["❓ Como usar", "❓ How to use"]});
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}

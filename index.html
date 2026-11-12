@@ -634,6 +634,13 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .pzA-add.auto{border-color:#FFD400;color:#FFD400;width:auto;padding:0 12px;min-width:96px}.pzA-add.auto small{white-space:normal;line-height:1.1;text-align:center}
 @media (max-width:640px){.modal .grilla.g2{grid-template-columns:1fr!important}}
 .vers-g{display:grid;gap:10px}.vers{display:grid;grid-template-columns:150px 1fr auto;gap:12px;align-items:center;border:1px solid var(--linea);border-radius:12px;padding:8px}.vers-m{border-radius:8px;overflow:hidden}.vers-i{display:flex;flex-direction:column;gap:3px}@media(max-width:560px){.vers{grid-template-columns:110px 1fr}.vers .btn{grid-column:1/-1}}
+.vaj-cab{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 10px;padding-top:14px;border-top:1px solid var(--linea)}.vaj-cab>b{font-size:15px;margin-right:auto}
+.vaj-p{margin-bottom:12px}.vaj-pt{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--sub);margin:0 0 6px}.vaj-pt span{font-weight:600;letter-spacing:0;text-transform:none}
+.vaj-c{display:grid;grid-template-columns:62px 10px 1fr 22px 26px;gap:8px;align-items:center;width:100%;text-align:left;font:inherit;font-size:13.5px;color:inherit;background:var(--carta2);border:1px solid var(--linea);border-radius:9px;padding:7px 10px;margin-bottom:5px;cursor:pointer}
+.vaj-c:hover{border-color:var(--sub)}.vaj-m{font-variant-numeric:tabular-nums;color:var(--sub);font-weight:600}.vaj-d{width:10px;height:10px;border-radius:3px}
+.vaj-n{font-weight:600;min-width:0}.vaj-n small{display:block;font-weight:400;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vaj-r{font-weight:800;text-align:center}.vaj-r.ok{color:#2E8B57}.vaj-r.mal{color:#C0442E}.vaj-play{width:26px;height:26px;border-radius:50%;background:#FFD400;color:#141412;display:flex;align-items:center;justify-content:center;font-size:11px}
+.vaj-mas{font-size:12.5px;color:var(--sub);padding:2px 4px}
 .va-barras{display:grid;gap:6px}.va-f{display:grid;grid-template-columns:minmax(90px,150px) 1fr 30px 64px;gap:8px;align-items:center;font-size:13.5px}.va-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.va-b{height:8px;border-radius:5px;background:var(--carta2);overflow:hidden}.va-b i{display:block;height:100%;border-radius:5px}.va-r em{font-style:normal;font-weight:700;font-size:12px;margin-right:4px}.ok{color:var(--verde)}.mal{color:var(--rojo)}.va-js{display:flex;flex-wrap:wrap;gap:6px}.va-js em{font-style:normal;font-weight:700}
 @media(max-width:560px){.va-f{grid-template-columns:minmax(80px,1fr) 1fr 26px}.va-r{display:none}}
 .pzA-nota{width:100%;font-size:15px!important;line-height:1.35;min-height:72px;border-radius:10px}
@@ -729,6 +736,8 @@ const POSICIONES=['Arquera/o','Defensa central','Lateral','Volante central','Vol
 const DIM_EVAL=[['tecnica','Técnica'],['tactica','Táctica'],['conPelota','Con pelota'],['sinPelota','Sin pelota'],['impacto','Impacto colectivo']];
 
 let S=null;
+/* versión de los módulos: cambia en cada actualización para que el navegador no muestre una copia vieja */
+const MOD_V='2026-11-12';
 function guardar(){try{asignarCatsNuevos()}catch(e){}if(typeof MODO!=='undefined'){if(MODO==='nube'){programarSync();return}if(MODO==='demo')return}try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}}
 function cargar(){try{const t=localStorage.getItem(CLAVE);if(t)return JSON.parse(t)}catch(e){}return null}
 
@@ -4922,7 +4931,7 @@ VISTAS.tienda=el=>{
 /* ================= ANÁLISIS DE RIVAL ================= */
 VISTAS.analisis=el=>{
   el.innerHTML=cabecera('Video y scouting','Análisis de rival','Mirá el video del rival, capturá recortes, dibujales encima y armá el plan de partido. Después lo presentás en pantalla grande o lo descargás en PDF.',`<a class="btn" href="analisis.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
-  `<iframe class="analisis-frame" src="analisis.html" title="Análisis de rival" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>`+panelJugadasRival();
+  `<iframe class="analisis-frame" src="analisis.html?v=${MOD_V}" title="Análisis de rival" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>`+panelJugadasRival();
   conectarJugadasRival(el);
 };
 /* ---------- 7. Jugadas del rival en la pizarra ---------- */
@@ -4958,7 +4967,7 @@ function conectarJugadasRival(el){
 }
 
 /* ---------- Videoanálisis → partidos y perfiles (solo lectura: no cambia los análisis) ---------- */
-let VA_CACHE=null,VA_T=0,VA_ABRIR=null;
+let VA_CACHE=null,VA_T=0,VA_ABRIR=null,VA_Q='';
 function desdeNubeVA(v){if(Array.isArray(v))return v.map(desdeNubeVA);if(v&&typeof v==='object'){if(Object.keys(v).length===1&&Array.isArray(v.__a))return v.__a.map(desdeNubeVA);const o={};for(const k in v)o[k]=desdeNubeVA(v[k]);return o}return v}
 async function cargarVA(forzar){
   if(VA_CACHE&&!forzar&&Date.now()-VA_T<60000)return VA_CACHE;const por={};
@@ -4992,12 +5001,29 @@ async function panelVAJugador(box,j){if(!box)return;let L=[];try{L=await cargarV
   if(!tags.length){box.innerHTML='';return}
   const r=resumenTags(tags),nA=new Set(tags.map(t=>t._a)).size,cal=r.pos+r.neg;
   box.innerHTML=`<div class="panel va-panel" style="margin-top:16px"><div class="panel-cab"><h3>Videoanálisis</h3><span class="chip">${nA} ${nA===1?'partido analizado':'partidos analizados'}</span></div>
-    <div class="grilla g3" style="margin-bottom:14px"><div><div class="etq">Acciones</div><div class="dato">${r.total}</div></div><div><div class="etq">Salieron bien</div><div class="dato ok">${cal?Math.round(r.pos/cal*100)+'%':'—'}</div></div><div><div class="etq">A mejorar</div><div class="dato mal">${r.neg}</div></div></div>${barrasVA(r,6)}</div>`}
+    <div class="grilla g3" style="margin-bottom:14px"><div><div class="etq">Acciones</div><div class="dato">${r.total}</div></div><div><div class="etq">Salieron bien</div><div class="dato ok">${cal?Math.round(r.pos/cal*100)+'%':'—'}</div></div><div><div class="etq">A mejorar</div><div class="dato mal">${r.neg}</div></div></div>${barrasVA(r,6)}<div id="vaClipsJ"></div></div>`;
+  clipsVAJugador($('#vaClipsJ',box),j,L,tags)}
+/* recortes de la jugadora en su perfil: por partido, con ▶ para verlos en Videoanálisis */
+let VA_FJ='';
+function minVAi(a,t){const x=+t.t||0;if(a.ini2!=null&&x>=a.ini2)return (45+Math.floor((x-a.ini2)/60)+1)+"' 2T";if(a.ini1!=null&&x>=a.ini1)return (Math.floor((x-a.ini1)/60)+1)+"' 1T";const q=Math.floor(x);return Math.floor(q/60)+':'+String(q%60).padStart(2,'0')}
+function clipsVAJugador(box,j,L,tags){if(!box)return;
+  const por={};L.forEach(a=>{por[a.id]=a});
+  const nB=tags.filter(t=>t.resultado==='pos').length,nM=tags.filter(t=>t.resultado==='neg').length;
+  const fil=tags.filter(t=>!VA_FJ||t.resultado===VA_FJ);
+  const grupos={};fil.forEach(t=>{(grupos[t._a]=grupos[t._a]||[]).push(t)});
+  const orden=Object.keys(grupos).sort((x,y)=>String((por[y]||{}).fecha||'').localeCompare(String((por[x]||{}).fecha||'')));
+  box.innerHTML=`<div class="vaj-cab"><b>Sus recortes</b><div class="seg">${[['','Todos ('+tags.length+')'],['pos','✓ Bien ('+nB+')'],['neg','✗ Para mejorar ('+nM+')']].map(([v,t])=>`<button data-vfj="${v}" class="${VA_FJ===v?'activo':''}" aria-pressed="${VA_FJ===v}">${t}</button>`).join('')}</div>
+    <button class="btn" data-vajug="${esc(j.id)}">▶ Verlos en Videoanálisis</button></div>
+    ${orden.length?orden.map(id=>{const a=por[id]||{},ts=grupos[id].sort((x,y)=>(+x.t||0)-(+y.t||0));return `<div class="vaj-p"><div class="vaj-pt">vs ${esc(a.rival||a.nombre||'')}${a.fecha?' · '+esc(fCorta(a.fecha)):''}<span>${ts.length} recorte${ts.length===1?'':'s'}</span></div>
+      ${ts.slice(0,40).map(t=>`<button class="vaj-c" data-vaclip="${esc(id)}:${esc(t.id)}" title="Ver este recorte"><span class="vaj-m">${esc(minVAi(a,t))}</span><span class="vaj-d" style="background:${esc(t.color||'#FFD400')}"></span><span class="vaj-n">${esc(t.nombre||'Acción')}${t.nota?`<small>${esc(t.nota)}</small>`:''}</span>${t.resultado==='pos'?'<span class="vaj-r ok">✓</span>':t.resultado==='neg'?'<span class="vaj-r mal">✗</span>':'<span class="vaj-r"></span>'}<span class="vaj-play">▶</span></button>`).join('')}${ts.length>40?`<div class="vaj-mas">…y ${ts.length-40} más en Videoanálisis</div>`:''}</div>`}).join(''):'<p class="sub" style="font-size:13.5px">No hay recortes con ese filtro.</p>'}`;
+  $$('[data-vfj]',box).forEach(b=>b.onclick=()=>{VA_FJ=b.dataset.vfj;clipsVAJugador(box,j,L,tags)});
+  $$('[data-vaclip]',box).forEach(b=>b.onclick=()=>{VA_Q='clip='+encodeURIComponent(b.dataset.vaclip);ir('videoanalisis')});
+  $$('[data-vajug]',box).forEach(b=>b.onclick=()=>{VA_Q='jug='+encodeURIComponent(b.dataset.vajug);ir('videoanalisis')})}
 window.addEventListener('storage',e=>{if(e.key==='metodika_pz_pendiente'&&e.newValue&&S&&S.club)revisarPizarraPendiente()});
 VISTAS.videoanalisis=el=>{
   el.innerHTML=cabecera('Video y tagging','Videoanálisis','Taggeá el partido con la botonera, sumá quién hizo cada acción, la zona y si salió bien o mal, dibujá sobre los clips y armá listas, videos y PDF para el plantel.',`<a class="btn" href="videoanalisis.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
-  `<iframe class="analisis-frame" src="videoanalisis.html${VA_ABRIR?'?p='+encodeURIComponent(VA_ABRIR):''}" title="Videoanálisis" allow="fullscreen; autoplay; display-capture; clipboard-read; clipboard-write" allowfullscreen></iframe>`;
-  VA_ABRIR=null;VA_CACHE=null;
+  `<iframe class="analisis-frame" src="videoanalisis.html?v=${MOD_V}${VA_ABRIR?'&p='+encodeURIComponent(VA_ABRIR):''}${VA_Q?'&'+VA_Q:''}" title="Videoanálisis" allow="fullscreen; autoplay; display-capture; clipboard-read; clipboard-write" allowfullscreen></iframe>`;
+  VA_ABRIR=null;VA_Q='';VA_CACHE=null;
 };
 
 
@@ -5224,7 +5250,8 @@ Object.assign(DIC_I18N,{"Espacio": ["Espaço", "Space"], "Zona de trabajo": ["Zo
 let IDIOMA='es';try{IDIOMA=localStorage.getItem('metodika_idioma')||'es'}catch(e){}
 if(!['es','pt','en'].includes(IDIOMA))IDIOMA='es';
 const I18N_HECHOS=new WeakSet();
-const PAT_I18N=[
+Object.assign(DIC_I18N,{"Sus recortes": ["Seus clipes", "Their clips"], "▶ Verlos en Videoanálisis": ["▶ Ver na Videoanálise", "▶ Watch in Video analysis"], "Ver este recorte": ["Ver este clipe", "Watch this clip"], "No hay recortes con ese filtro.": ["Não há clipes com esse filtro.", "No clips with that filter."]});
+const PAT_I18N=[[new RegExp("^Todos \\((\\d+)\\)$"),["Todos ($1)", "All ($1)"]],[new RegExp("^✓ Bien \\((\\d+)\\)$"),["✓ Bem ($1)", "✓ Good ($1)"]],[new RegExp("^✗ Para mejorar \\((\\d+)\\)$"),["✗ Para melhorar ($1)", "✗ To improve ($1)"]],[new RegExp("^(\\d+) recortes?$"),["$1 clipe(s)", "$1 clip(s)"]],[new RegExp("^…y (\\d+) más en Videoanálisis$"),["…e mais $1 na Videoanálise", "…and $1 more in Video analysis"]],
  [/^Últimos (\d+)$/,['Últimos $1','Last $1']],[/^Últimas (\d+) semanas$/,['Últimas $1 semanas','Last $1 weeks']],
  [/^(\d+) partidos? jugados?$/,['$1 jogos disputados','$1 matches played']],[/^(\d+) tareas?$/,['$1 tarefas','$1 drills']],
  [/^(\d+) jugadoras$/,['$1 jogadoras','$1 players']],[/^(\d+) jugadores$/,['$1 jogadores','$1 players']],[/^(\d+) convocad[ao]s$/,['$1 convocadas','$1 called up']],
