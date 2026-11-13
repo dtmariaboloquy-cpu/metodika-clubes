@@ -135,6 +135,23 @@ textarea::placeholder,input::placeholder{color:var(--mute)}
 .shot-add[disabled]{opacity:.6;cursor:wait}
 .shot-msg{font-size:12.5px;color:var(--rival);margin-top:6px}
 @media (prefers-reduced-motion:no-preference){ #deck .slide{animation:fadein .25s ease} @keyframes fadein{from{opacity:.4}to{opacity:1}} }
+
+/* ---- rediseño: más simple ---- */
+.topacc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 12px}.topacc .present-btn{margin:0}
+.maspanel{border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 14px;background:var(--card,transparent)}.maspanel .xtra{margin:0 0 10px}.masrow{display:flex;gap:8px;flex-wrap:wrap}
+.paso{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#FFD400;color:#141412;font-weight:800;font-size:14px;margin-right:8px;flex:none}
+.pasot{display:inline-flex;align-items:center}
+.pasohead{display:flex;gap:4px;align-items:flex-start;margin:22px 0 10px}.pasohead b{font-size:18px;display:block}.pasohead small{display:block;color:var(--sub);font-size:13px;margin-top:2px}
+section.acc{padding:0!important;overflow:hidden}
+.acc-h{display:flex;align-items:center;gap:10px;width:100%;font:inherit;color:inherit;background:none;border:0;padding:16px 18px;cursor:pointer;text-align:left}
+.acc-h .n{flex:none}.acc-t{flex:1;font-size:17px;font-weight:700}.acc-est{color:var(--ok,#2E9E5B);font-weight:800;font-size:13.5px;white-space:nowrap}.acc-fl{transition:transform .2s;opacity:.7}
+section.acc.open .acc-fl{transform:rotate(180deg)}
+section.acc .acc-b{display:none;padding:0 18px 18px}section.acc.open .acc-b{display:block}
+section.acc:not(.open):hover{border-color:#FFD400}
+.chip-mia{position:relative;padding-right:26px!important}.chip-x{position:absolute;right:7px;top:50%;transform:translateY(-50%);opacity:.65;font-weight:700}.chip-x:hover{opacity:1;color:var(--rival)}
+.chip-otra{border-style:dashed!important;opacity:.85}
+.pts{margin:12px 0}.pt{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}.pt-top{display:flex;gap:8px;margin-bottom:6px}.pt-top input{flex:1;font-weight:700}.pt-top .rowdel{width:34px}.pt textarea{min-height:60px}
+.charla{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
 </style>
 
 <style>
@@ -540,10 +557,8 @@ body:not(.vopen) .viewer{top:0}
   <h1 id="hTitle">Rival nuevo</h1>
   <p class="meta" id="hVisto"></p>
   <p class="meta" id="hProx"></p>
-  <button type="button" class="present-btn" id="presentBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Presentar en pantalla grande</button>
-
-  <div class="how">Abrí el partido en el <b>visor</b> (tocá "Abrir video") y completá mientras lo mirás. <b>Se guarda solo.</b> Cuando veas una jugada, pausá, elegí la sección y tocá <b>Capturar</b>: queda como recorte con el minuto puesto, listo para dibujarle encima. Cuando termines, usá <b>Pantalla grande</b> para la charla o <b>Descargar PDF</b> para mandarlo al grupo.</div>
-  <div class="how">Con <b>✂ Clip</b> marcás el inicio y el fin de una jugada: el video no se sube, se guarda solo el minuto. Funciona con el archivo o con un link de YouTube.</div>
+  <div class="topacc"><button type="button" class="present-btn" id="presentBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Presentar en pantalla grande</button><button type="button" class="btn2 masbtn" id="masBtn" aria-expanded="false" aria-controls="masPanel">Más herramientas ▾</button><button type="button" class="btn2" id="guiaBtn">❓ Cómo se usa</button></div>
+  <div class="maspanel" id="masPanel" hidden>
   <div class="xtra" id="xtra">
     <button type="button" class="xbtn" id="xHist"><b>📜 Historial</b><span>Partidos jugados contra este rival y qué funcionó</span></button>
     <button type="button" class="xbtn" id="xAcum"><b>🔁 Rival acumulado</b><span>Juntá 2–3 partidos vistos y mirá qué se repite</span></button>
@@ -551,14 +566,15 @@ body:not(.vopen) .viewer{top:0}
     <button type="button" class="xbtn" id="xRvn"><b>⚖ Rival vs nosotras</b><span>Sus números al lado de los nuestros y las zonas que se cruzan</span></button>
     <button type="button" class="xbtn" id="xPlantel"><b>📲 Para el plantel</b><span>Imagen simple por línea para WhatsApp</span></button>
   </div>
+    <div class="masrow"><button type="button" class="shot-add" id="planBtn">📄 Plan en 1 hoja</button><button type="button" class="shot-add" id="pdfBtn" hidden>Descargar PDF</button><button type="button" class="shot-add" id="presentBtn2" hidden>Pantalla grande</button></div>
+  </div>
 
-  <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span style="display:flex;gap:12px;align-items:center"><span class="prog" id="prog"></span><button type="button" class="shot-add" id="guiaBtn">❓ Cómo se usa</button><button type="button" class="shot-add" id="planBtn">📄 Plan en 1 hoja</button><button type="button" class="shot-add" id="pdfBtn" hidden>Descargar PDF</button><button type="button" class="shot-add" id="presentBtn2">Pantalla grande</button></span></div>
-
+  <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span class="prog" id="prog"></span></div>
 
   <div class="viewer" id="viewer">
     <div class="vhead">
-      <b>Visor del partido</b>
-      <span class="vsub" id="vName">Abrí el video desde tu computadora. No se sube: se reproduce acá.</span>
+      <b class="pasot"><span class="paso">1</span>Mirá el partido y marcá las jugadas</b>
+      <span class="vsub" id="vName">Abrí el video desde la compu o con un link de YouTube. No se sube a la nube.</span>
       <span class="vbtns"><button type="button" class="btn2 solid" id="vOpen">Abrir video</button><button type="button" class="btn2" id="vYTbtn">▶ Link de YouTube</button><button type="button" class="btn2" id="vSide" hidden>Poner arriba</button><button type="button" class="btn2" id="vMin" hidden>Minimizar</button></span>
     </div>
     <div class="vbody" id="vBody" hidden>
@@ -578,6 +594,7 @@ body:not(.vopen) .viewer{top:0}
     </div>
   </div>
 <input type="file" id="vFile" accept="video/*" hidden>
+  <div class="pasohead" id="paso2"><span class="paso">2</span><div><b>Completá el informe</b><small>Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.</small></div></div>
   <div id="form"></div>
 </div>
 
@@ -699,14 +716,52 @@ function header(){
   if (state.proximo) { p.appendChild(document.createTextNode("Para preparar: ")); p.appendChild(el("b",{text:state.proximo})); }
 }
 
+/* secciones plegables: se abre una por vez para que la página no sea eterna */
+const SEC_ABIERTAS = new Set();
+const SIN_ACORDEON = ["plan"];
+function secTieneDatos(s){ return s.fields.some(f=> f.type==="stats" ? STATS.some(([k])=>filled(state[k])) : filled(state[f.id])) || filled(state[shotKey(s.id)]) || puntos(s.id).some(p=>p&&(p.t||p.txt)); }
+function secEstado(s){ const n = (Array.isArray(state[shotKey(s.id)])?state[shotKey(s.id)]:[]).length; return (n?"🎬 "+n+"  ":"")+(secTieneDatos(s)?"✓":""); }
+function pintarEstados(){ SECTIONS.forEach(s=>{ const b = document.getElementById("est-"+s.id); if (b) b.textContent = secEstado(s); }); }
+function abrirSec(id, scroll){ const sec = document.getElementById("sec-"+id); if (!sec || !sec.classList.contains("acc")) return; SEC_ABIERTAS.add(id); sec.classList.add("open"); const h = sec.querySelector(".acc-h"); if (h) h.setAttribute("aria-expanded","true"); if (scroll) sec.scrollIntoView({behavior:"smooth",block:"start"}); }
+function puntos(id){ return Array.isArray(state["pts_"+id]) ? state["pts_"+id] : []; }
+function renderPuntos(s){
+  const box = el("div",{class:"pts",id:"pts-"+s.id});
+  puntos(s.id).forEach((p,i)=>{ const c = el("div",{class:"pt"});
+    const t = el("input",{type:"text",placeholder:"Título (ej.: Inicio con 3)","aria-label":"Título"}); t.value = p.t||"";
+    const x = el("button",{type:"button",class:"rowdel","aria-label":"Quitar punto",text:"×"});
+    const tx = el("textarea",{placeholder:"Qué hacen y en qué minutos","aria-label":"Detalle"}); tx.value = p.txt||"";
+    t.addEventListener("input",()=>{ state["pts_"+s.id][i].t = t.value; changed(); });
+    tx.addEventListener("input",()=>{ state["pts_"+s.id][i].txt = tx.value; changed(); });
+    x.addEventListener("click",()=>{ if ((p.t||p.txt) && !confirm("¿Quitar este punto?")) return; state["pts_"+s.id].splice(i,1); changed(); box.replaceWith(renderPuntos(s)); });
+    const top = el("div",{class:"pt-top"}); top.appendChild(t); top.appendChild(x); c.appendChild(top); c.appendChild(tx); box.appendChild(c); });
+  const add = el("button",{type:"button",class:"shot-add pt-add",text:"＋ Agregar un punto"});
+  add.addEventListener("click",()=>{ if (!Array.isArray(state["pts_"+s.id])) state["pts_"+s.id] = []; state["pts_"+s.id].push({t:"",txt:""}); changed(); const nb = renderPuntos(s); box.replaceWith(nb); const ins = nb.querySelectorAll(".pt input"); if (ins.length) ins[ins.length-1].focus(); });
+  box.appendChild(add);
+  return box;
+}
 function render() {
   form.textContent = "";
-  SECTIONS.forEach((s,i)=>{
-    const sec = el("section",{id:"sec-"+s.id, class:s.cls||""});
-    const h = el("h2"); h.appendChild(el("span",{class:"n",text:String(i+1)})); h.appendChild(el("span",{text:s.title})); sec.appendChild(h);
-    if (s.hint) sec.appendChild(el("p",{class:"hint",text:s.hint}));
-    s.fields.forEach(f=>sec.appendChild(renderField(f)));
-    if (s.id!=="datos" && s.id!=="plan") sec.appendChild(renderShots(s));
+  const orden = SECTIONS.filter(s=>s.id!=="plan").concat(SECTIONS.filter(s=>s.id==="plan"));
+  let n = 0;
+  orden.forEach(s=>{
+    const acc = !SIN_ACORDEON.includes(s.id);
+    if (s.id==="plan") { const ph = el("div",{class:"pasohead",id:"paso3"}); ph.innerHTML = '<span class="paso">3</span><div><b>Plan de partido y charla</b><small>Lo que van a hacer para ganarle. Después presentalo en pantalla grande o bajalo en PDF.</small></div>'; form.appendChild(ph); }
+    const sec = el("section",{id:"sec-"+s.id, class:(s.cls||"")+(acc?" acc":"")+(acc&&SEC_ABIERTAS.has(s.id)?" open":"")});
+    if (acc){ n++;
+      const h = el("button",{type:"button",class:"acc-h","aria-expanded":SEC_ABIERTAS.has(s.id)?"true":"false"});
+      h.appendChild(el("span",{class:"n",text:String(n)})); h.appendChild(el("span",{class:"acc-t",text:s.title})); h.appendChild(el("span",{class:"acc-est",id:"est-"+s.id,text:secEstado(s)})); h.appendChild(el("span",{class:"acc-fl","aria-hidden":"true",text:"▾"}));
+      h.addEventListener("click",()=>{ const ab = !sec.classList.contains("open"); sec.classList.toggle("open",ab); h.setAttribute("aria-expanded",ab?"true":"false"); if (ab) SEC_ABIERTAS.add(s.id); else SEC_ABIERTAS.delete(s.id); });
+      sec.appendChild(h);
+    } else { const h = el("h2"); h.appendChild(el("span",{text:s.title})); sec.appendChild(h); }
+    const body = el("div",{class:"acc-b"});
+    if (s.hint) body.appendChild(el("p",{class:"hint",text:s.hint}));
+    s.fields.forEach(f=>body.appendChild(renderField(f)));
+    if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderPuntos(s));
+    if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderShots(s));
+    if (s.id==="plan"){ const ch = el("div",{class:"charla"});
+      [["▶ Presentar en pantalla grande","presentBtn",true],["📄 Plan en 1 hoja","planBtn"],["⬇ Descargar PDF","pdfBtn"],["📲 Para el plantel","xPlantel"]].forEach(([t,id,pri])=>{ const b = el("button",{type:"button",class:"btn2"+(pri?" solid":""),text:t}); b.addEventListener("click",()=>{ const o = document.getElementById(id); if (id==="pdfBtn" && o && o.hidden){ alert("El PDF se está preparando. Probá en unos segundos."); return; } if (o) o.click(); }); ch.appendChild(b); });
+      body.appendChild(ch); }
+    sec.appendChild(body);
     sec.addEventListener("focusin",()=>{ lastSection = s.id; });
     sec.addEventListener("pointerdown",()=>{ lastSection = s.id; });
     form.appendChild(sec);
@@ -748,7 +803,10 @@ function renderField(f) {
   if (f.label) wrap.appendChild(el("label",{class:"lbl",for:f.id,text:f.label}));
   if (f.type==="chips") {
     const box = el("div",{class:"chips",role:"group"});
-    f.opts.forEach(o=>{
+    const extra = (state.opc && Array.isArray(state.opc[f.id])) ? state.opc[f.id] : [];
+    const curV = f.multi ? (Array.isArray(state[f.id])?state[f.id]:[]) : (state[f.id]?[state[f.id]]:[]);
+    const todas = [...f.opts, ...extra.filter(o=>!f.opts.includes(o))]; curV.forEach(v=>{ if (v && !todas.includes(v)) todas.push(v); });
+    todas.forEach(o=>{
       const cur = state[f.id];
       const on = f.multi ? Array.isArray(cur) && cur.includes(o) : cur===o;
       const b = el("button",{type:"button",class:"chip","aria-pressed":on?"true":"false",text:o}); b.dataset.v=o;
@@ -759,8 +817,21 @@ function renderField(f) {
         if (f.id==="sis_con") refreshField("once");
         changed();
       });
+      if (!f.opts.includes(o)){ b.classList.add("chip-mia"); const x = el("span",{class:"chip-x",title:"Quitar esta opción",text:"×"}); x.addEventListener("click",e=>{ e.stopPropagation();
+          if (!confirm("¿Quitar la opción “"+o+"”?")) return;
+          if (state.opc && Array.isArray(state.opc[f.id])) state.opc[f.id] = state.opc[f.id].filter(z=>z!==o);
+          if (f.multi && Array.isArray(state[f.id])) state[f.id] = state[f.id].filter(z=>z!==o); else if (state[f.id]===o) state[f.id] = "";
+          changed(); refreshField(f.id); }); b.appendChild(x); }
       box.appendChild(b);
     });
+    const otra = el("button",{type:"button",class:"chip chip-otra",text:"＋ Otra"});
+    otra.addEventListener("click",()=>{ const v = (prompt("Nueva opción para “"+(f.label||"")+"”:")||"").trim().slice(0,40); if (!v) return;
+      state.opc = state.opc && typeof state.opc==="object" ? state.opc : {}; const L = Array.isArray(state.opc[f.id]) ? state.opc[f.id] : (state.opc[f.id] = []);
+      if (!f.opts.includes(v) && !L.includes(v)) L.push(v);
+      if (f.multi){ const arr = Array.isArray(state[f.id]) ? state[f.id] : (state[f.id] = []); if (!arr.includes(v)) arr.push(v); } else state[f.id] = v;
+      if (f.id==="sis_con") refreshField("once");
+      changed(); refreshField(f.id); });
+    box.appendChild(otra);
     wrap.appendChild(box);
   } else if (f.type==="textarea" || f.type==="text") {
     const t = el(f.type==="text"?"input":"textarea",{id:f.id,placeholder:f.ph||""});
@@ -836,8 +907,9 @@ function renderField(f) {
 
 function filled(v){ if(Array.isArray(v)) return v.some(x=> typeof x==="string" ? x : Object.values(x||{}).some(Boolean)); return !!v; }
 function updateProgress(){
-  const done = SECTIONS.filter(s=>s.fields.some(f=> f.type==="stats" ? STATS.some(([k])=>filled(state[k])) : filled(state[f.id])) || filled(state[shotKey(s.id)])).length;
+  const done = SECTIONS.filter(secTieneDatos).length;
   progEl.textContent = done + " de " + SECTIONS.length + " secciones con datos";
+  pintarEstados();
 }
 function setStatus(cls, txt){ statusEl.className = "status " + cls; statusTxt.textContent = txt; }
 
@@ -933,7 +1005,8 @@ async function createRival(){
   const n = newName.value.trim(); if (!n) { newName.focus(); return; }
   let s = slugify(n); const base = s; let k = 2; while (rivals.some(r=>r.slug===s)) s = base+"-"+(k++);
   rivals.push({slug:s,name:n}); newBox.hidden = true; newName.value="";
-  await loadRival(s, n); state.rival = n; header(); changed();
+  const opcPrev = state.opc && typeof state.opc==="object" ? JSON.parse(JSON.stringify(state.opc)) : null;
+  await loadRival(s, n); state.rival = n; if (opcPrev && !state.opc){ state.opc = opcPrev; render(); } header(); changed();
 }
 document.getElementById("newRivalOk").addEventListener("click",createRival);
 newName.addEventListener("keydown",e=>{ if (e.key==="Enter") createRival(); });
@@ -1399,6 +1472,7 @@ function abrirPlantel(){
 function guiaAN(){
   const L = (es,pt,en)=>({es,pt,en})[mtkIdioma()];
   const r = ramaClub(), pl = r==="M"?"jugadores":r==="X"?"jugadoras/es":"jugadoras", ar = r==="M"?"arquero":r==="X"?"arquero/a":"arquera";
+  abrirSec("sistema");
   mtkTour([
     {sel:"#rivalSel", t:L("Elegí el rival","Escolha o adversário","Pick the opponent"), d:L(
       `<p>Cada rival tiene su análisis. Elegilo en esta lista o tocá <b>+ Nuevo rival</b>. Si viste otro partido del mismo rival, armá otro análisis con el mismo nombre.</p>`,
@@ -1408,7 +1482,7 @@ function guiaAN(){
       `<p>Tocá <b>Abrir video</b> y elegí el archivo (no se sube). Cuando veas una jugada, pausá, elegí la <b>sección</b> y tocá <b>Capturar</b> (o la tecla C): queda el recorte con el minuto.</p><p>También podés pegar un <b>link de YouTube</b>. Con <b>✂ Clip</b> (tecla X) marcás inicio y fin de la jugada: el video nunca se sube, se guarda solo el minuto y se ve igual en Pantalla grande.</p>`,
       `<p>Toque em <b>Abrir vídeo</b> e escolha o arquivo. Ao ver uma jogada, pause, escolha a <b>seção</b> e toque em <b>Capturar</b> (tecla C).</p><p>Também pode colar um <b>link do YouTube</b>. Com <b>✂ Clipe</b> (tecla X) marca início e fim da jogada: o vídeo nunca é enviado, só o minuto.</p>`,
       `<p>Tap <b>Open video</b> and choose the file. When you see a play, pause, pick the <b>section</b> and tap <b>Capture</b> (key C).</p><p>You can also paste a <b>YouTube link</b>. With <b>✂ Clip</b> (key X) you mark the start and end of a play: the video is never uploaded, only the minute.</p>`)},
-    {sel:"#sec-datos", t:L("Completá las secciones","Preencha as seções","Fill in the sections"), d:L(
+    {sel:"#paso2", t:L("Completá las secciones","Preencha as seções","Fill in the sections"), d:L(
       `<p>Vas de arriba hacia abajo: datos, sistema, inicio desde el arco, presión, ataque, transiciones, pelota parada, ${pl} clave y debilidades. Tocás las opciones y escribís notas con el minuto. <b>Se guarda solo.</b></p>`,
       `<p>De cima para baixo: dados, sistema, saída, pressão, ataque, transições, bola parada, peças-chave e fraquezas. <b>Salva sozinho.</b></p>`,
       `<p>Top to bottom: details, system, build-up, press, attack, transitions, set pieces, key players and weaknesses. <b>It saves automatically.</b></p>`)},
@@ -1416,7 +1490,7 @@ function guiaAN(){
       `<p>Elegí el sistema y cargá dorsal y nombre por línea (${ar} primero). Con <b>→ Pizarra con el once</b> lo pasás a la pizarra para trabajarlo.</p>`,
       `<p>Escolha o sistema e preencha número e nome. Com <b>→ Prancheta com o onze</b> vai para a prancheta.</p>`,
       `<p>Choose the system and add number and name per line. <b>→ Board with the line-up</b> sends it to the board.</p>`)},
-    {sel:"#xtra", t:L("Herramientas","Ferramentas","Tools"), d:L(
+    {sel:"#masBtn", t:L("Herramientas","Ferramentas","Tools"), d:L(
       `<p><b>📜 Historial</b>: partidos jugados contra este rival. <b>🔁 Rival acumulado</b>: qué se repite en 2–3 partidos. <b>🎥 Traer de Videoanálisis</b>: suma lo que taggeaste. <b>📲 Para el plantel</b>: imagen para WhatsApp.</p>`,
       `<p><b>📜 Histórico</b>, <b>🔁 Adversário acumulado</b>, <b>🎥 Trazer da Videoanálise</b> e <b>📲 Para o elenco</b> (imagem para WhatsApp).</p>`,
       `<p><b>📜 History</b>, <b>🔁 Combined opponent</b>, <b>🎥 Import from Video analysis</b> and <b>📲 For the squad</b> (WhatsApp image).</p>`)},
@@ -1428,7 +1502,7 @@ function guiaAN(){
       `<p>Arma la charla en pantalla grande, una sección por pantalla, con los recortes y la cancha con el once.</p>`,
       `<p>Monta a conversa em tela grande, uma seção por tela.</p>`,
       `<p>Builds the team talk on a big screen, one section per slide.</p>`)},
-    {sel:"#planBtn", t:L("PDF y plan en 1 hoja","PDF e plano em 1 folha","PDF and 1-page plan"), d:L(
+    {sel:"#masBtn", t:L("PDF y plan en 1 hoja","PDF e plano em 1 folha","PDF and 1-page plan"), d:L(
       `<p><b>📄 Plan en 1 hoja</b> resume todo en una hoja para el cuerpo técnico. <b>Descargar PDF</b> baja el análisis completo.</p><p>Esta guía la volvés a abrir con <b>❓ Cómo se usa</b>.</p>`,
       `<p><b>📄 Plano em 1 folha</b> resume tudo. <b>Baixar PDF</b> traz a análise completa.</p><p>Abra este guia de novo em <b>❓ Como usar</b>.</p>`,
       `<p><b>📄 1-page plan</b> sums it all up. <b>Download PDF</b> exports the full analysis.</p><p>Reopen this guide with <b>❓ How to use</b>.</p>`)}
@@ -1710,6 +1784,7 @@ const isFormation = v => typeof v==="string" && /^\d(-\d){2,3}$/.test(v);
 
 function sectionSlide(s, build){
   slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker",s.title)); build(w);
+    const pts = puntos(s.id).filter(p=>p&&(p.t||p.txt)); if (pts.length){ const e = w.querySelector(".empty"); if (e) e.remove(); pts.forEach(p=>block(w, p.t||"Punto", D("div","note",p.txt||""))); }
     const sh = list(shotKey(s.id)); if (sh.length){ const th=D("div","thumbs"); sh.filter(x=>!x.video&&(!x.clip||x.id||x.yt)).slice(0,6).forEach(x=>{ const i=D("img"); i.src=x.id?shotUrl(x.ann||x.id):"https://img.youtube.com/vi/"+x.yt+"/mqdefault.jpg"; i.alt=x.cap||""; th.appendChild(i); }); if (th.children.length) block(w,"Recortes (en las siguientes)",th); }
     return w; });
   list(shotKey(s.id)).forEach(x=>slides.push(()=>{ const w=D("div","shot"); w.appendChild(D("p","kicker",s.title));
@@ -1749,7 +1824,7 @@ function buildSlides(){
   const once = list("once"); if (once.some(p=>p&&(p.dor||p.ref))) slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker","Sistema")); w.appendChild(D("h3",null,"Once probable"));
     const f = isFormation(val("sis_con")) ? val("sis_con") : "4-4-2"; const svg = pitchSVG(f,"Once probable",once); svg.style.maxHeight="58vh"; w.appendChild(svg); return w; });
   sectionSlide(S("salida"), w=>{ w.appendChild(D("h3",null,"Inicio desde el arco"));
-    if (val("sal_tipo")) w.appendChild(pills(["Inicio "+val("sal_tipo").toLowerCase()]));
+    if (val("sal_tipo")) w.appendChild(pills([/^inicio/i.test(val("sal_tipo")) ? val("sal_tipo") : "Inicio "+val("sal_tipo").toLowerCase()]));
     if (list("sal_quien").length) block(w,"Participan",pills(list("sal_quien")));
     noteOrNothing(w,"Detalle","sal_notas"); if(!val("sal_tipo")&&!list("sal_quien").length&&!val("sal_notas")) empty(w); });
   sectionSlide(S("presion"), w=>{ w.appendChild(D("h3",null,"Presión y recuperación"));
@@ -1776,7 +1851,7 @@ function buildSlides(){
   sectionSlide(S("clips"), w=>{ w.appendChild(D("h3",null,"Jugadas para ver"));
     const cs = list("clips").filter(c=>c&&(c.min||c.txt)); if(!cs.length) return empty(w);
     const ul=D("ul","clips"); cs.forEach(c=>{ const li=D("li"); li.appendChild(D("span","t",c.min||"—")); li.appendChild(D("span",null,c.txt||"")); ul.appendChild(li); }); w.appendChild(ul); });
-  if (val("general") || list(shotKey("general")).length) sectionSlide(S("general"), w=>{ w.appendChild(D("h3",null,"Otras observaciones")); if (val("general")) w.appendChild(D("div","note",val("general"))); });
+  if (val("general") || list(shotKey("general")).length || puntos("general").some(p=>p&&(p.t||p.txt))) sectionSlide(S("general"), w=>{ w.appendChild(D("h3",null,"Otras observaciones")); if (val("general")) w.appendChild(D("div","note",val("general"))); });
   slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker","Plan de partido")); w.appendChild(D("h3",null,"Cómo le ganamos a "+name));
     const box=D("div","planbox"); let any=false;
     [["plan_con","Con pelota"],["plan_sin","Sin pelota"],["plan_pp","Pelota parada"]].forEach(([k,l])=>{ const items=list(k).filter(Boolean); if(!items.length) return; any=true; const c=D("div","col"); c.appendChild(D("h4",null,l)); const ol=D("ol"); items.forEach(t=>ol.appendChild(D("li",null,t))); c.appendChild(ol); box.appendChild(c); });
@@ -1792,6 +1867,8 @@ function openDeck(){ buildSlides(); deck.hidden=false; document.body.style.overf
 function closeDeck(){ deck.hidden=true; document.body.style.overflow=""; setTimeout(flushPending,0); if (document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }
 document.getElementById("presentBtn").addEventListener("click",openDeck);
 document.getElementById("presentBtn2").addEventListener("click",openDeck);
+{ const mb = document.getElementById("masBtn"), mp = document.getElementById("masPanel");
+  mb.addEventListener("click",()=>{ mp.hidden = !mp.hidden; mb.setAttribute("aria-expanded", mp.hidden?"false":"true"); mb.textContent = mp.hidden ? "Más herramientas ▾" : "Más herramientas ▴"; }); }
 document.getElementById("dPrev").addEventListener("click",e=>{ e.stopPropagation(); show(cur-1); });
 document.getElementById("dNext").addEventListener("click",e=>{ e.stopPropagation(); show(cur+1); });
 document.getElementById("dClose").addEventListener("click",e=>{ e.stopPropagation(); closeDeck(); });
@@ -1878,7 +1955,7 @@ async function marcarClip(){
       c.getContext("2d").drawImage(vVideo, 0, 0, c.width, c.height); const blob = await new Promise(r=>c.toBlob(r, "image/jpeg", 0.75)); const r = await assets.upload(blob, {type:"image/jpeg"}); sh.id = r.id; }catch(e){ console.warn(e); }
   }
   const arr = Array.isArray(state[shotKey(sec)]) ? state[shotKey(sec)] : (state[shotKey(sec)] = []);
-  arr.push(sh); changed(); refreshShots(sec);
+  arr.push(sh); changed(); refreshShots(sec); abrirSec(sec);
   vMsg.textContent = "Clip "+fmtT(sh.ini)+" → "+fmtT(sh.fin)+" guardado en "+((SECTIONS.find(x=>x.id===sec)||{}).title||"")+". No se subió el video: solo el minuto.";
 }
 let clipStop = null;
@@ -1912,7 +1989,7 @@ async function capture(){
     const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.8));
     const r=await assets.upload(blob,{type:"image/jpeg"});
     const arr=Array.isArray(state[shotKey(sec)])?state[shotKey(sec)]:(state[shotKey(sec)]=[]);
-    arr.push({id:r.id,video:false,min:t,cap:""}); changed(); refreshShots(sec);
+    arr.push({id:r.id,video:false,min:t,cap:""}); changed(); refreshShots(sec); abrirSec(sec);
     vMsg.textContent="Captura del minuto "+t+" guardada en "+(SECTIONS.find(x=>x.id===sec)||{}).title;
   }catch(e){ vMsg.className="vmsg err"; vMsg.textContent="No se pudo guardar la captura. Probá de nuevo."; }
 }
@@ -2068,6 +2145,7 @@ Object.assign(DIC,{"Sus números al lado de los nuestros y las zonas que se cruz
 Object.assign(DIC,{"Un partido del rival que taggeaste como equipo propio": ["Um jogo do adversário marcado como time próprio", "An opponent match you tagged as your own team"]});PAT.push([new RegExp("^Sus acciones en nuestros partidos contra (.+) \\(equipo “Rival”\\)$"),["Ações deles em nossos jogos contra $1 (time “Adversário”)", "Their actions in our matches vs $1 (team “Opponent”)"]],[new RegExp("^Promedio por partido · rival: (\\d+) partidos? · (.+): (\\d+) partidos?$"),["Média por jogo · adversário: $1 jogo(s) · nós: $3 jogo(s)", "Average per match · opponent: $1 match(es) · us: $3 match(es)"]],[new RegExp("^Ojo en (.+): el rival recupera ahí el (\\d+)% de sus pelotas y (.+) perdemos ahí el (\\d+)%\\.(.*)$"),["Atenção em $1: o adversário recupera ali $2% das bolas e nós perdemos ali $4%.$5", "Watch $1: the opponent wins $2% of their balls there and we lose $4% of ours there.$5"]],[new RegExp("^Bien en (.+): el rival llega mucho por ahí \\((\\d+)%\\) y es donde más recuperamos \\((\\d+)%\\)\\.(.*)$"),["Bom em $1: o adversário chega muito por ali ($2%) e é onde mais recuperamos ($3%).$4", "Good in $1: the opponent attacks a lot there ($2%) and it's where we win the ball most ($3%).$4"]]);
 Object.assign(DIC,{"▶ Link de YouTube": ["▶ Link do YouTube", "▶ YouTube link"], "✂ Clip": ["✂ Clipe", "✂ Clip"], "■ Terminar clip": ["■ Terminar clipe", "■ End clip"], "Ver el clip": ["Ver o clipe", "Watch the clip"], "Guardando clip…": ["Salvando clipe…", "Saving clip…"], "Cargando YouTube…": ["Carregando YouTube…", "Loading YouTube…"], "Primero abrí el video (archivo o YouTube).": ["Primeiro abra o vídeo (arquivo ou YouTube).", "Open the video first (file or YouTube)."], "No se pudo cargar YouTube. Revisá la conexión o que el video sea público / no listado.":["Não foi possível carregar o YouTube. Verifique a conexão ou se o vídeo é público / não listado.","YouTube couldn't load. Check the connection or that the video is public / unlisted."],"Ese link no parece de YouTube.": ["Esse link não parece do YouTube.", "That doesn't look like a YouTube link."], "Con YouTube no se puede sacar la imagen: usá ✂ Clip, que guarda el minuto y lo reproduce.": ["Com YouTube não dá para capturar a imagem: use ✂ Clipe, que salva o minuto e reproduz.", "With YouTube the frame can't be captured: use ✂ Clip, which saves the minute and plays it."], "Capturá o marcá un ✂ Clip desde el visor, o pegá una captura con Ctrl+V": ["Capture ou marque um ✂ Clipe no visualizador, ou cole uma captura com Ctrl+V", "Capture or mark a ✂ Clip in the viewer, or paste a screenshot with Ctrl+V"], "Abrí el video del partido en el visor (Salir → Abrir video) para ver el clip": ["Abra o vídeo do jogo no visualizador (Sair → Abrir vídeo) para ver o clipe", "Open the match video in the viewer (Exit → Open video) to watch the clip"]});PAT.push([new RegExp("^Clip desde el (.+) · tocá “Terminar clip” cuando termine la jugada\\.$"),["Clipe desde $1 · toque em “Terminar clipe” quando a jogada acabar.", "Clip from $1 · tap “End clip” when the play ends."]],[new RegExp("^Clip (.+) → (.+) guardado en (.*)\\. No se subió el video: solo el minuto\\.$"),["Clipe $1 → $2 salvo em $3. O vídeo não foi enviado: só o minuto.", "Clip $1 → $2 saved in $3. The video wasn't uploaded: only the minute."]],[new RegExp("^▶ Ver el clip \\((.+) → (.+)\\)$"),["▶ Ver o clipe ($1 → $2)", "▶ Watch the clip ($1 → $2)"]]);
 Object.assign(DIC,{"Con": ["Com", "With"], ": marcás el inicio y el fin de una jugada: el video no se sube, se guarda solo el minuto. Funciona con el archivo o con un link de YouTube.": [": marca o início e o fim de uma jogada: o vídeo não é enviado, só o minuto. Funciona com o arquivo ou com um link do YouTube.", ": mark the start and end of a play: the video isn't uploaded, only the minute is saved. Works with the file or a YouTube link."]});
+Object.assign(DIC,{"Más herramientas ▾": ["Mais ferramentas ▾", "More tools ▾"], "Más herramientas ▴": ["Mais ferramentas ▴", "More tools ▴"], "❓ Cómo se usa": ["❓ Como usar", "❓ How to use"], "Mirá el partido y marcá las jugadas": ["Assista ao jogo e marque as jogadas", "Watch the match and mark the plays"], "Abrí el video desde la compu o con un link de YouTube. No se sube a la nube.": ["Abra o vídeo do computador ou com um link do YouTube. Não vai para a nuvem.", "Open the video from your computer or with a YouTube link. It isn't uploaded."], "Completá el informe": ["Complete o relatório", "Fill in the report"], "Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.": ["Toque em cada seção para abrir. O ✓ indica que já tem dados. Em cada uma você pode somar opções próprias (＋ Outra) e pontos novos.", "Tap each section to open it. ✓ means it already has data. In each one you can add your own options (＋ Other) and new points."], "Plan de partido y charla": ["Plano de jogo e conversa", "Game plan and team talk"], "Lo que van a hacer para ganarle. Después presentalo en pantalla grande o bajalo en PDF.": ["O que vão fazer para vencer. Depois apresente em tela grande ou baixe em PDF.", "What you'll do to beat them. Then present it on a big screen or download it as PDF."], "＋ Otra": ["＋ Outra", "＋ Other"], "＋ Agregar un punto": ["＋ Adicionar um ponto", "＋ Add a point"], "Título (ej.: Inicio con 3)": ["Título (ex.: Saída com 3)", "Title (e.g. Build-up with 3)"], "Qué hacen y en qué minutos": ["O que fazem e em que minutos", "What they do and at which minutes"], "Quitar esta opción": ["Remover esta opção", "Remove this option"], "¿Quitar este punto?": ["Remover este ponto?", "Remove this point?"], "Punto": ["Ponto", "Point"], "▶ Presentar en pantalla grande": ["▶ Apresentar em tela grande", "▶ Present on big screen"], "📄 Plan en 1 hoja": ["📄 Plano em 1 folha", "📄 1-page plan"], "⬇ Descargar PDF": ["⬇ Baixar PDF", "⬇ Download PDF"], "📲 Para el plantel": ["📲 Para o elenco", "📲 For the squad"], "El PDF se está preparando. Probá en unos segundos.": ["O PDF está sendo preparado. Tente em alguns segundos.", "The PDF is being prepared. Try again in a few seconds."]});PAT.push([new RegExp("^Nueva opción para “(.*)”:$"),["Nova opção para “$1”:", "New option for “$1”:"]],[new RegExp("^¿Quitar la opción “(.*)”\\?$"),["Remover a opção “$1”?", "Remove the option “$1”?"]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
