@@ -2556,7 +2556,7 @@ async function descargarPDF(items, titulo, subtitulo, jugKey){
 
 /* ---------- modales ---------- */
 /* ---------- 📷 Capturar: foto del momento (con el dibujo), con archivo o con YouTube ---------- */
-let capStreamVA = null, capVidVA = null;
+let capStreamVA = null, capVidVA = null, capRecVA = false;
 async function fotoMomento(){
   if (!kind){ toast("Primero cargá el video."); return; }
   const tt = player.time(); try{ player.pause && player.pause(); }catch(e){}
@@ -2572,14 +2572,21 @@ async function fotoMomento(){
         toast("Elegí “Esta pestaña” y tocá Compartir.");
         capStreamVA = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:"browser", frameRate:5}, audio:false, preferCurrentTab:true, selfBrowserSurface:"include", surfaceSwitching:"exclude"});
         capVidVA = document.createElement("video"); capVidVA.muted = true; capVidVA.playsInline = true; capVidVA.srcObject = capStreamVA; await capVidVA.play();
-        capStreamVA.getVideoTracks()[0].addEventListener("ended", ()=>{ capStreamVA = null; capVidVA = null; });
+        capStreamVA.getVideoTracks()[0].addEventListener("ended", ()=>{ capStreamVA = null; capVidVA = null; capRecVA = false; });
+        capRecVA = false; const tr = capStreamVA.getVideoTracks()[0];
+        try{ if (window.RestrictionTarget && tr.restrictTo){ await tr.restrictTo(await RestrictionTarget.fromElement($("#stage"))); capRecVA = true; } }catch(e){}
+        if (!capRecVA){ try{ if (window.CropTarget && tr.cropTo){ await tr.cropTo(await CropTarget.fromElement($("#stage"))); capRecVA = true; } }catch(e){} }
       }
-      await new Promise(r=>setTimeout(r,700));
+      try{ const R0 = $("#stage").getBoundingClientRect(); if (R0.top<0 || R0.bottom>innerHeight) $("#stage").scrollIntoView({block:"center"}); }catch(e){}
+      await new Promise(r=>setTimeout(r,800));
+      if (capRecVA && capVidVA.videoWidth){ const sc = Math.min(1, 1600/capVidVA.videoWidth); c = document.createElement("canvas"); c.width = Math.round(capVidVA.videoWidth*sc); c.height = Math.round(capVidVA.videoHeight*sc); c.getContext("2d").drawImage(capVidVA,0,0,c.width,c.height); }
+      else {
       const R = $("#stage").getBoundingClientRect(); let ox = 0, oy = 0, TW = innerWidth;
       try{ if (window.frameElement){ const fr = window.frameElement.getBoundingClientRect(); ox = fr.left; oy = fr.top; TW = window.top.innerWidth; } }catch(e){}
       const k = capVidVA.videoWidth/TW, sw = R.width*k, sh = R.height*k, sc = Math.min(1, 1600/sw);
       c = document.createElement("canvas"); c.width = Math.round(sw*sc); c.height = Math.round(sh*sc);
       c.getContext("2d").drawImage(capVidVA, (ox+R.left)*k, (oy+R.top)*k, sw, sh, 0, 0, c.width, c.height);
+      }
     }
   }catch(e){ console.warn(e); toast("No se pudo capturar. Si te pregunta, elegí “Esta pestaña” y tocá Compartir."); return; }
   if (c) abrirFoto(c, tt);

@@ -249,6 +249,16 @@ details.ficha-op{margin:10px 0;border:1px dashed var(--line);border-radius:10px;
 body.tab-charla .masrow{display:none}
 
 @media (max-width:600px){ .tabs-an{gap:6px}.tabs-an [data-tab]{padding:8px 12px;font-size:14.5px}.tabs-an [data-tab] b{width:18px;height:18px;font-size:11px}.tabs-sp{display:none}.tabs-an #guiaBtn{padding:6px 10px;font-size:12.5px} }
+
+body.capturando .status,body.capturando .live-toast,body.capturando .tabs-an{visibility:hidden}
+.vyt{isolation:isolate}
+
+/* el video queda fijo mientras bajás a tocar los botones (así la foto sale entera) */
+body.tab-mirar .status{position:static}
+@media (min-width:900px){ #mirarBox .viewer{position:sticky;top:8px;z-index:3} }
+
+.mom-per{display:grid!important;grid-template-columns:1fr 1fr 1.2fr}.mom-per .sis{border-style:solid;color:var(--ink);font-weight:800}.mom-per .sis.on{background:rgba(255,212,0,.15);border-color:#FFD400}
+.sis-m .lbl{display:block;margin:6px 0 6px}.sis-m .chips{margin-bottom:10px}.sis-foto{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:14px}
 </style>
 
 <style>
@@ -1895,7 +1905,9 @@ function openDraw(secId, idx){
   document.getElementById("drawMsg").textContent = "Cargando imagen…";
   drawEl.hidden = false; document.body.style.overflow = "hidden";
   const img = new Image();
-  img.onload = ()=>{ const sc = Math.min(1, 1920/img.naturalWidth); cv.width = Math.round(img.naturalWidth*sc); cv.height = Math.round(img.naturalHeight*sc); dImg = img; redraw();
+  img.onload = ()=>{ const sc = Math.min(1, 1920/img.naturalWidth); cv.width = Math.round(img.naturalWidth*sc); cv.height = Math.round(img.naturalHeight*sc); dImg = img;
+    if (SIS_PEND){ const ar = cv.height/cv.width, w = 0.3, h = Math.min(0.6, w*0.78/ar); dShapes.push({t:"sis", f:SIS_PEND, n:(state.rival||"").slice(0,24), c:"#E5484D", x1:0.025, y1:0.035, x2:0.025+w, y2:0.035+h}); dSel = dShapes.length-1; selBtns(); dTool = "move"; document.querySelectorAll("#drawTb [data-tool]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.tool==="move"?"true":"false")); SIS_PEND = null; }
+    redraw();
     document.getElementById("drawMsg").textContent = "Arrastrá sobre la imagen para dibujar. Texto: escribilo arriba y tocá donde va. ✋ Mover: tocá un dibujo para moverlo, agrandarlo (＋) o achicarlo (−). ✂ Recortar: marcá la parte que querés dejar."; };
   img.onerror = ()=>{ document.getElementById("drawMsg").textContent = "No se pudo abrir la imagen."; };
   window.__mtkResolveBlob(sh.id).then(u=>{ img.src = u; }).catch(()=>{ img.onerror && img.onerror(); });
@@ -2164,14 +2176,30 @@ async function capturarYT(dest){
       vMsg.className="vmsg"; vMsg.textContent="La primera vez el navegador pregunta qué compartir: elegí “Esta pestaña” y tocá Compartir.";
       capStream = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:"browser", frameRate:5}, audio:false, preferCurrentTab:true, selfBrowserSurface:"include", surfaceSwitching:"exclude"});
       capVid = document.createElement("video"); capVid.muted = true; capVid.playsInline = true; capVid.srcObject = capStream; await capVid.play();
-      capStream.getVideoTracks()[0].addEventListener("ended",()=>{ capStream = null; capVid = null; });
+      capStream.getVideoTracks()[0].addEventListener("ended",()=>{ capStream = null; capVid = null; capRecorte = false; });
+      capRecorte = false; const tr = capStream.getVideoTracks()[0];
+      try{ if (window.RestrictionTarget && tr.restrictTo){ await tr.restrictTo(await RestrictionTarget.fromElement(box)); capRecorte = true; } }catch(e){ console.warn("restrictTo",e); }
+      if (!capRecorte){ try{ if (window.CropTarget && tr.cropTo){ await tr.cropTo(await CropTarget.fromElement(box)); capRecorte = true; } }catch(e){ console.warn("cropTo",e); } }
     }
-    await new Promise(r=>setTimeout(r,700));
+    /* que no quede nada tapando el video (la barra de “Guardado”, avisos) y que se vea entero */
+    document.body.classList.add("capturando");
+    try{ const R0 = box.getBoundingClientRect(); if (R0.top<0 || R0.bottom>innerHeight) box.scrollIntoView({block:"center"}); }catch(e){}
+    await new Promise(r=>setTimeout(r,800));
+    document.body.classList.remove("capturando");
+    if (capRecorte && capVid.videoWidth){ const sc = Math.min(1, 1280/capVid.videoWidth), c = document.createElement("canvas"); c.width = Math.round(capVid.videoWidth*sc); c.height = Math.round(capVid.videoHeight*sc); c.getContext("2d").drawImage(capVid,0,0,c.width,c.height); return guardarCapturaYT(c, t, sec, dest); }
+    document.body.classList.add("capturando"); await new Promise(r=>setTimeout(r,250));
     const R = box.getBoundingClientRect(); let ox = 0, oy = 0, TW = innerWidth;
     try{ if (window.frameElement){ const fr = window.frameElement.getBoundingClientRect(); ox = fr.left; oy = fr.top; TW = window.top.innerWidth; } }catch(e){}
     const k = capVid.videoWidth / TW, sx = (ox+R.left)*k, sy = (oy+R.top)*k, sw = R.width*k, shh = R.height*k;
     const sc = Math.min(1, 1280/sw), c = document.createElement("canvas"); c.width = Math.round(sw*sc); c.height = Math.round(shh*sc);
     c.getContext("2d").drawImage(capVid, sx, sy, sw, shh, 0, 0, c.width, c.height);
+    document.body.classList.remove("capturando");
+    return guardarCapturaYT(c, t, sec, dest);
+  }catch(e){ document.body.classList.remove("capturando"); console.warn(e); vMsg.className="vmsg err"; vMsg.textContent = "No se pudo capturar. Cuando el navegador pregunte, elegí “Esta pestaña” y tocá Compartir."; }
+}
+let capRecorte = false;
+async function guardarCapturaYT(c, t, sec, dest){
+  try{
     vMsg.className="vmsg"; vMsg.textContent="Guardando captura…";
     const blob = await new Promise(r=>c.toBlob(r,"image/jpeg",0.8)); const r = await assets.upload(blob,{type:"image/jpeg"});
     const arr = Array.isArray(state[shotKey(sec)]) ? state[shotKey(sec)] : (state[shotKey(sec)] = []);
@@ -2295,6 +2323,7 @@ function pintarMomentos(){
   const L = todosLosClips();
   MOMS.forEach(m=>{ const n = L.filter(x=>x.sh.mom===m.k || (!x.sh.mom && x.sec===m.sec && !m.gol && x.sec!=="goles")).length; const b = document.querySelector('.mom[data-k="'+m.k+'"] .mom-n'); if (b) b.textContent = n||""; });
   pintarMarcas(); pintarLista(L);
+  { const bs = document.getElementById("bSis"); if (bs){ const a = state.sis_con, b = state.sis_sin, f = x=>/^\d(-\d)+$/.test(x||"") ? "1-"+x : (x||""); bs.textContent = a||b ? "🧩 "+[f(a),f(b)].filter(Boolean).join(" / ") : "🧩 Sistema"; bs.classList.toggle("on", !!(a||b)); } }
   const p = document.getElementById("momPer"); if (p){ p.querySelector("#bT1").textContent = state.t1!=null ? "1T desde "+fmtT(state.t1) : "Empieza 1T"; p.querySelector("#bT2").textContent = state.t2!=null ? "2T desde "+fmtT(state.t2) : "Empieza 2T"; p.querySelector("#bT1").classList.toggle("on", state.t1!=null); p.querySelector("#bT2").classList.toggle("on", state.t2!=null); }
 }
 function pintarMarcas(){
@@ -2337,6 +2366,7 @@ function lienzoMomentos(){
   const b1 = el("button",{type:"button",id:"bT1",title:"Tocalo cuando arranca el primer tiempo: así el minuto coincide con el del partido",text:"Empieza 1T"}), b2 = el("button",{type:"button",id:"bT2",title:"Tocalo cuando arranca el segundo tiempo",text:"Empieza 2T"});
   const marcarT = k=>{ if (!vp.listo()){ vMsg.className="vmsg err"; vMsg.textContent="Primero abrí el video."; return; } if (state[k]!=null && !confirm("¿Cambiar el inicio de "+(k==="t1"?"1T":"2T")+" al minuto actual del video?")) return; state[k] = +vp.t().toFixed(1); changed(); pintarMomentos(); };
   b1.addEventListener("click",()=>marcarT("t1")); b2.addEventListener("click",()=>marcarT("t2")); per.appendChild(b1); per.appendChild(b2);
+  const bs = el("button",{type:"button",id:"bSis",class:"sis",title:"Elegí cómo se paran (con y sin pelota). Si querés, saca la foto con la canchita del sistema arriba",text:"🧩 Sistema"}); bs.addEventListener("click",abrirSistema); per.appendChild(bs);
   side.appendChild(per);
   side.appendChild(el("h3",{class:"mom-q",text:"¿Qué viste?"}));
   side.appendChild(el("p",{class:"mom-ayuda",text:"Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. También con las teclas 1 a 9."}));
@@ -2355,6 +2385,28 @@ function lienzoMomentos(){
 /* pestañas: Mirar · Informe · Charla */
 function setTab(t){ ["mirar","informe","charla"].forEach(x=>document.body.classList.toggle("tab-"+x, x===t)); document.querySelectorAll(".tabs-an [data-tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t?"true":"false")); lsSet("scout_tab", t); if (t==="mirar") pintarMomentos(); window.scrollTo({top:0}); }
 
+
+/* 🧩 Sistema: se elige con un toque y, si querés, sale la foto con la canchita arriba */
+let SIS_PEND = null;
+function abrirSistema(){
+  const fS = SECTIONS.find(x=>x.id==="sistema"), fc = fS.fields.find(f=>f.id==="sis_con"), fsn = fS.fields.find(f=>f.id==="sis_sin");
+  const opc = id => (state.opc && Array.isArray(state.opc[id])) ? state.opc[id] : [];
+  const sel = {con: state.sis_con||"", sin: state.sis_sin||""};
+  const lab = x => /^\d(-\d)+$/.test(x) ? "1-"+x : x;
+  const c = el("div",{class:"sis-m"});
+  const fila = (k, t, f)=>{ c.appendChild(el("div",{class:"lbl",text:t})); const ch = el("div",{class:"chips"});
+    [...f.opts, ...opc(f.id).filter(o=>!f.opts.includes(o))].forEach(o=>{ const b = el("button",{type:"button",class:"chip","aria-pressed":sel[k]===o?"true":"false",text:lab(o)}); b.addEventListener("click",()=>{ sel[k] = sel[k]===o ? "" : o; ch.querySelectorAll(".chip").forEach(z=>z.setAttribute("aria-pressed", z===b && sel[k] ? "true":"false")); }); ch.appendChild(b); });
+    const otro = el("button",{type:"button",class:"chip chip-otra",text:"＋ Otro"}); otro.addEventListener("click",()=>{ let v = (prompt("Escribí el sistema (ej.: 1-3-4-3):")||"").trim().replace(/\s+/g,"").replace(/^1-/,""); if (!/^\d(-\d){1,4}$/.test(v)) return; state.opc = state.opc||{}; (state.opc[f.id] = state.opc[f.id]||[]).includes(v) || state.opc[f.id].push(v); sel[k] = v; cerrarX(); abrirSistema(); }); ch.appendChild(otro);
+    c.appendChild(ch); };
+  fila("con","Con pelota",fc); fila("sin","Sin pelota",fsn);
+  const lb = el("label",{class:"sis-foto"}); const cb = el("input",{type:"checkbox"}); cb.checked = vp.listo(); if (!vp.listo()) cb.disabled = true; lb.appendChild(cb); lb.appendChild(el("span",{text:" 📷 Sacar la foto de este momento con la canchita del sistema arriba"})); c.appendChild(lb);
+  const ok = el("button",{type:"button",class:"btn2 solid",text:"Guardar"});
+  ok.addEventListener("click",async ()=>{ state.sis_con = sel.con; state.sis_sin = sel.sin; changed(); ["sis_con","sis_sin","once"].forEach(refreshField); pintarMomentos(); cerrarX();
+    if (cb.checked && vp.listo()){ const f = /^\d(-\d)+$/.test(sel.con) ? sel.con : (/^\d(-\d)+$/.test(sel.sin) ? sel.sin : null); vSec.value = "sistema"; SIS_PEND = f;
+      const antes = (state[shotKey("sistema")]||[]).length; await capture(); const arr = state[shotKey("sistema")]||[];
+      if (arr.length>antes) openDraw("sistema", arr.length-1); else SIS_PEND = null; } });
+  xModal("Sistema de "+(state.rival||"el rival"), c, [ok]);
+}
 function dorsalesVistos(){ const g = {}; todosLosClips().forEach(x=>{ const d = String(x.sh.dor||"").trim(); if (!d) return; (g[d] = g[d]||[]).push(x); }); return Object.entries(g).map(([d,L])=>[d,L.length,L]).sort((a,b)=>b[1]-a[1]); }
 /* imágenes más livianas antes de subirlas */
 async function achicarImagen(file, max, q){
@@ -2547,6 +2599,7 @@ Object.assign(DIC,{"🧩 Sistema": ["🧩 Sistema", "🧩 Formation"], "Arrastra
 Object.assign(DIC,{"⛶ Video grande": ["⛶ Vídeo grande", "⛶ Big video"], "✕ Salir del video grande": ["✕ Sair do vídeo grande", "✕ Exit big video"]});
 Object.assign(DIC,{"Mirar": ["Assistir", "Watch"], "Informe": ["Relatório", "Report"], "Charla": ["Conversa", "Talk"], "¿Qué viste?": ["O que você viu?", "What did you see?"], "Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. También con las teclas 1 a 9.": ["Toque na cor quando acontece a jogada: fica salvo o clipe com o minuto. Também com as teclas 1 a 9.", "Tap the colour when the play happens: the clip is saved with the minute. Keys 1 to 9 work too."], "Inicio": ["Saída", "Build-up"], "Presión": ["Pressão", "Press"], "Transición": ["Transição", "Transition"], "Jugadora clave": ["Jogadora-chave", "Key player"], "Jugador clave": ["Jogador-chave", "Key player"], "Debilidad para aprovechar": ["Fraqueza para aproveitar", "Weakness to exploit"], "⚽ Gol de ellas": ["⚽ Gol delas", "⚽ Their goal"], "⚽ Gol de ellos": ["⚽ Gol deles", "⚽ Their goal"], "⚽ Gol en contra": ["⚽ Gol contra", "⚽ Goal against them"], "Empieza 1T": ["Começa 1T", "1st half starts"], "Empieza 2T": ["Começa 2T", "2nd half starts"], "Cuando toques un color, acá aparece la jugada para sumarle una nota, el número de la jugadora o la zona.": ["Quando tocar uma cor, aqui aparece a jogada para somar uma nota, o número da jogadora ou a zona.", "When you tap a colour, the play shows up here so you can add a note, the player's number or the zone."], "¿Qué pasó? (opcional) · Enter para seguir": ["O que aconteceu? (opcional) · Enter para seguir", "What happened? (optional) · Enter to continue"], "ataca →": ["ataca →", "attacks →"], "otro": ["outro", "other"], "📷 Foto": ["📷 Foto", "📷 Photo"], "📷 Otra foto": ["📷 Outra foto", "📷 Another photo"], "☆ Para la charla": ["☆ Para a conversa", "☆ For the talk"], "⭐ Para la charla": ["⭐ Para a conversa", "⭐ For the talk"], "↺ Quitar": ["↺ Remover", "↺ Remove"], "Primero sacá una 📷 Foto": ["Primeiro tire uma 📷 Foto", "Take a 📷 Photo first"], "Foto guardada en la jugada.": ["Foto salva na jogada.", "Photo saved to the play."], "Goles: cómo los hacen y cómo los reciben": ["Gols: como fazem e como sofrem", "Goals: how they score and concede"], "Lo que más decide un partido. Con los botones ⚽ del visor quedan los clips de cada gol.": ["O que mais decide um jogo. Com os botões ⚽ do visualizador ficam os clipes de cada gol.", "What decides matches most. The ⚽ buttons in the viewer save each goal's clip."], "Cómo hacen goles": ["Como fazem gols", "How they score"], "Cómo les hacen goles": ["Como sofrem gols", "How they concede"], "Cómo hacen y reciben goles": ["Como fazem e sofrem gols", "How they score and concede"], "Dónde pasa (según las zonas que marcaste)": ["Onde acontece (segundo as zonas marcadas)", "Where it happens (from the zones you marked)"], "Dónde pasa": ["Onde acontece", "Where it happens"], "Las que más aparecen en tus marcas": ["As que mais aparecem nas suas marcas", "Who shows up most in your marks"], "Las que más aparecen en el video": ["As que mais aparecem no vídeo", "Who shows up most in the video"], "Ficha en la tabla y últimos partidos (opcional)": ["Ficha na tabela e últimos jogos (opcional)", "Table record and recent results (optional)"], "Primero abrí el video (de la compu o con link de YouTube).": ["Primeiro abra o vídeo (do computador ou link do YouTube).", "Open the video first (from your computer or a YouTube link)."], "Su campo": ["Campo delas", "Their half"], "Mitad": ["Meio", "Middle"], "Cerca de nuestro arco": ["Perto do nosso gol", "Near our goal"], "Izquierda": ["Esquerda", "Left"], "Derecha": ["Direita", "Right"]});PAT.push([new RegExp("^Lo que marcaste \\((\\d+)\\)$"),["O que você marcou ($1)", "What you marked ($1)"]],[new RegExp("^([12])T desde (.+)$"),["$1T desde $2", "$1H from $2"]],[new RegExp("^Goles de (.+): (\\d+)$"),["Gols de $1: $2", "Goals by $1: $2"]],[new RegExp("^Goles en contra: (\\d+)$"),["Gols contra: $1", "Goals against: $1"]],[new RegExp("^Ataque de (.+) →$"),["Ataque de $1 →", "$1 attack →"]],[new RegExp("^N° (\\S+) · (\\d+) jugadas?$"),["N° $1 · $2 jogada(s)", "No. $1 · $2 play(s)"]]);
 Object.assign(DIC,{"Abrí el partido del rival": ["Abra o jogo do adversário", "Open the opponent's match"], "Desde un archivo de la compu o con el link de YouTube. El video no se sube a la nube.": ["De um arquivo do computador ou com o link do YouTube. O vídeo não vai para a nuvem.", "From a file on your computer or a YouTube link. The video isn't uploaded."]});
+Object.assign(DIC,{"Guardar": ["Salvar", "Save"], "＋ Otro": ["＋ Outro", "＋ Other"], " 📷 Sacar la foto de este momento con la canchita del sistema arriba": [" 📷 Tirar a foto deste momento com o campinho do sistema", " 📷 Take a photo of this moment with the formation pitch on top"]});PAT.push([new RegExp("^Sistema de (.+)$"),["Sistema de $1", "$1 formation"]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
