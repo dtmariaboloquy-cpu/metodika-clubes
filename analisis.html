@@ -272,6 +272,9 @@ body.tab-mirar .status{position:static}
 .res-v{flex:1;min-height:0;position:relative;background:#000;border-radius:12px;overflow:hidden}.res-v>div,.res-v iframe,.res-v video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain}
 .res-b{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}.res-b button{font:inherit;font-weight:800;font-size:16px;padding:10px 18px;border-radius:12px;border:1px solid #444;background:#1b1a17;color:#fff;cursor:pointer}.res-b button:hover{border-color:#FFD400}
 .res-w{opacity:.7;flex-basis:100%;text-align:center}
+
+.ml-acc{display:flex;gap:6px;flex-wrap:wrap}.ml-borrar{font:inherit;font-weight:700;font-size:13px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--sub);cursor:pointer;margin:2px 0 6px}.ml-borrar:hover{color:#E5484D;border-color:#E5484D}
+.ml-i .ml-del{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;opacity:.55}.ml-i .ml-del:hover{opacity:1;background:rgba(229,72,77,.2)}
 </style>
 
 <style>
@@ -669,7 +672,7 @@ body:not(.vopen) .viewer{top:0}
   <div class="rivalbar">
     <label for="rivalSel">Rival</label>
     <select id="rivalSel"></select>
-    <button type="button" class="btn2" id="newRivalBtn">+ Nuevo rival</button><button type="button" class="btn2 danger" id="delRivalBtn">Borrar rival</button>
+    <button type="button" class="btn2" id="newRivalBtn">+ Nuevo rival</button><button type="button" class="btn2" id="vaciarBtn" title="Deja el análisis en blanco (se mantiene el rival y el link del video)">🧹 Empezar de nuevo</button><button type="button" class="btn2 danger" id="delRivalBtn">🗑 Borrar rival</button>
     <span class="newbox" id="newBox" hidden><input type="text" id="newRivalName" placeholder="Nombre del rival"><button type="button" class="btn2 solid" id="newRivalOk">Crear</button><button type="button" class="btn2" id="newRivalCancel">Cancelar</button></span>
   </div>
 
@@ -1157,11 +1160,20 @@ document.getElementById("newRivalOk").addEventListener("click",createRival);
 newName.addEventListener("keydown",e=>{ if (e.key==="Enter") createRival(); });
 
 
+document.getElementById("vaciarBtn").addEventListener("click",()=>{
+  if (!confirm("¿Empezar de nuevo el análisis de "+(state.rival||"este rival")+"?\n\nSe borra todo lo cargado: jugadas, fotos, dibujos, notas y plan. Queda el nombre del rival y el link del video.")) return;
+  const ids = []; Object.keys(state).filter(k=>k.startsWith("shots_")).forEach(k=>(state[k]||[]).forEach(sh=>{ if (sh && sh.id) ids.push(sh.id); if (sh && sh.ann) ids.push(sh.ann); }));
+  const keep = {rival: state.rival, video: state.video, opc: state.opc};
+  Object.keys(state).forEach(k=>{ delete state[k]; }); Object.assign(state, keep); if (!state.opc) delete state.opc;
+  changed(); render(); ULT = null; try{ pintarUltimo(); pintarMomentos(); }catch(e){} header();
+  if (assets) ids.forEach(id=>assets.delete(id).catch(()=>{}));
+  toast("Listo: el análisis quedó en blanco.");
+});
 const delRivalBtn = document.getElementById("delRivalBtn");
 let delArmed = null;
 delRivalBtn.addEventListener("click",async ()=>{
   const name = state.rival || "este rival";
-  if (!delArmed) { delRivalBtn.textContent = "¿Borrar "+name+"? Tocá de nuevo"; delArmed = setTimeout(()=>{ delArmed=null; delRivalBtn.textContent="Borrar rival"; },4000); return; }
+  if (!delArmed) { delRivalBtn.textContent = "¿Borrar "+name+"? Tocá de nuevo"; delArmed = setTimeout(()=>{ delArmed=null; delRivalBtn.textContent="🗑 Borrar rival"; },4000); return; }
   clearTimeout(delArmed); delArmed = null; delRivalBtn.textContent = "Borrando…"; delRivalBtn.disabled = true;
   const ids = []; Object.keys(state).filter(k=>k.startsWith("shots_")).forEach(k=>(state[k]||[]).forEach(sh=>{ if(sh.id) ids.push(sh.id); if(sh.ann) ids.push(sh.ann); }));
   try {
@@ -1176,7 +1188,7 @@ delRivalBtn.addEventListener("click",async ()=>{
     await loadRival(rivals[0].slug, rivals[0].name);
     toast(name+" se borró.");
   } catch(e) { setStatus("err","No se pudo borrar el rival. Revisá la conexión."); }
-  delRivalBtn.disabled = false; delRivalBtn.textContent = "Borrar rival";
+  delRivalBtn.disabled = false; delRivalBtn.textContent = "🗑 Borrar rival";
 });
 
 
@@ -2356,12 +2368,14 @@ function pintarLista(L){
   const ult = L.slice().sort((a,b)=>(b.sh.t??b.sh.ini)-(a.sh.t??a.sh.ini));
   if (!ult.length) return;
   box.appendChild(el("div",{class:"ml-h",text:"Lo que marcaste ("+L.length+")"})); box.appendChild(el("div",{class:"ml-ay",text:"Tocá una jugada para ver el clip."}));
-  { const bt = el("button",{type:"button",class:"ml-todos",text:"🎬 Ver todos seguidos"}); bt.addEventListener("click",()=>abrirResumen(false)); box.appendChild(bt); }
+  { const fila = el("div",{class:"ml-acc"}); const bt = el("button",{type:"button",class:"ml-todos",text:"🎬 Ver todos seguidos"}); bt.addEventListener("click",()=>abrirResumen(false)); fila.appendChild(bt);
+    const bb = el("button",{type:"button",class:"ml-borrar",text:"🗑 Borrar todas"}); bb.addEventListener("click",()=>{ if (!confirm("¿Borrar las "+L.length+" jugadas marcadas? No se puede deshacer.")) return; L.slice().forEach(x=>quitarClip(x.sec, x.sh)); toast("Listo: se borraron las jugadas marcadas."); }); fila.appendChild(bb); box.appendChild(fila); }
   ult.slice(0,40).forEach(x=>{ const m = momDe(x.sh.mom); const r = el("button",{type:"button",class:"ml-i"+(ULT&&ULT.sh===x.sh?" on":"")});
     r.appendChild(el("i",{style:"background:"+colorClip(x)})); r.appendChild(el("b",{text:x.sh.min||fmtT(x.sh.ini)}));
     r.appendChild(el("span",{text:(m?m.t:(SECTIONS.find(s=>s.id===x.sec)||{}).title)+(x.sh.dor?" · N° "+x.sh.dor:"")+(x.sh.cap?" · "+x.sh.cap:"")}));
     if (x.sh.star) r.appendChild(el("em",{text:"⭐"}));
     r.appendChild(el("span",{class:"ml-pl",text:"▶"}));
+    { const d = el("span",{class:"ml-del",title:"Borrar esta jugada",role:"button",text:"🗑"}); d.addEventListener("click",e=>{ e.stopPropagation(); if (confirm("¿Borrar esta jugada ("+(x.sh.min||fmtT(x.sh.ini))+")?")) quitarClip(x.sec, x.sh); }); r.appendChild(d); }
     r.addEventListener("click",()=>{ ULT = x; pintarUltimo(); verEnVisor(x.sh); pintarLista(todosLosClips()); });
     box.appendChild(r); });
 }
@@ -2674,6 +2688,7 @@ Object.assign(DIC,{"Abrí el partido del rival": ["Abra o jogo do adversário", 
 Object.assign(DIC,{"Guardar": ["Salvar", "Save"], "＋ Otro": ["＋ Outro", "＋ Other"], " 📷 Sacar la foto de este momento con la canchita del sistema arriba": [" 📷 Tirar a foto deste momento com o campinho do sistema", " 📷 Take a photo of this moment with the formation pitch on top"]});PAT.push([new RegExp("^Sistema de (.+)$"),["Sistema de $1", "$1 formation"]]);
 Object.assign(DIC,{"Tocá una jugada para ver el clip.": ["Toque numa jogada para ver o clipe.", "Tap a play to watch the clip."], "▶ Ver": ["▶ Ver", "▶ Watch"]});
 Object.assign(DIC,{"🎬 Ver todos los clips seguidos": ["🎬 Ver todos os clipes seguidos", "🎬 Watch all clips in a row"], "🎬 Solo los destacados seguidos": ["🎬 Só os destacados seguidos", "🎬 Only starred in a row"], "🎬 Ver todos seguidos": ["🎬 Ver todos seguidos", "🎬 Watch all in a row"], "✕ Salir": ["✕ Sair", "✕ Exit"], "⏮ Anterior": ["⏮ Anterior", "⏮ Previous"], "⏸ Pausa": ["⏸ Pausa", "⏸ Pause"], "▶ Seguir": ["▶ Continuar", "▶ Resume"], "Siguiente ⏭": ["Próximo ⏭", "Next ⏭"], "Fin del resumen": ["Fim do resumo", "End of highlights"], "No hay clips marcados con ☆ Para la charla.": ["Não há clipes marcados com ☆ Para a conversa.", "No clips marked ☆ For the talk."], "Todavía no marcaste clips.": ["Você ainda não marcou clipes.", "You haven't marked any clips yet."], "Para ver los clips abrí en el visor el video del partido.": ["Para ver os clipes abra o vídeo do jogo no visualizador.", "Open the match video in the viewer to watch the clips."]});PAT.push([new RegExp("^(\\d+) de (\\d+)$"),["$1 de $2", "$1 of $2"]],[new RegExp("^(\\d+) clips no se pueden ver: su video no está abierto en el visor\\.$"),["$1 clipes não podem ser vistos: o vídeo não está aberto.", "$1 clips can't be played: their video isn't open."]]);
+Object.assign(DIC,{"🗑 Borrar todas": ["🗑 Apagar todas", "🗑 Delete all"], "🧹 Empezar de nuevo": ["🧹 Começar de novo", "🧹 Start over"], "🗑 Borrar rival": ["🗑 Apagar adversário", "🗑 Delete opponent"], "Borrar esta jugada": ["Apagar esta jogada", "Delete this play"], "Listo: se borraron las jugadas marcadas.": ["Pronto: as jogadas marcadas foram apagadas.", "Done: marked plays deleted."], "Listo: el análisis quedó en blanco.": ["Pronto: a análise ficou em branco.", "Done: the analysis is now blank."], "Deja el análisis en blanco (se mantiene el rival y el link del video)": ["Deixa a análise em branco (mantém o adversário e o link do vídeo)", "Clears the analysis (keeps the opponent and video link)"]});
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
