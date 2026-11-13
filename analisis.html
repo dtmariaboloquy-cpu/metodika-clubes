@@ -152,6 +152,23 @@ section.acc:not(.open):hover{border-color:#FFD400}
 .chip-otra{border-style:dashed!important;opacity:.85}
 .pts{margin:12px 0}.pt{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}.pt-top{display:flex;gap:8px;margin-bottom:6px}.pt-top input{flex:1;font-weight:700}.pt-top .rowdel{width:34px}.pt textarea{min-height:60px}
 .charla{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+
+#drawTb .tamlbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.75;align-self:center}
+.vnota{flex-basis:100%;margin-top:6px}.vnota input{width:100%;font:inherit;font-size:14.5px;color:var(--ink);background:var(--field);border:1px dashed #FFD400;border-radius:10px;padding:9px 12px}
+.vdib{margin-left:6px;padding:4px 10px!important;font-size:12.5px!important}
+.tools2 .star{font-weight:700}.tools2 .star.on{color:#141412;background:#FFD400;border-color:#FFD400}
+.claves-sl ol.claves{margin:18px 0 0;padding:0;list-style:none;counter-reset:c;display:grid;gap:16px}
+.claves-sl ol.claves li{counter-increment:c;display:flex;gap:18px;align-items:flex-start;font-size:clamp(20px,2.6vw,34px);font-weight:600;line-height:1.25}
+.claves-sl ol.claves li::before{content:counter(c);flex:none;width:1.6em;height:1.6em;border-radius:50%;background:#FFD400;color:#141412;display:grid;place-items:center;font-weight:800}
+/* pantalla completa de trabajo: video fijo a la izquierda, informe a la derecha con su propio scroll */
+body.trabajo{overflow:hidden}
+@media (min-width:820px){
+  body.trabajo.split .wrap{max-width:none;grid-template-columns:minmax(0,60%) minmax(0,1fr);height:100vh;padding-top:10px;padding-bottom:0;overflow:hidden;grid-template-rows:1fr}
+  body.trabajo.split .wrap > .viewer{grid-row:1;height:calc(100vh - 20px);max-height:none;position:relative;top:0}
+  body.trabajo.split .wrap > :not(.viewer){display:none}
+  body.trabajo.split .wrap > #formCol{display:block;grid-row:1;height:calc(100vh - 10px);overflow:auto;padding-right:6px}
+  body.trabajo.split .vbody video, body.trabajo.split .vyt{max-height:calc(100vh - 260px)}
+}
 </style>
 
 <style>
@@ -575,7 +592,7 @@ body:not(.vopen) .viewer{top:0}
     <div class="vhead">
       <b class="pasot"><span class="paso">1</span>Mirá el partido y marcá las jugadas</b>
       <span class="vsub" id="vName">Abrí el video desde la compu o con un link de YouTube. No se sube a la nube.</span>
-      <span class="vbtns"><button type="button" class="btn2 solid" id="vOpen">Abrir video</button><button type="button" class="btn2" id="vYTbtn">▶ Link de YouTube</button><button type="button" class="btn2" id="vSide" hidden>Poner arriba</button><button type="button" class="btn2" id="vMin" hidden>Minimizar</button></span>
+      <span class="vbtns"><button type="button" class="btn2 solid" id="vOpen">📁 Video de la compu</button><button type="button" class="btn2" id="vYTbtn">▶ Link de YouTube</button><button type="button" class="btn2" id="vSide" hidden>Poner arriba</button><button type="button" class="btn2" id="vFull" title="Video a un lado y el informe al otro, ocupando toda la pantalla">⛶ Pantalla completa</button><button type="button" class="btn2" id="vMin" hidden>Minimizar</button></span>
     </div>
     <div class="vbody" id="vBody" hidden>
       <video id="vVideo" controls playsinline preload="auto"></video>
@@ -590,12 +607,15 @@ body:not(.vopen) .viewer{top:0}
         <select id="vSec"></select>
         <button type="button" class="btn2 solid" id="vCap">Capturar (C)</button><button type="button" class="btn2" id="vClip" title="Marcá el inicio y el fin de la jugada. No se sube el video: solo el minuto (tecla X)">✂ Clip</button>
         <span class="vmsg" id="vMsg"></span>
+        <div class="vnota"><input type="text" id="vNota" maxlength="240" placeholder="📝 Nota rápida: escribí lo que ves y apretá Enter (se guarda con el minuto)" aria-label="Nota rápida"></div>
       </div>
     </div>
   </div>
 <input type="file" id="vFile" accept="video/*" hidden>
+  <div id="formCol">
   <div class="pasohead" id="paso2"><span class="paso">2</span><div><b>Completá el informe</b><small>Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.</small></div></div>
   <div id="form"></div>
+  </div>
 </div>
 
 <div id="deck" hidden>
@@ -613,6 +633,13 @@ body:not(.vopen) .viewer{top:0}
     <button type="button" data-tool="circle" aria-pressed="false">Círculo</button>
     <button type="button" data-tool="rect" aria-pressed="false">Zona</button>
     <button type="button" data-tool="text" aria-pressed="false">Texto</button>
+    <button type="button" data-tool="spot" aria-pressed="false" title="Oscurece todo menos la zona marcada">Foco</button>
+    <button type="button" id="drawSis" title="Pone arriba de la imagen una canchita con el sistema (ej.: 1-4-3-3)">🧩 Sistema</button>
+    <button type="button" data-tool="move" aria-pressed="false" title="Tocá un dibujo para moverlo, agrandarlo o achicarlo">✋ Mover</button>
+    <button type="button" data-tool="crop" aria-pressed="false" title="Marcá la parte de la imagen que querés dejar">✂ Recortar</button>
+    <span class="sep"></span>
+    <span class="tamlbl">Tamaño</span><button type="button" data-size="0.6" aria-pressed="false">Chico</button><button type="button" data-size="1" aria-pressed="true">Medio</button><button type="button" data-size="1.6" aria-pressed="false">Grande</button>
+    <button type="button" id="drawMas" title="Agrandar el dibujo elegido" hidden>＋</button><button type="button" id="drawMenos" title="Achicar el dibujo elegido" hidden>−</button><button type="button" id="drawDel" title="Borrar el dibujo elegido" hidden>🗑</button>
     <input type="text" id="drawText" placeholder="Texto a poner" aria-label="Texto a poner">
     <span class="sep"></span>
     <button type="button" class="sw" data-color="#FFD23F" aria-label="Amarillo" aria-pressed="true" style="background:#FFD23F"></button>
@@ -679,6 +706,7 @@ const SECTIONS = [
     {id:"clips", label:"", type:"clips"}
   ]},
   {id:"plan", cls:"plan", title:"Plan de partido", hint:"Lo que vamos a hacer nosotras. Es la pantalla con la que cierra la charla.", fields:[
+    {id:"claves", label:"Las 3 claves (la primera pantalla de la charla)", type:"list", n:3, ph:["Ej: nos hacen goles con pelota larga a la 9: ganar la primera y la segunda pelota","Ej: presionan alto pero dejan espacio a espaldas de las volantes","Ej: en pelota parada en contra marcan en zona: atacar el primer palo"]},
     {id:"plan_con", label:"Con pelota", type:"list", n:3, ph:["Ej: atacar el espacio a espaldas de la lateral derecha","",""]},
     {id:"plan_sin", label:"Sin pelota", type:"list", n:3, ph:["Ej: presionar el inicio corto de la arquera","",""]},
     {id:"plan_pp", label:"Pelota parada", type:"list", n:2, ph:["Ej: corners al segundo palo","",""]}
@@ -759,7 +787,7 @@ function render() {
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderPuntos(s));
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderShots(s));
     if (s.id==="plan"){ const ch = el("div",{class:"charla"});
-      [["▶ Presentar en pantalla grande","presentBtn",true],["📄 Plan en 1 hoja","planBtn"],["⬇ Descargar PDF","pdfBtn"],["📲 Para el plantel","xPlantel"]].forEach(([t,id,pri])=>{ const b = el("button",{type:"button",class:"btn2"+(pri?" solid":""),text:t}); b.addEventListener("click",()=>{ const o = document.getElementById(id); if (id==="pdfBtn" && o && o.hidden){ alert("El PDF se está preparando. Probá en unos segundos."); return; } if (o) o.click(); }); ch.appendChild(b); });
+      [["▶ Presentar en pantalla grande","presentBtn",true],["⭐ Charla corta (solo destacadas)","corta"],["📄 Plan en 1 hoja","planBtn"],["⬇ Descargar PDF","pdfBtn"],["📲 Para el plantel","xPlantel"]].forEach(([t,id,pri])=>{ const b = el("button",{type:"button",class:"btn2"+(pri?" solid":""),text:t}); b.addEventListener("click",()=>{ if (id==="corta"){ const hay = SECTIONS.some(z=>(Array.isArray(state[shotKey(z.id)])?state[shotKey(z.id)]:[]).some(x=>x.star)); if (!hay){ toast("Primero marcá con ☆ Destacar las jugadas que querés mostrar."); return; } openDeck(true); return; } const o = document.getElementById(id); if (id==="pdfBtn" && o && o.hidden){ alert("El PDF se está preparando. Probá en unos segundos."); return; } if (o) o.click(); }); ch.appendChild(b); });
       body.appendChild(ch); }
     sec.appendChild(body);
     sec.addEventListener("focusin",()=>{ lastSection = s.id; });
@@ -995,6 +1023,8 @@ async function loadRival(s, name){
   if (!state.rival) state.rival = name || "Rival";
   lastSynced = docExists ? clone(data) : {}; delete lastSynced.actualizado; delete lastSynced.editor; delete state.editor;
   render(); fillRivalSel();
+  /* si el análisis tiene link de YouTube, el video queda listo en el visor */
+  try{ if (ytIdDe(state.video) && vKind!=="file" && (vKind!=="yt" || vNombre!==ytIdDe(state.video))) abrirYouTube(state.video); }catch(e){}
   if (docRef) { const ref = docRef; unsub = ref.onSnapshot(sn=>{ if (ref===docRef) onRemote(sn); }, ()=>{}); }
 }
 rivalSel.addEventListener("change",()=>{ const r = rivals.find(x=>x.slug===rivalSel.value); if (r) loadRival(r.slug, r.name); });
@@ -1479,7 +1509,7 @@ function guiaAN(){
       `<p>Cada adversário tem sua análise. Escolha na lista ou toque em <b>+ Novo adversário</b>.</p>`,
       `<p>Each opponent has its own analysis. Pick it from the list or tap <b>+ New opponent</b>.</p>`)},
     {sel:"#viewer", t:L("Mirá el partido acá","Assista ao jogo aqui","Watch the match here"), d:L(
-      `<p>Tocá <b>Abrir video</b> y elegí el archivo (no se sube). Cuando veas una jugada, pausá, elegí la <b>sección</b> y tocá <b>Capturar</b> (o la tecla C): queda el recorte con el minuto.</p><p>También podés pegar un <b>link de YouTube</b>. Con <b>✂ Clip</b> (tecla X) marcás inicio y fin de la jugada: el video nunca se sube, se guarda solo el minuto y se ve igual en Pantalla grande.</p>`,
+      `<p>Tocá <b>📁 Video de la compu</b> o <b>▶ Link de YouTube</b> (el video no se sube). Cuando veas una jugada, pausá, elegí la <b>sección</b> y tocá <b>Capturar</b> (o la tecla C): queda el recorte con el minuto.</p><p>También podés pegar un <b>link de YouTube</b>. Con <b>✂ Clip</b> (tecla X) marcás inicio y fin de la jugada: el video nunca se sube, se guarda solo el minuto y se ve igual en Pantalla grande.</p>`,
       `<p>Toque em <b>Abrir vídeo</b> e escolha o arquivo. Ao ver uma jogada, pause, escolha a <b>seção</b> e toque em <b>Capturar</b> (tecla C).</p><p>Também pode colar um <b>link do YouTube</b>. Com <b>✂ Clipe</b> (tecla X) marca início e fim da jogada: o vídeo nunca é enviado, só o minuto.</p>`,
       `<p>Tap <b>Open video</b> and choose the file. When you see a play, pause, pick the <b>section</b> and tap <b>Capture</b> (key C).</p><p>You can also paste a <b>YouTube link</b>. With <b>✂ Clip</b> (key X) you mark the start and end of a play: the video is never uploaded, only the minute.</p>`)},
     {sel:"#paso2", t:L("Completá las secciones","Preencha as seções","Fill in the sections"), d:L(
@@ -1625,6 +1655,9 @@ function renderShots(s){
     cIn.addEventListener("input",()=>{ sh.cap=cIn.value; changed(); });
     m.appendChild(tIn); m.appendChild(cIn); it.appendChild(m);
     const tools = el("div",{class:"tools2"});
+    { const st = el("button",{type:"button",class:"star"+(sh.star?" on":""),title:"Destacar para la charla corta",text: sh.star ? "⭐ Destacada" : "☆ Destacar"});
+      st.addEventListener("click",()=>{ sh.star = !sh.star; changed(); st.className = "star"+(sh.star?" on":""); st.textContent = sh.star ? "⭐ Destacada" : "☆ Destacar"; });
+      tools.appendChild(st); }
     if (!sh.video && assets && (!sh.clip || sh.id)) { const dr = el("button",{type:"button",text: sh.ann ? "Editar dibujo" : "Dibujar"}); dr.addEventListener("click",()=>openDraw(s.id, idx)); tools.appendChild(dr); }
     if (!sh.video && (!sh.clip || sh.id)) { const pz = el("button",{type:"button",text:"→ Pizarra",title:"Abrir este recorte en la pizarra para dibujar y animar la jugada"}); pz.addEventListener("click",()=>recorteAPizarra(media, sh, s, pz)); tools.appendChild(pz); }
     const del = el("button",{type:"button",class:"del",text:"Quitar"});
@@ -1679,11 +1712,32 @@ document.addEventListener("paste",e=>{
 
 /* ---------- dibujar sobre recortes ---------- */
 const drawEl = document.getElementById("draw"), cv = document.getElementById("drawCv"), cx = cv.getContext("2d");
-let dImg = null, dShapes = [], dTool = "arrow", dColor = "#FFD23F", dStart = null, dPreview = null, dTarget = null;
+let dImg = null, dShapes = [], dTool = "arrow", dColor = "#FFD23F", dStart = null, dPreview = null, dTarget = null, dSize = 1, dSel = -1, dCrop = null, dMove = null;
+function selBtns(){ ["drawMas","drawMenos","drawDel"].forEach(id=>{ document.getElementById(id).hidden = dSel<0; }); }
+document.querySelectorAll("#drawTb [data-size]").forEach(b=>b.addEventListener("click",()=>{ dSize = +b.dataset.size; document.querySelectorAll("#drawTb [data-size]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); if (dSel>=0){ dShapes[dSel].k = dSize; redraw(); } }));
+document.getElementById("drawMas").addEventListener("click",()=>{ if (dSel<0) return; const s0 = dShapes[dSel]; s0.k = Math.min(4,(s0.k||1)*1.25); if (s0.t!=="text"){ const cx0=(s0.x1+s0.x2)/2, cy0=(s0.y1+s0.y2)/2; ["x1","x2"].forEach(q=>s0[q]=cx0+(s0[q]-cx0)*1.2); ["y1","y2"].forEach(q=>s0[q]=cy0+(s0[q]-cy0)*1.2); } redraw(); });
+document.getElementById("drawMenos").addEventListener("click",()=>{ if (dSel<0) return; const s0 = dShapes[dSel]; s0.k = Math.max(0.3,(s0.k||1)/1.25); if (s0.t!=="text"){ const cx0=(s0.x1+s0.x2)/2, cy0=(s0.y1+s0.y2)/2; ["x1","x2"].forEach(q=>s0[q]=cx0+(s0[q]-cx0)/1.2); ["y1","y2"].forEach(q=>s0[q]=cy0+(s0[q]-cy0)/1.2); } redraw(); });
+document.getElementById("drawSis").addEventListener("click",()=>{
+  const def = (state.sis_con && /^\d(-\d)+$/.test(state.sis_con)) ? "1-"+state.sis_con : "1-4-3-3";
+  let v = (prompt("¿Qué sistema? (ej.: 1-4-3-3, 1-4-4-2, 1-3-5-2)", def)||"").trim().replace(/\s+/g,""); if (!v) return;
+  v = v.replace(/^1-/,""); if (!/^\d(-\d){1,4}$/.test(v) || v.split("-").reduce((a,b)=>a+ +b,0)!==10){ alert("Escribilo así: 1-4-3-3 (sin contar el arco, tiene que sumar 10)."); return; }
+  const n = (state.rival||"").slice(0,24), ar = cv.height/cv.width, w = 0.3, h = w*0.78/ar;
+  dShapes.push({t:"sis", f:v, n, c: (dColor==="#FFFFFF"||dColor==="#FFD23F") ? "#E5484D" : dColor, x1:0.025, y1:0.035, x2:0.025+w, y2:0.035+Math.min(0.6,h)}); dSel = dShapes.length-1; selBtns();
+  dTool = "move"; document.querySelectorAll("#drawTb [data-tool]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.tool==="move"?"true":"false"));
+  document.getElementById("drawMsg").textContent = "Arrastralo a donde quieras y agrandalo o achicalo con ＋ y −."; redraw(); });
+document.getElementById("drawDel").addEventListener("click",()=>{ if (dSel<0) return; dShapes.splice(dSel,1); dSel = -1; selBtns(); redraw(); });
+function hitShape(p){ const W = cv.width, H = cv.height, tol = 0.035;
+  for (let i=dShapes.length-1;i>=0;i--){ const s0 = dShapes[i];
+    if (s0.t==="text"){ cx.save(); const fs = Math.max(18, W/28)*(s0.k||1); cx.font = "700 "+fs+"px Georama, Arial, sans-serif"; const w = cx.measureText(s0.s).width/W; cx.restore(); if (p.x>=s0.x1-0.01 && p.x<=s0.x1+w+0.01 && Math.abs(p.y-s0.y1)<fs/H) return i; continue; }
+    const minx = Math.min(s0.x1,s0.x2)-tol, maxx = Math.max(s0.x1,s0.x2)+tol, miny = Math.min(s0.y1,s0.y2)-tol, maxy = Math.max(s0.y1,s0.y2)+tol;
+    if (p.x<minx||p.x>maxx||p.y<miny||p.y>maxy) continue;
+    if (s0.t==="arrow"||s0.t==="dash"||s0.t==="line"){ const dx=s0.x2-s0.x1, dy=s0.y2-s0.y1, L=dx*dx+dy*dy||1; let u=((p.x-s0.x1)*dx+(p.y-s0.y1)*dy)/L; u=Math.max(0,Math.min(1,u)); if (Math.hypot(s0.x1+u*dx-p.x, s0.y1+u*dy-p.y) < tol) return i; continue; }
+    return i; }
+  return -1; }
 document.querySelectorAll("#drawTb [data-tool]").forEach(b=>b.addEventListener("click",()=>{ dTool=b.dataset.tool; document.querySelectorAll("#drawTb [data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); if (dTool==="text") document.getElementById("drawText").focus(); }));
 document.querySelectorAll("#drawTb [data-color]").forEach(b=>b.addEventListener("click",()=>{ dColor=b.dataset.color; document.querySelectorAll("#drawTb [data-color]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); }));
 function paintShape(ctx, s, W, H){
-  const lw = Math.max(3, W/190);
+  const lw = Math.max(3, W/190)*(s.k||1);
   ctx.save(); ctx.strokeStyle = s.c; ctx.fillStyle = s.c; ctx.lineWidth = lw; ctx.lineCap = "round"; ctx.lineJoin = "round";
   ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = lw*1.2;
   const x1=s.x1*W, y1=s.y1*H, x2=s.x2*W, y2=s.y2*H;
@@ -1699,9 +1753,25 @@ function paintShape(ctx, s, W, H){
     ctx.globalAlpha = .22; ctx.fillRect(Math.min(x1,x2),Math.min(y1,y2),Math.abs(x2-x1),Math.abs(y2-y1)); ctx.globalAlpha = 1;
     ctx.setLineDash([lw*2.4, lw*1.6]); ctx.strokeRect(Math.min(x1,x2),Math.min(y1,y2),Math.abs(x2-x1),Math.abs(y2-y1));
   } else if (s.t==="text") {
-    const fs = Math.max(18, W/28); ctx.font = "700 "+fs+"px Georama, Arial, sans-serif"; ctx.textBaseline = "middle";
+    const fs = Math.max(18, W/28)*(s.k||1); ctx.font = "700 "+fs+"px Georama, Arial, sans-serif"; ctx.textBaseline = "middle";
     const w = ctx.measureText(s.s).width; ctx.shadowBlur = 0; ctx.globalAlpha = .75; ctx.fillStyle = "#141412"; ctx.fillRect(x1-fs*.3, y1-fs*.7, w+fs*.6, fs*1.4); ctx.globalAlpha = 1;
     ctx.fillStyle = s.c; ctx.fillText(s.s, x1, y1);
+  }
+  else if (s.t==="sis") {
+    const bx = Math.min(x1,x2), by = Math.min(y1,y2), bw = Math.abs(x2-x1), bh = Math.abs(y2-y1), th = bh*0.2;
+    ctx.shadowBlur = lw*2; ctx.fillStyle = "rgba(20,20,18,.88)"; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx,by,bw,bh,bh*0.06) : ctx.rect(bx,by,bw,bh); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.fillStyle = "#fff"; ctx.font = "800 "+Math.round(th*0.62)+"px Georama, Arial, sans-serif"; ctx.textBaseline = "middle"; ctx.fillText((s.n?s.n+" · ":"")+"1-"+s.f, bx+bh*0.06, by+th*0.55);
+    const px = bx+bh*0.05, py = by+th, pw = bw-bh*0.1, ph = bh-th-bh*0.05;
+    const P = typeof canchaPro==="function" ? canchaPro(ctx, px, py, pw, ph, false) : null;
+    if (!P){ ctx.fillStyle="#5A9216"; ctx.fillRect(px,py,pw,ph); }
+    const lines = String(s.f).split("-").map(Number).filter(n=>n>0), r = Math.max(4, ph*0.055);
+    const pts = [[6,34]]; const span = 90/(lines.length+0.3); lines.forEach((n,i)=>{ const xm = 6+span*(i+1); for (let k=0;k<n;k++) pts.push([xm, 68*(k+1)/(n+1)]); });
+    pts.forEach(([a,b2],i)=>{ const q = P ? P(a,b2) : [px+a/105*pw, py+b2/68*ph]; ctx.beginPath(); ctx.arc(q[0],q[1],r,0,Math.PI*2); ctx.fillStyle = i===0 ? "#FFD400" : s.c; ctx.fill(); ctx.lineWidth = r*0.3; ctx.strokeStyle = "#141412"; ctx.stroke(); });
+  }
+  else if (s.t==="spot") {
+    ctx.shadowBlur = 0; ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.beginPath(); ctx.rect(0,0,W,H);
+    ctx.ellipse((x1+x2)/2,(y1+y2)/2,Math.max(6,Math.abs(x2-x1)/2),Math.max(6,Math.abs(y2-y1)/2),0,0,Math.PI*2,true); ctx.fill("evenodd");
+    ctx.strokeStyle = s.c; ctx.lineWidth = lw*.7; ctx.beginPath(); ctx.ellipse((x1+x2)/2,(y1+y2)/2,Math.max(6,Math.abs(x2-x1)/2),Math.max(6,Math.abs(y2-y1)/2),0,0,Math.PI*2); ctx.stroke();
   }
   ctx.restore();
 }
@@ -1709,41 +1779,56 @@ function redraw(){
   if (!dImg) return;
   cx.clearRect(0,0,cv.width,cv.height); cx.drawImage(dImg,0,0,cv.width,cv.height);
   dShapes.forEach(s=>paintShape(cx,s,cv.width,cv.height));
-  if (dPreview) paintShape(cx,dPreview,cv.width,cv.height);
+  if (dPreview && dPreview.t!=="crop") paintShape(cx,dPreview,cv.width,cv.height);
+  const cr = (dPreview && dPreview.t==="crop") ? dPreview : dCrop;
+  if (cr && !dSaving){ const W=cv.width, H=cv.height, x=Math.min(cr.x1,cr.x2)*W, y=Math.min(cr.y1,cr.y2)*H, w=Math.abs(cr.x2-cr.x1)*W, h=Math.abs(cr.y2-cr.y1)*H;
+    cx.save(); cx.fillStyle="rgba(0,0,0,.6)"; cx.beginPath(); cx.rect(0,0,W,H); cx.rect(x,y,w,h); cx.fill("evenodd"); cx.strokeStyle="#fff"; cx.setLineDash([10,8]); cx.lineWidth=Math.max(2,W/500); cx.strokeRect(x,y,w,h); cx.restore(); }
+  if (dSel>=0 && dShapes[dSel] && !dSaving){ const s0=dShapes[dSel], W=cv.width, H=cv.height; cx.save(); cx.strokeStyle="#4FB3FF"; cx.setLineDash([8,6]); cx.lineWidth=2;
+    if (s0.t==="text"){ const fs=Math.max(18,W/28)*(s0.k||1); cx.font="700 "+fs+"px Georama, Arial, sans-serif"; const w=cx.measureText(s0.s).width; cx.strokeRect(s0.x1*W-fs*.4, s0.y1*H-fs*.8, w+fs*.8, fs*1.6); }
+    else cx.strokeRect(Math.min(s0.x1,s0.x2)*W-8, Math.min(s0.y1,s0.y2)*H-8, Math.abs(s0.x2-s0.x1)*W+16, Math.abs(s0.y2-s0.y1)*H+16); cx.restore(); }
 }
+let dSaving = false;
 function ptr(e){ const r = cv.getBoundingClientRect(); return {x:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)), y:Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))}; }
 cv.addEventListener("pointerdown",e=>{
   const p = ptr(e);
-  if (dTool==="text") { const t = document.getElementById("drawText").value.trim(); if (!t) { document.getElementById("drawMsg").textContent = "Escribí el texto arriba y después tocá la imagen."; document.getElementById("drawText").focus(); return; } dShapes.push({t:"text",c:dColor,x1:p.x,y1:p.y,x2:p.x,y2:p.y,s:t}); redraw(); return; }
+  if (dTool==="move"){ dSel = hitShape(p); selBtns(); if (dSel>=0){ dMove = {p, orig:{...dShapes[dSel]}}; cv.setPointerCapture(e.pointerId); } redraw(); return; }
+  if (dTool==="text") { const t = document.getElementById("drawText").value.trim(); if (!t) { document.getElementById("drawMsg").textContent = "Escribí el texto arriba y después tocá la imagen."; document.getElementById("drawText").focus(); return; } dShapes.push({t:"text",c:dColor,x1:p.x,y1:p.y,x2:p.x,y2:p.y,s:t,k:dSize}); redraw(); return; }
   dStart = p; cv.setPointerCapture(e.pointerId);
 });
-cv.addEventListener("pointermove",e=>{ if (!dStart) return; const p = ptr(e); dPreview = {t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y}; redraw(); });
-cv.addEventListener("pointerup",e=>{ if (!dStart) return; const p = ptr(e); if (Math.hypot(p.x-dStart.x,p.y-dStart.y) > 0.01) dShapes.push({t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y}); dStart=null; dPreview=null; redraw(); });
-document.getElementById("drawUndo").addEventListener("click",()=>{ dShapes.pop(); redraw(); });
-document.getElementById("drawClear").addEventListener("click",()=>{ dShapes = []; redraw(); });
+cv.addEventListener("pointermove",e=>{ const p = ptr(e);
+  if (dMove && dSel>=0){ const dx = p.x-dMove.p.x, dy = p.y-dMove.p.y, o = dMove.orig, s0 = dShapes[dSel]; s0.x1=o.x1+dx; s0.x2=o.x2+dx; s0.y1=o.y1+dy; s0.y2=o.y2+dy; redraw(); return; }
+  if (!dStart) return; dPreview = {t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y,k:dSize}; redraw(); });
+cv.addEventListener("pointerup",e=>{ if (dMove){ dMove = null; return; } if (!dStart) return; const p = ptr(e);
+  if (Math.hypot(p.x-dStart.x,p.y-dStart.y) > 0.01){ if (dTool==="crop") dCrop = {x1:Math.min(dStart.x,p.x),y1:Math.min(dStart.y,p.y),x2:Math.max(dStart.x,p.x),y2:Math.max(dStart.y,p.y)}; else dShapes.push({t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y,k:dSize}); }
+  dStart=null; dPreview=null; redraw(); });
+document.getElementById("drawUndo").addEventListener("click",()=>{ if (dCrop && !dShapes.length){ dCrop = null; } else dShapes.pop(); dSel = -1; selBtns(); redraw(); });
+document.getElementById("drawClear").addEventListener("click",()=>{ dShapes = []; dCrop = null; dSel = -1; selBtns(); redraw(); });
 document.getElementById("drawCancel").addEventListener("click",()=>{ drawEl.hidden = true; document.body.style.overflow=""; flushPending(); });
 function openDraw(secId, idx){
   const sh = state[shotKey(secId)][idx]; dTarget = {secId, idx, sh};
-  dShapes = Array.isArray(sh.shapes) ? sh.shapes.map(x=>({...x})) : [];
+  dShapes = Array.isArray(sh.shapes) ? sh.shapes.map(x=>({...x})) : []; dCrop = sh.crop ? {...sh.crop} : null; dSel = -1; selBtns();
   document.getElementById("drawMsg").textContent = "Cargando imagen…";
   drawEl.hidden = false; document.body.style.overflow = "hidden";
   const img = new Image();
   img.onload = ()=>{ const sc = Math.min(1, 1920/img.naturalWidth); cv.width = Math.round(img.naturalWidth*sc); cv.height = Math.round(img.naturalHeight*sc); dImg = img; redraw();
-    document.getElementById("drawMsg").textContent = "Arrastrá sobre la imagen para dibujar. Para el texto, escribilo arriba y tocá donde lo querés poner."; };
+    document.getElementById("drawMsg").textContent = "Arrastrá sobre la imagen para dibujar. Texto: escribilo arriba y tocá donde va. ✋ Mover: tocá un dibujo para moverlo, agrandarlo (＋) o achicarlo (−). ✂ Recortar: marcá la parte que querés dejar."; };
   img.onerror = ()=>{ document.getElementById("drawMsg").textContent = "No se pudo abrir la imagen."; };
   window.__mtkResolveBlob(sh.id).then(u=>{ img.src = u; }).catch(()=>{ img.onerror && img.onerror(); });
 }
 document.getElementById("drawSave").addEventListener("click",async ()=>{
   if (!dTarget || !dImg || !assets) return;
   const btn = document.getElementById("drawSave"); btn.disabled = true; btn.textContent = "Guardando…";
-  dPreview = null; redraw();
+  dPreview = null; const selPrev = dSel; dSel = -1; dSaving = true; redraw(); dSaving = false;
   try {
     const sh = dTarget.sh, oldAnn = sh.ann;
-    if (dShapes.length) {
-      const blob = await new Promise(res=>cv.toBlob(res,"image/jpeg",0.85));
+    if (dShapes.length || dCrop) {
+      let src = cv;
+      if (dCrop){ const W=cv.width, H=cv.height, x=Math.round(dCrop.x1*W), y=Math.round(dCrop.y1*H), w=Math.max(20,Math.round((dCrop.x2-dCrop.x1)*W)), h=Math.max(20,Math.round((dCrop.y2-dCrop.y1)*H));
+        const sc = Math.max(1, Math.min(2, 1280/w)); src = document.createElement("canvas"); src.width = Math.round(w*sc); src.height = Math.round(h*sc); src.getContext("2d").drawImage(cv, x, y, w, h, 0, 0, src.width, src.height); }
+      const blob = await new Promise(res=>src.toBlob(res,"image/jpeg",0.85));
       const r = await assets.upload(blob, {type:"image/jpeg"});
-      sh.ann = r.id; sh.shapes = dShapes;
-    } else { delete sh.ann; sh.shapes = []; }
+      sh.ann = r.id; sh.shapes = dShapes; if (dCrop) sh.crop = dCrop; else delete sh.crop;
+    } else { delete sh.ann; sh.shapes = []; delete sh.crop; }
     changed(); refreshShots(dTarget.secId);
     if (oldAnn && oldAnn!==sh.ann) { try { await assets.delete(oldAnn); } catch(e) {} }
     drawEl.hidden = true; document.body.style.overflow=""; flushPending();
@@ -1782,19 +1867,21 @@ function pitchSVG(formation, title, players){
 }
 const isFormation = v => typeof v==="string" && /^\d(-\d){2,3}$/.test(v);
 
+let CHARLA_CORTA = false;
 function sectionSlide(s, build){
+  if (CHARLA_CORTA && !secTieneDatos(s)) return;
   slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker",s.title)); build(w);
     const pts = puntos(s.id).filter(p=>p&&(p.t||p.txt)); if (pts.length){ const e = w.querySelector(".empty"); if (e) e.remove(); pts.forEach(p=>block(w, p.t||"Punto", D("div","note",p.txt||""))); }
     const sh = list(shotKey(s.id)); if (sh.length){ const th=D("div","thumbs"); sh.filter(x=>!x.video&&(!x.clip||x.id||x.yt)).slice(0,6).forEach(x=>{ const i=D("img"); i.src=x.id?shotUrl(x.ann||x.id):"https://img.youtube.com/vi/"+x.yt+"/mqdefault.jpg"; i.alt=x.cap||""; th.appendChild(i); }); if (th.children.length) block(w,"Recortes (en las siguientes)",th); }
     return w; });
-  list(shotKey(s.id)).forEach(x=>slides.push(()=>{ const w=D("div","shot"); w.appendChild(D("p","kicker",s.title));
+  list(shotKey(s.id)).filter(x=>!CHARLA_CORTA||x.star).forEach(x=>slides.push(()=>{ const w=D("div","shot"); w.appendChild(D("p","kicker",s.title));
     let m;
     if (x.clip){ m = D("div","clip-sl"); const im = D("img"); im.src = x.id ? shotUrl(x.ann||x.id) : (x.yt ? "https://img.youtube.com/vi/"+x.yt+"/hqdefault.jpg" : ""); im.alt = x.cap||""; m.appendChild(im);
       if (!pdfMode){ const b = D("button","clip-slb","▶ Ver el clip ("+fmtT(x.ini)+" → "+fmtT(x.fin)+")"); b.type = "button"; m.appendChild(b);
         b.addEventListener("click",e=>{ e.stopPropagation();
           if (x.yt){ m.innerHTML = '<iframe src="https://www.youtube.com/embed/'+encodeURIComponent(x.yt)+'?start='+Math.floor(x.ini)+'&end='+Math.ceil(x.fin)+'&autoplay=1&rel=0" allow="autoplay; fullscreen" allowfullscreen></iframe>'; return; }
           if (vUrl && vKind==="file" && (!x.file || x.file===vNombre)){ const v = Object.assign(D("video"),{src:vUrl+"#t="+x.ini+","+x.fin,controls:true,autoplay:true}); m.innerHTML = ""; m.appendChild(v); return; }
-          b.textContent = "Abrí el video del partido en el visor (Salir → Abrir video) para ver el clip"; }); } }
+          b.textContent = "Abrí el video del partido en el visor (Salir → 📁 Video de la compu) para ver el clip"; }); } }
     else m = x.video ? (pdfMode ? D("p","empty","Clip de video: miralo en la planilla") : Object.assign(D("video"),{src:shotUrl(x.id),controls:true,preload:"metadata"})) : Object.assign(D("img"),{src:shotUrl(x.ann||x.id),alt:x.cap||""});
     m.addEventListener("click",e=>e.stopPropagation()); w.appendChild(m);
     if (x.min||x.cap){ const c=D("div","cap"); if(x.min) c.appendChild(D("span","t",x.min)); c.appendChild(document.createTextNode(x.cap||"")); w.appendChild(c); }
@@ -1816,6 +1903,8 @@ function buildSlides(){
     if (any) tx.appendChild(fi);
     return w; });
   const S = id => SECTIONS.find(x=>x.id===id);
+  { const cl = list("claves").filter(Boolean); if (cl.length) slides.push(()=>{ const w=D("div","claves-sl"); w.appendChild(D("p","kicker","Lo más importante")); w.appendChild(D("h3",null,"Las "+cl.length+" claves contra "+name));
+      const ol=D("ol","claves"); cl.forEach(t=>ol.appendChild(D("li",null,t))); w.appendChild(ol); return w; }); }
   sectionSlide(S("sistema"), w=>{ w.appendChild(D("h3",null,"Cómo se paran"));
     const a=val("sis_con"), b=val("sis_sin");
     if (isFormation(a)||isFormation(b)){ const g=D("div","cols"); if(isFormation(a)) g.appendChild(pitchSVG(a,"Con pelota")); if(isFormation(b)) g.appendChild(pitchSVG(b,"Sin pelota")); w.appendChild(g); }
@@ -1863,10 +1952,10 @@ function show(i){
   dSlide.textContent=""; dSlide.appendChild(slides[cur]()); dSlide.scrollTop=0;
   dDots.textContent=""; slides.forEach((_,k)=>dDots.appendChild(D("span",k===cur?"on":"")));
 }
-function openDeck(){ buildSlides(); deck.hidden=false; document.body.style.overflow="hidden"; show(0); }
+function openDeck(corta){ CHARLA_CORTA = corta===true; buildSlides(); CHARLA_CORTA = false; deck.hidden=false; document.body.style.overflow="hidden"; show(0); }
 function closeDeck(){ deck.hidden=true; document.body.style.overflow=""; setTimeout(flushPending,0); if (document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }
-document.getElementById("presentBtn").addEventListener("click",openDeck);
-document.getElementById("presentBtn2").addEventListener("click",openDeck);
+document.getElementById("presentBtn").addEventListener("click",()=>openDeck());
+document.getElementById("presentBtn2").addEventListener("click",()=>openDeck());
 { const mb = document.getElementById("masBtn"), mp = document.getElementById("masPanel");
   mb.addEventListener("click",()=>{ mp.hidden = !mp.hidden; mb.setAttribute("aria-expanded", mp.hidden?"false":"true"); mb.textContent = mp.hidden ? "Más herramientas ▾" : "Más herramientas ▴"; }); }
 document.getElementById("dPrev").addEventListener("click",e=>{ e.stopPropagation(); show(cur-1); });
@@ -1920,9 +2009,9 @@ const vp = {
   listo(){ return vKind==="yt" ? (ytP && ytListo) : (vVideo.src && vVideo.readyState>=1); }
 };
 function cargarYTApi(){ return new Promise(ok=>{ if (window.YT && window.YT.Player) return ok(); const prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = ()=>{ if (prev) try{prev()}catch(e){} ok(); }; if (!document.querySelector('script[src*="youtube.com/iframe_api"]')){ const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s); } }); }
-async function abrirYouTube(){
+async function abrirYouTube(directo){
   const def = ytIdDe(state.video) ? state.video : "";
-  const u = prompt("Pegá el link de YouTube del partido:", def);
+  const u = typeof directo==="string" ? directo : prompt("Pegá el link de YouTube del partido:", def);
   if (!u) return; const id = ytIdDe(u);
   if (!id){ vMsg.className = "vmsg err"; vMsg.textContent = "Ese link no parece de YouTube."; return; }
   if (!state.video || !ytIdDe(state.video)){ state.video = u.trim(); changed(); refreshField("video"); header(); }
@@ -1931,6 +2020,7 @@ async function abrirYouTube(){
   if (!box){ box = el("div",{id:"vYT",class:"vyt"}); vVideo.parentNode.insertBefore(box, vVideo); }
   box.hidden = false; box.innerHTML = '<div id="vYTp"></div>';
   vBody.hidden = false; vMin.hidden = false; vMin.textContent = "Minimizar"; document.body.classList.add("vopen");
+  setSplit(lsGet("scout_split")!=="0");
   document.getElementById("vName").textContent = "YouTube · " + id;
   vMsg.className = "vmsg"; vMsg.textContent = "Cargando YouTube…";
   setTimeout(()=>{ if (vKind==="yt" && !ytListo){ vMsg.className = "vmsg err"; vMsg.textContent = "No se pudo cargar YouTube. Revisá la conexión o que el video sea público / no listado."; } }, 12000);
@@ -1969,6 +2059,59 @@ function verClip(sh){
   toast("Para ver este clip abrí en el visor el video del partido"+(sh.file?" (“"+sh.file+"”)":"")+". El clip empieza en el "+fmtT(sh.ini)+".");
   document.getElementById("viewer").scrollIntoView({behavior:"smooth", block:"start"});
 }
+/* ---------- capturar también con YouTube: se comparte esta pestaña y se toma la imagen del video ---------- */
+let capStream = null, capVid = null;
+function botonDibujarYa(sec, idx){ const b = el("button",{type:"button",class:"btn2 solid vdib",text:"✏️ Dibujar ahora"}); b.addEventListener("click",()=>openDraw(sec, idx)); vMsg.appendChild(document.createTextNode(" ")); vMsg.appendChild(b); }
+async function capturarYT(){
+  if (!assets){ vMsg.className="vmsg err"; vMsg.textContent="Sin conexión con la nube de Metodika: no se puede capturar."; return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){ vMsg.className="vmsg err"; vMsg.textContent="Este navegador no deja capturar YouTube. Usá ✂ Clip o abrí Metodika en Chrome en la compu."; return; }
+  const box = document.getElementById("vYT"); if (!box || box.hidden){ vMsg.className="vmsg err"; vMsg.textContent="Primero abrí el video."; return; }
+  const t = fmtT(vp.t()), sec = vSec.value; vp.pause();
+  try{
+    if (!capStream || !capStream.active){
+      vMsg.className="vmsg"; vMsg.textContent="La primera vez el navegador pregunta qué compartir: elegí “Esta pestaña” y tocá Compartir.";
+      capStream = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:"browser", frameRate:5}, audio:false, preferCurrentTab:true, selfBrowserSurface:"include", surfaceSwitching:"exclude"});
+      capVid = document.createElement("video"); capVid.muted = true; capVid.playsInline = true; capVid.srcObject = capStream; await capVid.play();
+      capStream.getVideoTracks()[0].addEventListener("ended",()=>{ capStream = null; capVid = null; });
+    }
+    await new Promise(r=>setTimeout(r,700));
+    const R = box.getBoundingClientRect(); let ox = 0, oy = 0, TW = innerWidth;
+    try{ if (window.frameElement){ const fr = window.frameElement.getBoundingClientRect(); ox = fr.left; oy = fr.top; TW = window.top.innerWidth; } }catch(e){}
+    const k = capVid.videoWidth / TW, sx = (ox+R.left)*k, sy = (oy+R.top)*k, sw = R.width*k, shh = R.height*k;
+    const sc = Math.min(1, 1280/sw), c = document.createElement("canvas"); c.width = Math.round(sw*sc); c.height = Math.round(shh*sc);
+    c.getContext("2d").drawImage(capVid, sx, sy, sw, shh, 0, 0, c.width, c.height);
+    vMsg.className="vmsg"; vMsg.textContent="Guardando captura…";
+    const blob = await new Promise(r=>c.toBlob(r,"image/jpeg",0.8)); const r = await assets.upload(blob,{type:"image/jpeg"});
+    const arr = Array.isArray(state[shotKey(sec)]) ? state[shotKey(sec)] : (state[shotKey(sec)] = []);
+    arr.push({id:r.id, video:false, min:t, cap:""}); changed(); refreshShots(sec); abrirSec(sec);
+    vMsg.textContent = "Captura del minuto "+t+" guardada en "+(SECTIONS.find(x=>x.id===sec)||{}).title+"."; botonDibujarYa(sec, arr.length-1);
+  }catch(e){ console.warn(e); vMsg.className="vmsg err"; vMsg.textContent = "No se pudo capturar. Cuando el navegador pregunte, elegí “Esta pestaña” y tocá Compartir."; }
+}
+/* ---------- pantalla completa de trabajo (video a un lado, informe al otro) ---------- */
+function pantallaTrabajo(){
+  const fs = document.fullscreenElement;
+  if (fs){ document.exitFullscreen().catch(()=>{}); return; }
+  if (!vBody.hidden) setSplit(true);
+  const r = document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : null;
+  if (r && r.catch) r.catch(()=>{ toast("Tu navegador no deja usar pantalla completa acá. Probá con la tecla F11."); });
+}
+document.addEventListener("fullscreenchange",()=>{ const on = document.fullscreenElement===document.documentElement; document.body.classList.toggle("trabajo", on); const b = document.getElementById("vFull"); if (b) b.textContent = on ? "✕ Salir de pantalla completa" : "⛶ Pantalla completa"; });
+/* ---------- nota rápida: se guarda en la sección elegida con el minuto ---------- */
+let notaSeguia = false;
+function guardarNota(txt){
+  txt = String(txt||"").trim(); if (!txt) return;
+  const sec = vSec.value, S0 = SECTIONS.find(x=>x.id===sec); if (!S0) return;
+  const linea = (vp.listo() ? "["+fmtT(vp.t())+"] " : "") + txt;
+  const ta = S0.fields.find(f=>f.type==="textarea");
+  if (ta){ state[ta.id] = (state[ta.id] ? String(state[ta.id]).replace(/\s+$/,"")+"\n" : "") + linea; refreshField(ta.id); }
+  else if (sec==="clips"){ const arr = Array.isArray(state.clips) ? state.clips : (state.clips = []); const i = arr.findIndex(c=>!c||(!c.min&&!c.txt)); const it = {min: vp.listo()?fmtT(vp.t()):"", txt}; if (i>=0) arr[i] = it; else arr.push(it); refreshField("clips"); }
+  else { const k = "pts_"+sec; if (!Array.isArray(state[k])) state[k] = []; state[k].push({t:(vp.listo()?fmtT(vp.t()):"Nota"), txt}); const o = document.getElementById("pts-"+sec); if (o) o.replaceWith(renderPuntos(S0)); }
+  changed(); abrirSec(sec);
+  vMsg.className = "vmsg"; vMsg.textContent = "Nota guardada en " + S0.title + ".";
+}
+{ const n = document.getElementById("vNota");
+  n.addEventListener("input",()=>{ if (n.value.length===1 && vp.listo()){ const playing = vKind==="yt" ? (ytP && ytListo && ytP.getPlayerState && ytP.getPlayerState()===1) : !vVideo.paused; if (playing){ notaSeguia = true; vp.pause(); } } });
+  n.addEventListener("keydown",e=>{ e.stopPropagation(); if (e.key==="Enter"){ e.preventDefault(); guardarNota(n.value); n.value = ""; if (notaSeguia){ notaSeguia = false; vp.play(); } } if (e.key==="Escape"){ n.value = ""; n.blur(); } }); }
 /* imágenes más livianas antes de subirlas */
 async function achicarImagen(file, max, q){
   try{ const url = URL.createObjectURL(file); const img = await new Promise((ok,no)=>{ const i = new Image(); i.onload = ()=>ok(i); i.onerror = no; i.src = url; });
@@ -1977,7 +2120,7 @@ async function achicarImagen(file, max, q){
     const b = await new Promise(r=>c.toBlob(r, "image/jpeg", q||0.8)); return b && b.size < file.size ? b : file; }catch(e){ return file; }
 }
 async function capture(){
-  if (vKind==="yt"){ vMsg.className="vmsg err"; vMsg.textContent="Con YouTube no se puede sacar la imagen: usá ✂ Clip, que guarda el minuto y lo reproduce."; return; }
+  if (vKind==="yt") return capturarYT();
   if(!vVideo.src || !vVideo.videoWidth){ vMsg.className="vmsg err"; vMsg.textContent="Primero abrí el video."; return; }
   if(!assets){ vMsg.className="vmsg err"; vMsg.textContent="Sin conexión con la nube de Metodika: no se puede capturar."; return; }
   vVideo.pause();
@@ -1990,14 +2133,15 @@ async function capture(){
     const r=await assets.upload(blob,{type:"image/jpeg"});
     const arr=Array.isArray(state[shotKey(sec)])?state[shotKey(sec)]:(state[shotKey(sec)]=[]);
     arr.push({id:r.id,video:false,min:t,cap:""}); changed(); refreshShots(sec); abrirSec(sec);
-    vMsg.textContent="Captura del minuto "+t+" guardada en "+(SECTIONS.find(x=>x.id===sec)||{}).title;
+    vMsg.textContent="Captura del minuto "+t+" guardada en "+(SECTIONS.find(x=>x.id===sec)||{}).title; botonDibujarYa(sec, arr.length-1);
   }catch(e){ vMsg.className="vmsg err"; vMsg.textContent="No se pudo guardar la captura. Probá de nuevo."; }
 }
 document.getElementById("vCap").addEventListener("click",capture);
 document.getElementById("vClip").addEventListener("click",marcarClip);
-document.getElementById("vYTbtn").addEventListener("click",abrirYouTube);
+document.getElementById("vYTbtn").addEventListener("click",()=>abrirYouTube());
+document.getElementById("vFull").addEventListener("click",pantallaTrabajo);
 document.addEventListener("keydown",e=>{ if((e.key==="x"||e.key==="X") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); marcarClip(); return; }
-  if((e.key==="c"||e.key==="C") && !vBody.hidden && vVideo.src && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); capture(); } });
+  if((e.key==="c"||e.key==="C") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); capture(); } });
 /* ---------- inicio ---------- */
 (async ()=>{
   slug = lsGet("scout_last") || "rival-nuevo";
@@ -2145,7 +2289,9 @@ Object.assign(DIC,{"Sus números al lado de los nuestros y las zonas que se cruz
 Object.assign(DIC,{"Un partido del rival que taggeaste como equipo propio": ["Um jogo do adversário marcado como time próprio", "An opponent match you tagged as your own team"]});PAT.push([new RegExp("^Sus acciones en nuestros partidos contra (.+) \\(equipo “Rival”\\)$"),["Ações deles em nossos jogos contra $1 (time “Adversário”)", "Their actions in our matches vs $1 (team “Opponent”)"]],[new RegExp("^Promedio por partido · rival: (\\d+) partidos? · (.+): (\\d+) partidos?$"),["Média por jogo · adversário: $1 jogo(s) · nós: $3 jogo(s)", "Average per match · opponent: $1 match(es) · us: $3 match(es)"]],[new RegExp("^Ojo en (.+): el rival recupera ahí el (\\d+)% de sus pelotas y (.+) perdemos ahí el (\\d+)%\\.(.*)$"),["Atenção em $1: o adversário recupera ali $2% das bolas e nós perdemos ali $4%.$5", "Watch $1: the opponent wins $2% of their balls there and we lose $4% of ours there.$5"]],[new RegExp("^Bien en (.+): el rival llega mucho por ahí \\((\\d+)%\\) y es donde más recuperamos \\((\\d+)%\\)\\.(.*)$"),["Bom em $1: o adversário chega muito por ali ($2%) e é onde mais recuperamos ($3%).$4", "Good in $1: the opponent attacks a lot there ($2%) and it's where we win the ball most ($3%).$4"]]);
 Object.assign(DIC,{"▶ Link de YouTube": ["▶ Link do YouTube", "▶ YouTube link"], "✂ Clip": ["✂ Clipe", "✂ Clip"], "■ Terminar clip": ["■ Terminar clipe", "■ End clip"], "Ver el clip": ["Ver o clipe", "Watch the clip"], "Guardando clip…": ["Salvando clipe…", "Saving clip…"], "Cargando YouTube…": ["Carregando YouTube…", "Loading YouTube…"], "Primero abrí el video (archivo o YouTube).": ["Primeiro abra o vídeo (arquivo ou YouTube).", "Open the video first (file or YouTube)."], "No se pudo cargar YouTube. Revisá la conexión o que el video sea público / no listado.":["Não foi possível carregar o YouTube. Verifique a conexão ou se o vídeo é público / não listado.","YouTube couldn't load. Check the connection or that the video is public / unlisted."],"Ese link no parece de YouTube.": ["Esse link não parece do YouTube.", "That doesn't look like a YouTube link."], "Con YouTube no se puede sacar la imagen: usá ✂ Clip, que guarda el minuto y lo reproduce.": ["Com YouTube não dá para capturar a imagem: use ✂ Clipe, que salva o minuto e reproduz.", "With YouTube the frame can't be captured: use ✂ Clip, which saves the minute and plays it."], "Capturá o marcá un ✂ Clip desde el visor, o pegá una captura con Ctrl+V": ["Capture ou marque um ✂ Clipe no visualizador, ou cole uma captura com Ctrl+V", "Capture or mark a ✂ Clip in the viewer, or paste a screenshot with Ctrl+V"], "Abrí el video del partido en el visor (Salir → Abrir video) para ver el clip": ["Abra o vídeo do jogo no visualizador (Sair → Abrir vídeo) para ver o clipe", "Open the match video in the viewer (Exit → Open video) to watch the clip"]});PAT.push([new RegExp("^Clip desde el (.+) · tocá “Terminar clip” cuando termine la jugada\\.$"),["Clipe desde $1 · toque em “Terminar clipe” quando a jogada acabar.", "Clip from $1 · tap “End clip” when the play ends."]],[new RegExp("^Clip (.+) → (.+) guardado en (.*)\\. No se subió el video: solo el minuto\\.$"),["Clipe $1 → $2 salvo em $3. O vídeo não foi enviado: só o minuto.", "Clip $1 → $2 saved in $3. The video wasn't uploaded: only the minute."]],[new RegExp("^▶ Ver el clip \\((.+) → (.+)\\)$"),["▶ Ver o clipe ($1 → $2)", "▶ Watch the clip ($1 → $2)"]]);
 Object.assign(DIC,{"Con": ["Com", "With"], ": marcás el inicio y el fin de una jugada: el video no se sube, se guarda solo el minuto. Funciona con el archivo o con un link de YouTube.": [": marca o início e o fim de uma jogada: o vídeo não é enviado, só o minuto. Funciona com o arquivo ou com um link do YouTube.", ": mark the start and end of a play: the video isn't uploaded, only the minute is saved. Works with the file or a YouTube link."]});
-Object.assign(DIC,{"Más herramientas ▾": ["Mais ferramentas ▾", "More tools ▾"], "Más herramientas ▴": ["Mais ferramentas ▴", "More tools ▴"], "❓ Cómo se usa": ["❓ Como usar", "❓ How to use"], "Mirá el partido y marcá las jugadas": ["Assista ao jogo e marque as jogadas", "Watch the match and mark the plays"], "Abrí el video desde la compu o con un link de YouTube. No se sube a la nube.": ["Abra o vídeo do computador ou com um link do YouTube. Não vai para a nuvem.", "Open the video from your computer or with a YouTube link. It isn't uploaded."], "Completá el informe": ["Complete o relatório", "Fill in the report"], "Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.": ["Toque em cada seção para abrir. O ✓ indica que já tem dados. Em cada uma você pode somar opções próprias (＋ Outra) e pontos novos.", "Tap each section to open it. ✓ means it already has data. In each one you can add your own options (＋ Other) and new points."], "Plan de partido y charla": ["Plano de jogo e conversa", "Game plan and team talk"], "Lo que van a hacer para ganarle. Después presentalo en pantalla grande o bajalo en PDF.": ["O que vão fazer para vencer. Depois apresente em tela grande ou baixe em PDF.", "What you'll do to beat them. Then present it on a big screen or download it as PDF."], "＋ Otra": ["＋ Outra", "＋ Other"], "＋ Agregar un punto": ["＋ Adicionar um ponto", "＋ Add a point"], "Título (ej.: Inicio con 3)": ["Título (ex.: Saída com 3)", "Title (e.g. Build-up with 3)"], "Qué hacen y en qué minutos": ["O que fazem e em que minutos", "What they do and at which minutes"], "Quitar esta opción": ["Remover esta opção", "Remove this option"], "¿Quitar este punto?": ["Remover este ponto?", "Remove this point?"], "Punto": ["Ponto", "Point"], "▶ Presentar en pantalla grande": ["▶ Apresentar em tela grande", "▶ Present on big screen"], "📄 Plan en 1 hoja": ["📄 Plano em 1 folha", "📄 1-page plan"], "⬇ Descargar PDF": ["⬇ Baixar PDF", "⬇ Download PDF"], "📲 Para el plantel": ["📲 Para o elenco", "📲 For the squad"], "El PDF se está preparando. Probá en unos segundos.": ["O PDF está sendo preparado. Tente em alguns segundos.", "The PDF is being prepared. Try again in a few seconds."]});PAT.push([new RegExp("^Nueva opción para “(.*)”:$"),["Nova opção para “$1”:", "New option for “$1”:"]],[new RegExp("^¿Quitar la opción “(.*)”\\?$"),["Remover a opção “$1”?", "Remove the option “$1”?"]]);
+Object.assign(DIC,{"📁 Video de la compu":["📁 Vídeo do computador","📁 Video from computer"],"Más herramientas ▾": ["Mais ferramentas ▾", "More tools ▾"], "Más herramientas ▴": ["Mais ferramentas ▴", "More tools ▴"], "❓ Cómo se usa": ["❓ Como usar", "❓ How to use"], "Mirá el partido y marcá las jugadas": ["Assista ao jogo e marque as jogadas", "Watch the match and mark the plays"], "Abrí el video desde la compu o con un link de YouTube. No se sube a la nube.": ["Abra o vídeo do computador ou com um link do YouTube. Não vai para a nuvem.", "Open the video from your computer or with a YouTube link. It isn't uploaded."], "Completá el informe": ["Complete o relatório", "Fill in the report"], "Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.": ["Toque em cada seção para abrir. O ✓ indica que já tem dados. Em cada uma você pode somar opções próprias (＋ Outra) e pontos novos.", "Tap each section to open it. ✓ means it already has data. In each one you can add your own options (＋ Other) and new points."], "Plan de partido y charla": ["Plano de jogo e conversa", "Game plan and team talk"], "Lo que van a hacer para ganarle. Después presentalo en pantalla grande o bajalo en PDF.": ["O que vão fazer para vencer. Depois apresente em tela grande ou baixe em PDF.", "What you'll do to beat them. Then present it on a big screen or download it as PDF."], "＋ Otra": ["＋ Outra", "＋ Other"], "＋ Agregar un punto": ["＋ Adicionar um ponto", "＋ Add a point"], "Título (ej.: Inicio con 3)": ["Título (ex.: Saída com 3)", "Title (e.g. Build-up with 3)"], "Qué hacen y en qué minutos": ["O que fazem e em que minutos", "What they do and at which minutes"], "Quitar esta opción": ["Remover esta opção", "Remove this option"], "¿Quitar este punto?": ["Remover este ponto?", "Remove this point?"], "Punto": ["Ponto", "Point"], "▶ Presentar en pantalla grande": ["▶ Apresentar em tela grande", "▶ Present on big screen"], "📄 Plan en 1 hoja": ["📄 Plano em 1 folha", "📄 1-page plan"], "⬇ Descargar PDF": ["⬇ Baixar PDF", "⬇ Download PDF"], "📲 Para el plantel": ["📲 Para o elenco", "📲 For the squad"], "El PDF se está preparando. Probá en unos segundos.": ["O PDF está sendo preparado. Tente em alguns segundos.", "The PDF is being prepared. Try again in a few seconds."]});PAT.push([new RegExp("^Nueva opción para “(.*)”:$"),["Nova opção para “$1”:", "New option for “$1”:"]],[new RegExp("^¿Quitar la opción “(.*)”\\?$"),["Remover a opção “$1”?", "Remove the option “$1”?"]]);
+Object.assign(DIC,{"⛶ Pantalla completa": ["⛶ Tela cheia", "⛶ Full screen"], "✕ Salir de pantalla completa": ["✕ Sair da tela cheia", "✕ Exit full screen"], "📝 Nota rápida: escribí lo que ves y apretá Enter (se guarda con el minuto)": ["📝 Nota rápida: escreva o que vê e aperte Enter (salva com o minuto)", "📝 Quick note: type what you see and press Enter (saved with the minute)"], "Nota rápida": ["Nota rápida", "Quick note"], "Foco": ["Foco", "Spotlight"], "✋ Mover": ["✋ Mover", "✋ Move"], "✂ Recortar": ["✂ Recortar", "✂ Crop"], "Tamaño": ["Tamanho", "Size"], "Chico": ["Pequeno", "Small"], "Medio": ["Médio", "Medium"], "Grande": ["Grande", "Large"], "✏️ Dibujar ahora": ["✏️ Desenhar agora", "✏️ Draw now"], "☆ Destacar": ["☆ Destacar", "☆ Star"], "⭐ Destacada": ["⭐ Destacada", "⭐ Starred"], "⭐ Charla corta (solo destacadas)": ["⭐ Conversa curta (só destacadas)", "⭐ Short talk (starred only)"], "Primero marcá con ☆ Destacar las jugadas que querés mostrar.": ["Primeiro marque com ☆ Destacar as jogadas que quer mostrar.", "First mark the plays you want to show with ☆ Star."], "Las 3 claves (la primera pantalla de la charla)": ["As 3 chaves (a primeira tela da conversa)", "The 3 keys (first screen of the talk)"], "Lo más importante": ["O mais importante", "The most important"], "La primera vez el navegador pregunta qué compartir: elegí “Esta pestaña” y tocá Compartir.": ["Na primeira vez o navegador pergunta o que compartilhar: escolha “Esta guia” e toque em Compartilhar.", "The first time, the browser asks what to share: choose “This tab” and tap Share."], "No se pudo capturar. Cuando el navegador pregunte, elegí “Esta pestaña” y tocá Compartir.": ["Não foi possível capturar. Quando o navegador perguntar, escolha “Esta guia” e toque em Compartilhar.", "Couldn't capture. When the browser asks, choose “This tab” and tap Share."], "Arrastrá sobre la imagen para dibujar. Texto: escribilo arriba y tocá donde va. ✋ Mover: tocá un dibujo para moverlo, agrandarlo (＋) o achicarlo (−). ✂ Recortar: marcá la parte que querés dejar.": ["Arraste sobre a imagem para desenhar. Texto: escreva acima e toque onde vai. ✋ Mover: toque num desenho para mover, aumentar (＋) ou diminuir (−). ✂ Recortar: marque a parte que quer manter.", "Drag on the image to draw. Text: type it above and tap where it goes. ✋ Move: tap a drawing to move it, enlarge (＋) or shrink (−). ✂ Crop: mark the part you want to keep."]});PAT.push([new RegExp("^Nota guardada en (.+)\\.$"),["Nota salva em $1.", "Note saved in $1."]],[new RegExp("^Captura del minuto (.+) guardada en (.+?)\\.?$"),["Captura do minuto $1 salva em $2.", "Frame at $1 saved in $2."]],[new RegExp("^Las (\\d) claves contra (.+)$"),["As $1 chaves contra $2", "The $1 keys against $2"]]);
+Object.assign(DIC,{"🧩 Sistema": ["🧩 Sistema", "🧩 Formation"], "Arrastralo a donde quieras y agrandalo o achicalo con ＋ y −.": ["Arraste para onde quiser e aumente ou diminua com ＋ e −.", "Drag it wherever you want and resize it with ＋ and −."]});
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}

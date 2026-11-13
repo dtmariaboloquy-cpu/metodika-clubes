@@ -342,6 +342,7 @@ h1,h2,h3{letter-spacing:-.2px}
         <div style="flex:1"></div>
         <button class="btn sm" id="bIni1">Marcar inicio 1T</button>
         <button class="btn sm" id="bIni2">Marcar inicio 2T</button>
+        <button class="btn sm" id="bCaptura" title="Sacar una foto de este momento, con el dibujo si hay">📷 Capturar</button>
         <button class="btn sm" id="bDibujar" title="Dibujar sobre el tag seleccionado">✏️ Dibujar</button>
         <button class="btn sm" id="bCambiarVideo">Cambiar video</button>
         <button class="btn sm" id="bFull">Pantalla completa</button>
@@ -2554,6 +2555,56 @@ async function descargarPDF(items, titulo, subtitulo, jugKey){
 }
 
 /* ---------- modales ---------- */
+/* ---------- 📷 Capturar: foto del momento (con el dibujo), con archivo o con YouTube ---------- */
+let capStreamVA = null, capVidVA = null;
+async function fotoMomento(){
+  if (!kind){ toast("Primero cargá el video."); return; }
+  const tt = player.time(); try{ player.pause && player.pause(); }catch(e){}
+  let c = null;
+  try{
+    if (kind==="file" && vid.videoWidth){
+      const sc = Math.min(1, 1600/vid.videoWidth); c = document.createElement("canvas"); c.width = Math.round(vid.videoWidth*sc); c.height = Math.round(vid.videoHeight*sc);
+      const g = c.getContext("2d"); g.drawImage(vid, 0, 0, c.width, c.height);
+      if (cv.width && cv.height){ try{ g.drawImage(cv, 0, 0, c.width, c.height); }catch(e){} }
+    } else {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){ toast("Este navegador no deja capturar YouTube. Usá Chrome o Edge en la compu."); return; }
+      if (!capStreamVA || !capStreamVA.active){
+        toast("Elegí “Esta pestaña” y tocá Compartir.");
+        capStreamVA = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:"browser", frameRate:5}, audio:false, preferCurrentTab:true, selfBrowserSurface:"include", surfaceSwitching:"exclude"});
+        capVidVA = document.createElement("video"); capVidVA.muted = true; capVidVA.playsInline = true; capVidVA.srcObject = capStreamVA; await capVidVA.play();
+        capStreamVA.getVideoTracks()[0].addEventListener("ended", ()=>{ capStreamVA = null; capVidVA = null; });
+      }
+      await new Promise(r=>setTimeout(r,700));
+      const R = $("#stage").getBoundingClientRect(); let ox = 0, oy = 0, TW = innerWidth;
+      try{ if (window.frameElement){ const fr = window.frameElement.getBoundingClientRect(); ox = fr.left; oy = fr.top; TW = window.top.innerWidth; } }catch(e){}
+      const k = capVidVA.videoWidth/TW, sw = R.width*k, sh = R.height*k, sc = Math.min(1, 1600/sw);
+      c = document.createElement("canvas"); c.width = Math.round(sw*sc); c.height = Math.round(sh*sc);
+      c.getContext("2d").drawImage(capVidVA, (ox+R.left)*k, (oy+R.top)*k, sw, sh, 0, 0, c.width, c.height);
+    }
+  }catch(e){ console.warn(e); toast("No se pudo capturar. Si te pregunta, elegí “Esta pestaña” y tocá Compartir."); return; }
+  if (c) abrirFoto(c, tt);
+}
+function abrirFoto(src, tt){
+  const nombre = slug("captura "+((P&&(P.rival||P.nombre))||"partido")+" "+fmt(tt).replace(":","-"))+".jpg";
+  let crop = null, ini = null;
+  const m = modal(`<h2>📷 Captura · ${esc(etiquetaMin(tt))}</h2>
+    <p class="small muted" style="margin:0 0 10px">Para recortar, tocá <b>✂ Recortar</b> y marcá con el mouse o el dedo la parte que querés dejar.</p>
+    <div style="position:relative"><canvas id="fotoCv" style="width:100%;height:auto;display:block;border-radius:10px;touch-action:none"></canvas></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px"><button class="btn" id="fotoCrop">✂ Recortar</button><button class="btn" id="fotoSinCrop" hidden>Quitar recorte</button><span style="flex:1"></span><button class="btn" id="fotoShare" hidden>📲 Compartir</button><button class="btn solid" id="fotoBajar">⬇ Descargar</button><button class="btn" id="fotoCerrar">Cerrar</button></div>`);
+  const fc = m.querySelector("#fotoCv"), g = fc.getContext("2d"); fc.width = src.width; fc.height = src.height; let modoCrop = false;
+  const pintar = (pre)=>{ g.drawImage(src,0,0); const r = pre||crop; if (r){ const x=Math.min(r.x1,r.x2)*fc.width, y=Math.min(r.y1,r.y2)*fc.height, w=Math.abs(r.x2-r.x1)*fc.width, h=Math.abs(r.y2-r.y1)*fc.height; g.save(); g.fillStyle="rgba(0,0,0,.6)"; g.beginPath(); g.rect(0,0,fc.width,fc.height); g.rect(x,y,w,h); g.fill("evenodd"); g.strokeStyle="#fff"; g.setLineDash([10,8]); g.lineWidth=Math.max(2,fc.width/500); g.strokeRect(x,y,w,h); g.restore(); } };
+  pintar();
+  const pt = e=>{ const r = fc.getBoundingClientRect(); return {x:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)), y:Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))}; };
+  fc.addEventListener("pointerdown", e=>{ if (!modoCrop) return; ini = pt(e); fc.setPointerCapture(e.pointerId); });
+  fc.addEventListener("pointermove", e=>{ if (!ini) return; const p = pt(e); pintar({x1:ini.x,y1:ini.y,x2:p.x,y2:p.y}); });
+  fc.addEventListener("pointerup", e=>{ if (!ini) return; const p = pt(e); if (Math.abs(p.x-ini.x)>0.03 && Math.abs(p.y-ini.y)>0.03){ crop = {x1:Math.min(ini.x,p.x),y1:Math.min(ini.y,p.y),x2:Math.max(ini.x,p.x),y2:Math.max(ini.y,p.y)}; m.querySelector("#fotoSinCrop").hidden = false; } ini = null; modoCrop = false; m.querySelector("#fotoCrop").classList.remove("solid"); pintar(); });
+  m.querySelector("#fotoCrop").onclick = ()=>{ modoCrop = !modoCrop; m.querySelector("#fotoCrop").classList.toggle("solid", modoCrop); };
+  m.querySelector("#fotoSinCrop").onclick = ()=>{ crop = null; m.querySelector("#fotoSinCrop").hidden = true; pintar(); };
+  const final = ()=>new Promise(res=>{ let o = src; if (crop){ const x=Math.round(crop.x1*src.width), y=Math.round(crop.y1*src.height), w=Math.round((crop.x2-crop.x1)*src.width), h=Math.round((crop.y2-crop.y1)*src.height), k=Math.max(1,Math.min(2,1280/w)); o = document.createElement("canvas"); o.width=Math.round(w*k); o.height=Math.round(h*k); o.getContext("2d").drawImage(src,x,y,w,h,0,0,o.width,o.height); } o.toBlob(res,"image/jpeg",0.9); });
+  m.querySelector("#fotoBajar").onclick = async ()=>{ const b = await final(); if (!b) return; const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); toast("Imagen descargada."); };
+  try{ if (navigator.canShare && navigator.canShare({files:[new File([new Blob(["x"])], "x.jpg", {type:"image/jpeg"})]})){ const bs = m.querySelector("#fotoShare"); bs.hidden = false; bs.onclick = async ()=>{ const b = await final(); try{ await navigator.share({files:[new File([b], nombre, {type:"image/jpeg"})]}); }catch(e){} }; } }catch(e){}
+  m.querySelector("#fotoCerrar").onclick = ()=>m.remove();
+}
 function modal(html, onMount){
   const m = document.createElement("div"); m.className="modal"; m.innerHTML = `<div class="box">${html}</div>`;
   document.body.appendChild(m);
@@ -2689,6 +2740,7 @@ document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{ player.rate(
 $("#bIni1").onclick = ()=>{ if(!kind) return toast("Primero cargá el video."); P.ini1 = +player.time().toFixed(1); changed(); render(); toast("Inicio del 1T marcado en "+fmt(P.ini1)); };
 $("#bIni2").onclick = ()=>{ if(!kind) return toast("Primero cargá el video."); P.ini2 = +player.time().toFixed(1); changed(); render(); toast("Inicio del 2T marcado en "+fmt(P.ini2)); };
 $("#bFull").onclick = ()=>pantallaCompleta();
+$("#bCaptura").onclick = ()=>fotoMomento();
 $("#bDibujar").onclick = ()=>{ const tag = P && P.tags.find(x=>x.id===selTagId); if(!tag) return toast("Primero elegí o marcá un tag."); abrirDibujo(tag); };
 $("#btnNuevo").onclick = ()=>nuevoProyecto(false);
 $("#btnDatos").onclick = ()=>abrirDatos();
@@ -2877,6 +2929,7 @@ Object.assign(DIC,{"❓ Cómo se usa": ["❓ Como usar", "❓ How to use"], "Qu�
 Object.assign(DIC,{"Detalle": ["Detalhe", "Detail"], "✎ opciones": ["✎ opções", "✎ options"], "quitar": ["remover", "remove"], "Zonas": ["Zonas", "Zones"], "Puntos": ["Pontos", "Points"], "Detalle de las acciones": ["Detalhe das ações", "Action details"], "Sin resultado": ["Sem resultado", "No result"], "▶︎ Ver de corrido": ["▶︎ Ver em sequência", "▶︎ Play through"], "🔗 Jugadas completas de este partido": ["🔗 Jogadas completas deste jogo", "🔗 Full plays in this match"], "En Tags tildá 2 o más acciones seguidas y tocá “🔗 Unir como jugada”.": ["Em Tags marque 2 ou mais ações seguidas e toque em “🔗 Unir como jogada”.", "In Tags tick 2 or more consecutive actions and tap “🔗 Join as a play”."], "Todavía no hay jugadas armadas en este partido.": ["Ainda não há jogadas montadas neste jogo.", "No plays built in this match yet."], "Tocá un número para ver esos clips.": ["Toque num número para ver esses clipes.", "Tap a number to see those clips."], "◉ Foco": ["◉ Foco", "◉ Spotlight"], "📏 Distancia": ["📏 Distância", "📏 Distance"], "Total": ["Total", "Total"], "Al arco": ["No gol", "On target"], "Afuera": ["Para fora", "Off target"], "Bloqueado": ["Bloqueado", "Blocked"], "Gol": ["Gol", "Goal"], "Pie derecho": ["Pé direito", "Right foot"], "Pie izquierdo": ["Pé esquerdo", "Left foot"], "Cabeza": ["Cabeça", "Header"], "Primer palo": ["Primeiro poste", "Near post"], "Segundo palo": ["Segundo poste", "Far post"], "Atrás": ["Para trás", "Cut-back"], "Alto": ["Alto", "High"], "Rasante": ["Rasteiro", "Low"], "Intercepción": ["Interceptação", "Interception"], "Duelo": ["Duelo", "Duel"], "Presión": ["Pressão", "Press"], "Segunda pelota": ["Segunda bola", "Second ball"], "Error rival": ["Erro adversário", "Opponent error"], "Pase": ["Passe", "Pass"], "Conducción": ["Condução", "Carry"], "Control": ["Controle", "Control"], "Corto": ["Curto", "Short"], "Largo": ["Longo", "Long"], "Por derecha": ["Pela direita", "Right side"], "Por el centro": ["Pelo centro", "Through the middle"], "Por izquierda": ["Pela esquerda", "Left side"], "Entre líneas": ["Entre linhas", "Between the lines"], "Por afuera": ["Por fora", "Out wide"], "Cambio de frente": ["Inversão", "Switch of play"], "Área chica": ["Pequena área", "Six-yard box"], "Directo": ["Direto", "Direct"], "Aéreo": ["Aéreo", "Aerial"], "Por abajo": ["Por baixo", "Ground"], "Terminó en remate": ["Terminou em finalização", "Ended in a shot"], "Se cortó": ["Foi cortado", "Broken up"], "Falta": ["Falta", "Foul"], "A tiempo": ["A tempo", "In time"], "Tarde": ["Atrasado", "Late"], "Al área": ["Na área", "Into the box"], "Recuperamos": ["Recuperamos", "Won it back"], "Nos superaron": ["Fomos superados", "Bypassed"]});PAT.push([new RegExp("^🔗 Unir como jugada( \\((\\d+)\\))?$"),["🔗 Unir como jogada$1", "🔗 Join as a play$1"]],[new RegExp("^Dónde pasó · tocá el punto exacto \\(atacando →\\)$"),["Onde aconteceu · toque o ponto exato (atacando →)", "Where it happened · tap the exact spot (attacking →)"]],[new RegExp("^Cuadro (.+) × acciones$"),["Quadro atletas × ações", "Players × actions grid"]],[new RegExp("^(\\d+) con punto exacto(.*)$"),["$1 com ponto exato$2", "$1 with an exact spot$2"]],[new RegExp("^(\\d+) con detalle$"),["$1 com detalhe", "$1 with detail"]]);
 Object.assign(DIC,{"Jugada creada: la ves en Listas de clips.": ["Jogada criada: veja em Listas de clipes.", "Play created: find it in Playlists."], "Tildá al menos 2 tags para unirlos.": ["Marque pelo menos 2 tags para unir.", "Tick at least 2 tags to join them."]});
 Object.assign(DIC,{"Mostrá cuánto espacio hubo: entre líneas, entre dos jugadoras o el largo de un pase": ["Mostre quanto espaço houve: entre linhas, entre duas atletas ou o comprimento de um passe", "Show how much space there was: between lines, between two players or the length of a pass"]});PAT.push([new RegExp("^Distancia · uní dos puntos.*$"),["Distância · ligue dois pontos (ex.: a linha de defesa e a do meio) e escreva os metros. Serve para mostrar se o time ficou longo, curto ou aberto.", "Distance · join two points (e.g. the back line and the midfield line) and type the meters. Shows whether the team was stretched, compact or wide."]]);
+Object.assign(DIC,{"📷 Capturar": ["📷 Capturar", "📷 Capture"], "✂ Recortar": ["✂ Recortar", "✂ Crop"], "Quitar recorte": ["Remover recorte", "Remove crop"], "📲 Compartir": ["📲 Compartilhar", "📲 Share"], "⬇ Descargar": ["⬇ Baixar", "⬇ Download"], "Imagen descargada.": ["Imagem baixada.", "Image downloaded."], "Elegí “Esta pestaña” y tocá Compartir.": ["Escolha “Esta guia” e toque em Compartilhar.", "Choose “This tab” and tap Share."], "Para recortar, tocá": ["Para recortar, toque em", "To crop, tap"], "y marcá con el mouse o el dedo la parte que querés dejar.": ["e marque com o mouse ou o dedo a parte que quer manter.", "and mark the part you want to keep with the mouse or your finger."]});PAT.push([new RegExp("^📷 Captura · (.+)$"),["📷 Captura · $1", "📷 Capture · $1"]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
