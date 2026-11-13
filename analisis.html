@@ -169,6 +169,86 @@ body.trabajo{overflow:hidden}
   body.trabajo.split .wrap > #formCol{display:block;grid-row:1;height:calc(100vh - 10px);overflow:auto;padding-right:6px}
   body.trabajo.split .vbody video, body.trabajo.split .vyt{max-height:calc(100vh - 260px)}
 }
+
+/* video grande con las herramientas a mano */
+#viewer:fullscreen{background:#0b0b0a;border:0;border-radius:0;padding:12px 16px;margin:0;max-height:none;overflow:hidden;display:flex;flex-direction:column}
+#viewer:fullscreen .vhead{flex:none}
+#viewer:fullscreen .vbody{flex:1;min-height:0;display:flex;flex-direction:column}
+#viewer:fullscreen .vbody video{flex:1;min-height:0;max-height:none!important;height:100%;object-fit:contain}
+#viewer:fullscreen .vyt{flex:1;min-height:0;aspect-ratio:auto;height:auto;max-height:none!important}
+#viewer:fullscreen .vctrl{flex:none}
+#viewer:fullscreen .vnota{flex-basis:auto;flex:1;min-width:260px;margin-top:0}
+#viewer:fullscreen #vSide,#viewer:fullscreen #vMin,#viewer:fullscreen #vOpen,#viewer:fullscreen #vYTbtn{display:none}
+
+/* ======== 3 pestañas: Mirar · Informe · Charla ======== */
+.tabs-an{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 14px}
+.tabs-an [data-tab]{font:inherit;font-weight:800;font-size:16px;padding:10px 20px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.tabs-an [data-tab] b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(127,127,127,.2);font-size:12px}
+.tabs-an [data-tab][aria-selected="true"]{background:#FFD400;color:#141412;border-color:#FFD400}.tabs-an [data-tab][aria-selected="true"] b{background:rgba(0,0,0,.15)}
+.tabs-sp{flex:1}.tabs-an #guiaBtn{margin:0}
+.topacc,#paso2 small{display:none}
+body.tab-mirar #formCol{display:none}
+body:not(.tab-mirar) #mirarBox{display:none}
+body.tab-informe #sec-plan, body.tab-informe #paso3, body.tab-informe #masPanel{display:none}
+body.tab-charla #form > section:not(#sec-plan), body.tab-charla #paso2{display:none}
+body.tab-charla #masPanel{display:block!important;margin-top:18px}
+body.tab-charla #masBtn{display:none}
+#paso2 .paso,#paso3 .paso{display:none}
+/* Mirar */
+#mirarBox{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+@media (max-width:899px){ #mirarBox{grid-template-columns:1fr} }
+#mirarBox .viewer{margin:0;position:static;max-height:none}
+#mirarBox .vbody video{max-height:62vh}
+.wrap:has(#mirarBox){max-width:1500px}
+#viewer .vctrl label[for=vSec],#vSec,#vCap,#vClip,#viewer .vnota,#viewer .vsep,#vSide{display:none!important}
+#viewer .pasot .paso{display:none}
+.vmarcas{position:relative;height:16px;margin:10px 2px 2px;background:rgba(127,127,127,.18);border-radius:99px}
+.vm-i{position:absolute;top:-3px;width:6px;height:22px;margin-left:-3px;border-radius:3px;border:0;padding:0;cursor:pointer;box-shadow:0 0 0 1px rgba(0,0,0,.4)}
+.vm-i:hover{transform:scaleY(1.25)}.vm-cur{position:absolute;top:-5px;width:2px;height:26px;background:#fff;margin-left:-1px;pointer-events:none;border-radius:1px}
+.mom-side{display:flex;flex-direction:column;gap:10px}
+.mom-per{display:flex;gap:6px}.mom-per button{flex:1;font:inherit;font-weight:700;font-size:13px;padding:8px;border-radius:10px;border:1px dashed var(--line);background:transparent;color:var(--sub);cursor:pointer}.mom-per button.on{border-style:solid;color:var(--ink)}
+.mom-q{margin:4px 0 0;font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub)}.mom-ayuda{margin:0;font-size:13px;color:var(--sub)}
+.mom-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mom{position:relative;font:inherit;font-weight:800;font-size:16px;border:0;border-radius:12px;padding:14px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;cursor:pointer;text-align:left;min-height:52px;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.mom:hover{filter:brightness(1.08)}.mom:active{transform:translateY(1px)}.mom.ancho{grid-column:span 2}.mom.gol{font-size:14.5px}
+.mom-n{font-size:12.5px;background:rgba(0,0,0,.2);border-radius:99px;padding:2px 8px;min-width:22px;text-align:center}.mom-n:empty{display:none}
+.mom kbd{position:absolute;right:6px;top:4px;font:inherit;font-size:9.5px;opacity:.55}
+.mom.pulso{animation:pulso .5s}@keyframes pulso{0%{box-shadow:0 0 0 0 rgba(255,255,255,.8)}100%{box-shadow:0 0 0 14px rgba(255,255,255,0)}}
+.mom-ult{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(127,127,127,.06)}
+.mu-vacio{font-size:13px;color:var(--sub)}
+.mu-h{display:flex;align-items:center;gap:8px}.mu-h i{width:12px;height:12px;border-radius:50%;flex:none}.mu-h b{flex:1;font-size:15px}
+.mu-x{font:inherit;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:4px 10px;cursor:pointer}
+.mu-nota{width:100%;margin-top:8px;font:inherit;font-size:14.5px;color:var(--ink);background:var(--field);border:1px dashed #FFD400;border-radius:10px;padding:9px 11px}
+.mu-dor,.mu-zona{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:9px}.mu-lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--sub);min-width:34px}
+.mu-n{font:inherit;font-weight:800;font-size:13px;min-width:32px;height:30px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}.mu-n.on{background:#E5484D;border-color:#E5484D;color:#fff}
+.mu-otro{width:56px;height:30px;font:inherit;font-size:13px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:99px;padding:0 8px;text-align:center}
+.mu-cancha{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);width:150px;height:96px;border-radius:8px;overflow:hidden;background:repeating-linear-gradient(90deg,#5A9216 0 25px,#6BA328 25px 50px);border:2px solid rgba(255,255,255,.75)}
+.mu-z{border:1px solid rgba(255,255,255,.35);background:transparent;cursor:pointer;padding:0}.mu-z:hover{background:rgba(255,255,255,.18)}.mu-z.on{background:rgba(255,212,0,.75)}
+.mu-dir{font-size:11.5px;color:var(--sub)}
+.mu-acc{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}.mu-acc button{font:inherit;font-weight:700;font-size:13.5px;padding:8px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.mu-acc button.on{background:#FFD400;color:#141412;border-color:#FFD400}.mu-acc button:disabled{opacity:.45;cursor:not-allowed}.mu-acc .mu-del{color:var(--sub)}
+.mom-lista{display:flex;flex-direction:column;gap:4px;max-height:300px;overflow:auto}.ml-h{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--sub);margin:4px 0}
+.ml-i{display:flex;align-items:center;gap:8px;font:inherit;font-size:13.5px;color:var(--ink);text-align:left;background:transparent;border:1px solid transparent;border-radius:9px;padding:6px 8px;cursor:pointer}
+.ml-i:hover,.ml-i.on{border-color:var(--line);background:rgba(127,127,127,.08)}.ml-i i{width:9px;height:9px;border-radius:50%;flex:none}.ml-i b{min-width:52px}.ml-i span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--sub)}.ml-i em{font-style:normal}
+.mapa-z{width:100%;max-width:440px;display:block;color:var(--ink)}.mapa-sl{max-width:min(560px,60vw);color:#fff}
+details.ficha-op{margin:10px 0;border:1px dashed var(--line);border-radius:10px;padding:8px 12px}details.ficha-op summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--sub)}
+/* video grande: video + botones en toda la pantalla */
+#mirarBox:fullscreen{background:#0b0b0a;padding:14px;grid-template-columns:minmax(0,1fr) 340px;overflow:auto}
+#mirarBox:fullscreen .viewer{border:0;padding:0;background:transparent;height:calc(100vh - 28px);display:flex;flex-direction:column}
+#mirarBox:fullscreen .vbody{flex:1;min-height:0;display:flex;flex-direction:column}
+#mirarBox:fullscreen .vbody video{flex:1;min-height:0;max-height:none!important;height:100%;object-fit:contain}
+#mirarBox:fullscreen .vyt{flex:1;min-height:0;aspect-ratio:auto;height:auto}
+#mirarBox:fullscreen .mom-side{max-height:calc(100vh - 28px);overflow:auto;color:#f3f1ea}
+#mirarBox:fullscreen #vOpen,#mirarBox:fullscreen #vYTbtn,#mirarBox:fullscreen #vMin{display:none}
+
+.v-vacio{display:none}
+#mirarBox .vbody[hidden] ~ .v-vacio{display:grid;place-items:center;align-content:center;gap:10px;text-align:center;aspect-ratio:16/9;margin-top:10px;border-radius:12px;background:radial-gradient(circle at 50% 40%,rgba(255,212,0,.12),transparent 60%),repeating-linear-gradient(90deg,rgba(90,146,22,.25) 0 60px,rgba(107,163,40,.25) 60px 120px);border:1px dashed var(--line)}
+.v-vacio b{font-size:22px}.v-vacio span{color:var(--sub);font-size:14px;max-width:420px}
+#mirarBox #vMin{display:none!important}
+.mu-dor .mu-otro{width:60px!important;flex:none}
+body.tab-charla .masrow{display:none}
+
+@media (max-width:600px){ .tabs-an{gap:6px}.tabs-an [data-tab]{padding:8px 12px;font-size:14.5px}.tabs-an [data-tab] b{width:18px;height:18px;font-size:11px}.tabs-sp{display:none}.tabs-an #guiaBtn{padding:6px 10px;font-size:12.5px} }
 </style>
 
 <style>
@@ -574,6 +654,7 @@ body:not(.vopen) .viewer{top:0}
   <h1 id="hTitle">Rival nuevo</h1>
   <p class="meta" id="hVisto"></p>
   <p class="meta" id="hProx"></p>
+  <div class="tabs-an" role="tablist"><button type="button" role="tab" data-tab="mirar" aria-selected="true"><b>1</b>Mirar</button><button type="button" role="tab" data-tab="informe" aria-selected="false"><b>2</b>Informe</button><button type="button" role="tab" data-tab="charla" aria-selected="false"><b>3</b>Charla</button><span class="tabs-sp"></span></div>
   <div class="topacc"><button type="button" class="present-btn" id="presentBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Presentar en pantalla grande</button><button type="button" class="btn2 masbtn" id="masBtn" aria-expanded="false" aria-controls="masPanel">Más herramientas ▾</button><button type="button" class="btn2" id="guiaBtn">❓ Cómo se usa</button></div>
   <div class="maspanel" id="masPanel" hidden>
   <div class="xtra" id="xtra">
@@ -588,14 +669,15 @@ body:not(.vopen) .viewer{top:0}
 
   <div class="status" id="status"><span><span class="dot"></span><span id="statusTxt">Cargando…</span></span><span class="prog" id="prog"></span></div>
 
+  <div id="mirarBox">
   <div class="viewer" id="viewer">
     <div class="vhead">
       <b class="pasot"><span class="paso">1</span>Mirá el partido y marcá las jugadas</b>
       <span class="vsub" id="vName">Abrí el video desde la compu o con un link de YouTube. No se sube a la nube.</span>
-      <span class="vbtns"><button type="button" class="btn2 solid" id="vOpen">📁 Video de la compu</button><button type="button" class="btn2" id="vYTbtn">▶ Link de YouTube</button><button type="button" class="btn2" id="vSide" hidden>Poner arriba</button><button type="button" class="btn2" id="vFull" title="Video a un lado y el informe al otro, ocupando toda la pantalla">⛶ Pantalla completa</button><button type="button" class="btn2" id="vMin" hidden>Minimizar</button></span>
+      <span class="vbtns"><button type="button" class="btn2 solid" id="vOpen">📁 Video de la compu</button><button type="button" class="btn2" id="vYTbtn">▶ Link de YouTube</button><button type="button" class="btn2" id="vSide" hidden>Poner arriba</button><button type="button" class="btn2" id="vFull" title="Video grande con las herramientas abajo (capturar, clip, nota)">⛶ Video grande</button><button type="button" class="btn2" id="vMin" hidden>Minimizar</button></span>
     </div>
     <div class="vbody" id="vBody" hidden>
-      <video id="vVideo" controls playsinline preload="auto"></video>
+      <video id="vVideo" controls controlsList="nofullscreen" playsinline preload="auto"></video>
       <div class="vctrl">
         <button type="button" class="btn2" data-skip="-5">−5 s</button>
         <button type="button" class="btn2" data-skip="5">+5 s</button>
@@ -610,7 +692,9 @@ body:not(.vopen) .viewer{top:0}
         <div class="vnota"><input type="text" id="vNota" maxlength="240" placeholder="📝 Nota rápida: escribí lo que ves y apretá Enter (se guarda con el minuto)" aria-label="Nota rápida"></div>
       </div>
     </div>
+    <div class="v-vacio"><b>Abrí el partido del rival</b><span>Desde un archivo de la compu o con el link de YouTube. El video no se sube a la nube.</span><div><button type="button" class="btn2 solid" onclick="document.getElementById('vOpen').click()">📁 Video de la compu</button> <button type="button" class="btn2" onclick="document.getElementById('vYTbtn').click()">▶ Link de YouTube</button></div></div>
   </div>
+</div>
 <input type="file" id="vFile" accept="video/*" hidden>
   <div id="formCol">
   <div class="pasohead" id="paso2"><span class="paso">2</span><div><b>Completá el informe</b><small>Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.</small></div></div>
@@ -671,6 +755,10 @@ const SECTIONS = [
     {id:"sis_sin", label:"Sin pelota", type:"chips", opts:["4-4-2","4-5-1","4-4-1-1","5-3-2","5-4-1","No se distingue"]},
     {id:"once", label:"Once probable", type:"once"},
     {id:"sis_notas", label:"Notas", type:"textarea", ph:"Ej: la 10 se suelta y queda como segunda punta; laterales muy abiertas…"}
+  ]},
+  {id:"goles", title:"Goles: cómo los hacen y cómo los reciben", hint:"Lo que más decide un partido. Con los botones ⚽ del visor quedan los clips de cada gol.", fields:[
+    {id:"gol_favor", label:"Cómo hacen goles", type:"textarea", ph:"Ej: casi todos de pelota parada o con centros atrás…"},
+    {id:"gol_contra", label:"Cómo les hacen goles", type:"textarea", ph:"Ej: les hacen goles a la espalda de las laterales cuando suben las dos…"}
   ]},
   {id:"salida", title:"Inicio desde el arco", hint:"Qué hacen cuando tienen la pelota la arquera o las centrales.", fields:[
     {id:"sal_tipo", label:"Tipo de inicio", type:"chips", opts:["Corta","Larga","Mixta"]},
@@ -749,7 +837,8 @@ const SEC_ABIERTAS = new Set();
 const SIN_ACORDEON = ["plan"];
 function secTieneDatos(s){ return s.fields.some(f=> f.type==="stats" ? STATS.some(([k])=>filled(state[k])) : filled(state[f.id])) || filled(state[shotKey(s.id)]) || puntos(s.id).some(p=>p&&(p.t||p.txt)); }
 function secEstado(s){ const n = (Array.isArray(state[shotKey(s.id)])?state[shotKey(s.id)]:[]).length; return (n?"🎬 "+n+"  ":"")+(secTieneDatos(s)?"✓":""); }
-function pintarEstados(){ SECTIONS.forEach(s=>{ const b = document.getElementById("est-"+s.id); if (b) b.textContent = secEstado(s); }); }
+function pintarEstados(){ try{ if (typeof pintarMomentos==="function" && document.getElementById("momSide")) pintarMomentos(); }catch(e){}
+  SECTIONS.forEach(s=>{ const b = document.getElementById("est-"+s.id); if (b) b.textContent = secEstado(s); }); }
 function abrirSec(id, scroll){ const sec = document.getElementById("sec-"+id); if (!sec || !sec.classList.contains("acc")) return; SEC_ABIERTAS.add(id); sec.classList.add("open"); const h = sec.querySelector(".acc-h"); if (h) h.setAttribute("aria-expanded","true"); if (scroll) sec.scrollIntoView({behavior:"smooth",block:"start"}); }
 function puntos(id){ return Array.isArray(state["pts_"+id]) ? state["pts_"+id] : []; }
 function renderPuntos(s){
@@ -769,7 +858,7 @@ function renderPuntos(s){
 }
 function render() {
   form.textContent = "";
-  const orden = SECTIONS.filter(s=>s.id!=="plan").concat(SECTIONS.filter(s=>s.id==="plan"));
+  const orden = SECTIONS.filter(s=>s.id!=="plan" && (s.id!=="clips" || secTieneDatos(s))).concat(SECTIONS.filter(s=>s.id==="plan"));
   let n = 0;
   orden.forEach(s=>{
     const acc = !SIN_ACORDEON.includes(s.id);
@@ -783,7 +872,10 @@ function render() {
     } else { const h = el("h2"); h.appendChild(el("span",{text:s.title})); sec.appendChild(h); }
     const body = el("div",{class:"acc-b"});
     if (s.hint) body.appendChild(el("p",{class:"hint",text:s.hint}));
-    s.fields.forEach(f=>body.appendChild(renderField(f)));
+    if (s.id==="datos"){ const dt = el("details",{class:"ficha-op"}); dt.appendChild(el("summary",{text:"Ficha en la tabla y últimos partidos (opcional)"})); s.fields.forEach(f=>{ (f.type==="stats"||f.type==="racha" ? dt : body).appendChild(renderField(f)); }); body.appendChild(dt); }
+    else s.fields.forEach(f=>body.appendChild(renderField(f)));
+    if (s.id!=="datos" && s.id!=="plan"){ const mz = mapaZonasSVG(Array.isArray(state[shotKey(s.id)])?state[shotKey(s.id)]:[], (MOMS.find(m=>m.sec===s.id)||{c:"#FFD400"}).c, s.title); if (mz){ const w0 = el("div",{class:"field"}); w0.appendChild(el("label",{class:"lbl",text:"Dónde pasa (según las zonas que marcaste)"})); w0.appendChild(mz); body.appendChild(w0); } }
+    if (s.id==="jugadoras"){ const g = dorsalesVistos(); if (g.length){ const w0 = el("div",{class:"field"}); w0.appendChild(el("label",{class:"lbl",text:"Las que más aparecen en tus marcas"})); const ch = el("div",{class:"chips"}); g.forEach(([d,n,L])=>{ const b = el("button",{type:"button",class:"chip",text:"N° "+d+" · "+n}); b.title = "Ver sus jugadas"; b.addEventListener("click",()=>{ setTab("mirar"); ULT = L[0]; pintarUltimo(); vp.seek(L[0].sh.ini); vp.play(); }); ch.appendChild(b); }); w0.appendChild(ch); body.appendChild(w0); } }
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderPuntos(s));
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderShots(s));
     if (s.id==="plan"){ const ch = el("div",{class:"charla"});
@@ -807,7 +899,7 @@ function ramaClub(){
   if (!r) { try { if (window.parent && window.parent!==window) r = window.parent.eval('typeof S!=="undefined"&&S&&S.club?S.club.rama:""'); } catch(e) {} }
   return r || "F";
 }
-const GX_M = [["Jugadoras a tener en cuenta","Jugadores a tener en cuenta"],["Jugadoras clave","Jugadores clave"],["Las que más influyen","Los que más influyen"],["la arquera o las centrales","el arquero o los centrales"],["si las presionan, la arquera la tira larga a la 9","si los presionan, el arquero la tira larga al 9"],["la arquera sale poco","el arquero sale poco"],["inicio corto de la arquera","inicio corto del arquero"],["Pelota larga a la 9","Pelota larga al 9"],["Pelota a la 9","Pelota al 9"],["Arquera","Arquero"],["Jugadora ","Jugador "],["Defensora","Defensor"],["Delantera","Delantero"]];
+const GX_M = [["Jugadoras a tener en cuenta","Jugadores a tener en cuenta"],["Jugadoras clave","Jugadores clave"],["Las que más influyen","Los que más influyen"],["la arquera o las centrales","el arquero o los centrales"],["si las presionan, la arquera la tira larga a la 9","si los presionan, el arquero la tira larga al 9"],["la arquera sale poco","el arquero sale poco"],["inicio corto de la arquera","inicio corto del arquero"],["Pelota larga a la 9","Pelota larga al 9"],["Pelota a la 9","Pelota al 9"],["Arquera","Arquero"],["Jugadora ","Jugador "],["Defensora","Defensor"],["Delantera","Delantero"],["Gol de ellas","Gol de ellos"],["Jugadora clave","Jugador clave"]];
 const GX_X = [["Jugadoras a tener en cuenta","Jugadoras/es a tener en cuenta"],["Jugadoras clave","Jugadoras/es clave"],["Las que más influyen","Quienes más influyen"],["la arquera o las centrales","quien ataja o quienes juegan de centrales"],["la arquera","quien ataja"],["Arquera","Arquera/o"],["Jugadora ","Jugador/a "],["Defensora","Defensor/a"],["Delantera","Delantera/o"]];
 function gx(t){ const r = ramaClub(); const L = r==="M" ? GX_M : r==="X" ? GX_X : null; if (!L) return t; let o = String(t); L.forEach(([a,b])=>{ o = o.split(a).join(b); }); return o; }
 function aplicarRama(){
@@ -1022,7 +1114,7 @@ async function loadRival(s, name){
   delete state.actualizado;
   if (!state.rival) state.rival = name || "Rival";
   lastSynced = docExists ? clone(data) : {}; delete lastSynced.actualizado; delete lastSynced.editor; delete state.editor;
-  render(); fillRivalSel();
+  render(); fillRivalSel(); ULT = null; try{ pintarUltimo(); pintarMomentos(); }catch(e){}
   /* si el análisis tiene link de YouTube, el video queda listo en el visor */
   try{ if (ytIdDe(state.video) && vKind!=="file" && (vKind!=="yt" || vNombre!==ytIdDe(state.video))) abrirYouTube(state.video); }catch(e){}
   if (docRef) { const ref = docRef; unsub = ref.onSnapshot(sn=>{ if (ref===docRef) onRemote(sn); }, ()=>{}); }
@@ -1501,41 +1593,33 @@ function abrirPlantel(){
 /* ---------- guía de Análisis de rival ---------- */
 function guiaAN(){
   const L = (es,pt,en)=>({es,pt,en})[mtkIdioma()];
-  const r = ramaClub(), pl = r==="M"?"jugadores":r==="X"?"jugadoras/es":"jugadoras", ar = r==="M"?"arquero":r==="X"?"arquero/a":"arquera";
-  abrirSec("sistema");
+  const r = ramaClub(), la = r==="M"?"el jugador":r==="X"?"la jugadora o el jugador":"la jugadora";
+  setTab("mirar");
   mtkTour([
-    {sel:"#rivalSel", t:L("Elegí el rival","Escolha o adversário","Pick the opponent"), d:L(
-      `<p>Cada rival tiene su análisis. Elegilo en esta lista o tocá <b>+ Nuevo rival</b>. Si viste otro partido del mismo rival, armá otro análisis con el mismo nombre.</p>`,
-      `<p>Cada adversário tem sua análise. Escolha na lista ou toque em <b>+ Novo adversário</b>.</p>`,
-      `<p>Each opponent has its own analysis. Pick it from the list or tap <b>+ New opponent</b>.</p>`)},
-    {sel:"#viewer", t:L("Mirá el partido acá","Assista ao jogo aqui","Watch the match here"), d:L(
-      `<p>Tocá <b>📁 Video de la compu</b> o <b>▶ Link de YouTube</b> (el video no se sube). Cuando veas una jugada, pausá, elegí la <b>sección</b> y tocá <b>Capturar</b> (o la tecla C): queda el recorte con el minuto.</p><p>También podés pegar un <b>link de YouTube</b>. Con <b>✂ Clip</b> (tecla X) marcás inicio y fin de la jugada: el video nunca se sube, se guarda solo el minuto y se ve igual en Pantalla grande.</p>`,
-      `<p>Toque em <b>Abrir vídeo</b> e escolha o arquivo. Ao ver uma jogada, pause, escolha a <b>seção</b> e toque em <b>Capturar</b> (tecla C).</p><p>Também pode colar um <b>link do YouTube</b>. Com <b>✂ Clipe</b> (tecla X) marca início e fim da jogada: o vídeo nunca é enviado, só o minuto.</p>`,
-      `<p>Tap <b>Open video</b> and choose the file. When you see a play, pause, pick the <b>section</b> and tap <b>Capture</b> (key C).</p><p>You can also paste a <b>YouTube link</b>. With <b>✂ Clip</b> (key X) you mark the start and end of a play: the video is never uploaded, only the minute.</p>`)},
-    {sel:"#paso2", t:L("Completá las secciones","Preencha as seções","Fill in the sections"), d:L(
-      `<p>Vas de arriba hacia abajo: datos, sistema, inicio desde el arco, presión, ataque, transiciones, pelota parada, ${pl} clave y debilidades. Tocás las opciones y escribís notas con el minuto. <b>Se guarda solo.</b></p>`,
-      `<p>De cima para baixo: dados, sistema, saída, pressão, ataque, transições, bola parada, peças-chave e fraquezas. <b>Salva sozinho.</b></p>`,
-      `<p>Top to bottom: details, system, build-up, press, attack, transitions, set pieces, key players and weaknesses. <b>It saves automatically.</b></p>`)},
-    {sel:"#fld-once", t:L("Once probable","Onze provável","Probable line-up"), d:L(
-      `<p>Elegí el sistema y cargá dorsal y nombre por línea (${ar} primero). Con <b>→ Pizarra con el once</b> lo pasás a la pizarra para trabajarlo.</p>`,
-      `<p>Escolha o sistema e preencha número e nome. Com <b>→ Prancheta com o onze</b> vai para a prancheta.</p>`,
-      `<p>Choose the system and add number and name per line. <b>→ Board with the line-up</b> sends it to the board.</p>`)},
-    {sel:"#masBtn", t:L("Herramientas","Ferramentas","Tools"), d:L(
-      `<p><b>📜 Historial</b>: partidos jugados contra este rival. <b>🔁 Rival acumulado</b>: qué se repite en 2–3 partidos. <b>🎥 Traer de Videoanálisis</b>: suma lo que taggeaste. <b>📲 Para el plantel</b>: imagen para WhatsApp.</p>`,
-      `<p><b>📜 Histórico</b>, <b>🔁 Adversário acumulado</b>, <b>🎥 Trazer da Videoanálise</b> e <b>📲 Para o elenco</b> (imagem para WhatsApp).</p>`,
-      `<p><b>📜 History</b>, <b>🔁 Combined opponent</b>, <b>🎥 Import from Video analysis</b> and <b>📲 For the squad</b> (WhatsApp image).</p>`)},
-    {sel:"#sec-plan", t:L("Plan de partido","Plano de jogo","Game plan"), d:L(
-      `<p>Lo que vamos a hacer ${r==="M"?"nosotros":r==="X"?"nosotras/os":"nosotras"}: 3 ideas con pelota, 3 sin pelota y 2 de pelota parada. Es la pantalla que cierra la charla.</p>`,
-      `<p>O que nós vamos fazer: 3 ideias com bola, 3 sem bola e 2 de bola parada.</p>`,
-      `<p>What we will do: 3 ideas in possession, 3 out of possession and 2 for set pieces.</p>`)},
-    {sel:"#presentBtn", t:L("Presentar","Apresentar","Present"), d:L(
-      `<p>Arma la charla en pantalla grande, una sección por pantalla, con los recortes y la cancha con el once.</p>`,
-      `<p>Monta a conversa em tela grande, uma seção por tela.</p>`,
-      `<p>Builds the team talk on a big screen, one section per slide.</p>`)},
-    {sel:"#masBtn", t:L("PDF y plan en 1 hoja","PDF e plano em 1 folha","PDF and 1-page plan"), d:L(
-      `<p><b>📄 Plan en 1 hoja</b> resume todo en una hoja para el cuerpo técnico. <b>Descargar PDF</b> baja el análisis completo.</p><p>Esta guía la volvés a abrir con <b>❓ Cómo se usa</b>.</p>`,
-      `<p><b>📄 Plano em 1 folha</b> resume tudo. <b>Baixar PDF</b> traz a análise completa.</p><p>Abra este guia de novo em <b>❓ Como usar</b>.</p>`,
-      `<p><b>📄 1-page plan</b> sums it all up. <b>Download PDF</b> exports the full analysis.</p><p>Reopen this guide with <b>❓ How to use</b>.</p>`)}
+    {sel:"#rivalSel", t:L("1. Elegí el rival","1. Escolha o adversário","1. Pick the opponent"), d:L(
+      `<p>Cada rival tiene su análisis. Elegilo acá o tocá <b>+ Nuevo rival</b>.</p>`,
+      `<p>Cada adversário tem sua análise. Escolha aqui ou toque em <b>+ Novo adversário</b>.</p>`,
+      `<p>Each opponent has its own analysis. Pick it here or tap <b>+ New opponent</b>.</p>`)},
+    {sel:".tabs-an", t:L("2. Tres pasos","2. Três passos","2. Three steps"), d:L(
+      `<p><b>Mirar</b>: ves el partido y marcás las jugadas. <b>Informe</b>: se completa con lo que marcaste. <b>Charla</b>: las 3 claves, el plan y la presentación.</p>`,
+      `<p><b>Assistir</b>: veja o jogo e marque as jogadas. <b>Relatório</b>: se completa com o que marcou. <b>Conversa</b>: as 3 chaves, o plano e a apresentação.</p>`,
+      `<p><b>Watch</b>: watch the match and mark plays. <b>Report</b>: fills in from what you marked. <b>Talk</b>: 3 keys, plan and presentation.</p>`)},
+    {sel:"#viewer", t:L("3. Abrí el video","3. Abra o vídeo","3. Open the video"), d:L(
+      `<p>Desde la compu o con el link de YouTube (no se sube). Tocá <b>Empieza 1T</b> cuando arranca el partido, así el minuto coincide.</p>`,
+      `<p>Do computador ou com link do YouTube. Toque em <b>Começa 1T</b> quando o jogo começar.</p>`,
+      `<p>From your computer or a YouTube link. Tap <b>1st half starts</b> at kick-off so minutes match.</p>`)},
+    {sel:".mom-grid", t:L("4. Tocá el color","4. Toque na cor","4. Tap the colour"), d:L(
+      `<p>Cuando ves una jugada, tocá su color (o las teclas 1 a 9). Queda el clip con el minuto. Los ⚽ guardan cómo hacen y reciben goles.</p>`,
+      `<p>Ao ver uma jogada, toque na cor (ou teclas 1 a 9). Fica o clipe com o minuto.</p>`,
+      `<p>When you see a play, tap its colour (or keys 1 to 9). The clip is saved with the minute.</p>`)},
+    {sel:"#momUlt", t:L("5. Sumale detalle (si querés)","5. Some detalhes (se quiser)","5. Add detail (optional)"), d:L(
+      `<p>Una nota, el número de ${la}, la zona en la canchita, una 📷 foto para dibujar, o ☆ para mostrarla en la charla.</p>`,
+      `<p>Uma nota, o número, a zona, uma 📷 foto para desenhar ou ☆ para a conversa.</p>`,
+      `<p>A note, the number, the zone, a 📷 photo to draw on, or ☆ for the talk.</p>`)},
+    {sel:'[data-tab="charla"]', t:L("6. La charla","6. A conversa","6. The talk"), d:L(
+      `<p>En <b>Charla</b> escribís las 3 claves y el plan, y presentás en pantalla grande, bajás el PDF o mandás la imagen al plantel.</p><p>Esta guía la volvés a abrir con <b>❓ Cómo se usa</b>.</p>`,
+      `<p>Em <b>Conversa</b> escreva as 3 chaves e o plano, apresente em tela grande ou baixe o PDF.</p>`,
+      `<p>In <b>Talk</b> write the 3 keys and the plan, present on a big screen or download the PDF.</p>`)}
   ]);
 }
 
@@ -1645,7 +1729,7 @@ function renderShots(s){
     const it = el("div",{class:"shot-item"});
     let media;
     if (sh.clip){ const w = el("button",{type:"button",class:"clip-th",title:"Ver el clip"}); media = el("img",{src: sh.id ? shotUrl(sh.ann||sh.id) : (sh.yt ? "https://img.youtube.com/vi/"+sh.yt+"/mqdefault.jpg" : "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"), alt:sh.cap||"Clip"});
-      w.appendChild(media); w.appendChild(el("span",{class:"clip-pl",text:"▶"})); w.appendChild(el("span",{class:"clip-tm",text:fmtT(sh.ini)+" → "+fmtT(sh.fin)+(sh.yt?" · YouTube":"")})); w.addEventListener("click",()=>verClip(sh)); it.appendChild(w); }
+      w.appendChild(media); w.appendChild(el("span",{class:"clip-pl",text:"▶"})); w.appendChild(el("span",{class:"clip-tm",text:(sh.min && !/^\d+:\d\d$/.test(sh.min) ? sh.min : fmtT(sh.ini)+" → "+fmtT(sh.fin))+(sh.dor?" · N° "+sh.dor:"")+(sh.gol?(sh.gol==="favor"?" · ⚽ de ellas":" · ⚽ en contra"):"")+(sh.star?" · ⭐":"")})); w.addEventListener("click",()=>verClip(sh)); it.appendChild(w); }
     else { media = sh.video ? el("video",{src:shotUrl(sh.id),controls:"",preload:"metadata"}) : el("img",{src:shotUrl(sh.ann||sh.id),alt:sh.cap||"Recorte"}); it.appendChild(media); }
     if (sh.ann) it.appendChild(el("div",{class:"badge2",text:"Con dibujo"}));
     const m = el("div",{class:"meta2"});
@@ -1805,6 +1889,7 @@ document.getElementById("drawUndo").addEventListener("click",()=>{ if (dCrop && 
 document.getElementById("drawClear").addEventListener("click",()=>{ dShapes = []; dCrop = null; dSel = -1; selBtns(); redraw(); });
 document.getElementById("drawCancel").addEventListener("click",()=>{ drawEl.hidden = true; document.body.style.overflow=""; flushPending(); });
 function openDraw(secId, idx){
+  if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
   const sh = state[shotKey(secId)][idx]; dTarget = {secId, idx, sh};
   dShapes = Array.isArray(sh.shapes) ? sh.shapes.map(x=>({...x})) : []; dCrop = sh.crop ? {...sh.crop} : null; dSel = -1; selBtns();
   document.getElementById("drawMsg").textContent = "Cargando imagen…";
@@ -1871,6 +1956,8 @@ let CHARLA_CORTA = false;
 function sectionSlide(s, build){
   if (CHARLA_CORTA && !secTieneDatos(s)) return;
   slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker",s.title)); build(w);
+    { const mz = mapaZonasSVG(list(shotKey(s.id)), (MOMS.find(m=>m.sec===s.id)||{c:"#FFD400"}).c, s.title); if (mz){ const e0 = w.querySelector(".empty"); if (e0) e0.remove(); mz.classList.add("mapa-sl"); block(w,"Dónde pasa",mz); } }
+    if (s.id==="jugadoras"){ const g = dorsalesVistos(); if (g.length){ const e0 = w.querySelector(".empty"); if (e0) e0.remove(); block(w,"Las que más aparecen en el video",pills(g.slice(0,8).map(([d,n])=>"N° "+d+" · "+n+(n===1?" jugada":" jugadas")))); } }
     const pts = puntos(s.id).filter(p=>p&&(p.t||p.txt)); if (pts.length){ const e = w.querySelector(".empty"); if (e) e.remove(); pts.forEach(p=>block(w, p.t||"Punto", D("div","note",p.txt||""))); }
     const sh = list(shotKey(s.id)); if (sh.length){ const th=D("div","thumbs"); sh.filter(x=>!x.video&&(!x.clip||x.id||x.yt)).slice(0,6).forEach(x=>{ const i=D("img"); i.src=x.id?shotUrl(x.ann||x.id):"https://img.youtube.com/vi/"+x.yt+"/mqdefault.jpg"; i.alt=x.cap||""; th.appendChild(i); }); if (th.children.length) block(w,"Recortes (en las siguientes)",th); }
     return w; });
@@ -1912,6 +1999,10 @@ function buildSlides(){
     noteOrNothing(w,"Detalle","sis_notas"); if(!a&&!b&&!val("sis_notas")) empty(w); });
   const once = list("once"); if (once.some(p=>p&&(p.dor||p.ref))) slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker","Sistema")); w.appendChild(D("h3",null,"Once probable"));
     const f = isFormation(val("sis_con")) ? val("sis_con") : "4-4-2"; const svg = pitchSVG(f,"Once probable",once); svg.style.maxHeight="58vh"; w.appendChild(svg); return w; });
+  sectionSlide(S("goles"), w=>{ w.appendChild(D("h3",null,"Cómo hacen y reciben goles"));
+    const gs = list(shotKey("goles")), nf = gs.filter(x=>x.gol==="favor").length, nc = gs.filter(x=>x.gol==="contra").length;
+    if (nf||nc) w.appendChild(pills([nf?("Goles de "+name+": "+nf):"", nc?("Goles en contra: "+nc):""].filter(Boolean)));
+    noteOrNothing(w,"Cómo hacen goles","gol_favor"); noteOrNothing(w,"Cómo les hacen goles","gol_contra"); if(!nf&&!nc&&!val("gol_favor")&&!val("gol_contra")) empty(w); });
   sectionSlide(S("salida"), w=>{ w.appendChild(D("h3",null,"Inicio desde el arco"));
     if (val("sal_tipo")) w.appendChild(pills([/^inicio/i.test(val("sal_tipo")) ? val("sal_tipo") : "Inicio "+val("sal_tipo").toLowerCase()]));
     if (list("sal_quien").length) block(w,"Participan",pills(list("sal_quien")));
@@ -1981,7 +2072,7 @@ vSec.value="salida";
 document.getElementById("vOpen").addEventListener("click",()=>{ vFile.value=""; vFile.click(); });
 vFile.addEventListener("change",()=>{ const f=vFile.files[0]; if(!f) return; usarArchivoEnVisor(); vNombre=f.name; if(vUrl) URL.revokeObjectURL(vUrl); vUrl=URL.createObjectURL(f); vVideo.src=vUrl; vBody.hidden=false; vMin.hidden=false; vMin.textContent="Minimizar"; document.body.classList.add("vopen"); document.getElementById("vName").textContent=f.name; setSplit(lsGet("scout_split")!=="0"); });
 const vSide=document.getElementById("vSide");
-function setSplit(on){ document.body.classList.toggle("split",on); vSide.hidden=false; vSide.textContent=on?"Poner arriba":"Poner al costado"; lsSet("scout_split",on?"1":"0"); }
+function setSplit(on){ on = false; document.body.classList.toggle("split",on); vSide.hidden=false; vSide.textContent=on?"Poner arriba":"Poner al costado"; lsSet("scout_split",on?"1":"0"); }
 vSide.addEventListener("click",()=>setSplit(!document.body.classList.contains("split")));
 vMin.addEventListener("click",()=>{ vBody.hidden=!vBody.hidden; vMin.textContent=vBody.hidden?"Mostrar":"Minimizar"; if (vBody.hidden) document.body.classList.remove("split"); else if (lsGet("scout_split")!=="0") document.body.classList.add("split"); });
 let vTarget=null, vSeekTimer=null;
@@ -2025,7 +2116,7 @@ async function abrirYouTube(directo){
   vMsg.className = "vmsg"; vMsg.textContent = "Cargando YouTube…";
   setTimeout(()=>{ if (vKind==="yt" && !ytListo){ vMsg.className = "vmsg err"; vMsg.textContent = "No se pudo cargar YouTube. Revisá la conexión o que el video sea público / no listado."; } }, 12000);
   await cargarYTApi();
-  ytP = new YT.Player("vYTp", {videoId:id, width:"100%", height:"100%", playerVars:{rel:0, modestbranding:1, playsinline:1}, events:{onReady:()=>{ ytListo = true; vMsg.textContent = ""; }}});
+  ytP = new YT.Player("vYTp", {videoId:id, width:"100%", height:"100%", playerVars:{rel:0, modestbranding:1, playsinline:1, fs:0}, events:{onReady:()=>{ ytListo = true; vMsg.textContent = ""; }}});
 }
 function usarArchivoEnVisor(){ vKind = "file"; vVideo.hidden = false; const b = document.getElementById("vYT"); if (b){ b.hidden = true; b.innerHTML = ""; } ytP = null; ytListo = false; }
 async function marcarClip(){
@@ -2050,6 +2141,7 @@ async function marcarClip(){
 }
 let clipStop = null;
 function verClip(sh){
+  if (sh.yt && vKind==="yt" && sh.yt===vNombre && ytP && ytListo && document.body.classList.contains("tab-mirar")){ vp.seek(sh.ini); vp.play(); return; }
   if (sh.yt){ const o = el("div",{class:"xm",id:"xm"}); o.innerHTML = `<div class="xm-box" style="width:min(960px,100%)"><div class="xm-h"><b>${escH(sh.cap||"Clip")} · ${escH(fmtT(sh.ini))}</b><button type="button" class="xm-x" aria-label="Cerrar">×</button></div><div class="clip-yt"><iframe src="https://www.youtube.com/embed/${encodeURIComponent(sh.yt)}?start=${Math.floor(sh.ini)}&end=${Math.ceil(sh.fin)}&autoplay=1&rel=0&playsinline=1" allow="autoplay; fullscreen" allowfullscreen></iframe></div></div>`;
     cerrarX(); document.body.appendChild(o); o.querySelector(".xm-x").onclick = cerrarX; o.addEventListener("click",e=>{ if (e.target===o) cerrarX(); }); return; }
   if (vKind==="file" && vVideo.src && (!sh.file || sh.file===vNombre)){
@@ -2062,7 +2154,7 @@ function verClip(sh){
 /* ---------- capturar también con YouTube: se comparte esta pestaña y se toma la imagen del video ---------- */
 let capStream = null, capVid = null;
 function botonDibujarYa(sec, idx){ const b = el("button",{type:"button",class:"btn2 solid vdib",text:"✏️ Dibujar ahora"}); b.addEventListener("click",()=>openDraw(sec, idx)); vMsg.appendChild(document.createTextNode(" ")); vMsg.appendChild(b); }
-async function capturarYT(){
+async function capturarYT(dest){
   if (!assets){ vMsg.className="vmsg err"; vMsg.textContent="Sin conexión con la nube de Metodika: no se puede capturar."; return; }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){ vMsg.className="vmsg err"; vMsg.textContent="Este navegador no deja capturar YouTube. Usá ✂ Clip o abrí Metodika en Chrome en la compu."; return; }
   const box = document.getElementById("vYT"); if (!box || box.hidden){ vMsg.className="vmsg err"; vMsg.textContent="Primero abrí el video."; return; }
@@ -2083,7 +2175,8 @@ async function capturarYT(){
     vMsg.className="vmsg"; vMsg.textContent="Guardando captura…";
     const blob = await new Promise(r=>c.toBlob(r,"image/jpeg",0.8)); const r = await assets.upload(blob,{type:"image/jpeg"});
     const arr = Array.isArray(state[shotKey(sec)]) ? state[shotKey(sec)] : (state[shotKey(sec)] = []);
-    arr.push({id:r.id, video:false, min:t, cap:""}); changed(); refreshShots(sec); abrirSec(sec);
+    if (dest && dest.clip && !dest.id && arr.includes(dest)){ dest.id = r.id; changed(); refreshShots(sec); pintarUltimo(); vMsg.textContent = "Foto guardada en la jugada."; botonDibujarYa(sec, arr.indexOf(dest)); return; }
+    arr.push({id:r.id, video:false, min:minPartido(vp.t()), cap:""}); changed(); refreshShots(sec); abrirSec(sec);
     vMsg.textContent = "Captura del minuto "+t+" guardada en "+(SECTIONS.find(x=>x.id===sec)||{}).title+"."; botonDibujarYa(sec, arr.length-1);
   }catch(e){ console.warn(e); vMsg.className="vmsg err"; vMsg.textContent = "No se pudo capturar. Cuando el navegador pregunte, elegí “Esta pestaña” y tocá Compartir."; }
 }
@@ -2091,11 +2184,12 @@ async function capturarYT(){
 function pantallaTrabajo(){
   const fs = document.fullscreenElement;
   if (fs){ document.exitFullscreen().catch(()=>{}); return; }
-  if (!vBody.hidden) setSplit(true);
-  const r = document.documentElement.requestFullscreen ? document.documentElement.requestFullscreen() : null;
+  if (vBody.hidden){ vBody.hidden = false; vMin.textContent = "Minimizar"; }
+  const vw = document.getElementById("mirarBox");
+  const r = vw.requestFullscreen ? vw.requestFullscreen() : null;
   if (r && r.catch) r.catch(()=>{ toast("Tu navegador no deja usar pantalla completa acá. Probá con la tecla F11."); });
 }
-document.addEventListener("fullscreenchange",()=>{ const on = document.fullscreenElement===document.documentElement; document.body.classList.toggle("trabajo", on); const b = document.getElementById("vFull"); if (b) b.textContent = on ? "✕ Salir de pantalla completa" : "⛶ Pantalla completa"; });
+document.addEventListener("fullscreenchange",()=>{ const on = document.fullscreenElement===document.getElementById("mirarBox"); document.body.classList.toggle("vgrande", on); setTimeout(pintarMarcas, 300); const b = document.getElementById("vFull"); if (b) b.textContent = on ? "✕ Salir del video grande" : "⛶ Video grande"; });
 /* ---------- nota rápida: se guarda en la sección elegida con el minuto ---------- */
 let notaSeguia = false;
 function guardarNota(txt){
@@ -2112,6 +2206,156 @@ function guardarNota(txt){
 { const n = document.getElementById("vNota");
   n.addEventListener("input",()=>{ if (n.value.length===1 && vp.listo()){ const playing = vKind==="yt" ? (ytP && ytListo && ytP.getPlayerState && ytP.getPlayerState()===1) : !vVideo.paused; if (playing){ notaSeguia = true; vp.pause(); } } });
   n.addEventListener("keydown",e=>{ e.stopPropagation(); if (e.key==="Enter"){ e.preventDefault(); guardarNota(n.value); n.value = ""; if (notaSeguia){ notaSeguia = false; vp.play(); } } if (e.key==="Escape"){ n.value = ""; n.blur(); } }); }
+
+/* ================= MOMENTOS: tocás el color cuando ves la jugada (como Videoanálisis) ================= */
+const MOMS = [
+  {k:"inicio", sec:"salida", t:"Inicio", c:"#3B82F6", tx:"#fff"},
+  {k:"presion", sec:"presion", t:"Presión", c:"#E5484D", tx:"#fff"},
+  {k:"ataque", sec:"ataque", t:"Ataque", c:"#22C55E", tx:"#141412"},
+  {k:"transicion", sec:"transicion", t:"Transición", c:"#A855F7", tx:"#fff"},
+  {k:"parada", sec:"parada", t:"Pelota parada", c:"#F59E0B", tx:"#141412"},
+  {k:"jugadora", sec:"jugadoras", t:"Jugadora clave", c:"#FFD400", tx:"#141412"},
+  {k:"debilidad", sec:"debilidades", t:"Debilidad para aprovechar", c:"#F3F1EA", tx:"#141412", ancho:true},
+  {k:"gol_f", sec:"goles", t:"⚽ Gol de ellas", c:"#0F766E", tx:"#fff", gol:"favor"},
+  {k:"gol_c", sec:"goles", t:"⚽ Gol en contra", c:"#7F1D1D", tx:"#fff", gol:"contra"}
+];
+const momDe = k => MOMS.find(m=>m.k===k);
+let ULT = null;
+function vDur(){ try{ if (vKind==="yt") return (ytP && ytListo && ytP.getDuration) ? ytP.getDuration()||0 : 0; return isFinite(vVideo.duration) ? vVideo.duration : 0; }catch(e){ return 0; } }
+function minPartido(t){
+  const t1 = state.t1, t2 = state.t2;
+  if (t2!=null && t>=t2) return "2T "+(Math.floor((t-t2)/60)+1)+"'";
+  if (t1!=null && t>=t1) return "1T "+(Math.floor((t-t1)/60)+1)+"'";
+  return fmtT(t);
+}
+function todosLosClips(){ const out = []; SECTIONS.forEach(s=>{ (Array.isArray(state[shotKey(s.id)])?state[shotKey(s.id)]:[]).forEach(sh=>{ if (sh && sh.clip) out.push({sec:s.id, sh}); }); }); return out; }
+function colorClip(x){ const m = x.sh.mom ? momDe(x.sh.mom) : MOMS.find(z=>z.sec===x.sec); return m ? m.c : "#FFD400"; }
+async function crearMomento(m){
+  if (!vp.listo()){ vMsg.className = "vmsg err"; vMsg.textContent = "Primero abrí el video (de la compu o con link de YouTube)."; return; }
+  const t = vp.t(), dur = vDur(), ini = Math.max(0, t-6), fin = dur ? Math.min(dur, t+4) : t+4;
+  const sh = {id:"", clip:true, ini:+ini.toFixed(1), fin:+fin.toFixed(1), t:+t.toFixed(1), min:minPartido(t), cap:"", video:false, mom:m.k};
+  if (m.gol) sh.gol = m.gol;
+  if (vKind==="yt") sh.yt = vNombre; else sh.file = vNombre;
+  const arr = Array.isArray(state[shotKey(m.sec)]) ? state[shotKey(m.sec)] : (state[shotKey(m.sec)] = []);
+  arr.push(sh); changed(); refreshShots(m.sec);
+  ULT = {sec:m.sec, sh}; pintarUltimo(true); pintarMomentos();
+  const b = document.querySelector('.mom[data-k="'+m.k+'"]'); if (b){ b.classList.remove("pulso"); void b.offsetWidth; b.classList.add("pulso"); }
+  vMsg.className = "vmsg"; vMsg.textContent = "";
+  if (vKind!=="yt" && assets && vVideo.videoWidth){
+    try{ const sc = Math.min(1, 960/vVideo.videoWidth), c = document.createElement("canvas"); c.width = Math.round(vVideo.videoWidth*sc); c.height = Math.round(vVideo.videoHeight*sc);
+      c.getContext("2d").drawImage(vVideo, 0, 0, c.width, c.height); const blob = await new Promise(r=>c.toBlob(r,"image/jpeg",0.75));
+      const r = await assets.upload(blob,{type:"image/jpeg"}); if (!sh.id){ sh.id = r.id; changed(); refreshShots(m.sec); if (ULT && ULT.sh===sh) pintarUltimo(); } }catch(e){ console.warn(e); }
+  }
+}
+function quitarClip(sec, sh){
+  const arr = Array.isArray(state[shotKey(sec)]) ? state[shotKey(sec)] : []; const i = arr.indexOf(sh); if (i<0) return;
+  arr.splice(i,1); changed(); refreshShots(sec);
+  if (assets){ if (sh.id) assets.delete(sh.id).catch(()=>{}); if (sh.ann) assets.delete(sh.ann).catch(()=>{}); }
+  if (ULT && ULT.sh===sh) ULT = null; pintarUltimo(); pintarMomentos();
+}
+function dorsalesOnce(){ return (Array.isArray(state.once)?state.once:[]).map(p=>p&&String(p.dor||"").trim()).filter(Boolean); }
+const ZONAS_C = ["Su campo","Mitad","Cerca de nuestro arco"], ZONAS_R = ["Izquierda","Centro","Derecha"];
+function pintarUltimo(foco){
+  const box = document.getElementById("momUlt"); if (!box) return;
+  if (!ULT){ box.innerHTML = '<div class="mu-vacio">Cuando toques un color, acá aparece la jugada para sumarle una nota, el número de la jugadora o la zona.</div>'; return; }
+  const {sec, sh} = ULT, m = momDe(sh.mom) || {t:(SECTIONS.find(s=>s.id===sec)||{}).title||"", c:"#FFD400"};
+  box.innerHTML = "";
+  const h = el("div",{class:"mu-h"}); h.appendChild(el("i",{style:"background:"+m.c})); h.appendChild(el("b",{text:"✓ "+m.t.replace(/^⚽ /,"⚽ ")+" · "+(sh.min||fmtT(sh.t||sh.ini))})); 
+  const play = el("button",{type:"button",class:"mu-x",title:"Ver el clip",text:"▶"}); play.addEventListener("click",()=>verClip(sh)); h.appendChild(play);
+  box.appendChild(h);
+  const nota = el("input",{type:"text",class:"mu-nota",maxlength:"200",placeholder:"¿Qué pasó? (opcional) · Enter para seguir"}); nota.value = sh.cap||"";
+  nota.addEventListener("input",()=>{ sh.cap = nota.value; changed(); });
+  nota.addEventListener("keydown",e=>{ e.stopPropagation(); if (e.key==="Enter"||e.key==="Escape"){ nota.blur(); refreshShots(sec); } });
+  nota.addEventListener("change",()=>refreshShots(sec));
+  box.appendChild(nota);
+  /* número de la jugadora */
+  const fila = el("div",{class:"mu-dor"}); fila.appendChild(el("span",{class:"mu-lbl",text:"N°"}));
+  const nums = [...new Set([...dorsalesOnce(), ...todosLosClips().map(x=>x.sh.dor).filter(Boolean)])].sort((a,b)=>(+a||99)-(+b||99)).slice(0,14);
+  nums.forEach(n=>{ const b = el("button",{type:"button",class:"mu-n"+(String(sh.dor||"")===n?" on":""),text:n}); b.addEventListener("click",()=>{ sh.dor = String(sh.dor||"")===n ? "" : n; changed(); refreshShots(sec); pintarUltimo(); }); fila.appendChild(b); });
+  const otro = el("input",{type:"text",class:"mu-otro",inputmode:"numeric",maxlength:"3",placeholder:"otro","aria-label":"Número de la jugadora"}); if (sh.dor && !nums.includes(String(sh.dor))) otro.value = sh.dor;
+  otro.addEventListener("keydown",e=>e.stopPropagation()); otro.addEventListener("change",()=>{ sh.dor = otro.value.trim(); changed(); refreshShots(sec); pintarUltimo(); });
+  fila.appendChild(otro); box.appendChild(fila);
+  /* zona en una canchita */
+  const zw = el("div",{class:"mu-zona"}); zw.appendChild(el("span",{class:"mu-lbl",text:"Zona"}));
+  const cancha = el("div",{class:"mu-cancha",title:"Ataque de "+(state.rival||"ellas")+" →"});
+  for (let r=0;r<3;r++) for (let c=0;c<3;c++){ const z = c+","+r, b = el("button",{type:"button",class:"mu-z"+(sh.zona===z?" on":""),title:ZONAS_C[c]+" · "+ZONAS_R[r],"aria-label":ZONAS_C[c]+" · "+ZONAS_R[r]});
+    b.addEventListener("click",()=>{ sh.zona = sh.zona===z ? "" : z; changed(); refreshShots(sec); pintarUltimo(); }); cancha.appendChild(b); }
+  zw.appendChild(cancha); zw.appendChild(el("small",{class:"mu-dir",text:"ataca →"})); box.appendChild(zw);
+  /* acciones */
+  const ac = el("div",{class:"mu-acc"});
+  const foto = el("button",{type:"button",text: sh.id ? "📷 Otra foto" : "📷 Foto"}); foto.addEventListener("click",()=>{ vSec.value = sec; capture(sh.id ? null : sh); });
+  const dib = el("button",{type:"button",text:"✏️ Dibujar"}); if (!sh.id){ dib.disabled = true; dib.title = "Primero sacá una 📷 Foto"; }
+  dib.addEventListener("click",()=>{ const arr = state[shotKey(sec)]||[]; const i = arr.indexOf(sh); if (i>=0) openDraw(sec, i); });
+  const st = el("button",{type:"button",class:sh.star?"on":"",text: sh.star ? "⭐ Para la charla" : "☆ Para la charla"}); st.addEventListener("click",()=>{ sh.star = !sh.star; changed(); refreshShots(sec); pintarUltimo(); });
+  const del = el("button",{type:"button",class:"mu-del",title:"Quitar esta jugada",text:"↺ Quitar"}); del.addEventListener("click",()=>quitarClip(sec, sh));
+  [foto,dib,st,del].forEach(b=>ac.appendChild(b)); box.appendChild(ac);
+  if (foco) setTimeout(()=>{ try{ nota.focus({preventScroll:true}); }catch(e){} }, 30);
+}
+function pintarMomentos(){
+  const L = todosLosClips();
+  MOMS.forEach(m=>{ const n = L.filter(x=>x.sh.mom===m.k || (!x.sh.mom && x.sec===m.sec && !m.gol && x.sec!=="goles")).length; const b = document.querySelector('.mom[data-k="'+m.k+'"] .mom-n'); if (b) b.textContent = n||""; });
+  pintarMarcas(); pintarLista(L);
+  const p = document.getElementById("momPer"); if (p){ p.querySelector("#bT1").textContent = state.t1!=null ? "1T desde "+fmtT(state.t1) : "Empieza 1T"; p.querySelector("#bT2").textContent = state.t2!=null ? "2T desde "+fmtT(state.t2) : "Empieza 2T"; p.querySelector("#bT1").classList.toggle("on", state.t1!=null); p.querySelector("#bT2").classList.toggle("on", state.t2!=null); }
+}
+function pintarMarcas(){
+  const bar = document.getElementById("vMarcas"); if (!bar) return; const d = vDur(); bar.innerHTML = ""; if (!d) return;
+  todosLosClips().forEach(x=>{ if ((vKind==="yt" && x.sh.yt && x.sh.yt!==vNombre) || (vKind!=="yt" && x.sh.file && x.sh.file!==vNombre)) return;
+    const t = x.sh.t!=null ? x.sh.t : (x.sh.ini+x.sh.fin)/2, i = el("button",{type:"button",class:"vm-i",style:"left:"+(100*t/d).toFixed(2)+"%;background:"+colorClip(x),title:(x.sh.min||fmtT(t))+(x.sh.cap?" · "+x.sh.cap:"")});
+    i.addEventListener("click",()=>{ ULT = x; pintarUltimo(); vp.seek(x.sh.ini); vp.play(); }); bar.appendChild(i); });
+  const cur = el("i",{class:"vm-cur",id:"vmCur"}); bar.appendChild(cur); moverCursor();
+}
+function moverCursor(){ const c = document.getElementById("vmCur"), d = vDur(); if (c && d) c.style.left = (100*vp.t()/d).toFixed(2)+"%"; }
+setInterval(()=>{ if (!document.hidden && vp.listo()){ moverCursor(); const bar = document.getElementById("vMarcas"); if (bar && !bar.children.length && vDur()) pintarMarcas(); } }, 1000);
+function pintarLista(L){
+  const box = document.getElementById("momLista"); if (!box) return; box.innerHTML = "";
+  const ult = L.slice().sort((a,b)=>(b.sh.t??b.sh.ini)-(a.sh.t??a.sh.ini));
+  if (!ult.length) return;
+  box.appendChild(el("div",{class:"ml-h",text:"Lo que marcaste ("+L.length+")"}));
+  ult.slice(0,40).forEach(x=>{ const m = momDe(x.sh.mom); const r = el("button",{type:"button",class:"ml-i"+(ULT&&ULT.sh===x.sh?" on":"")});
+    r.appendChild(el("i",{style:"background:"+colorClip(x)})); r.appendChild(el("b",{text:x.sh.min||fmtT(x.sh.ini)}));
+    r.appendChild(el("span",{text:(m?m.t:(SECTIONS.find(s=>s.id===x.sec)||{}).title)+(x.sh.dor?" · N° "+x.sh.dor:"")+(x.sh.cap?" · "+x.sh.cap:"")}));
+    if (x.sh.star) r.appendChild(el("em",{text:"⭐"}));
+    r.addEventListener("click",()=>{ ULT = x; pintarUltimo(); vp.seek(x.sh.ini); vp.play(); pintarLista(todosLosClips()); });
+    box.appendChild(r); });
+}
+/* mapa de zonas (para el informe y la charla) */
+function mapaZonasSVG(shots, color, titulo){
+  const cnt = {}; let max = 0; shots.forEach(sh=>{ if (sh && sh.zona){ cnt[sh.zona] = (cnt[sh.zona]||0)+1; max = Math.max(max, cnt[sh.zona]); } });
+  if (!max) return null;
+  const W = 420, H = 280, NS = "http://www.w3.org/2000/svg", svg = document.createElementNS(NS,"svg"); svg.setAttribute("viewBox","0 0 "+W+" "+(H+26)); svg.setAttribute("class","mapa-z"); svg.setAttribute("role","img"); svg.setAttribute("aria-label",titulo||"Mapa de zonas");
+  let h = svgCanchaPro(0,0,W,H,"mz"+Math.random().toString(36).slice(2,6));
+  const m = Math.min(W,H)*0.045, X = m, Y = m, L = W-2*m, A = H-2*m;
+  for (let r=0;r<3;r++) for (let c=0;c<3;c++){ const n = cnt[c+","+r]||0; if (!n) continue; const x = X+c*L/3, y = Y+r*A/3, op = (0.25+0.55*n/max).toFixed(2);
+    h += `<rect x="${x+2}" y="${y+2}" width="${L/3-4}" height="${A/3-4}" rx="8" fill="${color}" fill-opacity="${op}" stroke="#fff" stroke-opacity=".6"/><text x="${x+L/6}" y="${y+A/6+11}" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" stroke="#000" stroke-opacity=".45" stroke-width="3" paint-order="stroke">${n}</text>`; }
+  h += `<text x="${W/2}" y="${H+20}" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor">Ataque de ${escH(state.rival||"ellas")} →</text>`;
+  svg.innerHTML = h; return svg;
+}
+function lienzoMomentos(){
+  const wrap = document.getElementById("mirarBox"); if (!wrap) return;
+  const side = el("div",{class:"mom-side",id:"momSide"});
+  const per = el("div",{class:"mom-per",id:"momPer"});
+  const b1 = el("button",{type:"button",id:"bT1",title:"Tocalo cuando arranca el primer tiempo: así el minuto coincide con el del partido",text:"Empieza 1T"}), b2 = el("button",{type:"button",id:"bT2",title:"Tocalo cuando arranca el segundo tiempo",text:"Empieza 2T"});
+  const marcarT = k=>{ if (!vp.listo()){ vMsg.className="vmsg err"; vMsg.textContent="Primero abrí el video."; return; } if (state[k]!=null && !confirm("¿Cambiar el inicio de "+(k==="t1"?"1T":"2T")+" al minuto actual del video?")) return; state[k] = +vp.t().toFixed(1); changed(); pintarMomentos(); };
+  b1.addEventListener("click",()=>marcarT("t1")); b2.addEventListener("click",()=>marcarT("t2")); per.appendChild(b1); per.appendChild(b2);
+  side.appendChild(per);
+  side.appendChild(el("h3",{class:"mom-q",text:"¿Qué viste?"}));
+  side.appendChild(el("p",{class:"mom-ayuda",text:"Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. También con las teclas 1 a 9."}));
+  const g = el("div",{class:"mom-grid"});
+  MOMS.forEach((m,i)=>{ const b = el("button",{type:"button",class:"mom"+(m.ancho?" ancho":"")+(m.gol?" gol":""),style:"background:"+m.c+";color:"+m.tx,title:"Tecla "+(i+1)}); b.dataset.k = m.k;
+    b.appendChild(el("span",{class:"mom-t",text:gx(m.t)})); b.appendChild(el("span",{class:"mom-n"})); b.appendChild(el("kbd",{text:String(i+1)}));
+    b.addEventListener("click",()=>crearMomento(m)); g.appendChild(b); });
+  side.appendChild(g);
+  side.appendChild(el("div",{class:"mom-ult",id:"momUlt"}));
+  side.appendChild(el("div",{class:"mom-lista",id:"momLista"}));
+  wrap.appendChild(side);
+  const vb = document.getElementById("vBody"), bar = el("div",{class:"vmarcas",id:"vMarcas",title:"Tus marcas en el partido. Tocá una para verla."});
+  vb.insertBefore(bar, vb.querySelector(".vctrl"));
+  pintarUltimo(); pintarMomentos();
+}
+/* pestañas: Mirar · Informe · Charla */
+function setTab(t){ ["mirar","informe","charla"].forEach(x=>document.body.classList.toggle("tab-"+x, x===t)); document.querySelectorAll(".tabs-an [data-tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t?"true":"false")); lsSet("scout_tab", t); if (t==="mirar") pintarMomentos(); window.scrollTo({top:0}); }
+
+function dorsalesVistos(){ const g = {}; todosLosClips().forEach(x=>{ const d = String(x.sh.dor||"").trim(); if (!d) return; (g[d] = g[d]||[]).push(x); }); return Object.entries(g).map(([d,L])=>[d,L.length,L]).sort((a,b)=>b[1]-a[1]); }
 /* imágenes más livianas antes de subirlas */
 async function achicarImagen(file, max, q){
   try{ const url = URL.createObjectURL(file); const img = await new Promise((ok,no)=>{ const i = new Image(); i.onload = ()=>ok(i); i.onerror = no; i.src = url; });
@@ -2119,8 +2363,8 @@ async function achicarImagen(file, max, q){
     const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
     const b = await new Promise(r=>c.toBlob(r, "image/jpeg", q||0.8)); return b && b.size < file.size ? b : file; }catch(e){ return file; }
 }
-async function capture(){
-  if (vKind==="yt") return capturarYT();
+async function capture(dest){
+  if (vKind==="yt") return capturarYT(dest);
   if(!vVideo.src || !vVideo.videoWidth){ vMsg.className="vmsg err"; vMsg.textContent="Primero abrí el video."; return; }
   if(!assets){ vMsg.className="vmsg err"; vMsg.textContent="Sin conexión con la nube de Metodika: no se puede capturar."; return; }
   vVideo.pause();
@@ -2132,7 +2376,8 @@ async function capture(){
     const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.8));
     const r=await assets.upload(blob,{type:"image/jpeg"});
     const arr=Array.isArray(state[shotKey(sec)])?state[shotKey(sec)]:(state[shotKey(sec)]=[]);
-    arr.push({id:r.id,video:false,min:t,cap:""}); changed(); refreshShots(sec); abrirSec(sec);
+    if (dest && dest.clip && !dest.id && arr.includes(dest)){ dest.id = r.id; changed(); refreshShots(sec); pintarUltimo(); vMsg.textContent = "Foto guardada en la jugada."; botonDibujarYa(sec, arr.indexOf(dest)); return; }
+    arr.push({id:r.id,video:false,min:minPartido(vVideo.currentTime),cap:""}); changed(); refreshShots(sec); abrirSec(sec);
     vMsg.textContent="Captura del minuto "+t+" guardada en "+(SECTIONS.find(x=>x.id===sec)||{}).title; botonDibujarYa(sec, arr.length-1);
   }catch(e){ vMsg.className="vmsg err"; vMsg.textContent="No se pudo guardar la captura. Probá de nuevo."; }
 }
@@ -2140,8 +2385,15 @@ document.getElementById("vCap").addEventListener("click",capture);
 document.getElementById("vClip").addEventListener("click",marcarClip);
 document.getElementById("vYTbtn").addEventListener("click",()=>abrirYouTube());
 document.getElementById("vFull").addEventListener("click",pantallaTrabajo);
-document.addEventListener("keydown",e=>{ if((e.key==="x"||e.key==="X") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); marcarClip(); return; }
+document.addEventListener("keydown",e=>{ if (/^[1-9]$/.test(e.key) && document.body.classList.contains("tab-mirar") && vp.listo() && deck.hidden && drawEl.hidden && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); crearMomento(MOMS[+e.key-1]); return; }
+  if((e.key==="x"||e.key==="X") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); marcarClip(); return; }
   if((e.key==="c"||e.key==="C") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); capture(); } });
+/* ---------- armado de la pantalla en 3 pestañas ---------- */
+lienzoMomentos();
+{ const tb = document.querySelector(".tabs-an"); tb.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+  tb.appendChild(document.getElementById("guiaBtn"));
+  const mp = document.getElementById("masPanel"), fc = document.getElementById("formCol"); fc.appendChild(mp); mp.hidden = false;
+  setTab(lsGet("scout_tab")==="informe"||lsGet("scout_tab")==="charla" ? lsGet("scout_tab") : "mirar"); }
 /* ---------- inicio ---------- */
 (async ()=>{
   slug = lsGet("scout_last") || "rival-nuevo";
@@ -2292,6 +2544,9 @@ Object.assign(DIC,{"Con": ["Com", "With"], ": marcás el inicio y el fin de una 
 Object.assign(DIC,{"📁 Video de la compu":["📁 Vídeo do computador","📁 Video from computer"],"Más herramientas ▾": ["Mais ferramentas ▾", "More tools ▾"], "Más herramientas ▴": ["Mais ferramentas ▴", "More tools ▴"], "❓ Cómo se usa": ["❓ Como usar", "❓ How to use"], "Mirá el partido y marcá las jugadas": ["Assista ao jogo e marque as jogadas", "Watch the match and mark the plays"], "Abrí el video desde la compu o con un link de YouTube. No se sube a la nube.": ["Abra o vídeo do computador ou com um link do YouTube. Não vai para a nuvem.", "Open the video from your computer or with a YouTube link. It isn't uploaded."], "Completá el informe": ["Complete o relatório", "Fill in the report"], "Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.": ["Toque em cada seção para abrir. O ✓ indica que já tem dados. Em cada uma você pode somar opções próprias (＋ Outra) e pontos novos.", "Tap each section to open it. ✓ means it already has data. In each one you can add your own options (＋ Other) and new points."], "Plan de partido y charla": ["Plano de jogo e conversa", "Game plan and team talk"], "Lo que van a hacer para ganarle. Después presentalo en pantalla grande o bajalo en PDF.": ["O que vão fazer para vencer. Depois apresente em tela grande ou baixe em PDF.", "What you'll do to beat them. Then present it on a big screen or download it as PDF."], "＋ Otra": ["＋ Outra", "＋ Other"], "＋ Agregar un punto": ["＋ Adicionar um ponto", "＋ Add a point"], "Título (ej.: Inicio con 3)": ["Título (ex.: Saída com 3)", "Title (e.g. Build-up with 3)"], "Qué hacen y en qué minutos": ["O que fazem e em que minutos", "What they do and at which minutes"], "Quitar esta opción": ["Remover esta opção", "Remove this option"], "¿Quitar este punto?": ["Remover este ponto?", "Remove this point?"], "Punto": ["Ponto", "Point"], "▶ Presentar en pantalla grande": ["▶ Apresentar em tela grande", "▶ Present on big screen"], "📄 Plan en 1 hoja": ["📄 Plano em 1 folha", "📄 1-page plan"], "⬇ Descargar PDF": ["⬇ Baixar PDF", "⬇ Download PDF"], "📲 Para el plantel": ["📲 Para o elenco", "📲 For the squad"], "El PDF se está preparando. Probá en unos segundos.": ["O PDF está sendo preparado. Tente em alguns segundos.", "The PDF is being prepared. Try again in a few seconds."]});PAT.push([new RegExp("^Nueva opción para “(.*)”:$"),["Nova opção para “$1”:", "New option for “$1”:"]],[new RegExp("^¿Quitar la opción “(.*)”\\?$"),["Remover a opção “$1”?", "Remove the option “$1”?"]]);
 Object.assign(DIC,{"⛶ Pantalla completa": ["⛶ Tela cheia", "⛶ Full screen"], "✕ Salir de pantalla completa": ["✕ Sair da tela cheia", "✕ Exit full screen"], "📝 Nota rápida: escribí lo que ves y apretá Enter (se guarda con el minuto)": ["📝 Nota rápida: escreva o que vê e aperte Enter (salva com o minuto)", "📝 Quick note: type what you see and press Enter (saved with the minute)"], "Nota rápida": ["Nota rápida", "Quick note"], "Foco": ["Foco", "Spotlight"], "✋ Mover": ["✋ Mover", "✋ Move"], "✂ Recortar": ["✂ Recortar", "✂ Crop"], "Tamaño": ["Tamanho", "Size"], "Chico": ["Pequeno", "Small"], "Medio": ["Médio", "Medium"], "Grande": ["Grande", "Large"], "✏️ Dibujar ahora": ["✏️ Desenhar agora", "✏️ Draw now"], "☆ Destacar": ["☆ Destacar", "☆ Star"], "⭐ Destacada": ["⭐ Destacada", "⭐ Starred"], "⭐ Charla corta (solo destacadas)": ["⭐ Conversa curta (só destacadas)", "⭐ Short talk (starred only)"], "Primero marcá con ☆ Destacar las jugadas que querés mostrar.": ["Primeiro marque com ☆ Destacar as jogadas que quer mostrar.", "First mark the plays you want to show with ☆ Star."], "Las 3 claves (la primera pantalla de la charla)": ["As 3 chaves (a primeira tela da conversa)", "The 3 keys (first screen of the talk)"], "Lo más importante": ["O mais importante", "The most important"], "La primera vez el navegador pregunta qué compartir: elegí “Esta pestaña” y tocá Compartir.": ["Na primeira vez o navegador pergunta o que compartilhar: escolha “Esta guia” e toque em Compartilhar.", "The first time, the browser asks what to share: choose “This tab” and tap Share."], "No se pudo capturar. Cuando el navegador pregunte, elegí “Esta pestaña” y tocá Compartir.": ["Não foi possível capturar. Quando o navegador perguntar, escolha “Esta guia” e toque em Compartilhar.", "Couldn't capture. When the browser asks, choose “This tab” and tap Share."], "Arrastrá sobre la imagen para dibujar. Texto: escribilo arriba y tocá donde va. ✋ Mover: tocá un dibujo para moverlo, agrandarlo (＋) o achicarlo (−). ✂ Recortar: marcá la parte que querés dejar.": ["Arraste sobre a imagem para desenhar. Texto: escreva acima e toque onde vai. ✋ Mover: toque num desenho para mover, aumentar (＋) ou diminuir (−). ✂ Recortar: marque a parte que quer manter.", "Drag on the image to draw. Text: type it above and tap where it goes. ✋ Move: tap a drawing to move it, enlarge (＋) or shrink (−). ✂ Crop: mark the part you want to keep."]});PAT.push([new RegExp("^Nota guardada en (.+)\\.$"),["Nota salva em $1.", "Note saved in $1."]],[new RegExp("^Captura del minuto (.+) guardada en (.+?)\\.?$"),["Captura do minuto $1 salva em $2.", "Frame at $1 saved in $2."]],[new RegExp("^Las (\\d) claves contra (.+)$"),["As $1 chaves contra $2", "The $1 keys against $2"]]);
 Object.assign(DIC,{"🧩 Sistema": ["🧩 Sistema", "🧩 Formation"], "Arrastralo a donde quieras y agrandalo o achicalo con ＋ y −.": ["Arraste para onde quiser e aumente ou diminua com ＋ e −.", "Drag it wherever you want and resize it with ＋ and −."]});
+Object.assign(DIC,{"⛶ Video grande": ["⛶ Vídeo grande", "⛶ Big video"], "✕ Salir del video grande": ["✕ Sair do vídeo grande", "✕ Exit big video"]});
+Object.assign(DIC,{"Mirar": ["Assistir", "Watch"], "Informe": ["Relatório", "Report"], "Charla": ["Conversa", "Talk"], "¿Qué viste?": ["O que você viu?", "What did you see?"], "Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. También con las teclas 1 a 9.": ["Toque na cor quando acontece a jogada: fica salvo o clipe com o minuto. Também com as teclas 1 a 9.", "Tap the colour when the play happens: the clip is saved with the minute. Keys 1 to 9 work too."], "Inicio": ["Saída", "Build-up"], "Presión": ["Pressão", "Press"], "Transición": ["Transição", "Transition"], "Jugadora clave": ["Jogadora-chave", "Key player"], "Jugador clave": ["Jogador-chave", "Key player"], "Debilidad para aprovechar": ["Fraqueza para aproveitar", "Weakness to exploit"], "⚽ Gol de ellas": ["⚽ Gol delas", "⚽ Their goal"], "⚽ Gol de ellos": ["⚽ Gol deles", "⚽ Their goal"], "⚽ Gol en contra": ["⚽ Gol contra", "⚽ Goal against them"], "Empieza 1T": ["Começa 1T", "1st half starts"], "Empieza 2T": ["Começa 2T", "2nd half starts"], "Cuando toques un color, acá aparece la jugada para sumarle una nota, el número de la jugadora o la zona.": ["Quando tocar uma cor, aqui aparece a jogada para somar uma nota, o número da jogadora ou a zona.", "When you tap a colour, the play shows up here so you can add a note, the player's number or the zone."], "¿Qué pasó? (opcional) · Enter para seguir": ["O que aconteceu? (opcional) · Enter para seguir", "What happened? (optional) · Enter to continue"], "ataca →": ["ataca →", "attacks →"], "otro": ["outro", "other"], "📷 Foto": ["📷 Foto", "📷 Photo"], "📷 Otra foto": ["📷 Outra foto", "📷 Another photo"], "☆ Para la charla": ["☆ Para a conversa", "☆ For the talk"], "⭐ Para la charla": ["⭐ Para a conversa", "⭐ For the talk"], "↺ Quitar": ["↺ Remover", "↺ Remove"], "Primero sacá una 📷 Foto": ["Primeiro tire uma 📷 Foto", "Take a 📷 Photo first"], "Foto guardada en la jugada.": ["Foto salva na jogada.", "Photo saved to the play."], "Goles: cómo los hacen y cómo los reciben": ["Gols: como fazem e como sofrem", "Goals: how they score and concede"], "Lo que más decide un partido. Con los botones ⚽ del visor quedan los clips de cada gol.": ["O que mais decide um jogo. Com os botões ⚽ do visualizador ficam os clipes de cada gol.", "What decides matches most. The ⚽ buttons in the viewer save each goal's clip."], "Cómo hacen goles": ["Como fazem gols", "How they score"], "Cómo les hacen goles": ["Como sofrem gols", "How they concede"], "Cómo hacen y reciben goles": ["Como fazem e sofrem gols", "How they score and concede"], "Dónde pasa (según las zonas que marcaste)": ["Onde acontece (segundo as zonas marcadas)", "Where it happens (from the zones you marked)"], "Dónde pasa": ["Onde acontece", "Where it happens"], "Las que más aparecen en tus marcas": ["As que mais aparecem nas suas marcas", "Who shows up most in your marks"], "Las que más aparecen en el video": ["As que mais aparecem no vídeo", "Who shows up most in the video"], "Ficha en la tabla y últimos partidos (opcional)": ["Ficha na tabela e últimos jogos (opcional)", "Table record and recent results (optional)"], "Primero abrí el video (de la compu o con link de YouTube).": ["Primeiro abra o vídeo (do computador ou link do YouTube).", "Open the video first (from your computer or a YouTube link)."], "Su campo": ["Campo delas", "Their half"], "Mitad": ["Meio", "Middle"], "Cerca de nuestro arco": ["Perto do nosso gol", "Near our goal"], "Izquierda": ["Esquerda", "Left"], "Derecha": ["Direita", "Right"]});PAT.push([new RegExp("^Lo que marcaste \\((\\d+)\\)$"),["O que você marcou ($1)", "What you marked ($1)"]],[new RegExp("^([12])T desde (.+)$"),["$1T desde $2", "$1H from $2"]],[new RegExp("^Goles de (.+): (\\d+)$"),["Gols de $1: $2", "Goals by $1: $2"]],[new RegExp("^Goles en contra: (\\d+)$"),["Gols contra: $1", "Goals against: $1"]],[new RegExp("^Ataque de (.+) →$"),["Ataque de $1 →", "$1 attack →"]],[new RegExp("^N° (\\S+) · (\\d+) jugadas?$"),["N° $1 · $2 jogada(s)", "No. $1 · $2 play(s)"]]);
+Object.assign(DIC,{"Abrí el partido del rival": ["Abra o jogo do adversário", "Open the opponent's match"], "Desde un archivo de la compu o con el link de YouTube. El video no se sube a la nube.": ["De um arquivo do computador ou com o link do YouTube. O vídeo não vai para a nuvem.", "From a file on your computer or a YouTube link. The video isn't uploaded."]});
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}

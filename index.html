@@ -772,7 +772,7 @@ const DIM_EVAL=[['tecnica','Técnica'],['tactica','Táctica'],['conPelota','Con 
 
 let S=null;
 /* versión de los módulos: cambia en cada actualización para que el navegador no muestre una copia vieja */
-const MOD_V='2026-11-13d';
+const MOD_V='2026-11-13f';
 function guardar(){try{asignarCatsNuevos()}catch(e){}if(typeof MODO!=='undefined'){if(MODO==='nube'){programarSync();return}if(MODO==='demo')return}try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}}
 function cargar(){try{const t=localStorage.getItem(CLAVE);if(t)return JSON.parse(t)}catch(e){}return null}
 
