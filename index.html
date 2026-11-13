@@ -787,7 +787,7 @@ const DIM_EVAL=[['tecnica','Técnica'],['tactica','Táctica'],['conPelota','Con 
 
 let S=null;
 /* versión de los módulos: cambia en cada actualización para que el navegador no muestre una copia vieja */
-const MOD_V='2026-11-13k';
+const MOD_V='2026-11-13m';
 function guardar(){try{asignarCatsNuevos()}catch(e){}if(typeof MODO!=='undefined'){if(MODO==='nube'){programarSync();return}if(MODO==='demo')return}try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}}
 function cargar(){try{const t=localStorage.getItem(CLAVE);if(t)return JSON.parse(t)}catch(e){}return null}
 
@@ -2986,6 +2986,10 @@ function crearPizarraOnceRival(d){
   z.textos.push({id:uid(),x:W*0.75,y:2,txt:(d.rival||'Rival')+' · '+sR,tam:.8});
   if(d.notas)z.textos.push({id:uid(),x:W/2,y:FORMATOS[f][1]-1.5,txt:String(d.notas).slice(0,120),tam:.6});
   normalizar(z);S.pizarras.push(z);guardar();ir('pizarra',z.id);aviso('Once probable de '+(d.rival||'el rival')+' en la pizarra');return z.id}
+/* Para el Análisis de rival: ver y borrar desde ahí las pizarras que se mandaron */
+function mtkPizarrasDe(rival){if(!S||!Array.isArray(S.pizarras))return [];const n=normTxt(rival||'');return S.pizarras.filter(p=>p&&p.categoria==='Rival'&&(!n||normTxt(p.carpeta||'')==='vs '+n||normTxt(p.nombre||'').includes(n))).map(p=>({id:p.id,nombre:p.nombre||'Pizarra',pasos:(p.pasos||[]).length,svg:svgPizarra(p,{mini:true})}))}
+function mtkBorrarPizarra(id){if(!S)return false;const n=S.pizarras.length;S.pizarras=S.pizarras.filter(p=>p.id!==id);(S.tareas||[]).forEach(t=>{if(t.diagrama===id)t.diagrama=''});if(S.pizarras.length!==n){guardar();return true}return false}
+function mtkAbrirPizarra(id){ir('pizarra',id)}
 /* Para el Análisis de rival: partidos jugados contra ese rival */
 function mtkPartidosVs(nombre){
   if(!S)return [];const n=normTxt(nombre);if(!n)return [];const pal=n.split(' ').filter(w=>w.length>2);

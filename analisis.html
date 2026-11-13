@@ -275,6 +275,28 @@ body.tab-mirar .status{position:static}
 
 .ml-acc{display:flex;gap:6px;flex-wrap:wrap}.ml-borrar{font:inherit;font-weight:700;font-size:13px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--sub);cursor:pointer;margin:2px 0 6px}.ml-borrar:hover{color:#E5484D;border-color:#E5484D}
 .ml-i .ml-del{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;opacity:.55}.ml-i .ml-del:hover{opacity:1;background:rgba(229,72,77,.2)}
+
+.vtiempo{font-variant-numeric:tabular-nums;font-weight:700;font-size:13.5px;color:var(--sub);min-width:90px}
+.vyt{position:relative}.vyt-tapa{position:absolute;inset:0;z-index:2;cursor:pointer;background:transparent}
+.mom kbd{position:static!important;order:-1;flex:none;display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:6px;background:rgba(0,0,0,.22);font:inherit;font-size:12.5px!important;font-weight:800;opacity:1!important;margin-right:2px}
+.mom .mom-t{flex:1}
+.mom.propio{padding-right:26px}.mom-x{position:absolute;right:6px;top:4px;font-size:14px;opacity:.6;padding:0 4px}.mom-x:hover{opacity:1}
+.mom-mas{grid-column:span 2;background:transparent!important;color:var(--ink)!important;border:1.5px dashed var(--line)!important;box-shadow:none;justify-content:center;font-size:14.5px;min-height:44px}
+.mm-in{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:12px}
+.mm-col{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer}.mm-col[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px #FFD400}
+
+.panel-pz{margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:14px}.panel-pz h3{margin:0 0 4px;font-size:16px}
+.pzr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-top:10px}
+.pzr{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}.pzr b{padding:8px 10px 0;font-size:14px}
+.pzr-mini{aspect-ratio:16/10;background:#5A9216}.pzr-mini svg{display:block;width:100%;height:100%}
+.pzr-acc{display:flex;gap:6px;padding:8px 10px 10px}
+
+.grab{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.35);display:grid;place-items:end center;padding:20px;pointer-events:none}
+.grab-c{pointer-events:auto;background:#141412;color:#fff;border:1px solid #FFD400;border-radius:14px;padding:14px 18px;display:grid;gap:8px;min-width:300px;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.barra-g{height:8px;border-radius:99px;background:#333;overflow:hidden}.barra-g i{display:block;height:100%;width:0;background:#FFD400;transition:width .2s}
+.grab-c small{opacity:.75}
+body.capturando .grab{visibility:hidden}
+.mu-acc{grid-template-columns:1fr 1fr}
 </style>
 
 <style>
@@ -705,6 +727,8 @@ body:not(.vopen) .viewer{top:0}
     <div class="vbody" id="vBody" hidden>
       <video id="vVideo" controls controlsList="nofullscreen" playsinline preload="auto"></video>
       <div class="vctrl">
+        <button type="button" class="btn2 solid" id="vPP" title="Reproducir / pausar (barra espaciadora)">▶ / ❚❚</button>
+        <span class="vtiempo" id="vTiempo"></span>
         <button type="button" class="btn2" data-skip="-5">−5 s</button>
         <button type="button" class="btn2" data-skip="5">+5 s</button>
         <button type="button" class="btn2" data-rate="0.5">0,5×</button>
@@ -725,6 +749,7 @@ body:not(.vopen) .viewer{top:0}
   <div id="formCol">
   <div class="pasohead" id="paso2"><span class="paso">2</span><div><b>Completá el informe</b><small>Tocá cada sección para abrirla. La ✓ indica que ya tiene datos. En cada una podés sumar opciones propias (＋ Otra) y puntos nuevos.</small></div></div>
   <div id="form"></div>
+  <div class="panel-pz" id="pzRival" hidden></div>
   </div>
 </div>
 
@@ -750,7 +775,7 @@ body:not(.vopen) .viewer{top:0}
     <span class="sep"></span>
     <span class="tamlbl">Tamaño</span><button type="button" data-size="0.6" aria-pressed="false">Chico</button><button type="button" data-size="1" aria-pressed="true">Medio</button><button type="button" data-size="1.6" aria-pressed="false">Grande</button>
     <button type="button" id="drawMas" title="Agrandar el dibujo elegido" hidden>＋</button><button type="button" id="drawMenos" title="Achicar el dibujo elegido" hidden>−</button><button type="button" id="drawDel" title="Borrar el dibujo elegido" hidden>🗑</button>
-    <input type="text" id="drawText" placeholder="Texto a poner" aria-label="Texto a poner">
+    <input type="text" id="drawText" placeholder="Texto (opcional: si no, te lo pregunta)" aria-label="Texto a poner">
     <span class="sep"></span>
     <button type="button" class="sw" data-color="#FFD23F" aria-label="Amarillo" aria-pressed="true" style="background:#FFD23F"></button>
     <button type="button" class="sw" data-color="#E5484D" aria-label="Rojo" aria-pressed="false" style="background:#E5484D"></button>
@@ -905,7 +930,7 @@ function render() {
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderPuntos(s));
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderShots(s));
     if (s.id==="plan"){ const ch = el("div",{class:"charla"});
-      [["▶ Presentar en pantalla grande","presentBtn",true],["⭐ Charla corta (solo destacadas)","corta"],["🎬 Ver todos los clips seguidos","resumen"],["🎬 Solo los destacados seguidos","resumenEst"],["📄 Plan en 1 hoja","planBtn"],["⬇ Descargar PDF","pdfBtn"],["📲 Para el plantel","xPlantel"]].forEach(([t,id,pri])=>{ const b = el("button",{type:"button",class:"btn2"+(pri?" solid":""),text:t}); b.addEventListener("click",()=>{ if (id==="resumen"){ abrirResumen(false); return; } if (id==="resumenEst"){ abrirResumen(true); return; } if (id==="corta"){ const hay = SECTIONS.some(z=>(Array.isArray(state[shotKey(z.id)])?state[shotKey(z.id)]:[]).some(x=>x.star)); if (!hay){ toast("Primero marcá con ☆ Destacar las jugadas que querés mostrar."); return; } openDeck(true); return; } const o = document.getElementById(id); if (id==="pdfBtn" && o && o.hidden){ alert("El PDF se está preparando. Probá en unos segundos."); return; } if (o) o.click(); }); ch.appendChild(b); });
+      [["▶ Presentar en pantalla grande","presentBtn",true],["⭐ Charla corta (solo destacadas)","corta"],["🎬 Ver todos los clips seguidos","resumen"],["🎬 Solo los destacados seguidos","resumenEst"],["⬇ Descargar video con todos los clips","grabTodos"],["⬇ Descargar video con los destacados","grabEst"],["📄 Plan en 1 hoja","planBtn"],["⬇ Descargar PDF","pdfBtn"],["📲 Para el plantel","xPlantel"]].forEach(([t,id,pri])=>{ const b = el("button",{type:"button",class:"btn2"+(pri?" solid":""),text:t}); b.addEventListener("click",()=>{ if (id==="grabTodos"){ grabarClips(clipsParaResumen(false), "clips "+(state.rival||"rival")); return; } if (id==="grabEst"){ const L0 = clipsParaResumen(true); if (!L0.length){ toast("Primero marcá jugadas con ☆ Para la charla."); return; } grabarClips(L0, "destacados "+(state.rival||"rival")); return; } if (id==="resumen"){ abrirResumen(false); return; } if (id==="resumenEst"){ abrirResumen(true); return; } if (id==="corta"){ const hay = SECTIONS.some(z=>(Array.isArray(state[shotKey(z.id)])?state[shotKey(z.id)]:[]).some(x=>x.star)); if (!hay){ toast("Primero marcá con ☆ Destacar las jugadas que querés mostrar."); return; } openDeck(true); return; } const o = document.getElementById(id); if (id==="pdfBtn" && o && o.hidden){ alert("El PDF se está preparando. Probá en unos segundos."); return; } if (o) o.click(); }); ch.appendChild(b); });
       body.appendChild(ch); }
     sec.appendChild(body);
     sec.addEventListener("focusin",()=>{ lastSection = s.id; });
@@ -952,11 +977,15 @@ function renderField(f) {
     const extra = (state.opc && Array.isArray(state.opc[f.id])) ? state.opc[f.id] : [];
     const curV = f.multi ? (Array.isArray(state[f.id])?state[f.id]:[]) : (state[f.id]?[state[f.id]]:[]);
     const todas = [...f.opts, ...extra.filter(o=>!f.opts.includes(o))]; curV.forEach(v=>{ if (v && !todas.includes(v)) todas.push(v); });
+    const esSis = SIS_MULTI.includes(f.id);
+    if (esSis) sisLista(f.id).forEach(v=>{ if (!todas.includes(v)) todas.push(v); });
     todas.forEach(o=>{
       const cur = state[f.id];
-      const on = f.multi ? Array.isArray(cur) && cur.includes(o) : cur===o;
+      const on = esSis ? sisLista(f.id).includes(o) : f.multi ? Array.isArray(cur) && cur.includes(o) : cur===o;
       const b = el("button",{type:"button",class:"chip","aria-pressed":on?"true":"false",text:o}); b.dataset.v=o;
+      if (esSis && /^\d(-\d)+$/.test(o)) b.textContent = "1-"+o;
       b.addEventListener("click",()=>{
+        if (esSis){ const L = sisLista(f.id), i = L.indexOf(o); if (i>=0) L.splice(i,1); else { if (L.length>=3){ toast("Hasta 3 sistemas. Sacá uno para sumar otro."); return; } L.push(o); } setSisLista(f.id, L); changed(); refreshField(f.id); if (f.id==="sis_con") refreshField("once"); return; }
         if (f.multi) { const arr = Array.isArray(state[f.id]) ? [...state[f.id]] : []; const i=arr.indexOf(o); if(i>=0) arr.splice(i,1); else arr.push(o); state[f.id]=arr; }
         else state[f.id] = state[f.id]===o ? "" : o;
         box.querySelectorAll(".chip").forEach(c=>{ const v=(c.dataset.v!=null?c.dataset.v:c.textContent); const on2 = f.multi ? state[f.id].includes(v) : state[f.id]===v; c.setAttribute("aria-pressed",on2?"true":"false"); });
@@ -966,19 +995,21 @@ function renderField(f) {
       if (!f.opts.includes(o)){ b.classList.add("chip-mia"); const x = el("span",{class:"chip-x",title:"Quitar esta opción",text:"×"}); x.addEventListener("click",e=>{ e.stopPropagation();
           if (!confirm("¿Quitar la opción “"+o+"”?")) return;
           if (state.opc && Array.isArray(state.opc[f.id])) state.opc[f.id] = state.opc[f.id].filter(z=>z!==o);
-          if (f.multi && Array.isArray(state[f.id])) state[f.id] = state[f.id].filter(z=>z!==o); else if (state[f.id]===o) state[f.id] = "";
+          if (esSis) setSisLista(f.id, sisLista(f.id).filter(z=>z!==o)); else if (f.multi && Array.isArray(state[f.id])) state[f.id] = state[f.id].filter(z=>z!==o); else if (state[f.id]===o) state[f.id] = "";
           changed(); refreshField(f.id); }); b.appendChild(x); }
       box.appendChild(b);
     });
     const otra = el("button",{type:"button",class:"chip chip-otra",text:"＋ Otra"});
-    otra.addEventListener("click",()=>{ const v = (prompt("Nueva opción para “"+(f.label||"")+"”:")||"").trim().slice(0,40); if (!v) return;
+    otra.addEventListener("click",()=>{ let v = (prompt("Nueva opción para “"+(f.label||"")+"”:")||"").trim().slice(0,40); if (!v) return; if (esSis) v = v.replace(/\s+/g,"").replace(/^1-/,"");
       state.opc = state.opc && typeof state.opc==="object" ? state.opc : {}; const L = Array.isArray(state.opc[f.id]) ? state.opc[f.id] : (state.opc[f.id] = []);
       if (!f.opts.includes(v) && !L.includes(v)) L.push(v);
-      if (f.multi){ const arr = Array.isArray(state[f.id]) ? state[f.id] : (state[f.id] = []); if (!arr.includes(v)) arr.push(v); } else state[f.id] = v;
+      if (esSis){ const L = sisLista(f.id); if (!L.includes(v) && L.length<3) L.push(v); setSisLista(f.id, L); }
+      else if (f.multi){ const arr = Array.isArray(state[f.id]) ? state[f.id] : (state[f.id] = []); if (!arr.includes(v)) arr.push(v); } else state[f.id] = v;
       if (f.id==="sis_con") refreshField("once");
       changed(); refreshField(f.id); });
     box.appendChild(otra);
     wrap.appendChild(box);
+    if (esSis) wrap.appendChild(el("span",{class:"small-hint",text:"Podés marcar hasta 3 (por ejemplo si cambian en el partido). El primero es el principal."}));
   } else if (f.type==="textarea" || f.type==="text") {
     const t = el(f.type==="text"?"input":"textarea",{id:f.id,placeholder:f.ph||""});
     if (f.type==="text") t.type="text";
@@ -1051,6 +1082,11 @@ function renderField(f) {
   return wrap;
 }
 
+/* sistemas: puede haber hasta 3 (el primero es el principal) */
+const SIS_MULTI = ["sis_con","sis_sin"];
+function sisLista(id){ const L = []; if (state[id]) L.push(state[id]); (Array.isArray(state[id+"_mas"])?state[id+"_mas"]:[]).forEach(x=>{ if (x && !L.includes(x)) L.push(x); }); return L.slice(0,3); }
+function setSisLista(id, L){ L = L.filter(Boolean).slice(0,3); state[id] = L[0]||""; state[id+"_mas"] = L.slice(1); }
+const fmtSis = x => /^\d(-\d)+$/.test(x||"") ? "1-"+x : (x||"");
 function filled(v){ if(Array.isArray(v)) return v.some(x=> typeof x==="string" ? x : Object.values(x||{}).some(Boolean)); return !!v; }
 function updateProgress(){
   const done = SECTIONS.filter(secTieneDatos).length;
@@ -1140,7 +1176,7 @@ async function loadRival(s, name){
   delete state.actualizado;
   if (!state.rival) state.rival = name || "Rival";
   lastSynced = docExists ? clone(data) : {}; delete lastSynced.actualizado; delete lastSynced.editor; delete state.editor;
-  render(); fillRivalSel(); ULT = null; try{ pintarUltimo(); pintarMomentos(); }catch(e){}
+  render(); fillRivalSel(); ULT = null; try{ pintarGrid(); pintarUltimo(); pintarMomentos(); pintarPizarrasRival(); }catch(e){}
   /* si el análisis tiene link de YouTube, el video queda listo en el visor */
   try{ if (ytIdDe(state.video) && vKind!=="file" && (vKind!=="yt" || vNombre!==ytIdDe(state.video))) abrirYouTube(state.video); }catch(e){}
   if (docRef) { const ref = docRef; unsub = ref.onSnapshot(sn=>{ if (ref===docRef) onRemote(sn); }, ()=>{}); }
@@ -1153,8 +1189,8 @@ async function createRival(){
   const n = newName.value.trim(); if (!n) { newName.focus(); return; }
   let s = slugify(n); const base = s; let k = 2; while (rivals.some(r=>r.slug===s)) s = base+"-"+(k++);
   rivals.push({slug:s,name:n}); newBox.hidden = true; newName.value="";
-  const opcPrev = state.opc && typeof state.opc==="object" ? JSON.parse(JSON.stringify(state.opc)) : null;
-  await loadRival(s, n); state.rival = n; if (opcPrev && !state.opc){ state.opc = opcPrev; render(); } header(); changed();
+  const opcPrev = state.opc && typeof state.opc==="object" ? JSON.parse(JSON.stringify(state.opc)) : null, momsPrev = Array.isArray(state.momsExtra) ? JSON.parse(JSON.stringify(state.momsExtra)) : null;
+  await loadRival(s, n); state.rival = n; if (opcPrev && !state.opc){ state.opc = opcPrev; render(); } if (momsPrev && !state.momsExtra){ state.momsExtra = momsPrev; pintarGrid(); } header(); changed();
 }
 document.getElementById("newRivalOk").addEventListener("click",createRival);
 newName.addEventListener("keydown",e=>{ if (e.key==="Enter") createRival(); });
@@ -1163,8 +1199,8 @@ newName.addEventListener("keydown",e=>{ if (e.key==="Enter") createRival(); });
 document.getElementById("vaciarBtn").addEventListener("click",()=>{
   if (!confirm("¿Empezar de nuevo el análisis de "+(state.rival||"este rival")+"?\n\nSe borra todo lo cargado: jugadas, fotos, dibujos, notas y plan. Queda el nombre del rival y el link del video.")) return;
   const ids = []; Object.keys(state).filter(k=>k.startsWith("shots_")).forEach(k=>(state[k]||[]).forEach(sh=>{ if (sh && sh.id) ids.push(sh.id); if (sh && sh.ann) ids.push(sh.ann); }));
-  const keep = {rival: state.rival, video: state.video, opc: state.opc};
-  Object.keys(state).forEach(k=>{ delete state[k]; }); Object.assign(state, keep); if (!state.opc) delete state.opc;
+  const keep = {rival: state.rival, video: state.video, opc: state.opc, momsExtra: state.momsExtra};
+  Object.keys(state).forEach(k=>{ delete state[k]; }); Object.assign(state, keep); if (!state.opc) delete state.opc; if (!state.momsExtra) delete state.momsExtra;
   changed(); render(); ULT = null; try{ pintarUltimo(); pintarMomentos(); }catch(e){} header();
   if (assets) ids.forEach(id=>assets.delete(id).catch(()=>{}));
   toast("Listo: el análisis quedó en blanco.");
@@ -1854,7 +1890,7 @@ function hitShape(p){ const W = cv.width, H = cv.height, tol = 0.035;
     return i; }
   return -1; }
 document.querySelectorAll("#drawTb [data-tool]").forEach(b=>b.addEventListener("click",()=>{ dTool=b.dataset.tool; document.querySelectorAll("#drawTb [data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); if (dTool==="text") document.getElementById("drawText").focus(); }));
-document.querySelectorAll("#drawTb [data-color]").forEach(b=>b.addEventListener("click",()=>{ dColor=b.dataset.color; document.querySelectorAll("#drawTb [data-color]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); }));
+document.querySelectorAll("#drawTb [data-color]").forEach(b=>b.addEventListener("click",()=>{ dColor=b.dataset.color; if (dSel>=0 && dShapes[dSel]){ dShapes[dSel].c = dColor; redraw(); } document.querySelectorAll("#drawTb [data-color]").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); }));
 function paintShape(ctx, s, W, H){
   const lw = Math.max(3, W/190)*(s.k||1);
   ctx.save(); ctx.strokeStyle = s.c; ctx.fillStyle = s.c; ctx.lineWidth = lw; ctx.lineCap = "round"; ctx.lineJoin = "round";
@@ -1904,22 +1940,40 @@ function redraw(){
     cx.save(); cx.fillStyle="rgba(0,0,0,.6)"; cx.beginPath(); cx.rect(0,0,W,H); cx.rect(x,y,w,h); cx.fill("evenodd"); cx.strokeStyle="#fff"; cx.setLineDash([10,8]); cx.lineWidth=Math.max(2,W/500); cx.strokeRect(x,y,w,h); cx.restore(); }
   if (dSel>=0 && dShapes[dSel] && !dSaving){ const s0=dShapes[dSel], W=cv.width, H=cv.height; cx.save(); cx.strokeStyle="#4FB3FF"; cx.setLineDash([8,6]); cx.lineWidth=2;
     if (s0.t==="text"){ const fs=Math.max(18,W/28)*(s0.k||1); cx.font="700 "+fs+"px Georama, Arial, sans-serif"; const w=cx.measureText(s0.s).width; cx.strokeRect(s0.x1*W-fs*.4, s0.y1*H-fs*.8, w+fs*.8, fs*1.6); }
-    else cx.strokeRect(Math.min(s0.x1,s0.x2)*W-8, Math.min(s0.y1,s0.y2)*H-8, Math.abs(s0.x2-s0.x1)*W+16, Math.abs(s0.y2-s0.y1)*H+16); cx.restore(); }
+    else cx.strokeRect(Math.min(s0.x1,s0.x2)*W-8, Math.min(s0.y1,s0.y2)*H-8, Math.abs(s0.x2-s0.x1)*W+16, Math.abs(s0.y2-s0.y1)*H+16);
+    cx.setLineDash([]); const rr = Math.max(7, W/150); manijas(s0).forEach(([k,x,y])=>{ cx.beginPath(); cx.arc(x*W,y*H,rr,0,Math.PI*2); cx.fillStyle="#fff"; cx.fill(); cx.lineWidth=3; cx.strokeStyle="#4FB3FF"; cx.stroke(); });
+    cx.restore(); }
 }
 let dSaving = false;
 function ptr(e){ const r = cv.getBoundingClientRect(); return {x:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)), y:Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))}; }
+/* manijas para estirar o acortar: los extremos de flechas/líneas y las esquinas del resto */
+function manijas(s0){ if (!s0 || s0.t==="text") return []; return [["a",s0.x1,s0.y1],["b",s0.x2,s0.y2]]; }
+function hitManija(p){ if (dSel<0) return null; const s0 = dShapes[dSel], r = 16/ cv.getBoundingClientRect().width; for (const [k,x,y] of manijas(s0)){ if (Math.hypot(p.x-x, (p.y-y)*cv.height/cv.width) < r*1.6) return k; } return null; }
+function pedirTexto(def){ const t = prompt("Escribí el texto:", def||document.getElementById("drawText").value||""); return t==null ? null : t.trim().slice(0,60); }
 cv.addEventListener("pointerdown",e=>{
   const p = ptr(e);
-  if (dTool==="move"){ dSel = hitShape(p); selBtns(); if (dSel>=0){ dMove = {p, orig:{...dShapes[dSel]}}; cv.setPointerCapture(e.pointerId); } redraw(); return; }
-  if (dTool==="text") { const t = document.getElementById("drawText").value.trim(); if (!t) { document.getElementById("drawMsg").textContent = "Escribí el texto arriba y después tocá la imagen."; document.getElementById("drawText").focus(); return; } dShapes.push({t:"text",c:dColor,x1:p.x,y1:p.y,x2:p.x,y2:p.y,s:t,k:dSize}); redraw(); return; }
+  /* 1) si hay algo elegido y tocás una manija: estirar / acortar */
+  const mj = hitManija(p); if (mj){ dMove = {p, orig:{...dShapes[dSel]}, manija:mj}; cv.setPointerCapture(e.pointerId); return; }
+  /* 2) si tocás un dibujo que ya está: se elige y se mueve (con cualquier herramienta) */
+  const h = hitShape(p);
+  if (h>=0 && (dTool==="move" || dTool!=="crop")){ dSel = h; selBtns(); dMove = {p, orig:{...dShapes[dSel]}}; cv.setPointerCapture(e.pointerId); redraw(); return; }
+  if (dTool==="move"){ dSel = -1; selBtns(); redraw(); return; }
+  dSel = -1; selBtns();
+  if (dTool==="text") { let t = document.getElementById("drawText").value.trim(); if (!t) t = pedirTexto(""); if (!t) return; dShapes.push({t:"text",c:dColor,x1:p.x,y1:p.y,x2:p.x,y2:p.y,s:t,k:dSize}); dSel = dShapes.length-1; selBtns(); document.getElementById("drawText").value = ""; redraw(); return; }
   dStart = p; cv.setPointerCapture(e.pointerId);
 });
+cv.addEventListener("dblclick",e=>{ const h = hitShape(ptr(e)); if (h>=0 && dShapes[h].t==="text"){ const t = pedirTexto(dShapes[h].s); if (t){ dShapes[h].s = t; redraw(); } } });
 cv.addEventListener("pointermove",e=>{ const p = ptr(e);
-  if (dMove && dSel>=0){ const dx = p.x-dMove.p.x, dy = p.y-dMove.p.y, o = dMove.orig, s0 = dShapes[dSel]; s0.x1=o.x1+dx; s0.x2=o.x2+dx; s0.y1=o.y1+dy; s0.y2=o.y2+dy; redraw(); return; }
-  if (!dStart) return; dPreview = {t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y,k:dSize}; redraw(); });
+  if (dMove && dSel>=0){ const dx = p.x-dMove.p.x, dy = p.y-dMove.p.y, o = dMove.orig, s0 = dShapes[dSel];
+    if (dMove.manija==="a"){ s0.x1 = o.x1+dx; s0.y1 = o.y1+dy; } else if (dMove.manija==="b"){ s0.x2 = o.x2+dx; s0.y2 = o.y2+dy; }
+    else { s0.x1=o.x1+dx; s0.x2=o.x2+dx; s0.y1=o.y1+dy; s0.y2=o.y2+dy; } redraw(); return; }
+  if (!dStart){ cv.style.cursor = hitManija(p) ? "nwse-resize" : (hitShape(p)>=0 ? "move" : "crosshair"); return; }
+  dPreview = {t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y,k:dSize}; redraw(); });
 cv.addEventListener("pointerup",e=>{ if (dMove){ dMove = null; return; } if (!dStart) return; const p = ptr(e);
-  if (Math.hypot(p.x-dStart.x,p.y-dStart.y) > 0.01){ if (dTool==="crop") dCrop = {x1:Math.min(dStart.x,p.x),y1:Math.min(dStart.y,p.y),x2:Math.max(dStart.x,p.x),y2:Math.max(dStart.y,p.y)}; else dShapes.push({t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y,k:dSize}); }
+  if (Math.hypot(p.x-dStart.x,p.y-dStart.y) > 0.01){ if (dTool==="crop") dCrop = {x1:Math.min(dStart.x,p.x),y1:Math.min(dStart.y,p.y),x2:Math.max(dStart.x,p.x),y2:Math.max(dStart.y,p.y)}; else { dShapes.push({t:dTool,c:dColor,x1:dStart.x,y1:dStart.y,x2:p.x,y2:p.y,k:dSize}); dSel = dShapes.length-1; selBtns(); } }
   dStart=null; dPreview=null; redraw(); });
+/* borrar con la tecla Supr y cambiar el color del elegido */
+document.addEventListener("keydown",e=>{ if (drawEl.hidden || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return; if ((e.key==="Delete"||e.key==="Backspace") && dSel>=0){ e.preventDefault(); dShapes.splice(dSel,1); dSel = -1; selBtns(); redraw(); } });
 document.getElementById("drawUndo").addEventListener("click",()=>{ if (dCrop && !dShapes.length){ dCrop = null; } else dShapes.pop(); dSel = -1; selBtns(); redraw(); });
 document.getElementById("drawClear").addEventListener("click",()=>{ dShapes = []; dCrop = null; dSel = -1; selBtns(); redraw(); });
 document.getElementById("drawCancel").addEventListener("click",()=>{ drawEl.hidden = true; document.body.style.overflow=""; flushPending(); });
@@ -1933,7 +1987,7 @@ function openDraw(secId, idx){
   img.onload = ()=>{ const sc = Math.min(1, 1920/img.naturalWidth); cv.width = Math.round(img.naturalWidth*sc); cv.height = Math.round(img.naturalHeight*sc); dImg = img;
     if (SIS_PEND){ const ar = cv.height/cv.width, w = 0.3, h = Math.min(0.6, w*0.78/ar); dShapes.push({t:"sis", f:SIS_PEND, n:(state.rival||"").slice(0,24), c:"#E5484D", x1:0.025, y1:0.035, x2:0.025+w, y2:0.035+h}); dSel = dShapes.length-1; selBtns(); dTool = "move"; document.querySelectorAll("#drawTb [data-tool]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.tool==="move"?"true":"false")); SIS_PEND = null; }
     redraw();
-    document.getElementById("drawMsg").textContent = "Arrastrá sobre la imagen para dibujar. Texto: escribilo arriba y tocá donde va. ✋ Mover: tocá un dibujo para moverlo, agrandarlo (＋) o achicarlo (−). ✂ Recortar: marcá la parte que querés dejar."; };
+    document.getElementById("drawMsg").textContent = "Arrastrá para dibujar. Tocá cualquier dibujo para moverlo; con los puntos blancos lo estirás o lo acortás; ＋ / − lo agranda o achica y 🗑 lo borra. Texto: tocá Texto y después donde va (doble clic para cambiarlo)."; };
   img.onerror = ()=>{ document.getElementById("drawMsg").textContent = "No se pudo abrir la imagen."; };
   window.__mtkResolveBlob(sh.id).then(u=>{ img.src = u; }).catch(()=>{ img.onerror && img.onerror(); });
 }
@@ -2030,9 +2084,10 @@ function buildSlides(){
   { const cl = list("claves").filter(Boolean); if (cl.length) slides.push(()=>{ const w=D("div","claves-sl"); w.appendChild(D("p","kicker","Lo más importante")); w.appendChild(D("h3",null,"Las "+cl.length+" claves contra "+name));
       const ol=D("ol","claves"); cl.forEach(t=>ol.appendChild(D("li",null,t))); w.appendChild(ol); return w; }); }
   sectionSlide(S("sistema"), w=>{ w.appendChild(D("h3",null,"Cómo se paran"));
-    const a=val("sis_con"), b=val("sis_sin");
+    const a=val("sis_con"), b=val("sis_sin"), ma=sisLista("sis_con").slice(1), mb=sisLista("sis_sin").slice(1);
     if (isFormation(a)||isFormation(b)){ const g=D("div","cols"); if(isFormation(a)) g.appendChild(pitchSVG(a,"Con pelota")); if(isFormation(b)) g.appendChild(pitchSVG(b,"Sin pelota")); w.appendChild(g); }
     else if (a||b) w.appendChild(pills([a&&("Con pelota: "+a), b&&("Sin pelota: "+b)].filter(Boolean)));
+    if (ma.length||mb.length) block(w,"También usan",pills([...ma.map(x=>"Con pelota "+fmtSis(x)), ...mb.map(x=>"Sin pelota "+fmtSis(x))]));
     noteOrNothing(w,"Detalle","sis_notas"); if(!a&&!b&&!val("sis_notas")) empty(w); });
   const once = list("once"); if (once.some(p=>p&&(p.dor||p.ref))) slides.push(()=>{ const w=D("div"); w.appendChild(D("p","kicker","Sistema")); w.appendChild(D("h3",null,"Once probable"));
     const f = isFormation(val("sis_con")) ? val("sis_con") : "4-4-2"; const svg = pitchSVG(f,"Once probable",once); svg.style.maxHeight="58vh"; w.appendChild(svg); return w; });
@@ -2146,14 +2201,15 @@ async function abrirYouTube(directo){
   vKind = "yt"; vNombre = id; ytListo = false;
   vVideo.pause(); vVideo.hidden = true; let box = document.getElementById("vYT");
   if (!box){ box = el("div",{id:"vYT",class:"vyt"}); vVideo.parentNode.insertBefore(box, vVideo); }
-  box.hidden = false; box.innerHTML = '<div id="vYTp"></div>';
+  box.hidden = false; box.innerHTML = '<div id="vYTp"></div><div class="vyt-tapa" title="Tocá para pausar o seguir"></div>';
+  box.querySelector(".vyt-tapa").addEventListener("click",()=>playPausa());
   vBody.hidden = false; vMin.hidden = false; vMin.textContent = "Minimizar"; document.body.classList.add("vopen");
   setSplit(lsGet("scout_split")!=="0");
   document.getElementById("vName").textContent = "YouTube · " + id;
   vMsg.className = "vmsg"; vMsg.textContent = "Cargando YouTube…";
   setTimeout(()=>{ if (vKind==="yt" && !ytListo){ vMsg.className = "vmsg err"; vMsg.textContent = "No se pudo cargar YouTube. Revisá la conexión o que el video sea público / no listado."; } }, 12000);
   await cargarYTApi();
-  ytP = new YT.Player("vYTp", {videoId:id, width:"100%", height:"100%", playerVars:{rel:0, modestbranding:1, playsinline:1, fs:0}, events:{onReady:()=>{ ytListo = true; vMsg.textContent = ""; }}});
+  ytP = new YT.Player("vYTp", {videoId:id, width:"100%", height:"100%", playerVars:{rel:0, modestbranding:1, playsinline:1, fs:0, controls:0, disablekb:1, iv_load_policy:3}, events:{onReady:()=>{ ytListo = true; vMsg.textContent = ""; }}});
 }
 function usarArchivoEnVisor(){ vKind = "file"; vVideo.hidden = false; const b = document.getElementById("vYT"); if (b){ b.hidden = true; b.innerHTML = ""; } ytP = null; ytListo = false; }
 async function marcarClip(){
@@ -2272,7 +2328,9 @@ const MOMS = [
   {k:"gol_f", sec:"goles", t:"⚽ Gol de ellas", c:"#0F766E", tx:"#fff", gol:"favor"},
   {k:"gol_c", sec:"goles", t:"⚽ Gol en contra", c:"#7F1D1D", tx:"#fff", gol:"contra"}
 ];
-const momDe = k => MOMS.find(m=>m.k===k);
+function momsTodos(){ return [...MOMS, ...(Array.isArray(state.momsExtra)?state.momsExtra:[]).map(m=>({...m, tx:m.tx||(colorClaro(m.c)?"#141412":"#fff")}))]; }
+function colorClaro(c){ const m = /^#?([0-9a-f]{6})$/i.exec(c||""); if (!m) return true; const n = parseInt(m[1],16), r = n>>16, g = (n>>8)&255, b = n&255; return (r*299+g*587+b*114)/1000 > 150; }
+const momDe = k => momsTodos().find(m=>m.k===k);
 let ULT = null;
 function vDur(){ try{ if (vKind==="yt") return (ytP && ytListo && ytP.getDuration) ? ytP.getDuration()||0 : 0; return isFinite(vVideo.duration) ? vVideo.duration : 0; }catch(e){ return 0; } }
 function minPartido(t){
@@ -2291,7 +2349,7 @@ async function crearMomento(m){
   if (vKind==="yt") sh.yt = vNombre; else sh.file = vNombre;
   const arr = Array.isArray(state[shotKey(m.sec)]) ? state[shotKey(m.sec)] : (state[shotKey(m.sec)] = []);
   arr.push(sh); changed(); refreshShots(m.sec);
-  ULT = {sec:m.sec, sh}; pintarUltimo(true); pintarMomentos();
+  ULT = {sec:m.sec, sh}; pintarUltimo(); pintarMomentos(); try{ document.activeElement && document.activeElement.blur && document.activeElement.blur(); }catch(e){}
   const b = document.querySelector('.mom[data-k="'+m.k+'"]'); if (b){ b.classList.remove("pulso"); void b.offsetWidth; b.classList.add("pulso"); }
   vMsg.className = "vmsg"; vMsg.textContent = "";
   if (vKind!=="yt" && assets && vVideo.videoWidth){
@@ -2341,14 +2399,15 @@ function pintarUltimo(foco){
   dib.addEventListener("click",()=>{ const arr = state[shotKey(sec)]||[]; const i = arr.indexOf(sh); if (i>=0) openDraw(sec, i); });
   const st = el("button",{type:"button",class:sh.star?"on":"",text: sh.star ? "⭐ Para la charla" : "☆ Para la charla"}); st.addEventListener("click",()=>{ sh.star = !sh.star; changed(); refreshShots(sec); pintarUltimo(); });
   const del = el("button",{type:"button",class:"mu-del",title:"Quitar esta jugada",text:"↺ Quitar"}); del.addEventListener("click",()=>quitarClip(sec, sh));
-  [foto,dib,st,del].forEach(b=>ac.appendChild(b)); box.appendChild(ac);
+  const dl = el("button",{type:"button",text:"⬇ Descargar clip"}); dl.addEventListener("click",()=>{ const m0 = momDe(sh.mom); grabarClips([{sec, sh}], (state.rival||"rival")+" "+(m0?m0.t:"clip")+" "+(sh.min||"")); });
+  [foto,dib,st,del,dl].forEach(b=>ac.appendChild(b)); box.appendChild(ac);
   if (foco) setTimeout(()=>{ try{ nota.focus({preventScroll:true}); }catch(e){} }, 30);
 }
 function pintarMomentos(){
   const L = todosLosClips();
-  MOMS.forEach(m=>{ const n = L.filter(x=>x.sh.mom===m.k || (!x.sh.mom && x.sec===m.sec && !m.gol && x.sec!=="goles")).length; const b = document.querySelector('.mom[data-k="'+m.k+'"] .mom-n'); if (b) b.textContent = n||""; });
+  momsTodos().forEach(m=>{ const n = L.filter(x=>x.sh.mom===m.k || (!m.propio && !x.sh.mom && x.sec===m.sec && !m.gol && x.sec!=="goles")).length; const b = document.querySelector('.mom[data-k="'+m.k+'"] .mom-n'); if (b) b.textContent = n||""; });
   pintarMarcas(); pintarLista(L);
-  { const bs = document.getElementById("bSis"); if (bs){ const a = state.sis_con, b = state.sis_sin, f = x=>/^\d(-\d)+$/.test(x||"") ? "1-"+x : (x||""); bs.textContent = a||b ? "🧩 "+[f(a),f(b)].filter(Boolean).join(" / ") : "🧩 Sistema"; bs.classList.toggle("on", !!(a||b)); } }
+  { const bs = document.getElementById("bSis"); if (bs){ const a = state.sis_con, b = state.sis_sin, f = fmtSis; bs.textContent = a||b ? "🧩 "+[f(a)+(sisLista("sis_con").length>1?" +"+(sisLista("sis_con").length-1):""), f(b)].filter(Boolean).join(" / ") : "🧩 Sistema"; bs.classList.toggle("on", !!(a||b)); } }
   const p = document.getElementById("momPer"); if (p){ p.querySelector("#bT1").textContent = state.t1!=null ? "1T desde "+fmtT(state.t1) : "Empieza 1T"; p.querySelector("#bT2").textContent = state.t2!=null ? "2T desde "+fmtT(state.t2) : "Empieza 2T"; p.querySelector("#bT1").classList.toggle("on", state.t1!=null); p.querySelector("#bT2").classList.toggle("on", state.t2!=null); }
 }
 function pintarMarcas(){
@@ -2358,11 +2417,14 @@ function pintarMarcas(){
     i.addEventListener("click",()=>{ ULT = x; pintarUltimo(); verEnVisor(x.sh); }); bar.appendChild(i); });
   const cur = el("i",{class:"vm-cur",id:"vmCur"}); bar.appendChild(cur); moverCursor();
 }
+function reproduciendo(){ try{ if (vKind==="yt") return !!(ytP && ytListo && ytP.getPlayerState && ytP.getPlayerState()===1); return !vVideo.paused; }catch(e){ return false; } }
+function playPausa(){ if (!vp.listo()) return; if (reproduciendo()) vp.pause(); else { PARAR_EN = null; vp.play(); } }
 let PARAR_EN = null;
 function verEnVisor(sh){ vp.seek(sh.ini); vp.play(); PARAR_EN = sh.fin; }
 setInterval(()=>{ if (PARAR_EN!=null && vp.listo() && vp.t() >= PARAR_EN){ vp.pause(); PARAR_EN = null; } }, 250);
-function moverCursor(){ const c = document.getElementById("vmCur"), d = vDur(); if (c && d) c.style.left = (100*vp.t()/d).toFixed(2)+"%"; }
-setInterval(()=>{ if (!document.hidden && vp.listo()){ moverCursor(); const bar = document.getElementById("vMarcas"); if (bar && !bar.children.length && vDur()) pintarMarcas(); } }, 1000);
+function moverCursor(){ const c = document.getElementById("vmCur"), d = vDur(); if (c && d) c.style.left = (100*vp.t()/d).toFixed(2)+"%";
+  const tl = document.getElementById("vTiempo"); if (tl && vp.listo()){ const t = vp.t(); tl.textContent = fmtT(t)+(d?" / "+fmtT(d):"")+((state.t1!=null && t>=state.t1)?" · "+minPartido(t):""); } }
+setInterval(()=>{ if (!document.hidden && vp.listo()){ moverCursor(); const b = document.getElementById("vPP"); if (b) b.textContent = reproduciendo() ? "❚❚ Pausa" : "▶ Play"; const bar = document.getElementById("vMarcas"); if (bar && !bar.children.length && vDur()) pintarMarcas(); } }, 1000);
 function pintarLista(L){
   const box = document.getElementById("momLista"); if (!box) return; box.innerHTML = "";
   const ult = L.slice().sort((a,b)=>(b.sh.t??b.sh.ini)-(a.sh.t??a.sh.ini));
@@ -2391,6 +2453,25 @@ function mapaZonasSVG(shots, color, titulo){
   h += `<text x="${W/2}" y="${H+20}" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor">Ataque de ${escH(state.rival||"ellas")} →</text>`;
   svg.innerHTML = h; return svg;
 }
+function pintarGrid(){
+  const g = document.getElementById("momGrid"); if (!g) return; g.innerHTML = "";
+  momsTodos().forEach((m,i)=>{ const tecla = i<9 ? String(i+1) : (i===9 ? "0" : ""); const b = el("button",{type:"button",class:"mom"+(m.ancho?" ancho":"")+(m.gol?" gol":"")+(m.propio?" propio":""),style:"background:"+m.c+";color:"+m.tx,title:tecla?"Tecla "+tecla:""}); b.dataset.k = m.k;
+    if (tecla) b.appendChild(el("kbd",{text:tecla}));
+    b.appendChild(el("span",{class:"mom-t",text:gx(m.t)})); b.appendChild(el("span",{class:"mom-n"}));
+    if (m.propio){ const x = el("span",{class:"mom-x",title:"Quitar este botón",role:"button",text:"×"}); x.addEventListener("click",e=>{ e.stopPropagation(); if (!confirm("¿Quitar el botón “"+m.t+"”? Las jugadas que marcaste con él quedan guardadas.")) return; state.momsExtra = (state.momsExtra||[]).filter(z=>z.k!==m.k); changed(); pintarGrid(); pintarMomentos(); }); b.appendChild(x); }
+    b.addEventListener("click",()=>crearMomento(m)); g.appendChild(b); });
+  const mas = el("button",{type:"button",class:"mom mom-mas",text:"＋ Agregar un botón"}); mas.addEventListener("click",nuevoBotonMom); g.appendChild(mas);
+}
+function nuevoBotonMom(){
+  const c = el("div",{class:"sis-m"});
+  c.appendChild(el("div",{class:"lbl",text:"Nombre del botón"})); const nom = el("input",{type:"text",maxlength:"28",placeholder:"Ej.: Inicio largo, Contraataque, Laterales…"}); nom.className = "mm-in"; c.appendChild(nom);
+  c.appendChild(el("div",{class:"lbl",text:"Color"})); const cols = ["#0EA5E9","#EC4899","#84CC16","#F97316","#6366F1","#14B8A6","#EAB308","#94A3B8"]; let col = cols[0];
+  const fc = el("div",{class:"chips"}); cols.forEach(cc=>{ const b = el("button",{type:"button",class:"mm-col","aria-pressed":cc===col?"true":"false",style:"background:"+cc}); b.addEventListener("click",()=>{ col = cc; fc.querySelectorAll(".mm-col").forEach(z=>z.setAttribute("aria-pressed", z===b?"true":"false")); }); fc.appendChild(b); }); c.appendChild(fc);
+  c.appendChild(el("div",{class:"lbl",text:"¿En qué parte del informe van las jugadas?"})); const se = el("select",{class:"mm-in"}); SECTIONS.filter(x=>!["datos","plan","clips"].includes(x.id)).forEach(x=>se.appendChild(el("option",{value:x.id,text:x.title}))); se.value = "general"; c.appendChild(se);
+  const ok = el("button",{type:"button",class:"btn2 solid",text:"Agregar"});
+  ok.addEventListener("click",()=>{ const t = nom.value.trim(); if (!t){ nom.focus(); return; } state.momsExtra = Array.isArray(state.momsExtra) ? state.momsExtra : []; state.momsExtra.push({k:"x_"+Date.now().toString(36), t, c:col, sec:se.value, propio:true}); changed(); cerrarX(); pintarGrid(); pintarMomentos(); toast("Listo: botón “"+t+"” agregado."); });
+  xModal("Nuevo botón", c, [ok]); setTimeout(()=>nom.focus(),50);
+}
 function lienzoMomentos(){
   const wrap = document.getElementById("mirarBox"); if (!wrap) return;
   const side = el("div",{class:"mom-side",id:"momSide"});
@@ -2401,21 +2482,34 @@ function lienzoMomentos(){
   const bs = el("button",{type:"button",id:"bSis",class:"sis",title:"Elegí cómo se paran (con y sin pelota). Si querés, saca la foto con la canchita del sistema arriba",text:"🧩 Sistema"}); bs.addEventListener("click",abrirSistema); per.appendChild(bs);
   side.appendChild(per);
   side.appendChild(el("h3",{class:"mom-q",text:"¿Qué viste?"}));
-  side.appendChild(el("p",{class:"mom-ayuda",text:"Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. También con las teclas 1 a 9."}));
-  const g = el("div",{class:"mom-grid"});
-  MOMS.forEach((m,i)=>{ const b = el("button",{type:"button",class:"mom"+(m.ancho?" ancho":"")+(m.gol?" gol":""),style:"background:"+m.c+";color:"+m.tx,title:"Tecla "+(i+1)}); b.dataset.k = m.k;
-    b.appendChild(el("span",{class:"mom-t",text:gx(m.t)})); b.appendChild(el("span",{class:"mom-n"})); b.appendChild(el("kbd",{text:String(i+1)}));
-    b.addEventListener("click",()=>crearMomento(m)); g.appendChild(b); });
+  side.appendChild(el("p",{class:"mom-ayuda",text:"Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. Con el teclado: el número de cada botón, y la barra espaciadora para pausar."}));
+  const g = el("div",{class:"mom-grid",id:"momGrid"});
   side.appendChild(g);
   side.appendChild(el("div",{class:"mom-ult",id:"momUlt"}));
   side.appendChild(el("div",{class:"mom-lista",id:"momLista"}));
-  wrap.appendChild(side);
+  wrap.appendChild(side); pintarGrid();
   const vb = document.getElementById("vBody"), bar = el("div",{class:"vmarcas",id:"vMarcas",title:"Tus marcas en el partido. Tocá una para verla."});
   vb.insertBefore(bar, vb.querySelector(".vctrl"));
+  bar.addEventListener("click",e=>{ if (e.target!==bar && !e.target.classList.contains("vm-cur")) return; const d = vDur(); if (!d) return; const r = bar.getBoundingClientRect(); vp.seek(Math.max(0,Math.min(d, d*(e.clientX-r.left)/r.width))); setTimeout(moverCursor,150); });
+  document.getElementById("vPP").addEventListener("click",playPausa);
   pintarUltimo(); pintarMomentos();
 }
 /* pestañas: Mirar · Informe · Charla */
-function setTab(t){ ["mirar","informe","charla"].forEach(x=>document.body.classList.toggle("tab-"+x, x===t)); document.querySelectorAll(".tabs-an [data-tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t?"true":"false")); lsSet("scout_tab", t); if (t==="mirar") pintarMomentos(); window.scrollTo({top:0}); }
+function pintarPizarrasRival(){
+  const box = document.getElementById("pzRival"); if (!box) return; const par = parentCon("mtkPizarrasDe"); if (!par){ box.hidden = true; return; }
+  let L = []; try{ L = JSON.parse(JSON.stringify(par.mtkPizarrasDe(state.rival||""))); }catch(e){}
+  if (!L.length){ box.hidden = true; return; }
+  box.hidden = false; box.innerHTML = "";
+  box.appendChild(el("h3",{text:"Pizarras de este rival ("+L.length+")"})); box.appendChild(el("p",{class:"small-hint",text:"Las que mandaste con → Pizarra. Abrilas para dibujar o borralas desde acá."}));
+  const g = el("div",{class:"pzr-grid"});
+  L.forEach(z=>{ const c = el("div",{class:"pzr"}); const m = el("div",{class:"pzr-mini"}); m.innerHTML = z.svg||""; c.appendChild(m); c.appendChild(el("b",{text:z.nombre}));
+    const f = el("div",{class:"pzr-acc"}); const ab = el("button",{type:"button",class:"btn2",text:"Abrir"}); ab.addEventListener("click",()=>{ const q = parentCon("mtkAbrirPizarra"); if (q) q.mtkAbrirPizarra(z.id); });
+    const br = el("button",{type:"button",class:"btn2 danger",text:"🗑 Borrar"}); br.addEventListener("click",()=>{ if (!confirm("¿Borrar la pizarra “"+z.nombre+"”?")) return; const q = parentCon("mtkBorrarPizarra"); if (q && q.mtkBorrarPizarra(z.id)){ toast("Pizarra borrada."); pintarPizarrasRival(); } });
+    f.appendChild(ab); f.appendChild(br); c.appendChild(f); g.appendChild(c); });
+  box.appendChild(g);
+}
+document.addEventListener("visibilitychange",()=>{ if (!document.hidden) try{ pintarPizarrasRival(); }catch(e){} });
+function setTab(t){ ["mirar","informe","charla"].forEach(x=>document.body.classList.toggle("tab-"+x, x===t)); document.querySelectorAll(".tabs-an [data-tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t?"true":"false")); lsSet("scout_tab", t); if (t==="mirar") pintarMomentos(); else pintarPizarrasRival(); window.scrollTo({top:0}); }
 
 
 /* 🧩 Sistema: se elige con un toque y, si querés, sale la foto con la canchita arriba */
@@ -2423,17 +2517,17 @@ let SIS_PEND = null;
 function abrirSistema(){
   const fS = SECTIONS.find(x=>x.id==="sistema"), fc = fS.fields.find(f=>f.id==="sis_con"), fsn = fS.fields.find(f=>f.id==="sis_sin");
   const opc = id => (state.opc && Array.isArray(state.opc[id])) ? state.opc[id] : [];
-  const sel = {con: state.sis_con||"", sin: state.sis_sin||""};
+  const sel = {con: sisLista("sis_con"), sin: sisLista("sis_sin")};
   const lab = x => /^\d(-\d)+$/.test(x) ? "1-"+x : x;
   const c = el("div",{class:"sis-m"});
   const fila = (k, t, f)=>{ c.appendChild(el("div",{class:"lbl",text:t})); const ch = el("div",{class:"chips"});
-    [...f.opts, ...opc(f.id).filter(o=>!f.opts.includes(o))].forEach(o=>{ const b = el("button",{type:"button",class:"chip","aria-pressed":sel[k]===o?"true":"false",text:lab(o)}); b.addEventListener("click",()=>{ sel[k] = sel[k]===o ? "" : o; ch.querySelectorAll(".chip").forEach(z=>z.setAttribute("aria-pressed", z===b && sel[k] ? "true":"false")); }); ch.appendChild(b); });
-    const otro = el("button",{type:"button",class:"chip chip-otra",text:"＋ Otro"}); otro.addEventListener("click",()=>{ let v = (prompt("Escribí el sistema (ej.: 1-3-4-3):")||"").trim().replace(/\s+/g,"").replace(/^1-/,""); if (!/^\d(-\d){1,4}$/.test(v)) return; state.opc = state.opc||{}; (state.opc[f.id] = state.opc[f.id]||[]).includes(v) || state.opc[f.id].push(v); sel[k] = v; cerrarX(); abrirSistema(); }); ch.appendChild(otro);
+    [...f.opts, ...opc(f.id).filter(o=>!f.opts.includes(o)), ...sel[k].filter(o=>!f.opts.includes(o) && !opc(f.id).includes(o))].forEach(o=>{ const b = el("button",{type:"button",class:"chip","aria-pressed":sel[k].includes(o)?"true":"false",text:lab(o)}); b.addEventListener("click",()=>{ const i = sel[k].indexOf(o); if (i>=0) sel[k].splice(i,1); else { if (sel[k].length>=3){ toast("Hasta 3 sistemas."); return; } sel[k].push(o); } b.setAttribute("aria-pressed", sel[k].includes(o)?"true":"false"); }); ch.appendChild(b); });
+    const otro = el("button",{type:"button",class:"chip chip-otra",text:"＋ Otro"}); otro.addEventListener("click",()=>{ let v = (prompt("Escribí el sistema (ej.: 1-3-4-3):")||"").trim().replace(/\s+/g,"").replace(/^1-/,""); if (!/^\d(-\d){1,4}$/.test(v)) return; state.opc = state.opc||{}; (state.opc[f.id] = state.opc[f.id]||[]).includes(v) || state.opc[f.id].push(v); if (!sel[k].includes(v) && sel[k].length<3) sel[k].push(v); setSisLista("sis_con", sel.con); setSisLista("sis_sin", sel.sin); cerrarX(); abrirSistema(); }); ch.appendChild(otro);
     c.appendChild(ch); };
-  fila("con","Con pelota",fc); fila("sin","Sin pelota",fsn);
+  fila("con","Con pelota",fc); fila("sin","Sin pelota",fsn); c.appendChild(el("p",{class:"small-hint",text:"Podés marcar hasta 3 en cada uno. El primero que tocás es el principal."}));
   const lb = el("label",{class:"sis-foto"}); const cb = el("input",{type:"checkbox"}); cb.checked = vp.listo(); if (!vp.listo()) cb.disabled = true; lb.appendChild(cb); lb.appendChild(el("span",{text:" 📷 Sacar la foto de este momento con la canchita del sistema arriba"})); c.appendChild(lb);
   const ok = el("button",{type:"button",class:"btn2 solid",text:"Guardar"});
-  ok.addEventListener("click",async ()=>{ state.sis_con = sel.con; state.sis_sin = sel.sin; changed(); ["sis_con","sis_sin","once"].forEach(refreshField); pintarMomentos(); cerrarX();
+  ok.addEventListener("click",async ()=>{ setSisLista("sis_con", sel.con); setSisLista("sis_sin", sel.sin); sel.con = state.sis_con; sel.sin = state.sis_sin; changed(); ["sis_con","sis_sin","once"].forEach(refreshField); pintarMomentos(); cerrarX();
     if (cb.checked && vp.listo()){ const f = /^\d(-\d)+$/.test(sel.con) ? sel.con : (/^\d(-\d)+$/.test(sel.sin) ? sel.sin : null); vSec.value = "sistema"; SIS_PEND = f;
       const antes = (state[shotKey("sistema")]||[]).length; await capture(); const arr = state[shotKey("sistema")]||[];
       if (arr.length>antes) openDraw("sistema", arr.length-1); else SIS_PEND = null; } });
@@ -2493,6 +2587,52 @@ async function irClip(i){
     RES.timer = setInterval(()=>{ if (RES && RES.vid && !RES.pausa && v.currentTime >= sh.fin){ clearInterval(RES.timer); v.pause(); setTimeout(()=>irClip(RES.i+1), 600); } }, 200);
   }
 }
+/* ⬇ Descargar clips como video (mp4 si el navegador lo permite) */
+function tipoVideo(){ const L = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2","video/mp4;codecs=avc1","video/mp4","video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"]; for (const t of L){ try{ if (window.MediaRecorder && MediaRecorder.isTypeSupported(t)) return t; }catch(e){} } return ""; }
+let GRAB = null;
+function panelGrab(txt){ let o = document.getElementById("grabPanel"); if (!o){ o = el("div",{class:"grab",id:"grabPanel"}); o.innerHTML = '<div class="grab-c"><b id="grabT"></b><div class="barra-g"><i id="grabB"></i></div><small>No cierres ni cambies de pestaña mientras se graba.</small><button type="button" class="btn2" id="grabX">Cancelar</button></div>'; (document.fullscreenElement||document.body).appendChild(o); o.querySelector("#grabX").onclick = ()=>{ if (GRAB) GRAB.cancel = true; }; } o.querySelector("#grabT").textContent = txt; return o; }
+async function streamPestanaRec(){
+  const box = document.getElementById("vYT");
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) throw new Error("Este navegador no deja grabar. Usá Chrome o Edge en la compu.");
+  if (!capStream || !capStream.active){
+    capStream = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:"browser", frameRate:30}, audio:true, preferCurrentTab:true, selfBrowserSurface:"include", surfaceSwitching:"exclude", systemAudio:"exclude"}).catch(async e=>{ if (e && e.name==="NotAllowedError") throw e; return navigator.mediaDevices.getDisplayMedia({video:{displaySurface:"browser", frameRate:30}, audio:false, preferCurrentTab:true, selfBrowserSurface:"include"}); });
+    capVid = document.createElement("video"); capVid.muted = true; capVid.playsInline = true; capVid.srcObject = capStream; await capVid.play();
+    capStream.getVideoTracks()[0].addEventListener("ended",()=>{ capStream = null; capVid = null; capRecorte = false; });
+    capRecorte = false; const tr = capStream.getVideoTracks()[0];
+    try{ if (window.RestrictionTarget && tr.restrictTo){ await tr.restrictTo(await RestrictionTarget.fromElement(box)); capRecorte = true; } }catch(e){}
+    if (!capRecorte){ try{ if (window.CropTarget && tr.cropTo){ await tr.cropTo(await CropTarget.fromElement(box)); capRecorte = true; } }catch(e){} }
+  }
+  return capStream;
+}
+async function grabarClips(L, nombre){
+  if (GRAB) return; L = L.filter(x=>x && x.sh && x.sh.clip);
+  if (!L.length){ toast("No hay clips para descargar."); return; }
+  const usaYT = vKind==="yt", ok = L.filter(x=> usaYT ? x.sh.yt===vNombre : (vUrl && (!x.sh.file || x.sh.file===vNombre)));
+  if (!ok.length){ toast("Para descargar, abrí en el visor el video del partido de estos clips."); return; }
+  const tipo = tipoVideo(); if (!tipo){ toast("Este navegador no puede grabar video. Probá con Chrome en la compu."); return; }
+  GRAB = {cancel:false}; const ext = tipo.startsWith("video/mp4") ? "mp4" : "webm";
+  let stream, v = null, rec, partes = [];
+  try{
+    if (usaYT){ panelGrab("Elegí “Esta pestaña” y tocá Compartir…"); stream = await streamPestanaRec(); document.body.classList.add("capturando"); try{ document.getElementById("vYT").scrollIntoView({block:"center"}); }catch(e){} }
+    else { v = document.createElement("video"); v.src = vUrl; v.muted = false; v.volume = 0.0001; v.playsInline = true; v.preload = "auto"; v.style.cssText = "position:fixed;left:-9999px;width:2px;height:2px"; document.body.appendChild(v); await new Promise(r=>{ v.onloadeddata = r; setTimeout(r,4000); }); stream = v.captureStream ? v.captureStream() : v.mozCaptureStream(); }
+    rec = new MediaRecorder(stream, {mimeType:tipo, videoBitsPerSecond:4000000}); rec.ondataavailable = e=>{ if (e.data && e.data.size) partes.push(e.data); };
+    const fin = new Promise(r=>{ rec.onstop = r; });
+    let empezo = false;
+    for (let i=0;i<ok.length && !GRAB.cancel;i++){
+      const sh = ok[i].sh, dur = Math.max(1, sh.fin-sh.ini); panelGrab("Grabando clip "+(i+1)+" de "+ok.length+"…");
+      if (usaYT){ vp.pause(); vp.seek(sh.ini); await new Promise(r=>setTimeout(r,900)); vp.play(); await new Promise(r=>{ const t0 = Date.now(); const k = setInterval(()=>{ if (reproduciendo() || Date.now()-t0>5000){ clearInterval(k); r(); } },100); }); }
+      else { v.currentTime = sh.ini; await new Promise(r=>{ v.onseeked = r; setTimeout(r,2500); }); await v.play().catch(()=>{}); }
+      if (!empezo){ rec.start(1000); empezo = true; } else rec.resume();
+      await new Promise(r=>{ const k = setInterval(()=>{ const t = usaYT ? vp.t() : v.currentTime; const pct = Math.min(100, 100*(i + Math.max(0,(t-sh.ini)/dur))/ok.length); const b = document.getElementById("grabB"); if (b) b.style.width = pct+"%"; if (t >= sh.fin || GRAB.cancel){ clearInterval(k); r(); } }, 100); });
+      try{ rec.pause(); }catch(e){} if (usaYT) vp.pause(); else v.pause();
+    }
+    if (empezo){ try{ rec.resume(); }catch(e){} rec.stop(); await fin; }
+    if (!GRAB.cancel && partes.length){ const blob = new Blob(partes, {type:tipo.split(";")[0]}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (nombre||"clips").replace(/[^\wáéíóúñü -]+/gi,"").trim().replace(/\s+/g,"-")+"."+ext; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 8000);
+      toast(ext==="mp4" ? "Listo: el video se descargó (mp4)." : "Listo: el video se descargó (webm). Si WhatsApp no lo acepta, abrilo en Chrome."); }
+    else if (GRAB.cancel) toast("Grabación cancelada.");
+  }catch(e){ console.warn(e); toast("No se pudo grabar. Si te pregunta, elegí “Esta pestaña” y tocá Compartir."); }
+  document.body.classList.remove("capturando"); if (v) v.remove(); const o = document.getElementById("grabPanel"); if (o) o.remove(); GRAB = null;
+}
 function dorsalesVistos(){ const g = {}; todosLosClips().forEach(x=>{ const d = String(x.sh.dor||"").trim(); if (!d) return; (g[d] = g[d]||[]).push(x); }); return Object.entries(g).map(([d,L])=>[d,L.length,L]).sort((a,b)=>b[1]-a[1]); }
 /* imágenes más livianas antes de subirlas */
 async function achicarImagen(file, max, q){
@@ -2523,8 +2663,13 @@ document.getElementById("vCap").addEventListener("click",capture);
 document.getElementById("vClip").addEventListener("click",marcarClip);
 document.getElementById("vYTbtn").addEventListener("click",()=>abrirYouTube());
 document.getElementById("vFull").addEventListener("click",pantallaTrabajo);
-document.addEventListener("keydown",e=>{ if (/^[1-9]$/.test(e.key) && document.body.classList.contains("tab-mirar") && vp.listo() && deck.hidden && drawEl.hidden && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); crearMomento(MOMS[+e.key-1]); return; }
-  if((e.key==="x"||e.key==="X") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); marcarClip(); return; }
+document.addEventListener("keydown",e=>{ const escribiendo = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+  if (!escribiendo && document.body.classList.contains("tab-mirar") && deck.hidden && drawEl.hidden && !document.getElementById("xm") && !document.getElementById("resumen") && vp.listo() && !e.ctrlKey && !e.metaKey && !e.altKey){
+    if (e.key===" " || e.code==="Space"){ e.preventDefault(); playPausa(); return; }
+    if (e.key==="ArrowRight"){ e.preventDefault(); vp.seek(vp.t()+5); return; }
+    if (e.key==="ArrowLeft"){ e.preventDefault(); vp.seek(Math.max(0,vp.t()-5)); return; }
+    const L = momsTodos(); const n = e.key==="0" ? 10 : +e.key; if (/^[0-9]$/.test(e.key) && L[n-1]){ e.preventDefault(); crearMomento(L[n-1]); return; } }
+  if(false && (e.key==="x"||e.key==="X") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); marcarClip(); return; }
   if((e.key==="c"||e.key==="C") && !vBody.hidden && vp.listo() && deck.hidden && drawEl.hidden && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); capture(); } });
 /* ---------- armado de la pantalla en 3 pestañas ---------- */
 lienzoMomentos();
@@ -2628,7 +2773,7 @@ async function planUnaHoja(){
     // datos al lado de la cancha
     let ty=cy+3;const dx=cx+cw+6,dw=LW-cw-6;
     const dato=(k,v)=>{if(!v)return;T(7,"bold",GR);doc.text(k.toUpperCase(),dx,ty);ty+=4;T(9.5,"bold");const l=doc.splitTextToSize(v,dw).slice(0,2);doc.text(l,dx,ty);ty+=l.length*4.2+2.5};
-    dato("Sistema con pelota",tx(state.sis_con));dato("Sistema sin pelota",tx(state.sis_sin));dato("Inicio",tx(state.sal_tipo)+(tx(state.sal_quien)?" · "+tx(state.sal_quien):""));
+    dato("Sistema con pelota",sisLista("sis_con").join(" / "));dato("Sistema sin pelota",sisLista("sis_sin").join(" / "));dato("Inicio",tx(state.sal_tipo)+(tx(state.sal_quien)?" · "+tx(state.sal_quien):""));
     dato("Altura del bloque",tx(state.pre_altura));dato("Dónde recuperan",tx(state.pre_zona));dato("Por dónde atacan",tx(state.ata_zona));dato("Cómo llegan",tx(state.ata_como));
     y=cy+ch+7;
     const figs=(Array.isArray(state.jug)?state.jug:[]).filter(j=>j&&(j.dor||j.pos||j.car)).slice(0,3);
@@ -2689,6 +2834,7 @@ Object.assign(DIC,{"Guardar": ["Salvar", "Save"], "＋ Otro": ["＋ Outro", "＋
 Object.assign(DIC,{"Tocá una jugada para ver el clip.": ["Toque numa jogada para ver o clipe.", "Tap a play to watch the clip."], "▶ Ver": ["▶ Ver", "▶ Watch"]});
 Object.assign(DIC,{"🎬 Ver todos los clips seguidos": ["🎬 Ver todos os clipes seguidos", "🎬 Watch all clips in a row"], "🎬 Solo los destacados seguidos": ["🎬 Só os destacados seguidos", "🎬 Only starred in a row"], "🎬 Ver todos seguidos": ["🎬 Ver todos seguidos", "🎬 Watch all in a row"], "✕ Salir": ["✕ Sair", "✕ Exit"], "⏮ Anterior": ["⏮ Anterior", "⏮ Previous"], "⏸ Pausa": ["⏸ Pausa", "⏸ Pause"], "▶ Seguir": ["▶ Continuar", "▶ Resume"], "Siguiente ⏭": ["Próximo ⏭", "Next ⏭"], "Fin del resumen": ["Fim do resumo", "End of highlights"], "No hay clips marcados con ☆ Para la charla.": ["Não há clipes marcados com ☆ Para a conversa.", "No clips marked ☆ For the talk."], "Todavía no marcaste clips.": ["Você ainda não marcou clipes.", "You haven't marked any clips yet."], "Para ver los clips abrí en el visor el video del partido.": ["Para ver os clipes abra o vídeo do jogo no visualizador.", "Open the match video in the viewer to watch the clips."]});PAT.push([new RegExp("^(\\d+) de (\\d+)$"),["$1 de $2", "$1 of $2"]],[new RegExp("^(\\d+) clips no se pueden ver: su video no está abierto en el visor\\.$"),["$1 clipes não podem ser vistos: o vídeo não está aberto.", "$1 clips can't be played: their video isn't open."]]);
 Object.assign(DIC,{"🗑 Borrar todas": ["🗑 Apagar todas", "🗑 Delete all"], "🧹 Empezar de nuevo": ["🧹 Começar de novo", "🧹 Start over"], "🗑 Borrar rival": ["🗑 Apagar adversário", "🗑 Delete opponent"], "Borrar esta jugada": ["Apagar esta jogada", "Delete this play"], "Listo: se borraron las jugadas marcadas.": ["Pronto: as jogadas marcadas foram apagadas.", "Done: marked plays deleted."], "Listo: el análisis quedó en blanco.": ["Pronto: a análise ficou em branco.", "Done: the analysis is now blank."], "Deja el análisis en blanco (se mantiene el rival y el link del video)": ["Deixa a análise em branco (mantém o adversário e o link do vídeo)", "Clears the analysis (keeps the opponent and video link)"]});
+Object.assign(DIC,{"⬇ Descargar clip": ["⬇ Baixar clipe", "⬇ Download clip"], "⬇ Descargar video con todos los clips": ["⬇ Baixar vídeo com todos os clipes", "⬇ Download video with all clips"], "⬇ Descargar video con los destacados": ["⬇ Baixar vídeo com os destacados", "⬇ Download video with starred clips"], "No cierres ni cambies de pestaña mientras se graba.": ["Não feche nem troque de guia enquanto grava.", "Don't close or switch tabs while recording."], "Listo: el video se descargó (mp4).": ["Pronto: o vídeo foi baixado (mp4).", "Done: the video was downloaded (mp4)."], "Grabación cancelada.": ["Gravação cancelada.", "Recording cancelled."], "Para descargar, abrí en el visor el video del partido de estos clips.": ["Para baixar, abra no visualizador o vídeo do jogo destes clipes.", "To download, open this match's video in the viewer."], "＋ Agregar un botón": ["＋ Adicionar um botão", "＋ Add a button"], "Nuevo botón": ["Novo botão", "New button"], "Nombre del botón": ["Nome do botão", "Button name"], "Color": ["Cor", "Colour"], "¿En qué parte del informe van las jugadas?": ["Em que parte do relatório vão as jogadas?", "Which part of the report do the plays go to?"], "Agregar": ["Adicionar", "Add"], "Quitar este botón": ["Remover este botão", "Remove this button"], "Podés marcar hasta 3 (por ejemplo si cambian en el partido). El primero es el principal.": ["Pode marcar até 3 (por exemplo, se mudam no jogo). O primeiro é o principal.", "You can pick up to 3 (e.g. if they change during the match). The first is the main one."], "Podés marcar hasta 3 en cada uno. El primero que tocás es el principal.": ["Pode marcar até 3 em cada um. O primeiro é o principal.", "You can pick up to 3 in each. The first one is the main one."], "También usan": ["Também usam", "They also use"], "Hasta 3 sistemas. Sacá uno para sumar otro.": ["Até 3 sistemas. Tire um para somar outro.", "Up to 3 formations. Remove one to add another."], "Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. Con el teclado: el número de cada botón, y la barra espaciadora para pausar.": ["Toque na cor quando acontece a jogada: fica salvo o clipe com o minuto. No teclado: o número de cada botão e a barra de espaço para pausar.", "Tap the colour when the play happens: the clip is saved with the minute. Keyboard: each button's number, and the space bar to pause."], "Pizarras de este rival": ["Pranchetas deste adversário", "Boards for this opponent"], "Las que mandaste con → Pizarra. Abrilas para dibujar o borralas desde acá.": ["As que você mandou com → Prancheta. Abra para desenhar ou apague daqui.", "The ones you sent with → Board. Open them to draw or delete them here."], "Pizarra borrada.": ["Prancheta apagada.", "Board deleted."], "Arrastrá para dibujar. Tocá cualquier dibujo para moverlo; con los puntos blancos lo estirás o lo acortás; ＋ / − lo agranda o achica y 🗑 lo borra. Texto: tocá Texto y después donde va (doble clic para cambiarlo).": ["Arraste para desenhar. Toque num desenho para movê-lo; com os pontos brancos estica ou encurta; ＋ / − aumenta ou diminui e 🗑 apaga. Texto: toque em Texto e depois onde vai (duplo clique para mudar).", "Drag to draw. Tap any drawing to move it; use the white dots to stretch or shorten it; ＋ / − resizes and 🗑 deletes. Text: tap Text then where it goes (double-click to change it)."], "Texto (opcional: si no, te lo pregunta)": ["Texto (opcional)", "Text (optional)"], "Escribí el texto:": ["Escreva o texto:", "Type the text:"]});PAT.push([new RegExp("^Grabando clip (\\d+) de (\\d+)…$"),["Gravando clipe $1 de $2…", "Recording clip $1 of $2…"]],[new RegExp("^Pizarras de este rival \\((\\d+)\\)$"),["Pranchetas deste adversário ($1)", "Boards for this opponent ($1)"]],[new RegExp("^Listo: botón “(.+)” agregado\\.$"),["Pronto: botão “$1” adicionado.", "Done: “$1” button added."]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}

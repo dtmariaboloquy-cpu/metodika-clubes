@@ -231,6 +231,8 @@ table.t tr:hover td{background:var(--field)}
 .menu{position:absolute;z-index:60;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:6px;min-width:220px}
 .menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:7px 10px;border-radius:7px;font-weight:600;cursor:pointer}
 .menu button:hover{background:var(--field)}
+.yt-tapa{position:absolute;inset:0;z-index:2;cursor:pointer;background:transparent}
+#ytHost.hidden ~ .yt-tapa{display:none}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
 <style id="mtk-diseno-b">
@@ -277,6 +279,7 @@ h1,h2,h3{letter-spacing:-.2px}
       <div class="stage" id="stage">
         <video id="vid" playsinline preload="auto" class="hidden"></video>
         <div id="ytHost" class="hidden"></div>
+        <div class="yt-tapa" id="ytTapa" title="Tocá para pausar o seguir"></div>
         <div class="empty" id="emptyStage">
           <b>Cargá el video del partido</b>
           <span>Elegí un archivo de tu compu (mp4) o pegá un link de YouTube.</span>
@@ -762,7 +765,7 @@ function cargarYT(url){
   kind = "yt"; ytReady = false;
   P.video = {tipo:"youtube", url:url, id:id};
   const crear = ()=>{
-    yt = new YT.Player("ytHost", { videoId:id, playerVars:{rel:0, modestbranding:1, playsinline:1, cc_load_policy:0, iv_load_policy:3},
+    yt = new YT.Player("ytHost", { videoId:id, playerVars:{rel:0, modestbranding:1, playsinline:1, cc_load_policy:0, iv_load_policy:3, controls:0, disablekb:1, fs:0},
       events:{ onReady(){ ytReady=true; renderTimeline._d=0; intentarPendiente(); } } });
   };
   if (window.YT && window.YT.Player) crear();
@@ -2741,6 +2744,7 @@ $("#fileIn").onchange = e=>{ cargarArchivo(e.target.files[0]); e.target.value=""
 $("#btnYT").onclick = ()=>{ const u = prompt("Pegá el link del partido en YouTube:", P&&P.video&&P.video.url||""); if(u){ cargarYT(u.trim()); changed(); renderTimeline._d=0; } };
 $("#jsonIn").onchange = e=>{ if(e.target.files[0]) importar(e.target.files[0]); e.target.value=""; };
 vid.addEventListener("loadedmetadata", ()=>{ renderTimeline._d=0; intentarPendiente(); });
+$("#ytTapa").onclick = ()=>{ if (kind==="yt") $("#bPlay").click(); };
 $("#bPlay").onclick = ()=>{ player.paused()?player.play():player.pause(); };
 document.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>{ clipFin=null; player.seek(player.time()+(+b.dataset.skip)); });
 document.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{ player.rate(+b.dataset.rate); toast("Velocidad "+b.textContent); });
