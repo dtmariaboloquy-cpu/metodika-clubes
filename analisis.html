@@ -259,6 +259,19 @@ body.tab-mirar .status{position:static}
 
 .mom-per{display:grid!important;grid-template-columns:1fr 1fr 1.2fr}.mom-per .sis{border-style:solid;color:var(--ink);font-weight:800}.mom-per .sis.on{background:rgba(255,212,0,.15);border-color:#FFD400}
 .sis-m .lbl{display:block;margin:6px 0 6px}.sis-m .chips{margin-bottom:10px}.sis-foto{display:flex;gap:6px;align-items:center;margin-top:8px;font-size:14px}
+
+.ml-ay{font-size:12.5px;color:var(--sub);margin:-2px 0 4px}
+.ml-i .ml-pl{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(127,127,127,.18);font-size:11px;color:var(--ink)}
+.ml-i:hover .ml-pl,.ml-i.on .ml-pl{background:#FFD400;color:#141412}
+
+.ml-todos{font:inherit;font-weight:800;font-size:13.5px;padding:8px 10px;border-radius:10px;border:1px solid #FFD400;background:transparent;color:var(--ink);cursor:pointer;margin:2px 0 6px}
+.res{position:fixed;inset:0;z-index:90;background:#0b0b0a;color:#f3f1ea;display:flex;flex-direction:column;padding:14px 18px;gap:10px}
+.res-top{display:flex;align-items:center;gap:12px}.res-top>div{flex:1;min-width:0;font-size:20px}.res-top small{display:block;font-size:15px;opacity:.8;margin-top:4px}
+.res-k{display:inline-block;font-weight:800;font-size:15px;padding:4px 12px;border-radius:99px;margin-right:6px}
+.res-c{font-weight:700;opacity:.75}.res-x{font:inherit;font-weight:700;background:transparent;color:#fff;border:1px solid #555;border-radius:10px;padding:8px 14px;cursor:pointer}
+.res-v{flex:1;min-height:0;position:relative;background:#000;border-radius:12px;overflow:hidden}.res-v>div,.res-v iframe,.res-v video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain}
+.res-b{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}.res-b button{font:inherit;font-weight:800;font-size:16px;padding:10px 18px;border-radius:12px;border:1px solid #444;background:#1b1a17;color:#fff;cursor:pointer}.res-b button:hover{border-color:#FFD400}
+.res-w{opacity:.7;flex-basis:100%;text-align:center}
 </style>
 
 <style>
@@ -889,7 +902,7 @@ function render() {
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderPuntos(s));
     if (s.id!=="datos" && s.id!=="plan") body.appendChild(renderShots(s));
     if (s.id==="plan"){ const ch = el("div",{class:"charla"});
-      [["▶ Presentar en pantalla grande","presentBtn",true],["⭐ Charla corta (solo destacadas)","corta"],["📄 Plan en 1 hoja","planBtn"],["⬇ Descargar PDF","pdfBtn"],["📲 Para el plantel","xPlantel"]].forEach(([t,id,pri])=>{ const b = el("button",{type:"button",class:"btn2"+(pri?" solid":""),text:t}); b.addEventListener("click",()=>{ if (id==="corta"){ const hay = SECTIONS.some(z=>(Array.isArray(state[shotKey(z.id)])?state[shotKey(z.id)]:[]).some(x=>x.star)); if (!hay){ toast("Primero marcá con ☆ Destacar las jugadas que querés mostrar."); return; } openDeck(true); return; } const o = document.getElementById(id); if (id==="pdfBtn" && o && o.hidden){ alert("El PDF se está preparando. Probá en unos segundos."); return; } if (o) o.click(); }); ch.appendChild(b); });
+      [["▶ Presentar en pantalla grande","presentBtn",true],["⭐ Charla corta (solo destacadas)","corta"],["🎬 Ver todos los clips seguidos","resumen"],["🎬 Solo los destacados seguidos","resumenEst"],["📄 Plan en 1 hoja","planBtn"],["⬇ Descargar PDF","pdfBtn"],["📲 Para el plantel","xPlantel"]].forEach(([t,id,pri])=>{ const b = el("button",{type:"button",class:"btn2"+(pri?" solid":""),text:t}); b.addEventListener("click",()=>{ if (id==="resumen"){ abrirResumen(false); return; } if (id==="resumenEst"){ abrirResumen(true); return; } if (id==="corta"){ const hay = SECTIONS.some(z=>(Array.isArray(state[shotKey(z.id)])?state[shotKey(z.id)]:[]).some(x=>x.star)); if (!hay){ toast("Primero marcá con ☆ Destacar las jugadas que querés mostrar."); return; } openDeck(true); return; } const o = document.getElementById(id); if (id==="pdfBtn" && o && o.hidden){ alert("El PDF se está preparando. Probá en unos segundos."); return; } if (o) o.click(); }); ch.appendChild(b); });
       body.appendChild(ch); }
     sec.appendChild(body);
     sec.addEventListener("focusin",()=>{ lastSection = s.id; });
@@ -1077,7 +1090,7 @@ function rerenderKeepingPlace(){
   if (id) { const n = document.getElementById(id); if (n) { n.focus({preventScroll:true}); try { if (st!=null) n.setSelectionRange(st,en); } catch(e) {} } }
 }
 let toastT=null;
-function toast(msg){ let t=document.getElementById("liveToast"); if(!t){ t=el("div",{id:"liveToast",class:"live-toast",role:"status"}); document.body.appendChild(t); } t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),5000); }
+function toast(msg){ let t=document.getElementById("liveToast"); if(!t){ t=el("div",{id:"liveToast",class:"live-toast",role:"status"}); } const host=document.fullscreenElement||document.body; if (t.parentNode!==host) host.appendChild(t); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),5000); }
 async function nameOf(id){ if(!id||!userNs) return "Tu compañero/a"; try { const ps = await userNs.profiles([id]); return (ps[id]&&ps[id].name) || "Tu compañero/a"; } catch(e) { return "Tu compañero/a"; } }
 async function onRemote(snap){
   if (!snap.exists) return;
@@ -1252,7 +1265,7 @@ function xModal(titulo, cuerpo, pie){
   const h = el("div",{class:"xm-h"}); h.appendChild(el("b",{text:titulo})); const x = el("button",{type:"button",class:"xm-x","aria-label":"Cerrar",text:"×"}); x.addEventListener("click",cerrarX); h.appendChild(x); b.appendChild(h);
   const c = el("div",{class:"xm-c"}); if (typeof cuerpo==="string") c.innerHTML = cuerpo; else if (cuerpo) c.appendChild(cuerpo); b.appendChild(c);
   const f = el("div",{class:"xm-f"}); (pie||[]).forEach(n=>f.appendChild(n)); if ((pie||[]).length) b.appendChild(f);
-  o.appendChild(b); o.addEventListener("click",e=>{ if (e.target===o) cerrarX(); }); document.body.appendChild(o);
+  o.appendChild(b); o.addEventListener("click",e=>{ if (e.target===o) cerrarX(); }); (document.fullscreenElement||document.body).appendChild(o);
   return c;
 }
 document.addEventListener("keydown",e=>{ if (e.key==="Escape" && document.getElementById("xm")) cerrarX(); });
@@ -1899,7 +1912,7 @@ document.getElementById("drawUndo").addEventListener("click",()=>{ if (dCrop && 
 document.getElementById("drawClear").addEventListener("click",()=>{ dShapes = []; dCrop = null; dSel = -1; selBtns(); redraw(); });
 document.getElementById("drawCancel").addEventListener("click",()=>{ drawEl.hidden = true; document.body.style.overflow=""; flushPending(); });
 function openDraw(secId, idx){
-  if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  { const host = document.fullscreenElement || document.body; if (drawEl.parentNode!==host) host.appendChild(drawEl); }
   const sh = state[shotKey(secId)][idx]; dTarget = {secId, idx, sh};
   dShapes = Array.isArray(sh.shapes) ? sh.shapes.map(x=>({...x})) : []; dCrop = sh.crop ? {...sh.crop} : null; dSel = -1; selBtns();
   document.getElementById("drawMsg").textContent = "Cargando imagen…";
@@ -2153,9 +2166,9 @@ async function marcarClip(){
 }
 let clipStop = null;
 function verClip(sh){
-  if (sh.yt && vKind==="yt" && sh.yt===vNombre && ytP && ytListo && document.body.classList.contains("tab-mirar")){ vp.seek(sh.ini); vp.play(); return; }
+  if (sh.yt && vKind==="yt" && sh.yt===vNombre && ytP && ytListo && document.body.classList.contains("tab-mirar")){ verEnVisor(sh); return; }
   if (sh.yt){ const o = el("div",{class:"xm",id:"xm"}); o.innerHTML = `<div class="xm-box" style="width:min(960px,100%)"><div class="xm-h"><b>${escH(sh.cap||"Clip")} · ${escH(fmtT(sh.ini))}</b><button type="button" class="xm-x" aria-label="Cerrar">×</button></div><div class="clip-yt"><iframe src="https://www.youtube.com/embed/${encodeURIComponent(sh.yt)}?start=${Math.floor(sh.ini)}&end=${Math.ceil(sh.fin)}&autoplay=1&rel=0&playsinline=1" allow="autoplay; fullscreen" allowfullscreen></iframe></div></div>`;
-    cerrarX(); document.body.appendChild(o); o.querySelector(".xm-x").onclick = cerrarX; o.addEventListener("click",e=>{ if (e.target===o) cerrarX(); }); return; }
+    cerrarX(); (document.fullscreenElement||document.body).appendChild(o); o.querySelector(".xm-x").onclick = cerrarX; o.addEventListener("click",e=>{ if (e.target===o) cerrarX(); }); return; }
   if (vKind==="file" && vVideo.src && (!sh.file || sh.file===vNombre)){
     document.getElementById("viewer").scrollIntoView({behavior:"smooth", block:"start"}); if (vBody.hidden){ vBody.hidden = false; vMin.textContent = "Minimizar"; }
     vVideo.currentTime = sh.ini; vVideo.play().catch(()=>{}); if (clipStop) vVideo.removeEventListener("timeupdate", clipStop);
@@ -2289,7 +2302,7 @@ function pintarUltimo(foco){
   const {sec, sh} = ULT, m = momDe(sh.mom) || {t:(SECTIONS.find(s=>s.id===sec)||{}).title||"", c:"#FFD400"};
   box.innerHTML = "";
   const h = el("div",{class:"mu-h"}); h.appendChild(el("i",{style:"background:"+m.c})); h.appendChild(el("b",{text:"✓ "+m.t.replace(/^⚽ /,"⚽ ")+" · "+(sh.min||fmtT(sh.t||sh.ini))})); 
-  const play = el("button",{type:"button",class:"mu-x",title:"Ver el clip",text:"▶"}); play.addEventListener("click",()=>verClip(sh)); h.appendChild(play);
+  const play = el("button",{type:"button",class:"mu-x",title:"Ver el clip",text:"▶ Ver"}); play.addEventListener("click",()=>{ if (document.body.classList.contains("tab-mirar") && vp.listo() && ((vKind==="yt" && sh.yt===vNombre) || (vKind==="file" && (!sh.file || sh.file===vNombre)))) verEnVisor(sh); else verClip(sh); }); h.appendChild(play);
   box.appendChild(h);
   const nota = el("input",{type:"text",class:"mu-nota",maxlength:"200",placeholder:"¿Qué pasó? (opcional) · Enter para seguir"}); nota.value = sh.cap||"";
   nota.addEventListener("input",()=>{ sh.cap = nota.value; changed(); });
@@ -2330,21 +2343,26 @@ function pintarMarcas(){
   const bar = document.getElementById("vMarcas"); if (!bar) return; const d = vDur(); bar.innerHTML = ""; if (!d) return;
   todosLosClips().forEach(x=>{ if ((vKind==="yt" && x.sh.yt && x.sh.yt!==vNombre) || (vKind!=="yt" && x.sh.file && x.sh.file!==vNombre)) return;
     const t = x.sh.t!=null ? x.sh.t : (x.sh.ini+x.sh.fin)/2, i = el("button",{type:"button",class:"vm-i",style:"left:"+(100*t/d).toFixed(2)+"%;background:"+colorClip(x),title:(x.sh.min||fmtT(t))+(x.sh.cap?" · "+x.sh.cap:"")});
-    i.addEventListener("click",()=>{ ULT = x; pintarUltimo(); vp.seek(x.sh.ini); vp.play(); }); bar.appendChild(i); });
+    i.addEventListener("click",()=>{ ULT = x; pintarUltimo(); verEnVisor(x.sh); }); bar.appendChild(i); });
   const cur = el("i",{class:"vm-cur",id:"vmCur"}); bar.appendChild(cur); moverCursor();
 }
+let PARAR_EN = null;
+function verEnVisor(sh){ vp.seek(sh.ini); vp.play(); PARAR_EN = sh.fin; }
+setInterval(()=>{ if (PARAR_EN!=null && vp.listo() && vp.t() >= PARAR_EN){ vp.pause(); PARAR_EN = null; } }, 250);
 function moverCursor(){ const c = document.getElementById("vmCur"), d = vDur(); if (c && d) c.style.left = (100*vp.t()/d).toFixed(2)+"%"; }
 setInterval(()=>{ if (!document.hidden && vp.listo()){ moverCursor(); const bar = document.getElementById("vMarcas"); if (bar && !bar.children.length && vDur()) pintarMarcas(); } }, 1000);
 function pintarLista(L){
   const box = document.getElementById("momLista"); if (!box) return; box.innerHTML = "";
   const ult = L.slice().sort((a,b)=>(b.sh.t??b.sh.ini)-(a.sh.t??a.sh.ini));
   if (!ult.length) return;
-  box.appendChild(el("div",{class:"ml-h",text:"Lo que marcaste ("+L.length+")"}));
+  box.appendChild(el("div",{class:"ml-h",text:"Lo que marcaste ("+L.length+")"})); box.appendChild(el("div",{class:"ml-ay",text:"Tocá una jugada para ver el clip."}));
+  { const bt = el("button",{type:"button",class:"ml-todos",text:"🎬 Ver todos seguidos"}); bt.addEventListener("click",()=>abrirResumen(false)); box.appendChild(bt); }
   ult.slice(0,40).forEach(x=>{ const m = momDe(x.sh.mom); const r = el("button",{type:"button",class:"ml-i"+(ULT&&ULT.sh===x.sh?" on":"")});
     r.appendChild(el("i",{style:"background:"+colorClip(x)})); r.appendChild(el("b",{text:x.sh.min||fmtT(x.sh.ini)}));
     r.appendChild(el("span",{text:(m?m.t:(SECTIONS.find(s=>s.id===x.sec)||{}).title)+(x.sh.dor?" · N° "+x.sh.dor:"")+(x.sh.cap?" · "+x.sh.cap:"")}));
     if (x.sh.star) r.appendChild(el("em",{text:"⭐"}));
-    r.addEventListener("click",()=>{ ULT = x; pintarUltimo(); vp.seek(x.sh.ini); vp.play(); pintarLista(todosLosClips()); });
+    r.appendChild(el("span",{class:"ml-pl",text:"▶"}));
+    r.addEventListener("click",()=>{ ULT = x; pintarUltimo(); verEnVisor(x.sh); pintarLista(todosLosClips()); });
     box.appendChild(r); });
 }
 /* mapa de zonas (para el informe y la charla) */
@@ -2406,6 +2424,60 @@ function abrirSistema(){
       const antes = (state[shotKey("sistema")]||[]).length; await capture(); const arr = state[shotKey("sistema")]||[];
       if (arr.length>antes) openDraw("sistema", arr.length-1); else SIS_PEND = null; } });
   xModal("Sistema de "+(state.rival||"el rival"), c, [ok]);
+}
+/* ▶ Ver todos los clips seguidos (como un video de resumen) */
+let RES = null;
+function clipsParaResumen(soloEst){
+  const out = []; const orden = SECTIONS.filter(s=>s.id!=="plan");
+  orden.forEach(s=>{ (Array.isArray(state[shotKey(s.id)])?state[shotKey(s.id)]:[]).filter(sh=>sh && sh.clip && (!soloEst || sh.star)).sort((a,b)=>(a.t??a.ini)-(b.t??b.ini)).forEach(sh=>out.push({sec:s.id, sh})); });
+  return out;
+}
+function abrirResumen(soloEst){
+  let L = clipsParaResumen(soloEst);
+  const sinVer = L.filter(x=>!x.sh.yt && !(vUrl && (!x.sh.file || x.sh.file===vNombre)));
+  L = L.filter(x=>!sinVer.includes(x));
+  if (!L.length){ toast(soloEst ? "No hay clips marcados con ☆ Para la charla." : (sinVer.length ? "Para ver los clips abrí en el visor el video del partido." : "Todavía no marcaste clips.")); return; }
+  cerrarResumen();
+  const o = el("div",{class:"res",id:"resumen"});
+  o.innerHTML = `<div class="res-top"><div><span class="res-k" id="resK"></span><b id="resT"></b><small id="resN"></small></div><span class="res-c" id="resC"></span><button type="button" class="res-x" id="resX" aria-label="Cerrar">✕ Salir</button></div>
+    <div class="res-v" id="resV"></div>
+    <div class="res-b"><button type="button" id="resPrev">⏮ Anterior</button><button type="button" id="resPP">⏸ Pausa</button><button type="button" id="resNext">Siguiente ⏭</button>${sinVer.length?`<small class="res-w">${sinVer.length} clips no se pueden ver: su video no está abierto en el visor.</small>`:""}</div>`;
+  (document.fullscreenElement||document.body).appendChild(o); document.body.style.overflow = "hidden";
+  RES = {L, i:0, yt:null, vid:null, timer:null, pausa:false};
+  o.querySelector("#resX").onclick = cerrarResumen;
+  o.querySelector("#resPrev").onclick = ()=>irClip(RES.i-1);
+  o.querySelector("#resNext").onclick = ()=>irClip(RES.i+1);
+  o.querySelector("#resPP").onclick = ()=>{ if (!RES) return; RES.pausa = !RES.pausa; o.querySelector("#resPP").textContent = RES.pausa ? "▶ Seguir" : "⏸ Pausa";
+    if (RES.yt && RES.yt.pauseVideo){ RES.pausa ? RES.yt.pauseVideo() : RES.yt.playVideo(); } if (RES.vid){ RES.pausa ? RES.vid.pause() : RES.vid.play().catch(()=>{}); } };
+  document.addEventListener("keydown", resTeclas);
+  try{ vp.pause(); }catch(e){}
+  irClip(0);
+}
+function resTeclas(e){ if (!RES) return; if (e.key==="Escape"){ e.preventDefault(); cerrarResumen(); } if (e.key==="ArrowRight") irClip(RES.i+1); if (e.key==="ArrowLeft") irClip(RES.i-1); if (e.key===" "){ e.preventDefault(); document.getElementById("resPP").click(); } }
+function cerrarResumen(){ if (!RES){ const o0 = document.getElementById("resumen"); if (o0) o0.remove(); return; } clearInterval(RES.timer); try{ RES.yt && RES.yt.destroy && RES.yt.destroy(); }catch(e){} const o = document.getElementById("resumen"); if (o) o.remove(); document.body.style.overflow = ""; document.removeEventListener("keydown", resTeclas); RES = null; }
+async function irClip(i){
+  if (!RES) return; const L = RES.L; if (i<0) i = 0; if (i>=L.length){ document.getElementById("resT").textContent = "Fin del resumen"; document.getElementById("resN").textContent = ""; try{ RES.yt && RES.yt.pauseVideo(); }catch(e){} if (RES.vid) RES.vid.pause(); return; }
+  RES.i = i; RES.pausa = false; document.getElementById("resPP").textContent = "⏸ Pausa";
+  const x = L[i], sh = x.sh, m = momDe(sh.mom), S0 = SECTIONS.find(s=>s.id===x.sec)||{title:""};
+  const k = document.getElementById("resK"); k.textContent = m ? m.t : S0.title; k.style.background = colorClip(x); k.style.color = m ? m.tx : "#141412";
+  document.getElementById("resT").textContent = " " + (sh.min || fmtT(sh.ini)) + (sh.dor ? " · N° "+sh.dor : "");
+  document.getElementById("resN").textContent = sh.cap || "";
+  document.getElementById("resC").textContent = (i+1)+" de "+L.length;
+  clearInterval(RES.timer);
+  const box = document.getElementById("resV");
+  if (sh.yt){
+    if (RES.vid){ RES.vid.remove(); RES.vid = null; }
+    await cargarYTApi(); if (!RES) return;
+    if (!RES.yt){ box.innerHTML = '<div id="resYT"></div>'; RES.yt = new YT.Player("resYT",{videoId:sh.yt, width:"100%", height:"100%", playerVars:{rel:0, modestbranding:1, playsinline:1, fs:0, start:Math.floor(sh.ini), end:Math.ceil(sh.fin), autoplay:1},
+        events:{onReady:e=>{ e.target.playVideo(); }, onStateChange:e=>{ if (e.data===0 && RES && !RES.pausa) setTimeout(()=>irClip(RES.i+1), 600); }}}); }
+    else RES.yt.loadVideoById({videoId:sh.yt, startSeconds:sh.ini, endSeconds:sh.fin});
+    RES.timer = setInterval(()=>{ try{ if (RES && RES.yt && RES.yt.getCurrentTime && !RES.pausa && RES.yt.getCurrentTime() >= sh.fin+0.3){ clearInterval(RES.timer); irClip(RES.i+1); } }catch(e){} }, 400);
+  } else {
+    if (RES.yt){ try{ RES.yt.destroy(); }catch(e){} RES.yt = null; }
+    if (!RES.vid){ box.innerHTML = ""; RES.vid = Object.assign(document.createElement("video"),{src:vUrl, playsInline:true, muted:false}); box.appendChild(RES.vid); }
+    const v = RES.vid; v.currentTime = sh.ini; v.play().catch(()=>{});
+    RES.timer = setInterval(()=>{ if (RES && RES.vid && !RES.pausa && v.currentTime >= sh.fin){ clearInterval(RES.timer); v.pause(); setTimeout(()=>irClip(RES.i+1), 600); } }, 200);
+  }
 }
 function dorsalesVistos(){ const g = {}; todosLosClips().forEach(x=>{ const d = String(x.sh.dor||"").trim(); if (!d) return; (g[d] = g[d]||[]).push(x); }); return Object.entries(g).map(([d,L])=>[d,L.length,L]).sort((a,b)=>b[1]-a[1]); }
 /* imágenes más livianas antes de subirlas */
@@ -2600,6 +2672,8 @@ Object.assign(DIC,{"⛶ Video grande": ["⛶ Vídeo grande", "⛶ Big video"], "
 Object.assign(DIC,{"Mirar": ["Assistir", "Watch"], "Informe": ["Relatório", "Report"], "Charla": ["Conversa", "Talk"], "¿Qué viste?": ["O que você viu?", "What did you see?"], "Tocá el color cuando pasa la jugada: queda guardado el clip con el minuto. También con las teclas 1 a 9.": ["Toque na cor quando acontece a jogada: fica salvo o clipe com o minuto. Também com as teclas 1 a 9.", "Tap the colour when the play happens: the clip is saved with the minute. Keys 1 to 9 work too."], "Inicio": ["Saída", "Build-up"], "Presión": ["Pressão", "Press"], "Transición": ["Transição", "Transition"], "Jugadora clave": ["Jogadora-chave", "Key player"], "Jugador clave": ["Jogador-chave", "Key player"], "Debilidad para aprovechar": ["Fraqueza para aproveitar", "Weakness to exploit"], "⚽ Gol de ellas": ["⚽ Gol delas", "⚽ Their goal"], "⚽ Gol de ellos": ["⚽ Gol deles", "⚽ Their goal"], "⚽ Gol en contra": ["⚽ Gol contra", "⚽ Goal against them"], "Empieza 1T": ["Começa 1T", "1st half starts"], "Empieza 2T": ["Começa 2T", "2nd half starts"], "Cuando toques un color, acá aparece la jugada para sumarle una nota, el número de la jugadora o la zona.": ["Quando tocar uma cor, aqui aparece a jogada para somar uma nota, o número da jogadora ou a zona.", "When you tap a colour, the play shows up here so you can add a note, the player's number or the zone."], "¿Qué pasó? (opcional) · Enter para seguir": ["O que aconteceu? (opcional) · Enter para seguir", "What happened? (optional) · Enter to continue"], "ataca →": ["ataca →", "attacks →"], "otro": ["outro", "other"], "📷 Foto": ["📷 Foto", "📷 Photo"], "📷 Otra foto": ["📷 Outra foto", "📷 Another photo"], "☆ Para la charla": ["☆ Para a conversa", "☆ For the talk"], "⭐ Para la charla": ["⭐ Para a conversa", "⭐ For the talk"], "↺ Quitar": ["↺ Remover", "↺ Remove"], "Primero sacá una 📷 Foto": ["Primeiro tire uma 📷 Foto", "Take a 📷 Photo first"], "Foto guardada en la jugada.": ["Foto salva na jogada.", "Photo saved to the play."], "Goles: cómo los hacen y cómo los reciben": ["Gols: como fazem e como sofrem", "Goals: how they score and concede"], "Lo que más decide un partido. Con los botones ⚽ del visor quedan los clips de cada gol.": ["O que mais decide um jogo. Com os botões ⚽ do visualizador ficam os clipes de cada gol.", "What decides matches most. The ⚽ buttons in the viewer save each goal's clip."], "Cómo hacen goles": ["Como fazem gols", "How they score"], "Cómo les hacen goles": ["Como sofrem gols", "How they concede"], "Cómo hacen y reciben goles": ["Como fazem e sofrem gols", "How they score and concede"], "Dónde pasa (según las zonas que marcaste)": ["Onde acontece (segundo as zonas marcadas)", "Where it happens (from the zones you marked)"], "Dónde pasa": ["Onde acontece", "Where it happens"], "Las que más aparecen en tus marcas": ["As que mais aparecem nas suas marcas", "Who shows up most in your marks"], "Las que más aparecen en el video": ["As que mais aparecem no vídeo", "Who shows up most in the video"], "Ficha en la tabla y últimos partidos (opcional)": ["Ficha na tabela e últimos jogos (opcional)", "Table record and recent results (optional)"], "Primero abrí el video (de la compu o con link de YouTube).": ["Primeiro abra o vídeo (do computador ou link do YouTube).", "Open the video first (from your computer or a YouTube link)."], "Su campo": ["Campo delas", "Their half"], "Mitad": ["Meio", "Middle"], "Cerca de nuestro arco": ["Perto do nosso gol", "Near our goal"], "Izquierda": ["Esquerda", "Left"], "Derecha": ["Direita", "Right"]});PAT.push([new RegExp("^Lo que marcaste \\((\\d+)\\)$"),["O que você marcou ($1)", "What you marked ($1)"]],[new RegExp("^([12])T desde (.+)$"),["$1T desde $2", "$1H from $2"]],[new RegExp("^Goles de (.+): (\\d+)$"),["Gols de $1: $2", "Goals by $1: $2"]],[new RegExp("^Goles en contra: (\\d+)$"),["Gols contra: $1", "Goals against: $1"]],[new RegExp("^Ataque de (.+) →$"),["Ataque de $1 →", "$1 attack →"]],[new RegExp("^N° (\\S+) · (\\d+) jugadas?$"),["N° $1 · $2 jogada(s)", "No. $1 · $2 play(s)"]]);
 Object.assign(DIC,{"Abrí el partido del rival": ["Abra o jogo do adversário", "Open the opponent's match"], "Desde un archivo de la compu o con el link de YouTube. El video no se sube a la nube.": ["De um arquivo do computador ou com o link do YouTube. O vídeo não vai para a nuvem.", "From a file on your computer or a YouTube link. The video isn't uploaded."]});
 Object.assign(DIC,{"Guardar": ["Salvar", "Save"], "＋ Otro": ["＋ Outro", "＋ Other"], " 📷 Sacar la foto de este momento con la canchita del sistema arriba": [" 📷 Tirar a foto deste momento com o campinho do sistema", " 📷 Take a photo of this moment with the formation pitch on top"]});PAT.push([new RegExp("^Sistema de (.+)$"),["Sistema de $1", "$1 formation"]]);
+Object.assign(DIC,{"Tocá una jugada para ver el clip.": ["Toque numa jogada para ver o clipe.", "Tap a play to watch the clip."], "▶ Ver": ["▶ Ver", "▶ Watch"]});
+Object.assign(DIC,{"🎬 Ver todos los clips seguidos": ["🎬 Ver todos os clipes seguidos", "🎬 Watch all clips in a row"], "🎬 Solo los destacados seguidos": ["🎬 Só os destacados seguidos", "🎬 Only starred in a row"], "🎬 Ver todos seguidos": ["🎬 Ver todos seguidos", "🎬 Watch all in a row"], "✕ Salir": ["✕ Sair", "✕ Exit"], "⏮ Anterior": ["⏮ Anterior", "⏮ Previous"], "⏸ Pausa": ["⏸ Pausa", "⏸ Pause"], "▶ Seguir": ["▶ Continuar", "▶ Resume"], "Siguiente ⏭": ["Próximo ⏭", "Next ⏭"], "Fin del resumen": ["Fim do resumo", "End of highlights"], "No hay clips marcados con ☆ Para la charla.": ["Não há clipes marcados com ☆ Para a conversa.", "No clips marked ☆ For the talk."], "Todavía no marcaste clips.": ["Você ainda não marcou clipes.", "You haven't marked any clips yet."], "Para ver los clips abrí en el visor el video del partido.": ["Para ver os clipes abra o vídeo do jogo no visualizador.", "Open the match video in the viewer to watch the clips."]});PAT.push([new RegExp("^(\\d+) de (\\d+)$"),["$1 de $2", "$1 of $2"]],[new RegExp("^(\\d+) clips no se pueden ver: su video no está abierto en el visor\\.$"),["$1 clipes não podem ser vistos: o vídeo não está aberto.", "$1 clips can't be played: their video isn't open."]]);
  function tr(t){var k=t.trim();if(!k)return null;var v=DIC[k];if(v){var r=v[I];return r&&r!==k?t.replace(k,r):null}
   if(/^Ej: /.test(k)&&!/^Ej: volante$/.test(k))return null;
   for(var i=0;i<PAT.length;i++){if(PAT[i][0].test(k)){var r2=k.replace(PAT[i][0],PAT[i][1][I]);return r2!==k?t.replace(k,r2):null}}return null}
