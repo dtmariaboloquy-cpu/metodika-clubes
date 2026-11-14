@@ -1279,7 +1279,7 @@ function cabecera(eyebrow,titulo,texto,acciones='',nota=''){const k=pilarDe(ruta
 function avatar(j,g){return `<div class="av ${g?'g':''}">${j&&j.foto?`<img src="${j.foto}" alt="">`:esc(j?iniciales(j):'?')}</div>`}
 const jugador=id=>S.jugadores.find(j=>j.id===id);
 const nombreJ=id=>{const j=jugador(id);return j?j.nombre+' '+j.apellido:'—'};
-const cortoJ=id=>{const j=jugador(id);return j?j.nombre[0]+'. '+j.apellido:'—'};
+const cortoJ=id=>{const j=jugador(id);return j?(j.apellido?(j.nombre||' ')[0]+'. '+j.apellido:j.nombre):'—'};
 const tarea=id=>S.tareas.find(t=>t.id===id);
 const ordenJ=a=>[...a].sort((x,y)=>(x.dorsal||99)-(y.dorsal||99));
 
@@ -1611,7 +1611,7 @@ function fechaDesde(v,X){if(v==null||v==='')return '';if(typeof v==='number'){co
   const t=String(v).trim();let m=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=y>30?1900:2000;return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}m=t.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
 function importarPlantel(){
   modal('Importar el plantel desde Excel',`<p style="margin:0 0 10px">Cargá a todo el plantel de una vez. Sirve un Excel o un CSV con una fila por ${J('sg')}.</p>
-    <ol class="sub" style="margin:0 0 14px;padding-left:20px;line-height:1.6"><li>Descargá la plantilla y completala (Nombre y Apellido son obligatorios).</li><li>Subila acá. Antes de guardar vas a ver la lista.</li></ol>
+    <ol class="sub" style="margin:0 0 14px;padding-left:20px;line-height:1.6"><li>Descargá la plantilla y completala (el Nombre es obligatorio).</li><li>Subila acá. Antes de guardar vas a ver la lista.</li></ol>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="ipPl">⬇ Descargar plantilla</button><label class="btn pri" for="ipF">⬆ Elegir archivo</label><input type="file" id="ipF" accept=".xlsx,.xls,.csv" hidden></div>
     <div id="ipPrev" style="margin-top:14px"></div>`,{ancho:true,alMontar:m=>{
       $('#ipPl',m).onclick=()=>plantillaPlantel().catch(()=>aviso('No se pudo generar la plantilla. Revisá la conexión.'));
@@ -1625,24 +1625,30 @@ function importarPlantel(){
           const filas=crudo.slice(hi+1).filter(r=>r.some(c=>String(c).trim())).map(r=>{const o={};tit.forEach((h,k)=>{o[h]=r[k]??''});return o});
           /* columna de la posición: por el título o, si no hay, la que tenga valores que parecen posiciones */
           const titPos=['posicion','puesto','pos','linea','funcion','rol','ubicacion','sector','demarcacion'];
-          let colPos=tit.find(h=>titPos.some(x=>norm(h).startsWith(x)));
+          let colPos=tit.find(h=>titPos.some(x=>norm(h).startsWith(x)))||tit.find(h=>/posicion|puesto|demarcacion/.test(norm(h)));
           if(!colPos){let mejor=null,max=0;tit.forEach(h=>{const n=filas.filter(r=>posReconocida(r[h])>=0&&!/^\d+$/.test(String(r[h]).trim())).length;if(n>max){max=n;mejor=h}});if(max>=Math.max(2,filas.length*0.4))colPos=mejor}
           const get=(r,...ks)=>{for(const k of Object.keys(r)){const n=norm(k);if(ks.some(x=>n.startsWith(x)))return r[k]}return ''};
-          const existe=new Set(SJ().map(j=>norm(j.nombre+' '+j.apellido)));
+          const clave=t=>norm(t).split(/\s+/).filter(Boolean).sort().join(' ');const existe=new Set(SJ().map(j=>clave(j.nombre+' '+j.apellido)));
           const nuevos=[],rep=[];filas.forEach(r=>{let nom=String(get(r,'nombre')).trim(),ape=String(get(r,'apellido')).trim();
             const comb=String(get(r,'apellido y nombre','apellido, nombre','nombre y apellido','nombre completo','jugadora','jugador','integrante')).trim();
             if((!nom||!ape)&&comb){if(comb.includes(',')){const [a,n]=comb.split(',');ape=a.trim();nom=(n||'').trim()}else{const pz=comb.split(/\s+/);if(/apellido y nombre/.test(Object.keys(r).map(norm).join('|'))){ape=pz.shift();nom=pz.join(' ')}else{ape=pz.pop();nom=pz.join(' ')}}}
+            if(/^(total|totales|media|promedio|suma)\b/i.test(nom)||/^(total|totales)\b/i.test(comb))return;
+            /* exportaciones (ej. apps de estadísticas) traen "Apodo" con el apellido */
+            if(!ape){let apo=String(get(r,'apodo','alias','sobrenombre')).trim().replace(/^([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)[A-Z]$/,'$1');
+              if(apo){const pz=nom.split(/\s+/),na=norm(apo).replace(/[^a-z]/g,''),k=pz.findIndex(w=>{const nw=norm(w);return nw&&(na===nw||na.endsWith(nw)&&na.length-nw.length<=2)});
+                if(pz.length>1&&k>=0){nom=pz.splice(k,1)[0];ape=pz.join(' ')}else if(norm(apo)===norm(nom)){ape=''}else if(pz.length===1){ape=apo}}}
             if(!ape&&nom.includes(' ')){const pz=nom.split(/\s+/);ape=pz.pop();nom=pz.join(' ')}
-            const may=t=>t&&t===t.toUpperCase()?t.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):t;nom=may(nom);ape=may(ape);if(!nom||!ape)return;
+            const may=t=>t&&t===t.toUpperCase()?t.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()):t;nom=may(nom);ape=may(ape);if(!nom&&ape){nom=ape;ape=''}if(!nom)return;
             const j={id:uid(),nombre:nom,apellido:ape,dorsal:+String(get(r,'dorsal','numero','nro','camiseta','n°','nº','n ','num','#')).replace(/[^0-9]/g,'')||'',posicion:posDesdeTexto(colPos?r[colPos]:''),puesto:puestoDesdeTexto(colPos?r[colPos]:'',posDesdeTexto(colPos?r[colPos]:'')),_dudosa:posReconocida(colPos?r[colPos]:'')<0,_txtPos:String(colPos?r[colPos]:'').trim(),categoria:String(get(r,'categoria')).trim()||CATN()||'',nacimiento:fechaDesde(get(r,'nacimiento','fecha de nac','fecha nac'),X),pie:/izq/i.test(get(r,'pie'))?'Izquierdo':/amb/i.test(get(r,'pie'))?'Ambidiestro':'Derecho',altura:+get(r,'altura')||'',foto:'',obs:''};
-            (existe.has(norm(nom+' '+ape))?rep:nuevos).push(j)});
+            (existe.has(clave(nom+' '+ape))?rep:nuevos).push(j)});
           if(!nuevos.length){box.innerHTML=`<div class="vacio">${rep.length?'Todas las personas del archivo ya están en el plantel.':'No encontré filas con Nombre y Apellido. Usá la plantilla.'}</div>`;return}
           box.innerHTML=`<div class="panel" style="padding:12px"><b>${nuevos.length} ${nuevos.length===1?J('sg'):J('pl')} para agregar</b>${rep.length?` <span class="sub">· ${rep.length} ya estaban y se saltean</span>`:''}
-            <div class="lista" style="max-height:38vh;overflow:auto;margin-top:8px">${nuevos.map(j=>`<div class="fila" style="padding:6px 0"><span class="dorsal" style="min-width:28px">${j.dorsal||'–'}</span><b style="flex:1">${esc(j.nombre+' '+j.apellido)}</b><select data-ippos="${j.id}" style="width:auto;max-width:170px;${j._dudosa?'border-color:#E5484D':''}" aria-label="Posición" title="${j._dudosa?(j._txtPos?'No reconocí “'+esc(j._txtPos)+'”: elegí la posición':'El archivo no trae la posición: elegila'):'Podés cambiarla si no es correcta'}">${POSICIONES.map(p=>`<option value="${esc(p)}" ${p===j.posicion?'selected':''}>${esc(posTxt(p))}</option>`).join('')}</select>${j.nacimiento?`<span class="sub" style="font-size:12.5px">${esc(fFecha(j.nacimiento))}</span>`:''}</div>`).join('')}</div>
+            <div class="lista" style="max-height:38vh;overflow:auto;margin-top:8px">${nuevos.map(j=>`<div class="fila" style="padding:6px 0"><span class="dorsal" style="min-width:28px">${j.dorsal||'–'}</span><input data-ipnom="${j.id}" value="${esc(j.nombre)}" aria-label="Nombre" style="flex:1;min-width:0;width:auto"><input data-ipape="${j.id}" value="${esc(j.apellido)}" placeholder="Apellido" aria-label="Apellido" style="flex:1;min-width:0;width:auto"><select data-ippos="${j.id}" style="width:auto;max-width:170px;${j._dudosa?'border-color:#E5484D':''}" aria-label="Posición" title="${j._dudosa?(j._txtPos?'No reconocí “'+esc(j._txtPos)+'”: elegí la posición':'El archivo no trae la posición: elegila'):'Podés cambiarla si no es correcta'}">${POSICIONES.map(p=>`<option value="${esc(p)}" ${p===j.posicion?'selected':''}>${esc(posTxt(p))}</option>`).join('')}</select>${j.nacimiento?`<span class="sub" style="font-size:12.5px">${esc(fFecha(j.nacimiento))}</span>`:''}</div>`).join('')}</div>
             ${nuevos.some(j=>j._dudosa)?`<p class="sub" style="margin:8px 0 0;font-size:13px;color:#E5484D">${nuevos.filter(j=>j._dudosa).length} sin posición reconocida (marcadas en rojo): elegila antes de agregar.</p>`:''}</div>
             <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ipOk">Agregar al plantel</button></div>`;
+          $$('[data-ipnom]',m).forEach(i=>i.oninput=()=>{const j=nuevos.find(x=>x.id===i.dataset.ipnom);if(j)j.nombre=i.value.trim()});$$('[data-ipape]',m).forEach(i=>i.oninput=()=>{const j=nuevos.find(x=>x.id===i.dataset.ipape);if(j)j.apellido=i.value.trim()});
           $$('[data-ippos]',m).forEach(sel=>sel.onchange=()=>{const j=nuevos.find(x=>x.id===sel.dataset.ippos);if(j){j.posicion=sel.value;j.puesto=puestoDesdeTexto(j._txtPos,sel.value);j._dudosa=false;sel.style.borderColor=''}});
-          $('#ipOk',m).onclick=()=>{nuevos.forEach(j=>{delete j._dudosa;delete j._txtPos});S.jugadores.push(...nuevos);guardar();cerrarModal();pintar();
+          $('#ipOk',m).onclick=()=>{for(let k=nuevos.length-1;k>=0;k--)if(!nuevos[k].nombre&&!nuevos[k].apellido)nuevos.splice(k,1);nuevos.forEach(j=>{if(!j.nombre&&j.apellido){j.nombre=j.apellido;j.apellido=''}delete j._dudosa;delete j._txtPos});S.jugadores.push(...nuevos);guardar();cerrarModal();pintar();
             modal('¡Listo! Se armaron '+nuevos.length+' perfiles',`<p style="margin:0 0 12px">Cada ${J('sg')} ya tiene su perfil con los datos del Excel. ¿Querés sumar las fotos ahora?</p><p class="sub" style="margin:0 0 12px;font-size:13.5px">Podés elegir todas las fotos juntas: si cada archivo tiene el apellido o el dorsal en el nombre, Metodika las ubica sola.</p><div class="modal-pie"><button class="btn" data-cerrar>Más tarde</button><button class="btn pri" id="ipFotos">📷 Cargar fotos</button></div>`,{alMontar:m2=>{$('#ipFotos',m2).onclick=()=>{cerrarModal();cargarFotosMasivo(nuevos)}}})};
         }catch(x){console.warn(x);box.innerHTML='<div class="vacio">No pude leer el archivo. Probá guardarlo como .xlsx o .csv.</div>'}};
     }});
