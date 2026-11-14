@@ -723,6 +723,12 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 @media(max-width:600px){#ciWa,#ciPdf{white-space:normal;max-width:100%}.barra-partido{gap:6px;padding:8px}.barra-partido>span{display:none}.barra-partido .btn{flex:1;justify-content:center;padding:9px 6px;font-size:13px}#presP .pp-top{padding:10px 12px}#presP .pp-body{padding:2vh 3vw}}
 
 @media(max-width:700px){.grilla.g2{grid-template-columns:1fr!important}.marcador .eq>div:last-child{font-size:13px;line-height:1.2;overflow-wrap:break-word;hyphens:manual}.marcador .eq{min-width:0}.marcador .gol{font-size:40px}}
+
+.fx-lin{display:flex;gap:6px;overflow-x:auto;padding:12px}.fx-it{flex:none;width:84px;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;color:inherit;cursor:pointer;font:inherit;padding:4px;border-radius:10px}.fx-it:hover{background:var(--carta2)}.fx-it small{font-size:11px;color:var(--sub)}.fx-esc{width:48px;height:48px;border-radius:50%;border:3px solid;display:grid;place-items:center;background:#fff;overflow:hidden}.fx-it b{font-size:12px}.fx-it i{font-style:normal;font-size:11.5px;max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fx-it em{font-style:normal;font-weight:800;font-size:12.5px}
+
+.cmpP-f{display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--linea)}.cmpP-f>span{text-align:center;font-size:12px;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}.cmpP-l,.cmpP-r{display:flex;align-items:center;gap:8px}.cmpP-l{flex-direction:row-reverse}.cmpP-l i,.cmpP-r i{display:block;height:6px;border-radius:6px;background:var(--linea);min-width:2px;max-width:calc(100% - 40px)}.cmpP-f b{min-width:30px;text-align:center}@media(max-width:600px){.cmpP-f{grid-template-columns:1fr 90px 1fr}}
+
+.pz-guia{margin:8px 0 0;padding:9px 12px;border-radius:10px;background:rgba(255,212,0,.12);border:1px solid rgba(255,212,0,.35);font-size:13.5px;line-height:1.4}
 </style>
 
 <div class="app">
@@ -761,7 +767,7 @@ const fFecha=s=>{if(!s)return '—';const d=deIso(s);return DIAS[d.getDay()]+' '
 const fCorta=s=>{if(!s)return '—';const d=deIso(s);return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')};
 const pct=(a,b)=>b?Math.round(a*100/b):0;
 const prom=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
-const iniciales=j=>((j.nombre||'?')[0]+(j.apellido||'')[0]||'').toUpperCase();
+const iniciales=j=>(((j.nombre||'?')[0]||'')+((j.apellido||'')[0]||'')).toUpperCase();
 
 const CATEG_TAREA=['Tenencia','Organización ofensiva','Organización defensiva','Transición ataque–defensa','Transición defensa–ataque','Pelota parada ofensiva','Pelota parada defensiva','Técnica individual','Físico-condicional / entrada en calor'];
 const CATEG_VIEJAS=['Jugadora con pelota','Jugadora sin pelota','Equipo con pelota','Equipo sin pelota'];
@@ -1219,22 +1225,23 @@ const ICO={
   partido:'<circle cx="12" cy="12" r="9"/><path d="M12 7l3.8 2.8-1.5 4.4H9.7L8.2 9.8z"/>',
   eval:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   fixture:'<path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/>',
+  rendim:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   asist:'<path d="M4 12.5l4.5 4.5L20 6"/>',
   carga:'<path d="M3 17a9 9 0 0 1 18 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.3"/>',
   tienda:'<path d="M4 8h16l-1.3 12H5.3z"/><path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2"/>',
   ajustes:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>'
 };
-const RUTAS=[['inicio','Inicio'],['coordinacion','Coordinación'],['metodologia','Metodología'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['cargas','Cargas'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes'],['sugerencia','Enviar sugerencia']];
-const ICO_R={coordinacion:'coord',metodologia:'metod',inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',asistencia:'asist',cargas:'carga',tienda:'tienda',ajustes:'ajustes',sugerencia:'charla'};
+const RUTAS=[['inicio','Inicio'],['coordinacion','Coordinación'],['metodologia','Metodología'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['rendimiento','Rendimiento'],['asistencia','Asistencia'],['cargas','Cargas'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes'],['sugerencia','Enviar sugerencia']];
+const ICO_R={coordinacion:'coord',metodologia:'metod',inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',rendimiento:'rendim',asistencia:'asist',cargas:'carga',tienda:'tienda',ajustes:'ajustes',sugerencia:'charla'};
 let ruta='inicio',param=null;
-const PILARES=[['metodo','MÉTODO','M',['inicio','coordinacion','metodologia','planificacion','biblioteca','lecturas']],['cancha','CANCHA','C',['pizarra','videoanalisis','analisis']],['equipo','EQUIPO','E',['plantel','partido','fixture','asistencia','cargas','evaluaciones']]];
+const PILARES=[['metodo','MÉTODO','M',['inicio','coordinacion','metodologia','planificacion','biblioteca','lecturas']],['cancha','CANCHA','C',['pizarra','videoanalisis','analisis']],['equipo','EQUIPO','E',['plantel','partido','fixture','rendimiento','asistencia','cargas','evaluaciones']]];
 const NOM_R=Object.fromEntries(RUTAS.filter(r=>r[1]));NOM_R.analisis='Análisis de rival';
 function pilarDe(r){const p=PILARES.find(x=>x[3].includes(r));return p?p[0]:''}
 const ULT_PILAR={};
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-sub]');if(a){e.preventDefault();ir(a.dataset.sub)}});
 function rutasPilar(k){const p=PILARES.find(x=>x[0]===k);return p?p[3].filter(r=>r!=='coordinacion'||(miRol()==='coord'&&cats().length>1)):[]}
 function subnavHtml(){const k=pilarDe(ruta);if(!k)return '';return `<nav class="subnav" aria-label="Secciones de ${k}">${rutasPilar(k).map(r=>`<a data-sub="${r}" class="${ruta===r?'activo':''}">${esc(NOM_R[r]||r)}</a>`).join('')}</nav>`}
-function ir(r,p=null){if(r!=='pizarra'&&typeof PZ_FULL!=='undefined'&&PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs')}ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
+function ir(r,p=null){try{if(typeof ruta!=='undefined'&&ruta==='pizarra'&&r!=='pizarra'&&typeof PZ!=='undefined'&&PZ){const desdeP=!!PZ_PARTIDO,existe=S.pizarras.some(x=>x.id===PZ.id);if((desdeP||existe)&&guardarPzAuto())aviso('Pizarra guardada');PZ_PARTIDO=null}}catch(e){console.warn(e)}if(r!=='pizarra'&&typeof PZ_FULL!=='undefined'&&PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs')}ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
 function pintarMenu(){
   const pa=pilarDe(ruta);if(pa)ULT_PILAR[pa]=ruta;
   $('#menu').innerHTML=PILARES.map(([k,t])=>`<a href="#${ULT_PILAR[k]||rutasPilar(k)[0]}" data-pilar="${k}" class="pilar p-${k} ${pa===k?'activo':''}"><i style="background:${k==='metodo'?'var(--met)':k==='cancha'?'var(--can)':'var(--equ)'}"></i>${t}</a>`).join('');
@@ -1362,8 +1369,10 @@ function statsJugador(id){
       if(e.tipo==='tarjeta'){e.color==='roja'?o.roj++:o.ama++}
     });
   });
+  const j=jugador(id),b=j&&j.base;if(b){['pj','min','gol','asis','ama','roj'].forEach(k=>{o[k]+=(+b[k]||0)})}
   return o;
 }
+function notaPartidosJ(j){const v=SP().map(x=>x.notasJ&&+x.notasJ[j.id]).filter(n=>n>0),b=j.base&&+j.base.nota>0?j.base:null,n=v.length+(b?(+b.pj||1):0),s=v.reduce((a,x)=>a+x,0)+(b?(+b.nota)*(+b.pj||1):0);return n?s/n:null}
 function evalsJugador(id){return SEv().filter(e=>e.jugId===id).sort((a,b)=>a.fecha.localeCompare(b.fecha))}
 const promEval=e=>prom(DIM_EVAL.map(([c])=>+e[c]));
 
@@ -1523,7 +1532,7 @@ VISTAS.plantel=el=>{
   const cats=[...new Set(SJ().map(j=>j.categoria).filter(Boolean))];
   const lista=ordenJ(SJ().filter(j=>(!filtroPos||j.posicion===filtroPos)&&(!filtroCat||j.categoria===filtroCat)));
   const minTot=minutosEquipo();
-  el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button>${SJ().length?'<button class="btn" id="fotosJ">📷 Cargar fotos</button>':''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
+  el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button>${SJ().length?'<button class="btn" id="impEst">📊 Estadísticas</button>':''}${SJ().length?'<button class="btn" id="fotosJ">📷 Cargar fotos</button>':''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
   `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
    <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select>${SJ().length?`<button class="btn ${SELJ?'pri':''}" id="selModo" style="margin-left:auto">${SELJ?'✕ Terminar selección':'☑ Seleccionar varias'}</button>`:''}</div>`+(SELJ?`<div class="selj-barra"><b>${SELJ.size}</b> ${SELJ.size===1?'elegida':'elegidas'}<span class="sub">Tocá las tarjetas para elegir</span><span style="flex:1"></span><button class="btn chico" id="selTodas">${lista.length&&lista.every(j=>SELJ.has(j.id))?'Ninguna':'Todas'}</button><button class="btn chico peligro" id="selBorrar" ${SELJ.size?'':'disabled'}>🗑 Eliminar ${SELJ.size||''}</button></div>`:'')+
   (!SELJ&&!filtroPos&&!filtroCat?panelNoDisp():'')+(lista.length?(()=>{const CT=coloresTarjeta();el.style.setProperty('--ct-osc',CT.osc);el.style.setProperty('--ct-clr',CT.clr);const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj ${SELJ?'selmodo':''} ${SELJ&&SELJ.has(j.id)?'sel':''}" data-id="${j.id}">${SELJ?`<span class="cj-check">${SELJ.has(j.id)?'✓':''}</span>`:''}<div class="cj-foto" style="${j.foto?'':'background:'+CT.fondo}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(puestoTxt(j))}</small><div class="chips" style="margin-top:5px">${chipEstado(j,true)}<span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
@@ -1534,6 +1543,7 @@ VISTAS.plantel=el=>{
   $('#fCat').onchange=e=>{filtroCat=e.target.value;pintar()};
   $('#nuevaJ').onclick=()=>editarJugador();
   $('#impJ').onclick=importarPlantel;
+  {const ie=$('#impEst');if(ie)ie.onclick=importarEstadisticas}
   const cb=$('#cmpJ');if(cb)cb.onclick=()=>{if(!cmpSel.filter(id=>jugador(id)).length)cmpSel=ordenJ(SJ()).map(j=>({j,m:statsJugador(j.id).min})).sort((a,b)=>b.m-a.m).slice(0,2).map(o=>o.j.id);ir('plantel','comparar')};
   const tp=$('#tablaPdf');if(tp)tp.onclick=()=>tablaJugadoresPDF().catch(()=>aviso('No se pudo generar el PDF.'));
   const tx=$('#tablaXls');if(tx)tx.onclick=()=>tablaJugadoresExcel().catch(()=>aviso('No se pudo generar el Excel.'));
@@ -1564,7 +1574,7 @@ function cargarFotosMasivo(lista){lista=lista||ordenJ(SJ());const i=document.cre
 const LINEAS=[['ARQ'],['DEF'],['MED'],['DEL'],['SIN']];
 function lineaDe(j){const p=j.posicion||'';return /arquer/i.test(p)?'ARQ':/volante|medio/i.test(p)?'MED':/central|lateral|defens/i.test(p)?'DEF':/delanter|extremo/i.test(p)?'DEL':'SIN'}
 function nombreLinea(k,n){const pl=n!==1;const t={ARQ:gRama(pl?'arqueras':'arquera',pl?'arqueros':'arquero',pl?'arqueras/os':'arquera/o'),DEF:gRama(pl?'defensoras':'defensora',pl?'defensores':'defensor',pl?'defensoras/es':'defensora/or'),MED:gRama(pl?'mediocampistas':'mediocampista',pl?'mediocampistas':'mediocampista',pl?'mediocampistas':'mediocampista'),DEL:gRama(pl?'delanteras':'delantera',pl?'delanteros':'delantero',pl?'delanteras/os':'delantera/o'),SIN:'sin posición'};return t[k]}
-function minutosEquipo(){return SP().filter(p=>p.estado!=='programado').reduce((a,p)=>a+minutoFinal(p),0)}
+function minutosEquipo(){return SP().filter(p=>p.estado!=='programado').reduce((a,p)=>a+minutoFinal(p),0)+((S.club&&S.club.statsBase&&+S.club.statsBase.minEquipo)||0)}
 function evalProm(id){const ev=evalsJugador(id);return ev.length?+(prom(ev.map(promEval))).toFixed(1):null}
 function datosJugador(j,minTot){const st=statsJugador(j.id),a=asistJugador(j.id);return {st,asis:a.t?a.pct:null,pm:minTot?Math.round(100*st.min/minTot):0,ev:evalProm(j.id)}}
 const CMP_COL=['#2F6FD6','#E08A1E','#2E8B57','#C2417A'];
@@ -1580,7 +1590,7 @@ function vistaComparar(el){
   const minTot=minutosEquipo(),sel=cmpSel.map(jugador),color=j=>CMP_COL[cmpSel.indexOf(j.id)],lleno=cmpSel.length>=4;
   const D={};SJ().forEach(j=>D[j.id]=datosJugador(j,minTot));
   const lista=LINEAS.map(([k])=>{const g=ordenJ(SJ().filter(j=>lineaDe(j)===k));return g.length?`<h4>${esc(nombreLinea(k,2))}</h4>`+g.map(j=>{const on=cmpSel.includes(j.id);return `<button class="cmp-item" data-cmp="${j.id}" aria-pressed="${on}" ${!on&&lleno?'disabled':''} style="--c:${on?color(j):'var(--linea)'}"><span class="box">${on?'✓':''}</span><span><b>${esc(j.apellido||j.nombre)}</b><small>#${j.dorsal||'–'} · ${D[j.id].st.pj} PJ · ${D[j.id].st.min}′</small></span></button>`}).join(''):''}).join('');
-  const filas=[['Evaluación promedio',j=>D[j.id].ev,0,v=>v.toFixed(1)],['Minutos',j=>D[j.id].st.min,0,v=>v+'′'],['Partidos jugados',j=>D[j.id].st.pj],['% de minutos',j=>D[j.id].pm,0,v=>v+'%'],['Goles',j=>D[j.id].st.gol],['Asistencias',j=>D[j.id].st.asis],['Recuperaciones',j=>D[j.id].st.rec],['Pérdidas',j=>D[j.id].st.per,1],['Faltas',j=>D[j.id].st.fal,1],['Amarillas',j=>D[j.id].st.ama,1],['Rojas',j=>D[j.id].st.roj,1],['Asistencia a entrenamientos',j=>D[j.id].asis,0,v=>v+'%']];
+  const filas=[['Nota de partidos',j=>notaPartidosJ(j),0,v=>v.toFixed(1)],['Evaluación promedio',j=>D[j.id].ev,0,v=>v.toFixed(1)],['Minutos',j=>D[j.id].st.min,0,v=>v+'′'],['Partidos jugados',j=>D[j.id].st.pj],['% de minutos',j=>D[j.id].pm,0,v=>v+'%'],['Goles',j=>D[j.id].st.gol],['Asistencias',j=>D[j.id].st.asis],['Recuperaciones',j=>D[j.id].st.rec],['Pérdidas',j=>D[j.id].st.per,1],['Faltas',j=>D[j.id].st.fal,1],['Amarillas',j=>D[j.id].st.ama,1],['Rojas',j=>D[j.id].st.roj,1],['Asistencia a entrenamientos',j=>D[j.id].asis,0,v=>v+'%']];
   const tabla=`<table class="cmp-tabla"><thead><tr><th>Dato</th>${sel.map(j=>`<th style="--c:${color(j)}"><span class="dot"></span>${esc(j.apellido||j.nombre)}</th>`).join('')}</tr></thead><tbody>${filas.map(([t,fn,menos,fmt])=>{const vals=sel.map(fn),nums=vals.filter(v=>typeof v==='number'),m=nums.length>1?(menos?Math.min(...nums):Math.max(...nums)):null,uni=m!=null&&nums.filter(v=>v===m).length<nums.length;return `<tr><td>${t}</td>${vals.map(v=>`<td class="${uni&&v===m?'mejor':''}">${v==null?'—':(fmt?fmt(v):v)}</td>`).join('')}</tr>`}).join('')}</tbody></table><p class="sub" style="font-size:12.5px;margin:8px 0 0">En negrita, el mejor dato de cada fila (en pérdidas, faltas y tarjetas, el más bajo).</p>`;
   const ejes=[['Evaluación',j=>D[j.id].ev||0,()=>10],['Minutos',j=>D[j.id].st.min],['Partidos',j=>D[j.id].st.pj],['Goles',j=>D[j.id].st.gol],['Asistencias',j=>D[j.id].st.asis],['Recuperaciones',j=>D[j.id].st.rec],['Asist. entrenam.',j=>D[j.id].asis||0,()=>100]];
   const maxDe=(fn,mx)=>mx?mx():Math.max(1,...SJ().map(fn));
@@ -1631,6 +1641,54 @@ function posReconocida(t){t=String(t||'').toLowerCase().normalize('NFD').replace
 function posDesdeTexto(t){const i=posReconocida(t);return POSICIONES[i<0?3:i]}
 function fechaDesde(v,X){if(v==null||v==='')return '';if(typeof v==='number'){const d=X.SSF.parse_date_code(v);if(d)return d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0')}
   const t=String(v).trim();let m=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=y>30?1900:2000;return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}m=t.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
+function importarEstadisticas(){
+  const sb=(S.club&&S.club.statsBase)||null,conB=SJ().filter(j=>j.base).length,nP=SP().filter(p=>p.estado!=='programado').length;
+  modal('Estadísticas de la temporada',`<p style="margin:0 0 12px">Elegí cómo querés llevar las estadísticas de ${J('pl')}:</p>
+    <div style="display:grid;gap:10px">
+      <div class="panel" style="padding:12px;margin:0"><b>1 · Empezar de cero</b><p class="sub" style="margin:4px 0 0;font-size:13.5px">Metodika suma sola los minutos, goles, asistencias y tarjetas de cada partido que cargues en <b>En vivo</b>. ${nP?'Ya hay '+nP+' partido'+(nP>1?'s':'')+' cargado'+(nP>1?'s':'')+'.':''}</p></div>
+      <div class="panel" style="padding:12px;margin:0"><b>2 · Subir las que ya tenés</b><p class="sub" style="margin:4px 0 8px;font-size:13.5px">Un Excel o CSV con una fila por ${J('sg')} (por ejemplo, la tabla de jugadoras que descargás de <b>Alonbalon</b>). Se carga como punto de partida.</p><label class="btn pri chico" for="estF">⬆ Elegir archivo</label><input type="file" id="estF" accept=".xlsx,.xls,.csv" hidden></div>
+      <div class="panel" style="padding:12px;margin:0"><b>3 · Continuar desde lo que subiste</b><p class="sub" style="margin:4px 0 0;font-size:13.5px">Después de subirlas, cada partido nuevo que cargues en Metodika se <b>suma</b> a esos números. No se pisa nada.</p></div>
+    </div>
+    ${conB?`<div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--carta2);font-size:13.5px">✅ Hay estadísticas importadas de <b>${conB}</b> ${conB===1?J('sg'):J('pl')}${sb&&sb.fuente?' ('+esc(sb.fuente)+(sb.fecha?' · '+esc(fFecha(sb.fecha)):'')+')':''}. <button class="btn chico fantasma" id="estQuitar" style="margin-left:6px">🗑 Quitar lo importado</button></div>`:''}
+    <div id="estPrev" style="margin-top:12px"></div>`,{ancho:true,alMontar:m=>{
+    const q=$('#estQuitar',m);if(q)q.onclick=()=>confirmar('¿Quitar las estadísticas importadas?','Quedan solo las de los partidos cargados en Metodika.','Quitar',()=>{SJ().forEach(j=>delete j.base);if(S.club)delete S.club.statsBase;guardar();pintar();aviso('Listo: se quitaron')});
+    $('#estF',m).onchange=async e=>{const f=e.target.files[0];if(!f)return;const box=$('#estPrev',m);box.innerHTML='<p class="sub">Leyendo…</p>';
+      try{const X=await cargarXLSX(),wb=X.read(await f.arrayBuffer(),{type:'array'});
+        const norm=k=>String(k).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+        const crudo=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
+        let hi=crudo.findIndex((r,k)=>k<25&&r.some(c=>/^(nombre|apellido|jugador|jugadora|apodo)/.test(norm(c))));if(hi<0)hi=0;
+        const tit=(crudo[hi]||[]).map(c=>norm(c));
+        const col=(...ps)=>{for(const p of ps){const i=tit.findIndex(t=>p instanceof RegExp?p.test(t):t===p);if(i>=0)return i}return -1};
+        const C={nom:col(/^nombre/,/^jugador/),ape:col(/^apellido/),apo:col(/^apodo/,/^alias/),dor:col(/^dorsal/,/^numero/,/^n°/,/^camiseta/),
+          ptot:col(/^partidos totales/),pj:col(/^partidos jugados/,'pj',/^jugados/),tit:col(/titular/),sup:col(/suplente/),min:col(/^minutos/,'min'),
+          gol:col(/^goles/),asis:col(/^asistencias/,/^asist/),ama:col(/amarilla/),roj:col(/roja/),nota:col(/calificacion/,/valoracion/,/^nota/)};
+        if(C.pj<0&&C.min<0&&C.gol<0){box.innerHTML='<div class="vacio">No encontré columnas de estadísticas (partidos, minutos, goles…).</div>';return}
+        const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0};
+        const filas=crudo.slice(hi+1).filter(r=>r.some(c=>String(c).trim())).filter(r=>!/^(total|totales|media|promedio)/i.test(String(r[C.nom>=0?C.nom:0]).trim()));
+        let ptot=0;const lista=SJ(),usados=new Set();
+        const buscar=r=>{const d=C.dor>=0?String(r[C.dor]).replace(/[^0-9]/g,''):'',apo=C.apo>=0?String(r[C.apo]).trim().replace(/^([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)[A-Z]$/,'$1'):'',nom=C.nom>=0?String(r[C.nom]).trim():'',ape=C.ape>=0?String(r[C.ape]).trim():'';
+          const toks=normTxt([nom,ape,apo].join(' ')).split(' ').filter(w=>w.length>1);
+          let best=null,bp=0;lista.forEach(j=>{if(usados.has(j.id))return;let p=0;const ja=normTxt(j.apellido).split(' ').filter(Boolean),jn=normTxt(j.nombre).split(' ').filter(Boolean);
+            if(d&&String(j.dorsal)===d)p+=3;if(ja.length&&ja.every(a=>toks.includes(a)))p+=3;if(jn.some(a=>toks.includes(a)))p+=1;if(p>bp){bp=p;best=j}});
+          if(best&&bp>=3){usados.add(best.id);return best}return null};
+        const datos=filas.map(r=>{const o={txt:[C.dor>=0?r[C.dor]:'',C.nom>=0?r[C.nom]:'',C.ape>=0?r[C.ape]:'',C.apo>=0?r[C.apo]:''].map(x=>String(x).trim()).filter(Boolean).join(' · '),
+          v:{pj:C.pj>=0?num(r[C.pj]):0,tit:C.tit>=0?num(r[C.tit]):0,sup:C.sup>=0?num(r[C.sup]):0,min:C.min>=0?num(r[C.min]):0,gol:C.gol>=0?num(r[C.gol]):0,asis:C.asis>=0?num(r[C.asis]):0,ama:C.ama>=0?num(r[C.ama]):0,roj:C.roj>=0?num(r[C.roj]):0,nota:C.nota>=0?num(r[C.nota]):0}};
+          if(C.ptot>=0)ptot=Math.max(ptot,num(r[C.ptot]));const j=buscar(r);o.id=j?j.id:'';return o});
+        if(!ptot)ptot=Math.max(0,...datos.map(x=>x.v.pj));
+        const bien=datos.filter(x=>x.id).length;
+        box.innerHTML=`<div class="panel" style="padding:12px;margin:0"><b>${datos.length} filas · ${bien} encontradas en el plantel</b>${datos.length-bien?` <span class="sub" style="color:#E5484D">· ${datos.length-bien} sin encontrar: elegí a quién corresponden o dejalas en “No importar”</span>`:''}
+          <div style="overflow:auto;max-height:42vh;margin-top:8px"><table class="tabla" style="width:100%;font-size:13px;border-collapse:collapse"><thead><tr style="text-align:left"><th>En el archivo</th><th>En Metodika</th><th>PJ</th><th>Min</th><th>Goles</th><th>Asist.</th><th>🟨</th><th>🟥</th><th>Nota</th></tr></thead><tbody>${datos.map((x,i)=>`<tr style="border-top:1px solid var(--linea)"><td>${esc(x.txt)}</td><td><select data-ei="${i}" style="max-width:170px;font-size:12.5px;${x.id?'':'border-color:#E5484D'}"><option value="">— No importar —</option>${ordenJ(lista).map(j=>`<option value="${j.id}" ${x.id===j.id?'selected':''}>${j.dorsal?j.dorsal+' · ':''}${esc(j.nombre+' '+j.apellido)}</option>`).join('')}</select></td><td>${x.v.pj}</td><td>${x.v.min}</td><td>${x.v.gol}</td><td>${x.v.asis}</td><td>${x.v.ama}</td><td>${x.v.roj}</td><td>${x.v.nota?x.v.nota.toFixed(1).replace('.',','):'–'}</td></tr>`).join('')}</tbody></table></div>
+          <label class="campo" style="margin-top:10px;max-width:280px">¿De dónde salen?<input type="text" id="estFuente" value="${esc(/alonbalon|players_table/i.test(f.name)?'Alonbalon':'Archivo importado')}"></label>
+          <p class="sub" style="font-size:12.5px;margin:6px 0 0">Partidos del equipo en el archivo: <b>${ptot}</b> (se usan para el % de minutos). Si ya había estadísticas importadas, se reemplazan por estas.</p></div>
+          <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="estOk">Importar y seguir sumando</button></div>`;
+        $$('[data-ei]',m).forEach(s=>s.onchange=()=>{datos[+s.dataset.ei].id=s.value;s.style.borderColor=s.value?'':'#E5484D'});
+        $('#estOk',m).onclick=()=>{const ids=datos.filter(x=>x.id).map(x=>x.id);if(new Set(ids).size!==ids.length){aviso('Hay una misma '+J('sg')+' elegida dos veces');return}
+          const fu=$('#estFuente',m).value.trim()||'Archivo importado',hoy=new Date().toISOString().slice(0,10);
+          SJ().forEach(j=>delete j.base);datos.filter(x=>x.id).forEach(x=>{const j=jugador(x.id);if(j)j.base={...x.v,fuente:fu,fecha:hoy}});
+          S.club.statsBase={fuente:fu,fecha:hoy,pjEquipo:ptot,minEquipo:ptot*90};guardar();cerrarModal();pintar();aviso('Listo: se importaron las estadísticas de '+ids.length+' '+J('pl')+'. Los partidos nuevos se suman.')};
+      }catch(x){console.warn(x);box.innerHTML='<div class="vacio">No pude leer el archivo. Probá guardarlo como .xlsx o .csv.</div>'}};
+  }});
+}
 function importarPlantel(){
   modal('Importar el plantel desde Excel',`<p style="margin:0 0 10px">Cargá a todo el plantel de una vez. Sirve un Excel o un CSV con una fila por ${J('sg')}.</p>
     <ol class="sub" style="margin:0 0 14px;padding-left:20px;line-height:1.6"><li>Descargá la plantilla y completala (el Nombre es obligatorio).</li><li>Subila acá. Antes de guardar vas a ver la lista.</li></ol>
@@ -1769,7 +1827,7 @@ function perfilJugador(el,j){
       <div class="pj-pos"><b>#${j.dorsal||'–'}</b> ${esc(puestoTxt(j))} <button class="pj-lapiz" id="editPos" title="Editar perfil" aria-label="Editar perfil">✏️</button></div>
       <h1 class="pj-nom"><span>${esc(j.nombre)}</span>${esc(j.apellido)}</h1>
       <div class="pj-chips">${chipEstado(j)}<span>${esc(j.categoria||'Sin categoría')}</span>${edad?`<span>${edad} años</span>`:''}${j.pie?`<span>Pie ${esc(j.pie.toLowerCase())}</span>`:''}${j.altura?`<span>${j.altura} cm</span>`:''}</div>
-      <div class="pj-stats">${[['PJ',st.pj],['Min',st.min],['Goles',st.gol],['Asist.',st.asis],['Asistencia',a.t?a.pct+'%':'—'],['Nota',pe!=null?pe.toFixed(1):'—'],...(()=>{const v=SP().map(x=>x.notasJ&&+x.notasJ[j.id]).filter(n=>n>0);return v.length?[['Nota partidos',(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1).replace('.',',')]]:[]})()].map(([t,v])=>`<div><b>${v}</b><i>${t}</i></div>`).join('')}</div>
+      <div class="pj-stats">${[['PJ',st.pj],['Min',st.min],['Goles',st.gol],['Asist.',st.asis],['Asistencia',a.t?a.pct+'%':'—'],['Nota',pe!=null?pe.toFixed(1):'—'],...(()=>{const v=SP().map(x=>x.notasJ&&+x.notasJ[j.id]).filter(n=>n>0),b=j.base&&+j.base.nota>0?j.base:null,n=v.length+(b?(+b.pj||1):0),s=v.reduce((a,x)=>a+x,0)+(b?(+b.nota)*(+b.pj||1):0);return n?[['Nota partidos',(s/n).toFixed(1).replace('.',',')]]:[]})()].map(([t,v])=>`<div><b>${v}</b><i>${t}</i></div>`).join('')}</div>
       <div class="pj-acc"><button class="btn pri" id="cartaJ">🖼 Carta para compartir</button><button class="btn" id="infJ">📄 Informe de temporada</button><button class="btn" id="linkJ">🔗 Link para ${S.club.rama==='M'?'el jugador':'la jugadora'}</button><button class="btn" id="editJ">✏️ Editar perfil</button><button class="btn pj-del" id="delJ">🗑 Eliminar</button></div>
     </div>
     ${ult?`<div class="pj-radar">${radarEval(ult,promEquipoEval())}<div class="pj-ley"><span><i class="yo"></i>${esc(j.nombre)}</span><span><i class="eq"></i>Promedio plantel</span></div></div>`:''}
@@ -2728,6 +2786,22 @@ function svgBloque(pz,pos,k,r,W,H){
 let MULTI=new Set(),UNIR_A=null;
 let PZ_FULL=false,PZ_OPC=false,TRAY=null,fut=[];
 let PZ=null,herr='mover',hist=[],FR=0,SEL=null,colorJ='#FFD400',colorZ='#FFFFFF',animando=null,fCatPz='',fCarpeta='';
+let PZ_PARTIDO=null;
+function irPz(p,tab,id){PZ_PARTIDO={id:p.id,tab};ir('pizarra',id)}
+function guardarPzAuto(){if(!PZ)return false;const nom=document.getElementById('pzNombre');if(nom&&nom.value.trim())PZ.nombre=nom.value.trim();
+  const i=S.pizarras.findIndex(x=>x.id===PZ.id),c=JSON.parse(JSON.stringify(PZ));let cambio=false;
+  if(i>=0){const prev=S.pizarras[i];if(firmaPz(prev)!==firmaPz(PZ)||prev.nombre!==PZ.nombre||JSON.stringify(prev.roles||{})!==JSON.stringify(PZ.roles||{})||!!prev.sinFotos!==!!PZ.sinFotos){c.versiones=prev.versiones;S.pizarras[i]=c;cambio=true}}
+  else if(PZ.elementos.length||PZ.flechas.length||PZ.textos.length){S.pizarras.push(c);cambio=true}
+  if(PZ_PARTIDO){const p=S.partidos.find(x=>x.id===PZ_PARTIDO.id);if(p&&S.pizarras.some(x=>x.id===c.id)){p.pizarras=p.pizarras||[];if(!p.pizarras.includes(c.id)){p.pizarras.push(c.id);cambio=true}}}
+  if(cambio)guardar();return cambio}
+function guiaAnim(){
+  const nJ=PZ.elementos.filter(e=>e.t==='J'||e.t==='P').length,n=PZ.pasos.length,fl=PZ.flechas.filter(a=>a.k==='mov'||a.k==='pase'||a.k==='cond').length;let t;
+  if(!nJ)t='<b>1.</b> Poné las jugadoras y la pelota en la cancha (botón <b>Jugadoras</b> a la izquierda). Después vas a poder animarlas.';
+  else if(!n)t=`<b>Para que se muevan:</b> tocá <b>＋ Paso 2</b> (abajo) y <b>arrastrá</b> a cada jugadora y la pelota adonde van.${fl?' O, como ya dibujaste flechas, tocá <b>✨ Mover según flechas</b> y se arma sola.':''}`;
+  else if(FR>0)t=`<b>Estás en el paso ${FR+1}:</b> arrastrá a las jugadoras y la pelota a su nuevo lugar. La línea punteada muestra de dónde vienen. ¿Listo? Tocá <b>▶</b> para verla. Para seguir, <b>＋ Paso ${n+2}</b>.`;
+  else t=`La jugada tiene <b>${n+1} pasos</b>. Tocá <b>▶</b> para verla moverse, o tocá un paso (abajo) para cambiarlo.`;
+  return `<div class="pz-guia">🎬 ${t}</div>`;
+}
 function pizarraNueva(f='11 vs 11'){return normalizar({id:uid(),nombre:'Nuevo ejercicio',formato:f,categoria:'Entrenamiento',carpeta:'',elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],fondo:''})}
 const ICOS_H={
   mover:'<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3" stroke="currentColor" stroke-width="1.6" fill="none"/>',
@@ -2760,14 +2834,15 @@ VISTAS.pizarra=el=>{
   const espTxt=zMay?`${+zMay.w.toFixed(1)} × ${+zMay.h.toFixed(1)} m`:`${Wc} × ${Hc} m`,area=zMay?areaZona(zMay):Wc*Hc,jEn=zMay?PZ.elementos.filter(e=>e.t==='J'&&dentroZona(zMay,...posEn(PZ,e,FR))).length:nJ;
   el.innerHTML=`<div class="pzA ${PZ_FULL?'piz-full':''}" id="pizWrap">
   <div class="pzA-top"><div class="pzA-logo">M</div><div class="pzA-tit"><input type="text" id="pzNombre" value="${esc(PZ.nombre)}" aria-label="Nombre del ejercicio"><div class="pzA-sub">${esc([S.club&&S.club.nombre,(()=>{try{return CATN()}catch(e){return ''}})()].filter(Boolean).join(' · ')||'Pizarra táctica')}</div></div>
-    <div class="pzA-acc"><button class="pa" id="pzNueva">Nueva</button><button class="pa" id="pzPlant">Plantillas</button><button class="pa" id="pzPres">▶ Presentar</button><button class="pa" id="pzVid">🎬 Video</button><button class="pa" id="pzPng">⤓ Exportar</button><button class="pa" id="pzShare">📲 Compartir</button><button class="pa" id="pzTarea">📋 A tarea</button><button class="pa" id="pzFotos" title="Mostrar u ocultar las fotos de las jugadoras">${PZ.sinFotos?'⚪ Sin fotos':'📷 Fotos'}</button><button class="pa" id="pzVers" title="Volver a una versión guardada antes">🕘 Versiones</button><button class="pa y" id="pzGuardar">Guardar</button></div></div>
+    <div class="pzA-acc">${PZ_PARTIDO?'<button class="pa y" id="pzVolverP">← Guardar y volver al partido</button>':''}<button class="pa" id="pzNueva">Nueva</button><button class="pa" id="pzPlant">Plantillas</button><button class="pa" id="pzPres">▶ Presentar</button><button class="pa" id="pzVid">🎬 Video</button><button class="pa" id="pzPng">⤓ Exportar</button><button class="pa" id="pzShare">📲 Compartir</button><button class="pa" id="pzTarea">📋 A tarea</button><button class="pa" id="pzFotos" title="Mostrar u ocultar las fotos de las jugadoras">${PZ.sinFotos?'⚪ Sin fotos':'📷 Fotos'}</button><button class="pa" id="pzVers" title="Volver a una versión guardada antes">🕘 Versiones</button><button class="pa y" id="pzGuardar">Guardar</button></div></div>
   <div class="pzA-body">
     <div class="pzA-dock">${barraPizarra()}</div>
     <div class="pzA-stage"><div class="pz-tray" id="pzTray" hidden></div>
       <div class="cancha-box"><div class="cancha" id="cancha">${svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI})}</div><div class="pz-burb" id="pzBurb" hidden></div></div>
+      ${guiaAnim()}
       <div class="pzA-tl">
         <button class="pzA-play ${PZ.pasos.length?'':'off'}" id="frPlay" ${PZ.pasos.length?'':'disabled'} title="Reproducir jugada">${animando?'■':'▶'}</button>
-        <div class="pzA-frames">${Array.from({length:PZ.pasos.length+1},(_,i)=>`<button class="pzA-fr ${i===FR?'on':''}" data-fr="${i}" title="Paso ${i+1}${(PZ.notas||[])[i]?': '+esc(PZ.notas[i]):''}"><span>${i+1}</span>${svgPizarra(JSON.parse(JSON.stringify(PZ)),{mini:true,frame:i})}</button>`).join('')}<button class="pzA-add" id="frNuevo" title="Animación libre: agregás un paso y movés vos las fichas y la pelota. Todo lo que muevas en ese paso se mueve a la vez.">✋<small>Paso libre</small></button><button class="pzA-add auto" id="frAuto" title="Animación automática: dibujá la jugada con flechas y Metodika arma los pasos sola">✨<small>Animar desde flechas</small></button><button class="pzA-add ayuda" id="frAyuda" title="¿Cómo animar?">?<small>Cómo animar</small></button></div>
+        <div class="pzA-frames">${Array.from({length:PZ.pasos.length+1},(_,i)=>`<button class="pzA-fr ${i===FR?'on':''}" data-fr="${i}" title="Paso ${i+1}${(PZ.notas||[])[i]?': '+esc(PZ.notas[i]):''}"><span>${i+1}</span>${svgPizarra(JSON.parse(JSON.stringify(PZ)),{mini:true,frame:i})}</button>`).join('')}<button class="pzA-add" id="frNuevo" title="Agrega un paso nuevo: después arrastrá a las jugadoras y la pelota adonde van">＋<small>Paso ${PZ.pasos.length+2}</small></button><button class="pzA-add auto" id="frAuto" title="Si dibujaste flechas, Metodika arma los pasos sola siguiendo las flechas">✨<small>Mover según flechas</small></button><button class="pzA-add ayuda" id="frAyuda" title="¿Cómo animar?">?<small>Cómo animar</small></button></div>
         <div class="pzA-tlc"><button class="pa chico" id="frAnt" ${FR?'':'disabled'} aria-label="Paso anterior">◀</button><b class="num">Paso ${FR+1} de ${PZ.pasos.length+1}</b><button class="pa chico" id="frSig" ${FR<PZ.pasos.length?'':'disabled'} aria-label="Paso siguiente">▶</button>
           ${FR>0?`<button class="pa chico" id="frQuitar">Quitar paso</button><select id="frVel" aria-label="Velocidad de este paso" title="Velocidad de este paso">${opts([['1.6','🐢 Este paso lento'],['1','Este paso normal'],['0.6','⚡ Este paso rápido']],String((PZ.pasos[FR-1]||{}).vel||1))}</select>`:''}<select id="pzVel" aria-label="Velocidad de la animación" ${PZ.pasos.length?'':'disabled'}>${opts([['1.7','🐢 Lenta'],['1','Normal'],['0.6','⚡ Rápida']],String(PZ.vel||1))}</select></div>
       </div>
@@ -2807,6 +2882,7 @@ VISTAS.pizarra=el=>{
   $('#pzCarpeta').oninput=e=>PZ.carpeta=e.target.value.trim();
   $('#pzFormato').onchange=e=>{if(e.target.value==='__medida'){e.target.value=PZ.formato;canchaAMedida();return}snap();PZ.formato=e.target.value;delete PZ.medida;pintar()};
   $('#pzLimpiar').onclick=()=>{snap();Object.assign(PZ,{elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],trazos:[]});FR=0;SEL=null;MULTI.clear();pintar()};
+  {const vb=$('#pzVolverP');if(vb)vb.onclick=()=>{const pp=PZ_PARTIDO;tabPartido=pp.tab||'piz';ir('partido',pp.id)}}
   $('#pzNueva').onclick=()=>{PZ=pizarraNueva(PZ.formato);hist=[];FR=0;SEL=null;pintar()};
   $('#pzGuardar').onclick=()=>{PZ.nombre=$('#pzNombre').value.trim()||'Ejercicio';const i=S.pizarras.findIndex(p=>p.id===PZ.id);
     if(i>=0){const prev=S.pizarras[i],vs=(prev.versiones||PZ.versiones||[]).slice();if(firmaPz(prev)!==firmaPz(PZ)){vs.unshift({t:Date.now(),d:sinVersiones(prev)});vs.length=Math.min(vs.length,10)}PZ.versiones=vs}
@@ -3194,7 +3270,7 @@ function pintarSel(){
       h=`<div class="fila-sel"><label class="campo" style="max-width:90px">Número<input type="text" id="selN" value="${esc(e.n??'')}" maxlength="3"></label><label class="campo" style="flex:1;min-width:180px">Nombre<input type="text" id="selNom" value="${esc(e.nombre||'')}" list="dlPl" placeholder="Opcional"><datalist id="dlPl">${pl.map(j=>`<option value="${esc(j.apellido)}">${esc(j.nombre+' '+j.apellido)} · ${j.dorsal||''}</option>`).join('')}</datalist></label></div>`+colores(e.color,'J')+`<div class="etq" style="margin-top:10px">Perfil corporal (hacia dónde mira)</div><div class="pz-ori">${[[225,'↖'],[270,'↑'],[315,'↗'],[180,'←'],['','Sin'],[0,'→'],[135,'↙'],[90,'↓'],[45,'↘']].map(([v,t])=>`<button data-ori="${v}" class="btn chico ${String(e.ori??'')===String(v)?'on':''}" title="${v===''?'Sin perfil':'Mira '+t}">${t}</button>`).join('')}</div>`;}
     else{const m=MATERIALES[e.t];tit=m.n;h=(e.t==='I'?`<label class="campo" style="max-width:110px;margin-bottom:8px">Número<input type="text" id="selN" value="${esc(e.n??'')}" maxlength="3"></label>`:'')+(e.t!=='P'&&e.t!=='IMG'?colores(e.color):'')+(m.rot?`<button class="btn chico" id="selRot">⟳ Girar 45°</button>`:'')}
     if(FR>0&&PZ.pasos[FR-1]&&PZ.pasos[FR-1].pos[e.id]&&!(PZ.pasos[FR-1].pega&&PZ.pasos[FR-1].pega[e.id])){const pa=PZ.pasos[FR-1],dl=(pa.del||{})[e.id]||0,bl=PZ.elementos.find(x=>x.t==='P'&&pa.pega&&pa.pega[x.id]===e.id);
-      h+=`<div class="pzA-anim"><div class="etq">Movimiento en el paso ${FR}</div>
+      h+=`<div class="pzA-anim"><div class="etq">Cómo llega al paso ${FR+1}</div>
         <label class="pzA-row"><span>Arranca</span><select id="selDel">${opts([['0','Junto con el resto'],['0.3','Un poco después'],['0.55','Más tarde']],String(dl))}</select></label>
         ${e.t==='J'?`<label class="pzA-chk"><input type="checkbox" id="selPega" ${bl?'checked':''}> 🔗 La pelota va con ${RAMA()==='M'?'él':RAMA()==='X'?'ella/él':'ella'}</label>`:''}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${(pa.cur||{})[e.id]?'<button class="btn chico" id="selRecta">Recorrido recto</button>':'<span class="sub" style="font-size:12.5px">Para curvar el recorrido, arrastrá el punto amarillo del medio.</span>'}</div></div>`}
@@ -3624,7 +3700,7 @@ function pizarraDesdePartido(p){
       if(d.rival)colocarEquipo(f,d.sistema,'izq','#FFFFFF',true,null,'#141412').forEach(e=>{const [W]=FORMATOS[f];e.x=Math.max(e.x,W/2+2);PZ.elementos.push(e)});
       const sup=p.convocados.filter(id=>!p.titulares.includes(id)).map(jugador).filter(Boolean);
       if(d.sup&&sup.length){const [W,H]=FORMATOS[f];PZ.textos.push({id:uid(),x:W/2,y:H-1.5,txt:'Suplentes: '+ordenJ(sup).map(j=>(j.dorsal?j.dorsal+' ':'')+j.apellido).join(' · '),tam:.7})}
-      hist=[];FR=0;SEL=null;MULTI.clear();cerrarModal();ir('pizarra');aviso('Parado de campo listo: ajustalo y tocá Guardar')};
+      hist=[];FR=0;SEL=null;MULTI.clear();cerrarModal();PZ_PARTIDO={id:p.id,tab:'aline'};ir('pizarra');aviso('Parado de campo listo: se guarda solo al volver al partido')};
   }});
 }
 function pararAnim(repintarTodo){if(animando){cancelAnimationFrame(animando);animando=null;if(repintarTodo)pintar()}}
@@ -3981,7 +4057,7 @@ function alineacionPartido(el,p){
 }
 
 /* ---------- Pestaña: Informe del rival ---------- */
-const INF_RIVAL=[['ataque','¿Cómo atacan?',['Juego directo','Posesión elaborada','Contraataque','Juego por bandas','Mixto']],['defensa','¿Cómo defienden?',['Bloque alto','Bloque medio','Bloque bajo','Marca individual','Zonal']],['presion','¿Presionan la salida?',['Presión alta','Presión media','No presionan','Presión tras pérdida']],['salida','¿Cómo salen?',['Salida corta desde el arco','Salida larga','Mixta','Salida con 3']],['abpOf','Pelota parada ofensiva',null],['abpDef','Pelota parada defensiva',null],['fuertes','Fortalezas',null],['debiles','Debilidades',null],['claves','Jugadoras/es clave',null],['plan','Nuestro plan para el partido',null]];
+const INF_RIVAL=[['ataque','¿Cómo atacan?',['Juego directo','Posesión elaborada','Juego vertical','Juego interior','Juego por bandas','Contraataque','Centros al área','Remates de afuera']],['defensa','¿Cómo defienden?',['Bloque alto','Bloque medio','Bloque bajo','Marca individual','Zonal','Mixta']],['presion','¿Presionan el inicio?',['Presión alta','Presión media','No presionan','Presión tras pérdida','Cambia según el momento']],['salida','¿Cómo es su inicio?',['Corto desde el arco','Largo','Mixto','Con 3 atrás','Con la volante entre centrales']],['abpOf','Pelota parada ofensiva',null],['abpDef','Pelota parada defensiva',null],['fuertes','Fortalezas',null],['debiles','Debilidades',null],['claves','Jugadoras/es clave',null],['plan','Nuestro plan para el partido',null]];
 function infRivalTxt(c,t){return c==='claves'?(RAMA()==='M'?'Jugadores clave':RAMA()==='F'?'Jugadoras clave':'Jugadoras/es clave'):t}
 async function scoutingDe(rival){
   const n=normTxt(rival);if(!n)return null;const pal=n.split(' ').filter(w=>w.length>2);
@@ -3995,8 +4071,8 @@ function informeDesdeScouting(s){
   const L=v=>Array.isArray(v)?v.filter(Boolean):(v?[v]:[]),T=v=>Array.isArray(v)?v.filter(Boolean).join(', '):String(v||'').trim(),has=(v,x)=>L(v).some(y=>normTxt(y).includes(normTxt(x)));
   const o={},sis=L(s.sis_con)[0];if(sis&&SISTEMAS['11 vs 11'].includes(sis))o.sistema=sis;
   const alt=T(s.pre_altura);if(/alta/i.test(alt))o.defensa='Bloque alto';else if(/media/i.test(alt))o.defensa='Bloque medio';else if(/baja/i.test(alt))o.defensa='Bloque bajo';
-  if(has(s.tra_perder,'presionan enseguida'))o.presion='Presión tras pérdida';else if(/alta/i.test(alt))o.presion='Presión alta';else if(/media/i.test(alt))o.presion='Presión media';
-  const st=T(s.sal_tipo);if(/corta/i.test(st))o.salida='Salida corta desde el arco';else if(/larga/i.test(st))o.salida='Salida larga';else if(/mixta/i.test(st))o.salida='Mixta';
+  if(has(s.tra_perder,'presionan enseguida'))o.presion='Presión tras pérdida';else if(/cambia/i.test(alt))o.presion='Cambia según el momento';else if(/alta/i.test(alt))o.presion='Presión alta';else if(/media/i.test(alt))o.presion='Presión media';
+  const st=T(s.sal_tipo);if(/corta/i.test(st))o.salida='Corto desde el arco';else if(/larga/i.test(st))o.salida='Largo';else if(/mixta/i.test(st))o.salida='Mixto';
   if(has(s.ata_como,'pelota larga'))o.ataque='Juego directo';else if(has(s.tra_ganar,'contragolpe'))o.ataque='Contraataque';else if(L(s.ata_zona).length>1)o.ataque='Mixto';else if(L(s.ata_zona).some(z=>/banda/i.test(z)))o.ataque='Juego por bandas';
   const lin=(...xs)=>xs.filter(([,v])=>v).map(([t,v])=>t?t+': '+v:v).join('\n');
   o.abpOf=T(s.pp_favor);o.abpDef=T(s.pp_contra);
@@ -4029,7 +4105,7 @@ function rivalPartido(el,p){
       <h3 style="margin-top:14px">Once del rival</h3><p class="sub" style="font-size:12.5px;margin:-4px 0 8px">Número y nombre (o una referencia). Tocá ⭐ para marcar a las que hay que tener en cuenta.</p>
       <div class="lista">${inf.once.slice(0,pu.length).map((o,i)=>`<div class="fila" style="padding:4px 0;gap:6px"><span class="chip" style="min-width:66px;justify-content:center;font-size:11.5px">${i===0?arq:pu[i]}</span><input type="text" inputmode="numeric" data-on="${i}" value="${esc(o.n||'')}" placeholder="N°" style="width:52px;text-align:center"><input type="text" data-onom="${i}" value="${esc(o.nom||'')}" placeholder="Nombre o referencia" style="flex:1;min-width:0"><button type="button" class="btn chico ${o.dest?'pri':'fantasma'}" data-odest="${i}" title="Destacada">${o.dest?'⭐':'☆'}</button></div>`).join('')}</div>
       <div style="border-top:1px solid var(--linea);margin-top:12px;padding-top:12px"><b>¿Ya lo analizaste en video?</b><p class="sub" style="font-size:13px;margin:4px 0 8px">Traé lo que cargaste en <b>Análisis de rival</b> (sistema, once, inicio, presión, figuras, pelota parada, debilidades y tu plan) y no lo escribís dos veces.</p><button class="btn pri chico" id="irTraer">⤓ Traer del Análisis de rival</button></div></div>
-    <div class="panel"><h3>Perfil táctico</h3><form class="form" id="fIR" style="margin-top:6px">${INF_RIVAL.filter(x=>x[2]).map(([c,t,o])=>`<label class="campo">${t}<select name="${c}"><option value="">—</option>${opts(o,inf[c]||'')}</select></label>`).join('')}
+    <div class="panel"><h3>Perfil táctico</h3><p class="sub" style="font-size:12.5px;margin:-4px 0 6px">Podés elegir varias opciones en cada una.</p><form class="form" id="fIR" style="margin-top:6px">${INF_RIVAL.filter(x=>x[2]).map(([c,t,o])=>{const sel=String(inf[c]||'').split(' · ').filter(Boolean);return `<div class="campo ancho"><span>${t}</span><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${o.map(v=>{const on=sel.includes(v);return `<button type="button" class="chip" data-pt2="${c}" data-v="${esc(v)}" style="cursor:pointer;white-space:normal;border:1.5px solid ${on?'var(--tinta)':'var(--linea)'};background:${on?'var(--carta2)':'transparent'};font-weight:${on?700:500}">${on?'✓ ':''}${esc(v)}</button>`}).join('')}</div></div>`}).join('')}
       <div class="campo ancho"><span style="color:#D0402F;font-weight:700">Fortalezas para neutralizar</span>${chips('fort')}</div>${area('fuertes','Detalle de las fortalezas','Ej.: la 7 encara siempre hacia adentro con la zurda')}
       <div class="campo ancho"><span style="color:#2E8B57;font-weight:700">Debilidades para aprovechar</span>${chips('deb')}</div>${area('debiles','Detalle de las debilidades','Ej.: la lateral derecha no es rápida y se mete hacia adentro')}
       ${area('abpOf','Pelota parada ofensiva','Ej.: corners cerrados al primer palo')}${area('abpDef','Pelota parada defensiva','Ej.: marcan individual y dejan dos arriba')}
@@ -4043,6 +4119,7 @@ function rivalPartido(el,p){
   $$('[data-on]',el).forEach(i=>i.onchange=()=>{inf.once[+i.dataset.on].n=i.value.replace(/[^0-9]/g,'').slice(0,3);guardar();redibujar()});
   $$('[data-onom]',el).forEach(i=>i.onchange=()=>{inf.once[+i.dataset.onom].nom=i.value.trim();guardar();redibujar()});
   $$('[data-odest]',el).forEach(b=>b.onclick=()=>{const o=inf.once[+b.dataset.odest];o.dest=!o.dest;Object.assign(inf,leerForm($('#fIR',el)));guardar();pintar()});
+  $$('[data-pt2]',el).forEach(b=>b.onclick=()=>{const c=b.dataset.pt2,v=b.dataset.v,a=String(inf[c]||'').split(' · ').filter(Boolean),ix=a.indexOf(v);if(ix>=0)a.splice(ix,1);else a.push(v);Object.assign(inf,leerForm($('#fIR',el)));inf[c]=a.join(' · ');guardar();const y=scrollY;pintar();scrollTo(0,y)});
   $$('[data-tag]',el).forEach(b=>b.onclick=()=>{const a=inf[b.dataset.tag+'Tags'],t=b.dataset.t,ix=a.indexOf(t);if(ix>=0)a.splice(ix,1);else a.push(t);Object.assign(inf,leerForm($('#fIR',el)));guardar();const y=scrollY;pintar();scrollTo(0,y)});
   $('#gIR',el).onclick=()=>{Object.assign(inf,leerForm($('#fIR',el)));guardar();aviso('Informe guardado')};
   $('#irTraer',el).onclick=async()=>{const b=$('#irTraer',el);b.disabled=true;b.textContent='Buscando…';
@@ -4061,8 +4138,8 @@ function pizarrasPartido(el,p){
   const lista=p.pizarras.map(id=>S.pizarras.find(z=>z.id===id));
   el.innerHTML=`<div class="panel"><div class="panel-cab"><h3>Pizarras y pelota parada del partido</h3><div class="der" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="ppVin">＋ Agregar de mis pizarras</button><button class="btn pri" id="ppNueva">＋ Nueva pizarra</button></div></div>
     ${lista.length?`<div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${lista.map(z=>`<div class="ct" style="padding:8px"><div class="cancha" style="padding:4px">${svgPizarra(z,{mini:true})}</div><div style="display:flex;align-items:center;gap:6px;margin-top:6px"><b style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(z.nombre)}</b><span class="chip">${esc(z.categoria||'')}</span></div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn chico" data-ppa="${z.id}">Abrir</button><button class="btn chico fantasma" data-ppq="${z.id}">Quitar del partido</button></div></div>`).join('')}</div>`:'<div class="vacio">Todavía no hay pizarras para este partido. Podés crear una o sumar una de tus pizarras (incluidas las de pelota parada).</div>'}</div>`;
-  $('#ppNueva',el).onclick=()=>{const z=pizarraNueva('11 vs 11');z.nombre='vs '+(p.rival||'Rival');z.categoria='Partido';z.carpeta=('vs '+(p.rival||'')).trim();S.pizarras.push(z);p.pizarras.push(z.id);guardar();ir('pizarra',z.id)};
-  $$('[data-ppa]',el).forEach(b=>b.onclick=()=>ir('pizarra',b.dataset.ppa));
+  $('#ppNueva',el).onclick=()=>{const z=pizarraNueva('11 vs 11');z.nombre='vs '+(p.rival||'Rival');z.categoria='Partido';z.carpeta=('vs '+(p.rival||'')).trim();S.pizarras.push(z);p.pizarras.push(z.id);guardar();irPz(p,'piz',z.id)};
+  $$('[data-ppa]',el).forEach(b=>b.onclick=()=>irPz(p,'piz',b.dataset.ppa));
   $$('[data-ppq]',el).forEach(b=>b.onclick=()=>{p.pizarras=p.pizarras.filter(x=>x!==b.dataset.ppq);guardar();pintar()});
   $('#ppVin',el).onclick=()=>{const todas=[...S.pizarras].sort((a,b)=>(a.categoria==='ABP'?-1:0)-(b.categoria==='ABP'?-1:0));
     modal('Agregar pizarras al partido',todas.length?`<div class="lista" style="max-height:55vh;overflow:auto">${todas.map(z=>`<label class="fila" style="cursor:pointer"><input type="checkbox" value="${z.id}" ${p.pizarras.includes(z.id)?'checked':''}><span style="flex:1">${esc(z.nombre)}</span><span class="chip">${esc(z.categoria||'')}</span></label>`).join('')}</div><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ppOk">Agregar</button></div>`:'<div class="vacio">No tenés pizarras guardadas todavía.</div>',{alMontar:m=>{const ok=$('#ppOk',m);if(ok)ok.onclick=()=>{p.pizarras=$$('input:checked',m).map(i=>i.value);guardar();cerrarModal();pintar()}}})};
@@ -4146,12 +4223,12 @@ function abpPartido(el,p){
     <div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">${PLANTILLAS_ABP.map(([n,fn],i)=>`<button class="ct" data-abpn="${i}" style="text-align:left;padding:8px;font:inherit;color:inherit"><div class="cancha" style="padding:4px">${svgPizarra(armarPlantilla('Medio campo',fn()),{mini:true})}</div><b style="display:block;margin-top:6px">＋ ${esc(n)}</b></button>`).join('')}
       <button class="ct" id="abpBlanco" style="text-align:left;padding:8px;font:inherit;color:inherit;display:grid;place-items:center;min-height:150px"><b>＋ Pizarra en blanco<br><span class="sub" style="font-weight:400">medio campo, con las titulares</span></b></button></div></div>
     <div class="panel" style="margin-top:14px"><h3>Jugadas armadas (${mias.length})</h3>${mias.length?`<div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${mias.map(z=>`<div class="ct" style="padding:8px"><div class="cancha" style="padding:4px">${svgPizarra(z,{mini:true})}</div><b style="display:block;margin:6px 0">${esc(z.nombre)}</b><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn chico pri" data-abpa="${z.id}">Abrir</button><button class="btn chico" data-abpr="${z.id}">📝 Tarea de cada una</button><button class="btn chico" data-abpq="${z.id}" title="La saca de este partido (la pizarra sigue en Pizarras)">Quitar</button></div></div>`).join('')}</div>`:'<div class="vacio">Todavía no armaste pelotas paradas para este partido.</div>'}</div>`;
-  const crear=z=>{z.categoria='ABP';z.carpeta=('vs '+(p.rival||'')).trim();S.pizarras.push(z);p.pizarras.push(z.id);guardar();ir('pizarra',z.id)};
+  const crear=z=>{z.categoria='ABP';z.carpeta=('vs '+(p.rival||'')).trim();S.pizarras.push(z);p.pizarras.push(z.id);guardar();irPz(p,'abp',z.id)};
   $$('[data-abpn]',el).forEach(b=>b.onclick=()=>{const [n,fn]=PLANTILLAS_ABP[+b.dataset.abpn];const z=abpConPlantel(armarPlantilla('Medio campo',fn()),p);z.nombre=n+' · vs '+(p.rival||'rival');crear(z)});
   $('#abpBlanco',el).onclick=()=>{const z=pizarraNueva('Medio campo');z.nombre='Pelota parada · vs '+(p.rival||'rival');
     const tit=ordenParaCancha((p.titulares||[]).map(jugador).filter(Boolean)),[W,H]=FORMATOS['Medio campo']||[40,32];
     tit.forEach((j,i)=>z.elementos.push({id:uid(),t:'J',x:W*(i+1)/(tit.length+1),y:H-3,color:j.posicion==='Arquera/o'?'#F08A24':(camisetaPropia()?'club':'#FFD400'),n:j.dorsal||i+1,nombre:j.apellido||j.nombre,jid:j.id}));crear(z)};
-  $$('[data-abpa]',el).forEach(b=>b.onclick=()=>ir('pizarra',b.dataset.abpa));
+  $$('[data-abpa]',el).forEach(b=>b.onclick=()=>irPz(p,'abp',b.dataset.abpa));
   $$('[data-abpr]',el).forEach(b=>b.onclick=()=>rolesABP(S.pizarras.find(z=>z.id===b.dataset.abpr)));
   $$('[data-abpq]',el).forEach(b=>b.onclick=()=>{p.pizarras=p.pizarras.filter(x=>x!==b.dataset.abpq);guardar();pintar()});
 }
@@ -5537,18 +5614,135 @@ VISTAS.fixture=el=>{
   const lista=[...SP()].filter(p=>!fComp||p.competicion===fComp).sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const jug=lista.filter(p=>p.estado==='finalizado'&&p.golesF!=null);
   const G=jug.filter(p=>p.golesF>p.golesC).length,E=jug.filter(p=>p.golesF===p.golesC).length,P=jug.length-G-E,GF=jug.reduce((a,p)=>a+p.golesF,0),GC=jug.reduce((a,p)=>a+p.golesC,0);
-  el.innerHTML=cabecera('Temporada '+S.club.temporada,'Fixture','',`<button class="btn pri" id="nP">＋ Partido</button>`)+
+  const lin=lista.map((p,i)=>{const fin=p.estado==='finalizado'&&p.golesF!=null,r=fin?(p.golesF>p.golesC?'V':p.golesF===p.golesC?'E':'D'):'',col={V:'#2E9E5B',E:'#E0A100',D:'#D0402F'}[r]||'var(--linea)';return `<button class="fx-it" data-p="${p.id}" title="${esc(p.rival)}${fin?' · '+p.golesF+'-'+p.golesC:''}"><small>${esc(fCorta(p.fecha))}</small><span class="fx-esc" style="border-color:${col}">${escudoHtml(p.rivalEscudo,p.rival,34)}</span><b>${p.jornada?'J'+esc(String(p.jornada)):(i+1)}</b><i>${esc(p.rival)}</i>${fin?`<em style="color:${col}">${p.golesF}-${p.golesC}</em>`:'<em class="sub">—</em>'}</button>`}).join('');
+  el.innerHTML=cabecera('Temporada '+S.club.temporada,'Fixture','',`${jug.length>1?'<button class="btn" id="cmpP">⇄ Comparar partidos</button>':''}<button class="btn" id="impP">⬆ Importar partidos</button><button class="btn pri" id="nP">＋ Partido</button>`)+
+  (jug.length?`<div class="panel" style="margin-bottom:14px;padding:12px 14px"><div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><b style="font-size:22px"><span style="color:#2E9E5B">${G}V</span> <span style="color:#E0A100">${E}E</span> <span style="color:#D0402F">${P}D</span></b><span class="sub">${G*3+E} puntos · ${(jug.length?(G*3+E)/jug.length:0).toFixed(2).replace('.',',')} por partido</span></div><div style="display:flex;height:8px;border-radius:9px;overflow:hidden;margin-top:8px;background:var(--linea)"><i style="width:${100*G/jug.length}%;background:#2E9E5B"></i><i style="width:${100*E/jug.length}%;background:#E0A100"></i><i style="width:${100*P/jug.length}%;background:#D0402F"></i></div></div>`:'')+
+  (lista.length?`<div class="panel fx-lin" style="margin-bottom:16px">${lin}</div>`:'')+
   `<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr));margin-bottom:16px">${[['PJ',jug.length],['Ganados',G],['Empates',E],['Perdidos',P],['Goles a favor',GF],['Goles en contra',GC],['Diferencia',(GF-GC>0?'+':'')+(GF-GC)],['Puntos',G*3+E]].map(([t,v])=>`<div class="panel" style="padding:14px"><div class="etq">${t}</div><div class="dato" style="font-size:30px">${v}</div></div>`).join('')}</div>
   <div class="filtros"><select id="fc" style="width:auto"><option value="">Todas las competiciones</option>${opts(comps,fComp)}</select></div>
   ${lista.length?`<div class="tabla-c"><table><thead><tr><th>Fecha</th><th>Hora</th><th>Competición</th><th>Rival</th><th>Cond.</th><th>Resultado</th><th class="n">Convoc.</th><th class="n">Recup.</th><th class="n">Pérd.</th><th></th></tr></thead><tbody>
     ${lista.map(p=>{const res=p.golesF!=null&&p.estado!=='programado';const rec=p.eventos.filter(e=>e.tipo==='recuperacion').length,per=p.eventos.filter(e=>e.tipo==='perdida').length;const prox=p===lista.find(x=>x.estado!=='finalizado'&&deIso(x.fecha)>=HOY);
-      return `<tr class="click" data-p="${p.id}" ${prox?'style="box-shadow:inset 4px 0 0 var(--amarillo)"':''}><td><b>${fFecha(p.fecha)}</b></td><td>${esc(p.hora)}</td><td>${esc(p.competicion)}</td><td>${esc(p.rival)}</td><td>${p.condicion==='Local'?'L':p.condicion==='Visitante'?'V':'N'}</td><td>${res?`<span class="chip ${p.golesF>p.golesC?'ok':p.golesF<p.golesC?'mal':''}">${p.golesF}-${p.golesC} ${p.golesF>p.golesC?'G':p.golesF<p.golesC?'P':'E'}</span>`:prox?'<span class="chip ama">Próximo</span>':'<span class="tenue">—</span>'}</td><td class="n">${p.convocados.length||''}</td><td class="n">${rec||''}</td><td class="n">${per||''}</td><td><button class="btn chico fantasma" data-ed="${p.id}">Editar</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="vacio">Cargá los partidos de la temporada.</div>'}`;
+      return `<tr class="click" data-p="${p.id}" ${prox?'style="box-shadow:inset 4px 0 0 var(--amarillo)"':''}><td><b>${fFecha(p.fecha)}</b></td><td>${esc(p.hora)}</td><td>${esc(p.competicion)}</td><td>${esc(p.rival)}</td><td>${p.condicion==='Local'?'L':p.condicion==='Visitante'?'V':p.condicion==='Neutral'?'N':'—'}</td><td>${res?`<span class="chip ${p.golesF>p.golesC?'ok':p.golesF<p.golesC?'mal':''}">${p.golesF}-${p.golesC} ${p.golesF>p.golesC?'G':p.golesF<p.golesC?'P':'E'}</span>`:prox?'<span class="chip ama">Próximo</span>':'<span class="tenue">—</span>'}</td><td class="n">${p.convocados.length||''}</td><td class="n">${rec||''}</td><td class="n">${per||''}</td><td><button class="btn chico fantasma" data-ed="${p.id}">Editar</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="vacio">Cargá los partidos de la temporada.</div>'}`;
   $('#nP').onclick=()=>editarPartido();
+  $('#impP').onclick=importarPartidos;
+  {const c=$('#cmpP');if(c)c.onclick=()=>compararPartidos()}
   $('#fc').onchange=e=>{fComp=e.target.value;pintar()};
   $$('[data-ed]',el).forEach(b=>b.onclick=e=>{e.stopPropagation();editarPartido(S.partidos.find(p=>p.id===b.dataset.ed))});
   $$('[data-p]',el).forEach(r=>r.onclick=()=>{const p=S.partidos.find(x=>x.id===r.dataset.p);tabPartido=p.estado==='finalizado'?'analisis':'previa';ir('partido',p.id)});
 };
 
+function datosCmpPartido(p){
+  const ev=p.eventos||[],c=t=>ev.filter(e=>e.tipo===t).length,nv=Object.values(p.notasJ||{}).map(Number).filter(x=>x>0);
+  return {gf:p.golesF??0,gc:p.golesC??0,dif:(p.golesF??0)-(p.golesC??0),nota:nv.length?nv.reduce((a,b)=>a+b,0)/nv.length:null,asis:ev.filter(e=>e.tipo==='gol'&&e.jug2).length,rec:c('recuperacion'),per:c('perdida'),fal:c('falta'),ama:ev.filter(e=>e.tipo==='tarjeta'&&e.color!=='roja').length,roj:ev.filter(e=>e.tipo==='tarjeta'&&e.color==='roja').length,conv:(p.convocados||[]).length,detalle:ev.length>0}
+}
+function compararPartidos(a,b){
+  const ps=[...SP()].filter(p=>p.estado==='finalizado'&&p.golesF!=null).sort((x,y)=>y.fecha.localeCompare(x.fecha));if(ps.length<2){aviso('Necesitás al menos 2 partidos jugados');return}
+  a=a||ps[0].id;b=b||ps[1].id;const A=S.partidos.find(x=>x.id===a),B=S.partidos.find(x=>x.id===b),dA=datosCmpPartido(A),dB=datosCmpPartido(B);
+  const res=p=>p.golesF>p.golesC?['Victoria','#2E9E5B']:p.golesF===p.golesC?['Empate','#E0A100']:['Derrota','#D0402F'];
+  const op=sel=>ps.map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(fCorta(p.fecha))} · ${esc(p.rival)} ${p.golesF}-${p.golesC}</option>`).join('');
+  const cab=p=>{const [t,c]=res(p);return `<div style="text-align:center"><div style="display:flex;justify-content:center">${escudoHtml(p.rivalEscudo,p.rival,54)}</div><b style="display:block;margin-top:4px">${esc(p.rival)}</b><span class="sub" style="font-size:12px">${esc(fFecha(p.fecha))} · ${esc(p.competicion||'')}</span><div style="margin-top:4px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap"><span class="chip">${esc(p.condicion||'')}</span><span class="chip" style="color:${c};border-color:${c}">${t}</span><span class="chip"><b>${p.golesF}-${p.golesC}</b></span></div></div>`};
+  const fila=(t,va,vb,menos,fmt)=>{if(va==null&&vb==null)return '';const f=fmt||(v=>v==null?'—':String(v)),x=+va||0,y=+vb||0,mx=Math.max(Math.abs(x),Math.abs(y),1),gA=menos?x<y:x>y,gB=menos?y<x:y>x;
+    return `<div class="cmpP-f"><div class="cmpP-l"><b style="${gA?'color:var(--acento,#FFD400)':''}">${f(va)}</b><i style="width:${Math.abs(x)/mx*100}%;${gA?'background:var(--acento,#FFD400)':''}"></i></div><span>${t}</span><div class="cmpP-r"><b style="${gB?'color:var(--acento,#FFD400)':''}">${f(vb)}</b><i style="width:${Math.abs(y)/mx*100}%;${gB?'background:var(--acento,#FFD400)':''}"></i></div></div>`};
+  const grupo=(t,h,nota)=>h.trim()?`<div style="margin-top:14px"><div style="display:flex;justify-content:space-between"><b style="font-size:12px;letter-spacing:.08em;text-transform:uppercase">${t}</b>${nota?`<span class="sub" style="font-size:11.5px">${nota}</span>`:''}</div>${h}</div>`:'';
+  const nf=v=>v==null?'—':v.toFixed(1).replace('.',',');
+  const sinDet=!dA.detalle||!dB.detalle;
+  modal('Comparar partidos',`<p class="sub" style="margin:0 0 10px">Elegí dos partidos, incluso contra el mismo rival.</p>
+    <div class="grilla g2" style="gap:10px"><label class="campo">Partido A<select id="cpA">${op(a)}</select></label><label class="campo">Partido B<select id="cpB">${op(b)}</select></label></div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:12px 0">${cab(A)}<b style="font-size:20px">VS</b>${cab(B)}</div>
+    ${grupo('Resultado',fila('Goles a favor',dA.gf,dB.gf)+fila('Goles en contra',dA.gc,dB.gc,1)+fila('Diferencia',dA.dif,dB.dif,0,v=>(v>0?'+':'')+v))}
+    ${grupo('Rendimiento',fila('Nota media',dA.nota,dB.nota,0,nf)+fila('Asistencias de gol',dA.asis,dB.asis)+fila('Recuperaciones',dA.rec,dB.rec)+fila('Pérdidas',dA.per,dB.per,1))}
+    ${grupo('Disciplina',fila('Faltas',dA.fal,dB.fal,1)+fila('Amarillas',dA.ama,dB.ama,1)+fila('Rojas',dA.roj,dB.roj,1),'Menos es mejor')}
+    ${sinDet?'<p class="sub" style="font-size:12.5px;margin-top:12px">Algún partido no tiene acciones cargadas en “En vivo” (por ejemplo, los importados): ahí solo se comparan los goles.</p>':''}`,{ancho:true,alMontar:m=>{
+    $('#cpA',m).onchange=e=>{cerrarModal();compararPartidos(e.target.value,$('#cpB',m).value)};$('#cpB',m).onchange=e=>{cerrarModal();compararPartidos($('#cpA',m).value,e.target.value)}}});
+}
+function importarPartidos(){
+  modal('Importar partidos',`<p style="margin:0 0 10px">Subí un Excel o CSV con los partidos (por ejemplo, el <b>Excel de la competición</b> que descargás de Alonbalon). Columnas que reconoce: fecha, rival, goles a favor, goles en contra, resultado, local/visitante y jornada.</p>
+    <label class="btn pri chico" for="ipmF">⬆ Elegir archivo</label><input type="file" id="ipmF" accept=".xlsx,.xls,.csv" hidden><div id="ipmPrev" style="margin-top:12px"></div>`,{ancho:true,alMontar:m=>{
+    $('#ipmF',m).onchange=async e=>{const f=e.target.files[0];if(!f)return;const box=$('#ipmPrev',m);box.innerHTML='<p class="sub">Leyendo…</p>';
+      try{const X=await cargarXLSX(),wb=X.read(await f.arrayBuffer(),{type:'array',cellDates:true});
+        const norm=k=>String(k).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+        const crudo=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
+        let hi=crudo.findIndex((r,k)=>k<25&&r.some(c=>/^(rival|fecha|partido)/.test(norm(c))));if(hi<0)hi=0;
+        const tit=(crudo[hi]||[]).map(norm),col=(...ps)=>{for(const p of ps){const i=tit.findIndex(t=>p.test(t));if(i>=0)return i}return -1};
+        const C={fe:col(/^fecha/),ri:col(/^rival/,/^equipo rival/,/^contrario/),gf:col(/^goles (equipo|a favor|favor|propios)/,/^gf$/,/^a favor/),gc:col(/^goles (rival|en contra|contra)/,/^gc$/,/^en contra/),re:col(/^resultado/),co:col(/^condicion/,/^local/,/^cond/),jo:col(/^jornada/,/^fecha n/,/^j$/),ho:col(/^hora/)};
+        if(C.ri<0||C.fe<0){box.innerHTML='<div class="vacio">No encontré las columnas “Fecha” y “Rival”.</div>';return}
+        const fechaDe=v=>{if(v instanceof Date&&!isNaN(v))return [v.getFullYear()+'-'+String(v.getMonth()+1).padStart(2,'0')+'-'+String(v.getDate()).padStart(2,'0'),String(v.getHours()).padStart(2,'0')+':'+String(v.getMinutes()).padStart(2,'0')];const d=fechaDesde(v,X);return [d,'']};
+        const num=v=>{const s=String(v).trim();if(s===''||s==='-'||s==='—')return null;const n=parseInt(s,10);return isFinite(n)?n:null};
+        const rows=crudo.slice(hi+1).filter(r=>String(r[C.ri]||'').trim()&&!/^total/i.test(String(r[0]).trim()));
+        const datos=rows.map((r,i)=>{const [fe,hoFe]=fechaDe(r[C.fe]);let gf=C.gf>=0?num(r[C.gf]):null,gc=C.gc>=0?num(r[C.gc]):null;const res=C.re>=0?String(r[C.re]).trim():'';
+          if(C.gf<0&&C.re>=0&&/^\d+\s*[-–]\s*\d+$/.test(res)){const [a,b]=res.split(/[-–]/).map(x=>+x.trim());gf=a;gc=b}
+          const jugado=gf!=null&&gc!=null&&res!=='-'&&res!=='—';const co=C.co>=0?String(r[C.co]):'';
+          return {fecha:fe,hora:(C.ho>=0?String(r[C.ho]).slice(0,5):'')||(hoFe!=='00:00'?hoFe:''),rival:String(r[C.ri]).trim(),golesF:jugado?gf:null,golesC:jugado?gc:null,estado:jugado?'finalizado':'programado',condicion:/visit|^v$/i.test(co)?'Visitante':/local|^l$/i.test(co)?'Local':'',jornada:C.jo>=0?String(r[C.jo]).trim():String(i+1)}}).filter(x=>x.fecha);
+        const yaEsta=x=>SP().some(p=>p.fecha===x.fecha&&normTxt(p.rival)===normTxt(x.rival));
+        datos.forEach(x=>{x.repe=yaEsta(x);x.usar=!x.repe});
+        const comps=[...new Set(SP().map(p=>p.competicion).filter(Boolean))];
+        box.innerHTML=`<div class="panel" style="padding:12px;margin:0"><b>${datos.length} partidos en el archivo</b>${datos.some(x=>x.repe)?` <span class="sub">· ${datos.filter(x=>x.repe).length} ya estaban en Metodika y no se repiten</span>`:''}
+          <div style="overflow:auto;max-height:44vh;margin-top:8px"><table style="width:100%;font-size:13px;border-collapse:collapse"><thead><tr style="text-align:left"><th></th><th>J</th><th>Fecha</th><th>Rival</th><th>Resultado</th><th>Condición</th></tr></thead><tbody>${datos.map((x,i)=>`<tr style="border-top:1px solid var(--linea);${x.repe?'opacity:.5':''}"><td><input type="checkbox" data-iu="${i}" ${x.usar?'checked':''}></td><td><input type="text" data-ij="${i}" value="${esc(x.jornada)}" style="width:44px;padding:3px 5px"></td><td>${esc(fFecha(x.fecha))}${x.hora?' · '+esc(x.hora):''}</td><td><span style="display:inline-flex;align-items:center;gap:6px">${escudoHtml('',x.rival,22)}${esc(x.rival)}</span></td><td>${x.estado==='finalizado'?`<b>${x.golesF}-${x.golesC}</b>`:'<span class="sub">Por jugar</span>'}</td><td><select data-ic="${i}" style="font-size:12.5px;padding:3px 6px"><option value="">—</option>${['Local','Visitante','Neutral'].map(c=>`<option ${x.condicion===c?'selected':''}>${c}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>
+          <div class="form" style="margin-top:10px"><label class="campo">Competición<input type="text" id="ipmC" list="ipmCl" value="${esc(comps[0]||'Liga')}"><datalist id="ipmCl">${comps.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label></div>
+          <p class="sub" style="font-size:12.5px;margin:6px 0 0">El archivo de Alonbalon no dice si fuimos locales o visitantes: elegilo en cada fila si querés (lo podés cambiar después).</p></div>
+          <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ipmOk">Importar partidos</button></div>`;
+        $$('[data-iu]',m).forEach(c=>c.onchange=()=>datos[+c.dataset.iu].usar=c.checked);
+        $$('[data-ij]',m).forEach(c=>c.onchange=()=>datos[+c.dataset.ij].jornada=c.value.trim());
+        $$('[data-ic]',m).forEach(c=>c.onchange=()=>datos[+c.dataset.ic].condicion=c.value);
+        $('#ipmOk',m).onclick=()=>{const comp=$('#ipmC',m).value.trim()||'Liga',sel=datos.filter(x=>x.usar);if(!sel.length){aviso('No elegiste ningún partido');return}
+          sel.forEach(x=>S.partidos.push({id:uid(),competicion:comp,fecha:x.fecha,hora:x.hora||'',rival:x.rival,condicion:x.condicion||'',golesF:x.golesF,golesC:x.golesC,estado:x.estado,jornada:x.jornada,convocados:[],titulares:[],eventos:[],reloj:{tiempo:1,corriendo:false,acum:0,inicio:0},duracionTiempo:S.club.duracionTiempo||45,obs:'',importado:true}));
+          guardar();cerrarModal();pintar();aviso('Listo: se importaron '+sel.length+' partidos')};
+      }catch(x){console.warn(x);box.innerHTML='<div class="vacio">No pude leer el archivo. Probá guardarlo como .xlsx o .csv.</div>'}};
+  }});
+}
+/* ================= RENDIMIENTO (tablero de la temporada) ================= */
+let fRendComp='',fRendLugar='';
+VISTAS.rendimiento=el=>{
+  const comps=[...new Set(SP().map(p=>p.competicion).filter(Boolean))];
+  const ps=[...SP()].filter(p=>p.estado==='finalizado'&&p.golesF!=null&&(!fRendComp||p.competicion===fRendComp)&&(!fRendLugar||p.condicion===fRendLugar)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const res=p=>p.golesF>p.golesC?'V':p.golesF===p.golesC?'E':'D',COL={V:'#2E9E5B',E:'#E0A100',D:'#D0402F'},pl=RAMA()==='M';
+  const bal=a=>{const V=a.filter(p=>res(p)==='V').length,E=a.filter(p=>res(p)==='E').length,D=a.length-V-E,GF=a.reduce((s,p)=>s+p.golesF,0),GC=a.reduce((s,p)=>s+p.golesC,0);return {n:a.length,V,E,D,GF,GC,pts:V*3+E}};
+  const B=bal(ps),L=bal(ps.filter(p=>p.condicion==='Local')),Vi=bal(ps.filter(p=>p.condicion==='Visitante'));
+  const filtros=`<div class="filtros" style="margin-bottom:14px"><select id="rC" style="width:auto"><option value="">Todas las competiciones</option>${opts(comps,fRendComp)}</select><select id="rL" style="width:auto"><option value="">Local y visitante</option>${opts(['Local','Visitante'],fRendLugar)}</select></div>`;
+  if(!ps.length){el.innerHTML=cabecera('Temporada '+S.club.temporada,'Rendimiento','Cómo viene el equipo en la temporada.')+filtros+'<div class="vacio">Todavía no hay partidos jugados. Cargalos en <b>Fixture</b> (o importalos de Alonbalon).</div>';conRend(el);return}
+  const card=(t,v,s,c)=>`<div class="panel" style="padding:14px;margin:0"><div class="etq">${t}</div><div style="font-size:28px;font-weight:800;${c?'color:'+c:''}">${v}</div>${s?`<div class="sub" style="font-size:12.5px">${s}</div>`:''}</div>`;
+  const vallas=ps.filter(p=>p.golesC===0).length,ev=ps.flatMap(p=>p.eventos||[]),ama=ev.filter(e=>e.tipo==='tarjeta'&&e.color!=='roja').length+SJ().reduce((s,j)=>s+((j.base&&+j.base.ama)||0),0),roj=ev.filter(e=>e.tipo==='tarjeta'&&e.color==='roja').length+SJ().reduce((s,j)=>s+((j.base&&+j.base.roj)||0),0);
+  const mayV=[...ps].filter(p=>res(p)==='V').sort((a,b)=>(b.golesF-b.golesC)-(a.golesF-a.golesC))[0],mayD=[...ps].filter(p=>res(p)==='D').sort((a,b)=>(b.golesC-b.golesF)-(a.golesC-a.golesF))[0];
+  const ult=ps.slice(-5);
+  // primero en marcar
+  const conEv=ps.filter(p=>(p.eventos||[]).some(e=>e.tipo==='gol'||e.tipo==='golRival'));
+  const prim=t=>conEv.filter(p=>{const g=[...p.eventos].filter(e=>e.tipo==='gol'||e.tipo==='golRival').sort((a,b)=>a.min-b.min)[0];return g&&g.tipo===t});
+  const pm=a=>{const b=bal(a);return b.n?`<b>${b.n}</b> partido${b.n>1?'s':''} · <span style="color:${COL.V}">${Math.round(100*b.V/b.n)}% V</span> · <span style="color:${COL.E}">${Math.round(100*b.E/b.n)}% E</span> · <span style="color:${COL.D}">${Math.round(100*b.D/b.n)}% D</span>`:'<span class="sub">Sin partidos</span>'};
+  // goles por tramo
+  const tr=[[0,15],[15,30],[30,45],[45,60],[60,75],[75,200]],gT=t=>tr.map(([a,b])=>ev.filter(e=>e.tipo===t&&e.min>a&&e.min<=b).length),gf=gT('gol'),gc=gT('golRival'),mxT=Math.max(1,...gf,...gc);
+  const tramos=ev.some(e=>e.tipo==='gol'||e.tipo==='golRival')?`<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;align-items:end;height:150px">${tr.map((t,i)=>`<div style="display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:2px"><b style="font-size:12px;color:${COL.V}">${gf[i]||''}</b><i style="display:block;width:60%;height:${50*gf[i]/mxT}%;background:${COL.V};border-radius:4px 4px 0 0"></i><i style="display:block;width:60%;height:${50*gc[i]/mxT}%;background:${COL.D};border-radius:0 0 4px 4px"></i><b style="font-size:12px;color:${COL.D}">${gc[i]||''}</b></div>`).join('')}</div><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;text-align:center;font-size:11.5px" class="sub">${['0-15′','15-30′','30-45′','45-60′','60-75′','75-90′'].map(t=>`<span>${t}</span>`).join('')}</div>`:'<div class="vacio" style="padding:14px">Se completa con los goles cargados en <b>En vivo</b> (con su minuto).</div>';
+  // once tipo
+  const cnt={},sisC={};ps.forEach(p=>{const a=p.aline;if(a&&a.slots&&a.slots.some(Boolean)){sisC[a.sistema]=(sisC[a.sistema]||0)+1;a.slots.forEach((id,i)=>{if(!id)return;const k=a.sistema+'|'+i;cnt[k]=cnt[k]||{};cnt[k][id]=(cnt[k][id]||0)+1})}});
+  const sisTop=Object.entries(sisC).sort((a,b)=>b[1]-a[1])[0];let once='';
+  if(sisTop){const s=sisTop[0],n=1+s.split('-').map(Number).reduce((a,b)=>a+b,0),usados=new Set(),slots=[];for(let i=0;i<n;i++){const c=Object.entries(cnt[s+'|'+i]||{}).sort((a,b)=>b[1]-a[1]).find(([id])=>!usados.has(id));if(c){usados.add(c[0]);slots.push([c[0],c[1]])}else slots.push(null)}
+    const fake={aline:{formato:'11 vs 11',sistema:s,slots:slots.map(x=>x&&x[0])},convocados:[],titulares:[]};
+    once=`<div class="sub" style="margin-bottom:6px">1-${esc(s)} · usado en ${sisTop[1]} partido${sisTop[1]>1?'s':''}</div><div class="cancha" style="padding:6px">${svgPizarra(pizarraAline(fake),{mini:false})}</div>`}
+  else{const tit=ordenJ(SJ()).map(j=>({j,t:(j.base&&+j.base.tit||0)+ps.filter(p=>(p.titulares||[]).includes(j.id)).length})).filter(x=>x.t>0).sort((a,b)=>b.t-a.t).slice(0,11);
+    once=tit.length?`<div class="sub" style="margin-bottom:6px">Las 11 con más partidos de titular</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px">${tit.map(x=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--linea);border-radius:10px">${avatar(x.j)}<div style="min-width:0"><b style="font-size:13px">${esc(x.j.apellido||x.j.nombre)}</b><div class="sub" style="font-size:11.5px">${x.t} de titular</div></div></div>`).join('')}</div>`:'<div class="vacio" style="padding:14px">Se arma con las alineaciones de los partidos.</div>'}
+  // destacadas
+  const D=SJ().map(j=>({j,st:statsJugador(j.id),nota:notaPartidosJ(j)}));
+  const top=(f,fmt,n=3)=>D.filter(x=>f(x)>0).sort((a,b)=>f(b)-f(a)).slice(0,n).map((x,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><b style="width:16px">${i+1}</b>${avatar(x.j)}<span style="flex:1;font-weight:600">${esc(x.j.apellido||x.j.nombre)}</span><b>${fmt(f(x))}</b></div>`).join('')||'<span class="sub">—</span>';
+  const dest=[['Nota',x=>x.nota||0,v=>v.toFixed(1).replace('.',',')],['Minutos',x=>x.st.min,v=>v+'′'],[pl?'Goleadores':'Goleadoras',x=>x.st.gol,v=>v],['Asistencias',x=>x.st.asis,v=>v]];
+  // participación en goles
+  const GFt=Math.max(B.GF,1),part=D.map(x=>({j:x.j,g:x.st.gol,a:x.st.asis,t:x.st.gol+x.st.asis})).filter(x=>x.t>0).sort((a,b)=>b.t-a.t).slice(0,6);
+  const parejas={};ev.filter(e=>e.tipo==='gol'&&e.jug&&e.jug2).forEach(e=>{const k=e.jug2+'>'+e.jug;parejas[k]=(parejas[k]||0)+1});const parT=Object.entries(parejas).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  el.innerHTML=cabecera('Temporada '+S.club.temporada,'Rendimiento','Cómo viene el equipo: resultados, goles, el once tipo y las '+J('pl')+' destacadas.')+filtros+
+  `<div class="grilla" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px">
+    <div class="panel" style="padding:14px;margin:0"><div class="etq">Balance</div><div style="font-size:26px;font-weight:800"><span style="color:${COL.V}">${B.V}V</span> <span style="color:${COL.E}">${B.E}E</span> <span style="color:${COL.D}">${B.D}D</span></div><div class="sub" style="font-size:12.5px">${B.pts} puntos · ${(B.pts/B.n).toFixed(2).replace('.',',')} por partido</div></div>
+    ${card('Goles',B.GF+' – '+B.GC,(B.GF-B.GC>=0?'+':'')+(B.GF-B.GC)+' de diferencia')}${card('Valla invicta',vallas,vallas+' de '+B.n+' partidos')}${card('Tarjetas',ama+roj,ama+' amarillas · '+roj+' rojas')}
+    <div class="panel" style="padding:14px;margin:0"><div class="etq">Últimos 5</div><div style="display:flex;gap:6px;margin-top:6px">${ult.map(p=>`<div title="${esc(p.rival)}" style="text-align:center;font-size:11px"><div style="width:34px;height:34px;border-radius:50%;border:3px solid ${COL[res(p)]};display:grid;place-items:center;overflow:hidden;background:#fff">${escudoHtml(p.rivalEscudo,p.rival,24)}</div><b style="color:${COL[res(p)]}">${p.golesF}-${p.golesC}</b></div>`).join('')}</div></div></div>
+  <div class="grilla g2" style="margin-bottom:14px">
+    <div class="panel"><h3>Local y visitante</h3>${[['🏠 Local',L],['✈ Visitante',Vi]].map(([t,b])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--linea)"><b>${t}</b><span>${b.n?`<span style="color:${COL.V}">${b.V}V</span> <span style="color:${COL.E}">${b.E}E</span> <span style="color:${COL.D}">${b.D}D</span> · ${b.GF}-${b.GC}`:'<span class="sub">—</span>'}</span></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--linea)"><b>Mayor victoria</b><span>${mayV?`${mayV.golesF}-${mayV.golesC} vs ${esc(mayV.rival)}`:'—'}</span></div><div style="display:flex;justify-content:space-between;padding:8px 0"><b>Mayor derrota</b><span>${mayD?`${mayD.golesF}-${mayD.golesC} vs ${esc(mayD.rival)}`:'—'}</span></div></div>
+    <div class="panel"><h3>Momentos clave</h3>${conEv.length?`<div style="padding:8px 0;border-bottom:1px solid var(--linea)"><b>Cuando marcamos primero</b><div style="font-size:13.5px;margin-top:3px">${pm(prim('gol'))}</div></div><div style="padding:8px 0"><b>Cuando nos hacen el primero</b><div style="font-size:13.5px;margin-top:3px">${pm(prim('golRival'))}</div></div>`:'<div class="vacio" style="padding:14px">Se completa con los goles cargados en <b>En vivo</b>.</div>'}
+      <h3 style="margin-top:14px">Goles por tramo</h3>${tramos}</div></div>
+  <div class="grilla g2" style="margin-bottom:14px"><div class="panel"><h3>Once tipo</h3>${once}</div>
+    <div class="panel"><h3>Destacadas</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${dest.map(([t,f,fmt])=>`<div><div class="etq">${t}</div>${top(f,fmt)}</div>`).join('')}</div></div></div>
+  <div class="grilla g2"><div class="panel"><h3>Participación en los goles</h3>${part.length?part.map(x=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0">${avatar(x.j)}<div style="flex:1;min-width:0"><b>${esc(x.j.apellido||x.j.nombre)}</b><div style="height:7px;border-radius:6px;background:var(--linea);margin-top:3px;overflow:hidden;display:flex"><i style="width:${100*x.g/GFt}%;background:${COL.V}"></i><i style="width:${100*x.a/GFt}%;background:#4C8DF6"></i></div></div><span class="sub" style="font-size:12.5px;text-align:right">${Math.round(100*x.t/GFt)}%<br>${x.g} G · ${x.a} A</span></div>`).join('')+'<p class="sub" style="font-size:12px;margin:6px 0 0"><i style="display:inline-block;width:10px;height:10px;background:'+COL.V+';border-radius:2px"></i> goles · <i style="display:inline-block;width:10px;height:10px;background:#4C8DF6;border-radius:2px"></i> asistencias · % de los goles del equipo</p>':'<span class="sub">—</span>'}</div>
+    <div class="panel"><h3>Parejas asistencia → gol</h3>${parT.length?parT.map(([k,n])=>{const [a,g]=k.split('>').map(jugador);return a&&g?`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--linea)">${avatar(a)}<b>${esc(a.apellido)}</b><span class="sub">→</span>${avatar(g)}<b style="flex:1">${esc(g.apellido)}</b><span class="chip">${n} gol${n>1?'es':''}</span></div>`:''}).join(''):'<div class="vacio" style="padding:14px">Se completa con los goles y asistencias cargados en <b>En vivo</b>.</div>'}</div></div>`;
+  conRend(el);
+};
+function conRend(el){const c=$('#rC',el),l=$('#rL',el);if(c)c.onchange=e=>{fRendComp=e.target.value;pintar()};if(l)l.onchange=e=>{fRendLugar=e.target.value;pintar()}}
 /* ================= ASISTENCIA ================= */
 let periodoA='30';
 VISTAS.asistencia=el=>{
@@ -5961,7 +6155,7 @@ function editarEtapa(e){
 }
 /* ================= AJUSTES ================= */
 /* ================= SUGERENCIAS (prueba con compañeras/os) ================= */
-const MODULOS_SUG=[['general','General / otra'],['inicio','Inicio'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca de tareas'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['asistencia','Asistencia'],['ajustes','Ajustes / ingreso']];
+const MODULOS_SUG=[['general','General / otra'],['inicio','Inicio'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca de tareas'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['rendimiento','Rendimiento'],['asistencia','Asistencia'],['ajustes','Ajustes / ingreso']];
 function enviarSugerencia(){
   const modAct=MODULOS_SUG.some(m=>m[0]===ruta)?ruta:'general';
   modal('Enviar sugerencia',`<p class="sub" style="margin:0 0 12px">Contanos qué encontraste: un error, algo que no se entiende o una idea. Le llega directo a Metodika.</p>
