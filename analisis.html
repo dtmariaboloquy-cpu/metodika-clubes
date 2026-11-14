@@ -2129,10 +2129,18 @@ function buildSlides(){
     [["plan_con","Con pelota"],["plan_sin","Sin pelota"],["plan_pp","Pelota parada"]].forEach(([k,l])=>{ const items=list(k).filter(Boolean); if(!items.length) return; any=true; const c=D("div","col"); c.appendChild(D("h4",null,l)); const ol=D("ol"); items.forEach(t=>ol.appendChild(D("li",null,t))); c.appendChild(ol); box.appendChild(c); });
     if (any) w.appendChild(box); else empty(w); return w; });
 }
+function ajustarSlide(){ /* si la diapositiva no entra en la pantalla, la achica entera en vez de cortarla */
+  const inner = dSlide.firstElementChild; if (!inner) return; inner.style.zoom = "";
+  const fit = ()=>{ inner.style.zoom = ""; const st = dSlide.parentElement, cs = getComputedStyle(st), avH = st.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom), avW = dSlide.clientWidth;
+    const sc = Math.min(1, avH / Math.max(1, inner.scrollHeight), avW / Math.max(1, inner.scrollWidth)); if (sc < .995) inner.style.zoom = Math.max(.35, sc*.98); };
+  requestAnimationFrame(fit); inner.querySelectorAll("img,video").forEach(m=>{ m.addEventListener("load",fit,{once:true}); m.addEventListener("loadedmetadata",fit,{once:true}); });
+}
+window.addEventListener("resize",()=>{ try{ if (!deck.hidden) ajustarSlide(); }catch(e){} });
 function show(i){
   cur = Math.max(0, Math.min(slides.length-1, i));
   dSlide.querySelectorAll("video").forEach(v=>v.pause());
   dSlide.textContent=""; dSlide.appendChild(slides[cur]()); dSlide.scrollTop=0;
+  ajustarSlide();
   dDots.textContent=""; slides.forEach((_,k)=>dDots.appendChild(D("span",k===cur?"on":"")));
 }
 function openDeck(corta){ CHARLA_CORTA = corta===true; buildSlides(); CHARLA_CORTA = false; deck.hidden=false; document.body.style.overflow="hidden"; show(0); }
@@ -2246,6 +2254,14 @@ function verClip(sh){
 }
 /* ---------- capturar también con YouTube: se comparte esta pestaña y se toma la imagen del video ---------- */
 let capStream = null, capVid = null;
+async function frameFresco(vid,stream){ /* toma un cuadro NUEVO de la captura (antes salía siempre el primero) */
+  try{ if (vid.paused) await vid.play(); }catch(e){}
+  const tr = stream && stream.getVideoTracks()[0];
+  if (tr && window.ImageCapture){ try{ const bm = await Promise.race([new ImageCapture(tr).grabFrame(), new Promise((_,no)=>setTimeout(()=>no(new Error("t")),1500))]); if (bm && bm.width) return bm; }catch(e){} }
+  if (vid.requestVideoFrameCallback){ await new Promise(r=>{ let n=0; const f=()=>{ if(++n>=2) r(); else vid.requestVideoFrameCallback(f); }; vid.requestVideoFrameCallback(f); setTimeout(r,1200); }); }
+  return vid;
+}
+
 function botonDibujarYa(sec, idx){ const b = el("button",{type:"button",class:"btn2 solid vdib",text:"✏️ Dibujar ahora"}); b.addEventListener("click",()=>openDraw(sec, idx)); vMsg.appendChild(document.createTextNode(" ")); vMsg.appendChild(b); }
 async function capturarYT(dest){
   if (!assets){ vMsg.className="vmsg err"; vMsg.textContent="Sin conexión con la nube de Metodika: no se puede capturar."; return; }
@@ -2267,13 +2283,13 @@ async function capturarYT(dest){
     try{ const R0 = box.getBoundingClientRect(); if (R0.top<0 || R0.bottom>innerHeight) box.scrollIntoView({block:"center"}); }catch(e){}
     await new Promise(r=>setTimeout(r,800));
     document.body.classList.remove("capturando");
-    if (capRecorte && capVid.videoWidth){ const sc = Math.min(1, 1280/capVid.videoWidth), c = document.createElement("canvas"); c.width = Math.round(capVid.videoWidth*sc); c.height = Math.round(capVid.videoHeight*sc); c.getContext("2d").drawImage(capVid,0,0,c.width,c.height); return guardarCapturaYT(c, t, sec, dest); }
+    if (capRecorte && capVid.videoWidth){ const fr = await frameFresco(capVid,capStream), fw = fr.width||capVid.videoWidth, fh = fr.height||capVid.videoHeight, sc = Math.min(1, 1280/fw), c = document.createElement("canvas"); c.width = Math.round(fw*sc); c.height = Math.round(fh*sc); c.getContext("2d").drawImage(fr,0,0,c.width,c.height); return guardarCapturaYT(c, t, sec, dest); }
     document.body.classList.add("capturando"); await new Promise(r=>setTimeout(r,250));
     const R = box.getBoundingClientRect(); let ox = 0, oy = 0, TW = innerWidth;
     try{ if (window.frameElement){ const fr = window.frameElement.getBoundingClientRect(); ox = fr.left; oy = fr.top; TW = window.top.innerWidth; } }catch(e){}
     const k = capVid.videoWidth / TW, sx = (ox+R.left)*k, sy = (oy+R.top)*k, sw = R.width*k, shh = R.height*k;
     const sc = Math.min(1, 1280/sw), c = document.createElement("canvas"); c.width = Math.round(sw*sc); c.height = Math.round(shh*sc);
-    c.getContext("2d").drawImage(capVid, sx, sy, sw, shh, 0, 0, c.width, c.height);
+    c.getContext("2d").drawImage(await frameFresco(capVid,capStream), sx, sy, sw, shh, 0, 0, c.width, c.height);
     document.body.classList.remove("capturando");
     return guardarCapturaYT(c, t, sec, dest);
   }catch(e){ document.body.classList.remove("capturando"); console.warn(e); vMsg.className="vmsg err"; vMsg.textContent = "No se pudo capturar. Cuando el navegador pregunte, elegí “Esta pestaña” y tocá Compartir."; }

@@ -729,6 +729,18 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .cmpP-f{display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--linea)}.cmpP-f>span{text-align:center;font-size:12px;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}.cmpP-l,.cmpP-r{display:flex;align-items:center;gap:8px}.cmpP-l{flex-direction:row-reverse}.cmpP-l i,.cmpP-r i{display:block;height:6px;border-radius:6px;background:var(--linea);min-width:2px;max-width:calc(100% - 40px)}.cmpP-f b{min-width:30px;text-align:center}@media(max-width:600px){.cmpP-f{grid-template-columns:1fr 90px 1fr}}
 
 .pz-guia{margin:8px 0 0;padding:9px 12px;border-radius:10px;background:rgba(255,212,0,.12);border:1px solid rgba(255,212,0,.35);font-size:13.5px;line-height:1.4}
+
+/* pizarra: cancha + pasos a la vista sin bajar */
+.pzA-stage #cancha{display:flex;justify-content:center}
+.pzA-stage #cancha>svg{max-height:calc(100vh - 370px);min-height:240px;width:auto!important;max-width:100%;height:auto}
+.pzA-tl{position:sticky;bottom:0;z-index:4;background:var(--pzbg);padding-bottom:8px;margin:0 -14px -14px;padding-left:14px;padding-right:14px;box-shadow:0 -8px 16px rgba(0,0,0,.25)}
+.pzA-fr{width:104px}.pzA-add{min-height:62px}.pzA-play{width:46px;height:46px}
+.pz-guia{font-size:13px;padding:7px 11px;margin:0}
+@media(max-width:800px){.pzA-stage #cancha>svg{max-height:calc(100vh - 470px);min-height:170px}.pzA-add.ayuda{display:none}.pzA-tlc{margin-top:-4px;flex-wrap:wrap}.pzA-tlc select{max-width:46%;font-size:12px}.pzA-play{width:40px;height:40px;font-size:16px}.pzA-fr{width:66px!important}.pzA-tl{margin:0 -8px -8px;padding-left:8px;padding-right:8px;gap:8px}.pzA-fr{width:78px}.pzA-add{width:58px;min-height:52px}.pzA-add small{font-size:10px}.pzA-add.auto{min-width:78px;padding:0 6px}.pz-guia{font-size:12.5px}}
+
+.micro-sem{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:4px 0 14px}.micro-dia{border:1px solid var(--linea);border-radius:10px;padding:6px;min-height:86px;display:flex;flex-direction:column;gap:4px;background:var(--carta)}.micro-dia.hoy{border-color:var(--tinta);border-width:1.5px}.micro-dia.partido{background:var(--carta2)}.micro-cab{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:12px}.micro-md{font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:6px;background:var(--tinta);color:var(--carta)}.micro-it{border:0;border-radius:7px;background:rgba(255,212,0,.16);color:inherit;font:inherit;font-size:12px;font-weight:700;text-align:left;padding:5px 6px;cursor:pointer}.micro-it small{display:block;font-weight:500;opacity:.75;font-size:11px}.micro-it.p{background:rgba(46,158,91,.22)}@media(max-width:800px){.micro-sem{grid-template-columns:repeat(7,minmax(92px,1fr));overflow-x:auto}}
+
+@media(max-width:800px){.mapa-les{grid-template-columns:1fr!important}}
 </style>
 
 <div class="app">
@@ -816,7 +828,7 @@ const DIM_EVAL=[['tecnica','Técnica'],['tactica','Táctica'],['conPelota','Con 
 
 let S=null;
 /* versión de los módulos: cambia en cada actualización para que el navegador no muestre una copia vieja */
-const MOD_V='2026-11-13m';
+const MOD_V='2026-11-14a';
 function guardar(){try{asignarCatsNuevos()}catch(e){}if(typeof MODO!=='undefined'){if(MODO==='nube'){programarSync();return}if(MODO==='demo')return}try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}}
 function cargar(){try{const t=localStorage.getItem(CLAVE);if(t)return JSON.parse(t)}catch(e){}return null}
 
@@ -1660,7 +1672,7 @@ function importarEstadisticas(){
         const tit=(crudo[hi]||[]).map(c=>norm(c));
         const col=(...ps)=>{for(const p of ps){const i=tit.findIndex(t=>p instanceof RegExp?p.test(t):t===p);if(i>=0)return i}return -1};
         const C={nom:col(/^nombre/,/^jugador/),ape:col(/^apellido/),apo:col(/^apodo/,/^alias/),dor:col(/^dorsal/,/^numero/,/^n°/,/^camiseta/),
-          ptot:col(/^partidos totales/),pj:col(/^partidos jugados/,'pj',/^jugados/),tit:col(/titular/),sup:col(/suplente/),min:col(/^minutos/,'min'),
+          ptot:col(/^partidos totales/),grp:col(/grupo de posicion/,/^posicion/,/^puesto/),pj:col(/^partidos jugados/,'pj',/^jugados/),tit:col(/titular/),sup:col(/suplente/),min:col(/^minutos/,'min'),
           gol:col(/^goles/),asis:col(/^asistencias/,/^asist/),ama:col(/amarilla/),roj:col(/roja/),nota:col(/calificacion/,/valoracion/,/^nota/)};
         if(C.pj<0&&C.min<0&&C.gol<0){box.innerHTML='<div class="vacio">No encontré columnas de estadísticas (partidos, minutos, goles…).</div>';return}
         const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0};
@@ -1673,7 +1685,7 @@ function importarEstadisticas(){
           if(best&&bp>=3){usados.add(best.id);return best}return null};
         const datos=filas.map(r=>{const o={txt:[C.dor>=0?r[C.dor]:'',C.nom>=0?r[C.nom]:'',C.ape>=0?r[C.ape]:'',C.apo>=0?r[C.apo]:''].map(x=>String(x).trim()).filter(Boolean).join(' · '),
           v:{pj:C.pj>=0?num(r[C.pj]):0,tit:C.tit>=0?num(r[C.tit]):0,sup:C.sup>=0?num(r[C.sup]):0,min:C.min>=0?num(r[C.min]):0,gol:C.gol>=0?num(r[C.gol]):0,asis:C.asis>=0?num(r[C.asis]):0,ama:C.ama>=0?num(r[C.ama]):0,roj:C.roj>=0?num(r[C.roj]):0,nota:C.nota>=0?num(r[C.nota]):0}};
-          if(C.ptot>=0)ptot=Math.max(ptot,num(r[C.ptot]));const j=buscar(r);o.id=j?j.id:'';return o});
+          if(C.ptot>=0)ptot=Math.max(ptot,num(r[C.ptot]));o.arq=C.grp>=0&&/portero|portera|arquer|guardameta|^gk$/i.test(String(r[C.grp]).trim());const j=buscar(r);o.id=j?j.id:'';return o});
         if(!ptot)ptot=Math.max(0,...datos.map(x=>x.v.pj));
         const bien=datos.filter(x=>x.id).length;
         box.innerHTML=`<div class="panel" style="padding:12px;margin:0"><b>${datos.length} filas · ${bien} encontradas en el plantel</b>${datos.length-bien?` <span class="sub" style="color:#E5484D">· ${datos.length-bien} sin encontrar: elegí a quién corresponden o dejalas en “No importar”</span>`:''}
@@ -1684,7 +1696,7 @@ function importarEstadisticas(){
         $$('[data-ei]',m).forEach(s=>s.onchange=()=>{datos[+s.dataset.ei].id=s.value;s.style.borderColor=s.value?'':'#E5484D'});
         $('#estOk',m).onclick=()=>{const ids=datos.filter(x=>x.id).map(x=>x.id);if(new Set(ids).size!==ids.length){aviso('Hay una misma '+J('sg')+' elegida dos veces');return}
           const fu=$('#estFuente',m).value.trim()||'Archivo importado',hoy=new Date().toISOString().slice(0,10);
-          SJ().forEach(j=>delete j.base);datos.filter(x=>x.id).forEach(x=>{const j=jugador(x.id);if(j)j.base={...x.v,fuente:fu,fecha:hoy}});
+          SJ().forEach(j=>delete j.base);datos.filter(x=>x.id).forEach(x=>{const j=jugador(x.id);if(!j)return;const v={...x.v};if(j.posicion==='Arquera/o'||x.arq){v.gc=v.gol;v.gol=0}j.base={...v,fuente:fu,fecha:hoy}});
           S.club.statsBase={fuente:fu,fecha:hoy,pjEquipo:ptot,minEquipo:ptot*90};guardar();cerrarModal();pintar();aviso('Listo: se importaron las estadísticas de '+ids.length+' '+J('pl')+'. Los partidos nuevos se suman.')};
       }catch(x){console.warn(x);box.innerHTML='<div class="vacio">No pude leer el archivo. Probá guardarlo como .xlsx o .csv.</div>'}};
   }});
@@ -1756,10 +1768,33 @@ function panelDisponibilidad(j){
     <div class="disp-est" style="--ec:${EST_J[e.k][1]}"><span class="disp-dot"></span><div><b>${esc(estTxt(e.k))}</b>${e.k!=='disp'?`<div class="sub" style="font-size:13px">${[e.zona,e.desde?'desde el '+fCorta(e.desde)+' ('+diasEntre(e.desde,iso(HOY))+' días)':'',e.vuelta?(falta>0?'vuelta prevista '+fCorta(e.vuelta)+' (faltan '+falta+' días)':falta===0?'vuelta prevista: hoy':'vuelta prevista '+fCorta(e.vuelta)+' · revisar'):''].filter(Boolean).map(esc).join(' · ')}</div>${e.nota?`<div style="font-size:13.5px;margin-top:4px">${esc(e.nota)}</div>`:''}`:`<div class="sub" style="font-size:13px">Puede entrenar y jugar con normalidad.</div>`}</div></div>
     ${hist.length||df?`<div class="disp-hist"><div class="etq">Historial · ${hist.length} ${hist.length===1?'registro':'registros'} · ${df} días sin estar disponible</div>${hist.slice(0,6).map(l=>`<div class="fila" style="padding:5px 0;font-size:13.5px"><span style="color:${(EST_J[l.k]||EST_J.otro)[1]}">●</span><span style="flex:1">${esc(estTxt(l.k))}${l.zona?' · '+esc(l.zona):''}</span><span class="sub">${esc(fCorta(l.desde))} → ${esc(fCorta(l.hasta))} · ${diasEntre(l.desde,l.hasta)} d</span></div>`).join('')}</div>`:''}
   </div>`}
+const ZONAS_LES=['Cabeza','Cuello','Hombro','Brazo / codo','Muñeca / mano','Espalda','Abdomen','Cadera / ingle','Aductor','Cuádriceps','Isquiotibial','Rodilla','Gemelo','Tibia / peroné','Tobillo','Pie','Otra'];
+const TIPOS_LES=['Muscular','Ligamentaria','Ósea','Tendinosa','Contusión','Meniscal','Otra'];
+const ZONA_XY={'Cabeza':[50,12],'Cuello':[50,27],'Hombro':[31,36],'Brazo / codo':[27,62],'Muñeca / mano':[26,96],'Espalda':[50,52],'Abdomen':[50,76],'Cadera / ingle':[50,97],'Aductor':[50,114],'Cuádriceps':[43,126],'Isquiotibial':[57,126],'Rodilla':[43,152],'Gemelo':[57,178],'Tibia / peroné':[43,178],'Tobillo':[43,203],'Pie':[43,214],'Otra':[86,16]};
+function zonaLes(x){if(x.zc)return x.zc;const t=normTxt(x.zona||'');const m=[['tobillo','Tobillo'],['rodilla','Rodilla'],['menisco','Rodilla'],['cruzado','Rodilla'],['isquio','Isquiotibial'],['cuadri','Cuádriceps'],['aductor','Aductor'],['gemelo','Gemelo'],['pantorr','Gemelo'],['tibia','Tibia / peroné'],['perone','Tibia / peroné'],['pie','Pie'],['hombro','Hombro'],['muneca','Muñeca / mano'],['mano','Muñeca / mano'],['codo','Brazo / codo'],['brazo','Brazo / codo'],['cabeza','Cabeza'],['concus','Cabeza'],['cuello','Cuello'],['espalda','Espalda'],['lumbar','Espalda'],['cadera','Cadera / ingle'],['ingle','Cadera / ingle'],['pubi','Cadera / ingle'],['abdom','Abdomen']].find(([k])=>t.includes(k));return m?m[1]:''}
+function episodiosLesion(){const out=[];SJ().forEach(j=>{(j.lesiones||[]).filter(x=>x.k==='lesion').forEach(x=>out.push({j,...x,abierta:false}));const e=j.estado;if(e&&e.k==='lesion')out.push({j,...e,hasta:iso(HOY),abierta:true})});
+  out.forEach(x=>{x.zn=zonaLes(x);x.dias=Math.max(1,diasEntre(x.desde||iso(HOY),x.hasta||iso(HOY)))});return out}
+function mapaLesiones(){
+  const ep=episodiosLesion();if(!ep.length)return '<div class="vacio" style="padding:14px">Sin lesiones registradas. Se cargan desde el perfil de cada '+J('sg')+' (Disponibilidad → Lesión).</div>';
+  const porZ={};ep.forEach(x=>{const z=x.zn||'Sin especificar';porZ[z]=porZ[z]||{n:0,dias:0,js:new Set()};porZ[z].n++;porZ[z].dias+=x.dias;porZ[z].js.add(x.j.apellido||x.j.nombre)});
+  const mx=Math.max(1,...Object.values(porZ).map(z=>z.n));
+  const fig=`<svg viewBox="0 0 100 225" style="width:100%;max-width:170px;display:block;margin:auto"><g fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-opacity=".35" stroke-width="1.2"><circle cx="50" cy="12" r="9"/><rect x="46" y="20" width="8" height="8" rx="2"/><rect x="35" y="28" width="30" height="74" rx="8"/><rect x="23" y="30" width="10" height="72" rx="5"/><rect x="67" y="30" width="10" height="72" rx="5"/><rect x="37" y="100" width="12" height="118" rx="5"/><rect x="51" y="100" width="12" height="118" rx="5"/></g>${Object.entries(porZ).filter(([z])=>ZONA_XY[z]).map(([z,v])=>{const [x,y]=ZONA_XY[z],r=4+7*v.n/mx;return `<circle cx="${x}" cy="${y}" r="${r}" fill="#D0402F" fill-opacity=".8"><title>${esc(z)}: ${v.n} episodio${v.n>1?'s':''}</title></circle><text x="${x}" y="${y+2.6}" text-anchor="middle" font-size="7" font-weight="800" fill="#fff">${v.n}</text>`}).join('')}</svg>`;
+  const zonas=Object.entries(porZ).sort((a,b)=>b[1].n-a[1].n);
+  const porJ={};ep.forEach(x=>{const k=x.j.id;porJ[k]=porJ[k]||{j:x.j,n:0,dias:0,z:new Set()};porJ[k].n++;porJ[k].dias+=x.dias;if(x.zn)porJ[k].z.add(x.zn)});
+  const top=Object.values(porJ).sort((a,b)=>b.n-a.n||b.dias-a.dias).slice(0,5),tot=ep.reduce((a,x)=>a+x.dias,0),abiertas=ep.filter(x=>x.abierta).length;
+  return `<div class="sub" style="font-size:13px;margin-bottom:8px">${ep.length} episodio${ep.length>1?'s':''} · ${Object.keys(porJ).length} ${J('pl')} · ${tot} días de baja${abiertas?` · <b style="color:#D0402F">${abiertas} lesionada${abiertas>1?'s':''} ahora</b>`:''}</div>
+  <div style="display:grid;grid-template-columns:170px minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start" class="mapa-les">${fig}
+    <div><div class="etq">Zonas</div>${zonas.map(([z,v])=>`<div style="padding:5px 0;border-bottom:1px solid var(--linea)"><b>${esc(z)}</b> <span class="sub" style="font-size:12px">${v.n} ep. · ${v.dias} d</span><div class="sub" style="font-size:11.5px">${esc([...v.js].join(', '))}</div></div>`).join('')}</div>
+    <div><div class="etq">Quién se lesiona más</div>${top.map(x=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--linea)">${avatar(x.j)}<div style="flex:1;min-width:0"><b>${esc(x.j.apellido||x.j.nombre)}</b><div class="sub" style="font-size:11.5px">${esc([...x.z].join(', ')||'—')}</div></div><span class="sub" style="font-size:12px;text-align:right">${x.n} ep.<br>${x.dias} d</span></div>`).join('')}</div></div>`;
+}
 function editarEstado(j,alListo){
   const e=estadoJ(j);
   modal('Disponibilidad de '+j.nombre+' '+j.apellido,`<form class="form" id="fEst">
     <label class="campo ancho">Estado<select name="k">${Object.keys(EST_J).map(k=>`<option value="${k}" ${e.k===k?'selected':''}>${esc(estTxt(k))}</option>`).join('')}</select></label>
+    <label class="campo est-x">Zona del cuerpo<select name="zc"><option value="">—</option>${opts(ZONAS_LES,e.zc||'')}</select></label>
+    <label class="campo est-x">Lado<select name="lado"><option value="">—</option>${opts(['Izquierdo','Derecho','Ambos'],e.lado||'')}</select></label>
+    <label class="campo est-x">Tipo<select name="tl"><option value="">—</option>${opts(TIPOS_LES,e.tl||'')}</select></label>
+    <label class="campo est-x">Dónde pasó<select name="mot"><option value="">—</option>${opts(['En partido','En entrenamiento','Fuera del club'],e.mot||'')}</select></label>
     <label class="campo ancho est-x">Qué tiene<input type="text" name="zona" value="${esc(e.zona||'')}" placeholder="Ej.: esguince de tobillo derecho"></label>
     <label class="campo est-x">Desde<input type="date" name="desde" value="${esc(e.desde||iso(HOY))}"></label>
     <label class="campo est-x">Vuelta prevista<input type="date" name="vuelta" value="${esc(e.vuelta||'')}"></label>
@@ -1768,9 +1803,9 @@ function editarEstado(j,alListo){
   <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okEst">Guardar</button></div>`,{alMontar:m=>{
     const sel=$('[name=k]',m),vis=()=>$$('.est-x',m).forEach(x=>x.style.display=sel.value==='disp'?'none':'');sel.onchange=vis;vis();
     $('#okEst',m).onclick=()=>{const d=leerForm($('#fEst',m)),prev=estadoJ(j);
-      if(d.k==='disp'){if(prev.k!=='disp'){j.lesiones=j.lesiones||[];j.lesiones.push({k:prev.k,zona:prev.zona||'',desde:prev.desde||iso(HOY),hasta:iso(HOY),nota:prev.nota||''})}delete j.estado}
-      else{if(prev.k!=='disp'&&prev.k!==d.k){j.lesiones=j.lesiones||[];j.lesiones.push({k:prev.k,zona:prev.zona||'',desde:prev.desde||iso(HOY),hasta:d.desde||iso(HOY),nota:prev.nota||''})}
-        j.estado={k:d.k,zona:d.zona.trim().slice(0,80),desde:d.desde||iso(HOY),vuelta:d.vuelta||'',nota:d.nota.trim().slice(0,300)}}
+      const ext=x=>({zc:x.zc||'',lado:x.lado||'',tl:x.tl||'',mot:x.mot||''});if(d.k==='disp'){if(prev.k!=='disp'){j.lesiones=j.lesiones||[];j.lesiones.push({k:prev.k,zona:prev.zona||'',desde:prev.desde||iso(HOY),hasta:iso(HOY),nota:prev.nota||'',...ext(prev)})}delete j.estado}
+      else{if(prev.k!=='disp'&&prev.k!==d.k){j.lesiones=j.lesiones||[];j.lesiones.push({k:prev.k,zona:prev.zona||'',desde:prev.desde||iso(HOY),hasta:d.desde||iso(HOY),nota:prev.nota||'',...ext(prev)})}
+        j.estado={k:d.k,zona:d.zona.trim().slice(0,80),desde:d.desde||iso(HOY),vuelta:d.vuelta||'',nota:d.nota.trim().slice(0,300),zc:d.zc||'',lado:d.lado||'',tl:d.tl||'',mot:d.mot||''}}
       guardar();cerrarModal();aviso('Estado guardado');if(alListo)alListo();else pintar()}}})}
 /* ---------- objetivos individuales ---------- */
 const AREAS_OBJ=['Técnica','Táctica','Física','Mental','Otro'];
@@ -1814,6 +1849,22 @@ function panelNoDisp(){const L=ordenJ(SJ()).filter(j=>estadoJ(j).k!=='disp');if(
   return `<div class="panel nodisp" style="margin-bottom:16px"><div class="panel-cab"><h3>Fuera o en duda</h3><span class="chip mal">${L.filter(noDisp).length} sin poder jugar</span>${L.some(j=>!noDisp(j))?`<span class="chip aviso">${L.filter(j=>!noDisp(j)).length} con molestia</span>`:''}</div>
     <div class="nodisp-l">${L.map(j=>{const e=estadoJ(j);return `<button class="nodisp-i" data-ndj="${j.id}" style="--ec:${EST_J[e.k][1]}">${avatar(j)}<span class="nd-t"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc([estTxt(e.k),e.zona].filter(Boolean).join(' · '))}</small></span><span class="nd-v">${e.vuelta?'Vuelve<br><b>'+esc(fCorta(e.vuelta))+'</b>':''}</span></button>`}).join('')}</div></div>`}
 
+function panelTemporadaJ(j){
+  const ps=[...SP()].filter(p=>p.estado==='finalizado').sort((a,b)=>a.fecha.localeCompare(b.fecha)),b=j.base||{},arq=j.posicion==='Arquera/o';
+  let tit=+b.tit||0,sup=+b.sup||0,nj=0,nc=0,gc=+b.gc||0,vallas=0;
+  ps.forEach(p=>{const conv=(p.convocados||[]).includes(j.id),t=(p.titulares||[]).includes(j.id),min=conv?minutosJugados(p,j.id):0;
+    if(t)tit++;else if(conv&&min>0)sup++;else if(conv)nj++;else if(!p.importado)nc++;
+    if(arq&&min>0){if((p.eventos||[]).some(e=>e.tipo==='golRival')){const iv=intervalosJug(p,j.id),g=p.eventos.filter(e=>e.tipo==='golRival'&&iv.some(([a,z])=>e.min>a&&e.min<=z)).length;gc+=g;if(!g&&min>=minutoFinal(p)-1)vallas++}else if(p.golesC!=null&&!p.importado){gc+=p.golesC;if(p.golesC===0)vallas++}}});
+  const st=statsJugador(j.id),mt=minutosEquipo(),pm=mt?Math.round(100*st.min/mt):0,tot=tit+sup+nj+nc;
+  const notas=ps.map(p=>({p,v:p.notasJ&&+p.notasJ[j.id]})).filter(x=>x.v>0),nm=notaPartidosJ(j);
+  const W=Math.max(220,notas.length*34),bar=notas.length?`<svg viewBox="0 0 ${W} 120" style="width:100%;max-width:${W}px;height:120px">${nm?`<line x1="0" x2="${W}" y1="${110-nm*10}" y2="${110-nm*10}" stroke="#E0A100" stroke-dasharray="4 3"/>`:''}${notas.map((x,i)=>{const hh=x.v*10,c=x.v>=8?'#2E9E5B':x.v>=6?'#E0A100':'#D0402F';return `<g><rect x="${i*34+6}" y="${110-hh}" width="22" height="${hh}" rx="4" fill="${c}"><title>${esc(x.p.rival)} ${fCorta(x.p.fecha)}: ${x.v}</title></rect><text x="${i*34+17}" y="${106-hh}" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor">${String(x.v).replace('.',',')}</text><text x="${i*34+17}" y="119" text-anchor="middle" font-size="8.5" fill="currentColor" opacity=".6">${esc((x.p.rival||'').slice(0,3).toUpperCase())}</text></g>`}).join('')}</svg>`:`<div class="sub" style="font-size:13px">${b.nota?'Nota importada: <b>'+String(b.nota).replace('.',',')+'</b>. ':''}Las notas por partido se cargan en Partido → Análisis.</div>`;
+  const parte=(t,n,c)=>tot?`<div style="display:flex;align-items:center;gap:8px;font-size:13px;margin:3px 0"><i style="width:10px;height:10px;border-radius:3px;background:${c}"></i><span style="flex:1">${t}</span><b>${n}</b><span class="sub" style="width:40px;text-align:right">${Math.round(100*n/tot)}%</span></div>`:'';
+  return `<div class="grilla g3" style="margin-bottom:16px">
+    <div class="panel"><h3>Minutos</h3><div class="dato">${pm}%</div><div class="barra" style="margin:10px 0 8px"><i style="width:${Math.min(100,pm)}%"></i></div><div class="sub" style="font-size:13px">${st.min}′ de ${mt}′ del equipo · ${st.pj} partidos</div></div>
+    <div class="panel"><h3>Participación</h3>${tot?`<div style="display:flex;height:10px;border-radius:6px;overflow:hidden;margin:6px 0 10px">${[[tit,'#2E9E5B'],[sup,'#4C8DF6'],[nj,'#E0A100'],[nc,'#888']].map(([n,c])=>`<i style="width:${100*n/tot}%;background:${c}"></i>`).join('')}</div>${parte('Titular',tit,'#2E9E5B')}${parte('Entró desde el banco',sup,'#4C8DF6')}${parte('Convocada sin jugar',nj,'#E0A100')}${parte('No convocada',nc,'#888')}`:'<div class="sub">Sin partidos todavía.</div>'}</div>
+    ${arq?`<div class="panel"><h3>Arco</h3><div style="display:flex;gap:18px"><div><div class="dato">${gc}</div><div class="sub" style="font-size:12.5px">goles recibidos</div></div><div><div class="dato">${vallas}</div><div class="sub" style="font-size:12.5px">vallas invictas${b.gc!=null&&b.fuente?' (en Metodika)':''}</div></div></div></div>`:`<div class="panel"><h3>Nota por partido</h3>${nm?`<div class="dato" style="font-size:26px">${nm.toFixed(1).replace('.',',')}</div>`:''}${bar}</div>`}
+  </div>${arq?`<div class="panel" style="margin-bottom:16px"><h3>Nota por partido</h3>${bar}</div>`:''}`;
+}
 function perfilJugador(el,j){
   const st=statsJugador(j.id),a=asistJugador(j.id),ev=evalsJugador(j.id),ult=ev[ev.length-1];
   const edad=j.nacimiento?Math.floor((HOY-deIso(j.nacimiento))/31557600000):'';
@@ -1841,6 +1892,7 @@ function perfilJugador(el,j){
   </div>
   <div class="grilla g2 pj-seg" style="margin-bottom:0;align-items:start"><div id="pjDisp">${panelDisponibilidad(j)}</div><div id="pjObj">${panelObjetivos(j)}</div></div>
   ${ev.length?`<div class="panel" style="margin-bottom:16px"><h3>Evolución por dimensión</h3><div class="grilla g4" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">${DIM_EVAL.map(([c,t])=>`<div><div class="etq">${t}</div><div style="display:flex;align-items:center;gap:8px"><span class="dato" style="font-size:26px">${ult[c]}</span>${sparkline(ev.map(x=>+x[c]),{w:120,h:36})}</div></div>`).join('')}</div></div>`:''}
+  ${panelTemporadaJ(j)}
   ${analisisAvanzado(j)}
   <div class="panel"><h3>Observaciones</h3><p style="margin:0;white-space:pre-wrap" class="${j.obs?'':'tenue'}">${esc(j.obs||'Sin observaciones.')}</p></div><div id="vaJug"></div>`;
   panelVAJugador($('#vaJug',el),j);
@@ -2228,7 +2280,7 @@ function editarJugador(j){
 VISTAS.planificacion=el=>{
   const micros=[...SMc()].sort((a,b)=>b.inicio.localeCompare(a.inicio));
   const sinMicro=SS().filter(s=>!S.microciclos.find(m=>m.id===s.microId));
-  el.innerHTML=cabecera('Microciclos y sesiones','Planificación','Organizá la semana, armá cada sesión con tareas de la biblioteca y controlá la carga.',`<button class="btn" id="usST">📋 Usar semana tipo</button><button class="btn" id="nMicro">＋ Microciclo</button><button class="btn pri" id="nSes">＋ Sesión</button>`)+
+  el.innerHTML=cabecera('Microciclos y sesiones','Planificación','Organizá la semana, armá cada sesión con tareas de la biblioteca y controlá la carga.',`<button class="btn" id="sesMod">📚 Sesiones modelo</button><button class="btn" id="usST">📋 Usar semana tipo</button><button class="btn" id="nMicro">＋ Microciclo</button><button class="btn pri" id="nSes">＋ Sesión</button>`)+
   panelContenidos()+(micros.length||sinMicro.length?micros.map(m=>{
     const ses=SS().filter(s=>s.microId===m.id).sort((a,b)=>a.fecha.localeCompare(b.fecha));
     const actual=deIso(m.inicio)<=HOY&&HOY<=deIso(m.fin);
@@ -2236,12 +2288,14 @@ VISTAS.planificacion=el=>{
     return `<div class="panel" style="margin-bottom:16px;${actual?'border-color:var(--tinta);border-width:1.5px':''}">
       <div class="panel-cab"><div><div class="etq" style="color:var(--bronce)">${fCorta(m.inicio)} al ${fCorta(m.fin)}${actual?' · semana actual':''}</div><h3 style="margin-top:3px">${esc(m.nombre)} · ${esc(m.foco)}</h3><div class="sub" style="font-size:14px">${esc(m.objetivo)}</div></div>
         <div class="der"><span class="chip">${ses.length} sesiones</span><span class="chip">Carga ${carga} UA</span><button class="btn chico" data-st="${m.id}" title="Guardar esta semana como modelo">⭐ Semana tipo</button><button class="btn chico" data-em="${m.id}">Editar</button><button class="btn chico" data-ns="${m.id}">＋ Sesión</button></div></div>
+      ${semanaMicro(m,ses)}
       ${ses.length?`<div class="grilla g2" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)"><div class="lista">${ses.map(s=>`<div class="fila click" data-s="${s.id}"><div style="min-width:78px"><b>${fFecha(s.fecha)}</b><div class="sub" style="font-size:12.5px">${esc(s.hora||'')}</div></div><div style="min-width:0"><b>${esc(s.titulo)}</b><div class="sub" style="font-size:13px">${s.tareas.map(t=>esc((tarea(t.tareaId)||{}).titulo||'Tarea')).join(' · ')}</div></div><div class="der"><span class="chip">${durSesion(s)}′</span></div></div>`).join('')}</div>
         <div>${barras(ses.map(s=>({et:DIAS[deIso(s.fecha).getDay()],v:cargaSesion(s),tip:s.titulo+': '+cargaSesion(s)+' UA (RPE '+s.rpe+' × '+durSesion(s)+' min)'})),{h:140,color:'var(--bronce)',unidad:' UA'})}<div class="sub" style="font-size:12px">Carga = RPE planificado × minutos</div></div></div>`:'<div class="vacio">Este microciclo todavía no tiene sesiones.</div>'}
     </div>`}).join('')+(sinMicro.length?`<div class="panel"><h3>Sesiones sin microciclo</h3><div class="lista">${sinMicro.map(s=>`<div class="fila click" data-s="${s.id}"><b>${fFecha(s.fecha)}</b><span>${esc(s.titulo)}</span></div>`).join('')}</div></div>`:'')
   :`<div class="vacio">Empezá creando un microciclo (una semana de trabajo) y después sumale sesiones.<br><button class="btn pri" style="margin-top:12px" id="nMicro2">＋ Crear microciclo</button></div>`);
   $('#nMicro').onclick=()=>editarMicro();
   $('#usST').onclick=()=>usarSemanaTipo();
+  $('#sesMod').onclick=()=>sesionesModelo();
   $$('[data-st]',el).forEach(b=>b.onclick=()=>guardarSemanaTipo(S.microciclos.find(m=>m.id===b.dataset.st)));
   $$('[data-contp]',el).forEach(b=>b.onclick=()=>{CONT_P=b.dataset.contp;const y=scrollY;pintar();scrollTo(0,y)});
   const n2=$('#nMicro2');if(n2)n2.onclick=()=>editarMicro();
@@ -2249,6 +2303,7 @@ VISTAS.planificacion=el=>{
   $$('[data-em]',el).forEach(b=>b.onclick=()=>editarMicro(S.microciclos.find(m=>m.id===b.dataset.em)));
   $$('[data-ns]',el).forEach(b=>b.onclick=()=>editarSesion(null,b.dataset.ns));
   $$('[data-s]',el).forEach(b=>b.onclick=()=>verSesion(b.dataset.s));
+  $$('[data-pp]',el).forEach(b=>b.onclick=()=>{tabPartido='previa';ir('partido',b.dataset.pp)});
 };
 function editarMicro(m){
   const n=!m;const lunes=sumarDias(HOY,-((HOY.getDay()+6)%7));
@@ -2266,7 +2321,7 @@ function editarMicro(m){
   }});
 }
 function editarSesion(s,microId){
-  const n=!s;
+  const n=!s||!(S.sesiones||[]).some(x=>x.id===s.id);
   const mic=microId?S.microciclos.find(m=>m.id===microId):[...SMc()].find(m=>deIso(m.inicio)<=HOY&&HOY<=deIso(m.fin));
   if(s)s={...JSON.parse(JSON.stringify(s)),contenidos:contSes(s)};
   s=s||{id:uid(),microId:mic?mic.id:'',fecha:iso(HOY),hora:'18:30',titulo:'',objetivo:mic?mic.objetivo:'',contenidos:mic?[mic.foco]:[],tareas:[],rpe:6,obs:'',jugadores:SJ().map(j=>j.id)};
@@ -2384,7 +2439,12 @@ function verSesion(id){
 }
 
 /* ================= BIBLIOTECA ================= */
-let fB={cat:'',obj:'',nj:'',esp:'',cont:'',dif:'',tipo:'',q:'',ver:'',orden:''};
+let fB={cat:'',obj:'',nj:'',esp:'',cont:'',dif:'',tipo:'',q:'',ver:'',orden:'',modo:''};
+const CONT_OF=['Pase','Control','Conducción','Gambeta','Remate','Desmarque','Apoyo','Amplitud','Profundidad','Tercera jugadora','Paredes','Cambio de orientación','Centro','Cabezazo','Protección de pelota','Inicio'];
+const CONT_DEF=['Marca','Anticipación','Interceptación','Presión','Presión tras pérdida','Cobertura','Permuta','Repliegue','Basculación','Entrada','Vigilancia','Achique','Duelos'];
+const ABP_TIPOS=['Córner ofensivo','Córner defensivo','Tiro libre frontal ofensivo','Tiro libre frontal defensivo','Tiro libre lateral ofensivo','Tiro libre lateral defensivo','Lateral ofensivo','Saque de arco'];
+const ABP_PRINC=['Bloqueo','Arrastre','Cortina','Desmarque','Ataque al primer palo','Ataque al segundo palo','Rechazo / segunda jugada','En corto','Marca individual','Marca zonal','Marca mixta'];
+const ABP_GOLPEO=['Abierto','Cerrado','Raso','Al punto penal','Al primer palo','Al segundo palo','En corto','Remate directo'];
 function usosTarea(id){return SS().filter(x=>(x.tareas||[]).some(y=>y.tareaId===id)).length}
 function clonarTarea(t){const c=JSON.parse(JSON.stringify(t));c.id=uid();if(imgTarea(t))c.imagenBase=t.imagenBase||t.base;delete c.base;delete c.fav;c.titulo=t.titulo+' (copia)';S.tareas.push(c);guardar();aviso('Tarea clonada: ahora podés cambiarla');editarTarea(c)}
 function rangoJ(n){n=parseInt(n)||0;return n<=6?'1–6':n<=12?'7–12':n<=18?'13–18':'19+'}
@@ -2399,13 +2459,14 @@ function adminCategorias(){
 }
 VISTAS.biblioteca=el=>{
   const objs=[...new Set(S.tareas.map(t=>t.objetivo).filter(Boolean))].sort();
-  const lista=S.tareas.filter(t=>(!fB.cat||t.categoria===fB.cat)&&(!fB.obj||t.objetivo===fB.obj)&&(!fB.nj||rangoJ(t.nJug)===fB.nj)&&(!fB.esp||t.espacio===fB.esp)&&(!fB.cont||t.contenido===fB.cont)&&(!fB.dif||t.dificultad===fB.dif)&&(!fB.tipo||t.tipo===fB.tipo)&&(!fB.q||(t.titulo+' '+t.descripcion).toLowerCase().includes(fB.q.toLowerCase()))&&(fB.ver!=='mias'||!t.base)&&(fB.ver!=='fav'||t.fav));
+  if(fB.modo==='abp')return bibliotecaABP(el);
+  const lista=S.tareas.filter(t=>!t.abp&&(!fB.cat||t.categoria===fB.cat)&&(!fB.obj||t.objetivo===fB.obj)&&(!fB.nj||rangoJ(t.nJug)===fB.nj)&&(!fB.esp||t.espacio===fB.esp)&&(!fB.cont||t.contenido===fB.cont)&&(!fB.dif||t.dificultad===fB.dif)&&(!fB.tipo||t.tipo===fB.tipo)&&(!fB.q||(t.titulo+' '+t.descripcion).toLowerCase().includes(fB.q.toLowerCase()))&&(fB.ver!=='mias'||!t.base)&&(fB.ver!=='fav'||t.fav));
   const usos={};S.tareas.forEach(t=>usos[t.id]=usosTarea(t.id));
   if(fB.orden==='usadas')lista.sort((a,b)=>usos[b.id]-usos[a.id]);
   const nFav=S.tareas.filter(t=>t.fav).length,nMias=S.tareas.filter(t=>!t.base).length;
   const sel=(id,label,arr,v)=>`<select id="${id}" style="width:auto" aria-label="${label}"><option value="">${label}</option>${opts(arr,v)}</select>`;
   el.innerHTML=cabecera(S.tareas.length+' tareas','Biblioteca de tareas','Cada tarea tiene diagrama, descripción, consignas y video. Usalas para armar las sesiones.',`<button class="btn pri" id="nT">＋ Nueva tarea</button>`)+
-  `<div class="filtros" style="margin-bottom:10px"><div class="seg">${[['','Todas ('+S.tareas.length+')'],['mias','Creadas por mí ('+nMias+')'],['fav','★ Favoritas ('+nFav+')']].map(([v,t])=>`<button data-ver="${v}" class="${fB.ver===v?'activo':''}" aria-pressed="${fB.ver===v}">${t}</button>`).join('')}</div><select id="ford" style="width:auto" aria-label="Ordenar"><option value="">Orden de la biblioteca</option><option value="usadas" ${fB.orden==='usadas'?'selected':''}>Más usadas en sesiones</option></select></div><div class="filtros"><input type="search" id="fq" placeholder="Buscar…" value="${esc(fB.q)}" style="width:200px">
+  `<div class="seg" style="margin-bottom:12px;display:flex;width:max-content"><button data-modo="" class="activo" style="padding:9px 16px;font-size:14px">📋 Tareas</button><button data-modo="abp" style="padding:9px 16px;font-size:14px">⚽ Pelota parada (${S.tareas.filter(t=>t.abp).length})</button></div><div class="filtros" style="margin-bottom:10px"><div class="seg">${[['','Todas ('+S.tareas.length+')'],['mias','Creadas por mí ('+nMias+')'],['fav','★ Favoritas ('+nFav+')']].map(([v,t])=>`<button data-ver="${v}" class="${fB.ver===v?'activo':''}" aria-pressed="${fB.ver===v}">${t}</button>`).join('')}</div><select id="ford" style="width:auto" aria-label="Ordenar"><option value="">Orden de la biblioteca</option><option value="usadas" ${fB.orden==='usadas'?'selected':''}>Más usadas en sesiones</option></select></div><div class="filtros"><input type="search" id="fq" placeholder="Buscar…" value="${esc(fB.q)}" style="width:200px">
    ${sel('fcat','Momento del juego',CATEG(),fB.cat)}${sel('fobj','Objetivo',objs,fB.obj)}${sel('fnj','Nº de '+J('pl'),['1–6','7–12','13–18','19+'],fB.nj)}${sel('fesp','Espacio',ESPACIOS,fB.esp)}${sel('fcont','Contenido',CONT(),fB.cont)}${sel('fdif','Dificultad',DIFICULTAD,fB.dif)}${sel('ftipo','Tipo de tarea',TIPOS_TAREA,fB.tipo)}
    <button class="btn chico" id="catAdm" title="Crear o borrar categorías propias">＋ Categoría</button>${['cat','obj','nj','esp','cont','dif','tipo','q','orden'].some(k=>fB[k])?'<button class="btn chico fantasma" id="limpF">Limpiar filtros</button>':''}</div>`+
   (lista.length?`<div class="cartas-t">${lista.map(t=>{const pz=S.pizarras.find(p=>p.id===t.diagrama);return `<div class="ct-w"><button class="ct" data-t="${t.id}" style="text-align:left;padding:0;font:inherit;color:inherit"><div class="mini">${pz&&pz.pasos&&pz.pasos.length?'<span class="ct-anim">▶ Animada</span>':''}${pz?svgPizarra(pz,{mini:true}):imgTarea(t)?`<img src="${imgTarea(t)}" alt="Dibujo de la tarea" loading="lazy" style="width:100%;height:100%;object-fit:contain;background:#fff;display:block">`:`<svg viewBox="0 0 160 100"><rect width="160" height="100" fill="var(--cesped)"/><rect x="8" y="8" width="144" height="84" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/><text x="80" y="54" text-anchor="middle" style="fill:rgba(255,255,255,.75);font-size:9px;letter-spacing:1.5px">SIN DIAGRAMA</text></svg>`}</div><div class="cuerpo"><h3>${esc(t.titulo)}</h3><div class="sub" style="font-size:13.5px">${esc(t.objetivo)}</div><div class="chips" style="margin-top:auto"><span class="chip ama">${esc(catTarea(t.categoria))}</span><span class="chip">${esc(t.tipo)}</span><span class="chip">${esc(t.nJug)} ${J('pl')}</span><span class="chip">${t.duracion}′</span><span class="chip">${esc(t.dificultad)}</span></div></div></button><div class="ct-acc"><button data-fav="${t.id}" class="${t.fav?'on':''}" aria-pressed="${!!t.fav}" title="${t.fav?'Quitar de favoritas':'Marcar como favorita'}">${t.fav?'★':'☆'}</button><span class="sub">${usos[t.id]?'Usada en '+usos[t.id]+' '+(usos[t.id]===1?'sesión':'sesiones'):'Sin usar todavía'}${t.base?'':' · <b style="color:var(--bronce)">Tuya</b>'}</span><button data-clon="${t.id}">Clonar</button></div></div>`}).join('')}</div>`:`<div class="vacio">${fB.ver==='fav'?'Todavía no marcaste favoritas. Tocá la ☆ de cualquier tarea.':fB.ver==='mias'?'Todavía no creaste ni clonaste tareas.':'No hay tareas con esos filtros.'}</div>`);
@@ -2414,6 +2475,7 @@ VISTAS.biblioteca=el=>{
   $('#fq').onchange=e=>{fB.q=e.target.value;pintar()};
   $('#ford').onchange=e=>{fB.orden=e.target.value;pintar()};
   $$('[data-ver]',el).forEach(b=>b.onclick=()=>{fB.ver=b.dataset.ver;pintar()});
+  $$('[data-modo]',el).forEach(b=>b.onclick=()=>{fB.modo=b.dataset.modo;pintar()});
   $$('[data-fav]',el).forEach(b=>b.onclick=()=>{const t=tarea(b.dataset.fav);if(!t)return;t.fav=!t.fav;guardar();const y=window.scrollY;pintar();window.scrollTo(0,y)});
   $$('[data-clon]',el).forEach(b=>b.onclick=()=>{const t=tarea(b.dataset.clon);if(t)clonarTarea(t)});
   $('#catAdm').onclick=adminCategorias;
@@ -2421,20 +2483,72 @@ VISTAS.biblioteca=el=>{
   $('#nT').onclick=()=>editarTarea();
   $$('[data-t]',el).forEach(b=>b.onclick=()=>verTarea(b.dataset.t));
 };
+let fABP={tipo:'',ver:''};
+function abpInfoHtml(t){const a=t.abp||{};return `<h3 style="margin:18px 0 6px">Pelota parada</h3><div class="lista">${[['Tipo',a.tipo],['Complejidad',a.comp?'●'.repeat(+a.comp)+'○'.repeat(5-a.comp):''],['Claves',a.claves],['Debilidad del rival que ataca',a.deb]].filter(x=>x[1]).map(([k,v])=>`<div class="fila" style="padding:6px 0"><span class="sub" style="min-width:150px">${k}</span><span>${esc(v)}</span></div>`).join('')}</div>${(a.princ||[]).length?`<div class="chips" style="margin-top:8px">${a.princ.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`:''}${(a.golpeo||[]).length?`<div class="chips" style="margin-top:6px">${a.golpeo.map(x=>`<span class="chip" style="border-color:#4C8DF6">🦶 ${esc(x)}</span>`).join('')}</div>`:''}`}
+function bibliotecaABP(el){
+  const todas=S.tareas.filter(t=>t.abp),lista=todas.filter(t=>(!fABP.tipo||t.abp.tipo===fABP.tipo)&&(fABP.ver!=='fav'||t.fav));
+  el.innerHTML=cabecera(todas.length+' jugadas','Biblioteca de tareas','Tus jugadas de pelota parada: córners, tiros libres y laterales, con su pizarra animada.',`<button class="btn pri" id="nABP">＋ Nueva pelota parada</button>`)+
+  `<div class="seg" style="margin-bottom:12px;display:flex;width:max-content"><button data-modo="" style="padding:9px 16px;font-size:14px">📋 Tareas</button><button data-modo="abp" class="activo" style="padding:9px 16px;font-size:14px">⚽ Pelota parada (${todas.length})</button></div>
+  <div class="filtros" style="margin-bottom:12px"><div class="seg">${[['','Todas'],['fav','★ Favoritas']].map(([v,t])=>`<button data-av="${v}" class="${fABP.ver===v?'activo':''}">${t}</button>`).join('')}</div><select id="aTipo" style="width:auto"><option value="">Todos los tipos</option>${opts(ABP_TIPOS,fABP.tipo)}</select></div>`+
+  (lista.length?`<div class="cartas-t">${lista.map(t=>{const pz=S.pizarras.find(p=>p.id===t.diagrama),a=t.abp;return `<div class="ct-w"><button class="ct" data-t="${t.id}" style="text-align:left;padding:0;font:inherit;color:inherit"><div class="mini">${pz&&pz.pasos&&pz.pasos.length?'<span class="ct-anim">▶ Animada</span>':''}${pz?svgPizarra(pz,{mini:true}):'<div class="vacio" style="height:100%;display:grid;place-items:center">Sin pizarra</div>'}</div><div style="padding:10px 12px"><b style="display:block">${esc(t.titulo)}</b><div class="chips" style="margin-top:6px"><span class="chip ama">${esc(a.tipo||'')}</span>${t.nJug?`<span class="chip">${esc(t.nJug)} ${J('pl')}</span>`:''}${a.comp?`<span class="chip">Complejidad ${a.comp}/5</span>`:''}</div></div></button><div style="display:flex;gap:6px;padding:0 12px 10px"><button class="btn chico" data-afav="${t.id}">${t.fav?'★':'☆'}</button><button class="btn chico" data-aclon="${t.id}">Clonar</button></div></div>`}).join('')}</div>`:`<div class="vacio">Todavía no hay jugadas de pelota parada${fABP.tipo?' de este tipo':''}.<br><button class="btn pri" style="margin-top:12px" id="nABP2">＋ Crear la primera</button></div>`);
+  $$('[data-modo]',el).forEach(b=>b.onclick=()=>{fB.modo=b.dataset.modo;pintar()});
+  $$('[data-av]',el).forEach(b=>b.onclick=()=>{fABP.ver=b.dataset.av;pintar()});
+  $('#aTipo',el).onchange=e=>{fABP.tipo=e.target.value;pintar()};
+  $('#nABP',el).onclick=()=>editarABP();{const n2=$('#nABP2',el);if(n2)n2.onclick=()=>editarABP()}
+  $$('[data-t]',el).forEach(b=>b.onclick=()=>verTarea(b.dataset.t));
+  $$('[data-afav]',el).forEach(b=>b.onclick=()=>{const t=tarea(b.dataset.afav);t.fav=!t.fav;guardar();pintar()});
+  $$('[data-aclon]',el).forEach(b=>b.onclick=()=>{const t=tarea(b.dataset.aclon),c=JSON.parse(JSON.stringify(t));c.id=uid();c.titulo=t.titulo+' (copia)';delete c.fav;delete c.base;const pz=S.pizarras.find(p=>p.id===t.diagrama);if(pz){const z=JSON.parse(JSON.stringify(pz));z.id=uid();z.nombre=c.titulo;S.pizarras.push(z);c.diagrama=z.id}S.tareas.push(c);guardar();editarABP(c)});
+}
+function plantillaABPDe(tipo){const i={'Córner ofensivo':0,'Córner defensivo':1,'Tiro libre frontal ofensivo':2,'Tiro libre lateral ofensivo':3,'Lateral ofensivo':4,'Saque de arco':5}[tipo];return i!=null?PLANTILLAS_ABP[i]:null}
+function editarABP(t){
+  const n=!t;t=t||{id:uid(),titulo:'',categoria:'Pelota parada ofensiva',objetivo:'',contenido:CONT()[0],tipo:'Pelota parada',nJug:'',espacio:'Medio',dificultad:'Media',duracion:10,descripcion:'',consignas:'',video:'',diagrama:'',abp:{tipo:ABP_TIPOS[0],comp:'',claves:'',princ:[],golpeo:[],deb:''}};
+  const a=t.abp=t.abp||{tipo:ABP_TIPOS[0],princ:[],golpeo:[]};a.princ=a.princ||[];a.golpeo=a.golpeo||[];
+  const chips=(lista,sel,attr)=>`<div class="chips" style="margin-top:4px">${lista.map(c=>{const on=sel.includes(c);return `<button type="button" class="chip" ${attr}="${esc(c)}" style="cursor:pointer;${on?'border-color:var(--tinta);font-weight:700;background:var(--carta2)':''}">${on?'✓ ':''}${esc(c)}</button>`}).join('')}</div>`;
+  modal(n?'Nueva pelota parada':'Editar pelota parada',`<form class="form" id="fA">
+    <label class="campo ancho">Nombre de la jugada<input type="text" name="titulo" value="${esc(t.titulo)}" placeholder="Ej.: Córner cerrado con bloqueo a la 4" required></label>
+    <label class="campo">Tipo<select name="atipo">${opts(ABP_TIPOS,a.tipo)}</select></label>
+    <label class="campo">Nº de ${J('pl')} que participan<input type="text" name="nJug" value="${esc(t.nJug)}" placeholder="Ej.: 5"></label>
+    <label class="campo">Complejidad<select name="acomp"><option value="">—</option>${[1,2,3,4,5].map(v=>`<option value="${v}" ${+a.comp===v?'selected':''}>${v} / 5</option>`).join('')}</select></label>
+    <label class="campo ancho">Objetivo<input type="text" name="objetivo" value="${esc(t.objetivo)}" placeholder="Ej.: generar un 2 contra 1 en el segundo palo"></label>
+    <label class="campo ancho">Claves (qué tener en cuenta)<textarea name="aclaves" rows="2" placeholder="Ej.: el momento del pase y los bloqueos a las marcas zonales">${esc(a.claves||'')}</textarea></label>
+    <div class="campo ancho"><span>Principios</span>${chips(ABP_PRINC,a.princ,'data-apr')}</div>
+    <div class="campo ancho"><span>Tipo de golpeo</span>${chips(ABP_GOLPEO,a.golpeo,'data-ago')}</div>
+    <label class="campo ancho">Debilidad del rival que ataca<input type="text" name="adeb" value="${esc(a.deb||'')}" placeholder="Ej.: no ajustan los bloqueos; marcan en zona"></label>
+    <label class="campo ancho">Descripción y movimientos<textarea name="descripcion" rows="3">${esc(t.descripcion)}</textarea></label>
+    <label class="campo">Pizarra<select name="diagrama"><option value="">Sin pizarra</option>${opts(S.pizarras.filter(p=>p.categoria==='ABP'||p.id===t.diagrama).map(p=>[p.id,p.nombre]),t.diagrama)}</select></label>
+    <div class="campo" style="justify-content:flex-end"><button type="button" class="btn" id="aDib">✏ Dibujarla en la pizarra</button></div>
+  </form><div class="modal-pie">${n?'':'<button class="btn peligro" id="aDel" style="margin-right:auto">Eliminar</button>'}<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="aOk">Guardar</button></div>`,{ancho:true,alMontar:m=>{
+    const tog=(attr,arr)=>$$('['+attr+']',m).forEach(b=>b.onclick=()=>{const v=b.getAttribute(attr),i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);const on=arr.includes(v);b.style.borderColor=on?'var(--tinta)':'';b.style.fontWeight=on?700:'';b.style.background=on?'var(--carta2)':'';b.textContent=(on?'✓ ':'')+v});
+    tog('data-apr',a.princ);tog('data-ago',a.golpeo);
+    const leer=()=>{const d=leerForm($('#fA',m));if(!d.titulo.trim()){aviso('Poné un nombre a la jugada.');return false}
+      a.tipo=d.atipo;a.comp=d.acomp?+d.acomp:'';a.claves=d.aclaves.trim();a.deb=d.adeb.trim();
+      Object.assign(t,{titulo:d.titulo.trim(),nJug:d.nJug.trim(),objetivo:d.objetivo.trim(),descripcion:d.descripcion,diagrama:d.diagrama,categoria:/defensiv/i.test(a.tipo)?'Pelota parada defensiva':'Pelota parada ofensiva',tipo:'Pelota parada'});
+      if(!S.tareas.includes(t))S.tareas.push(t);return true};
+    $('#aOk',m).onclick=()=>{if(!leer())return;guardar();cerrarModal();aviso('Pelota parada guardada');pintar()};
+    $('#aDib',m).onclick=()=>{if(!leer())return;let z=S.pizarras.find(p=>p.id===t.diagrama);
+      if(!z){const pl=plantillaABPDe(a.tipo);z=pl?armarPlantilla('Medio campo',pl[1]()):pizarraNueva('Medio campo');z.nombre=t.titulo;z.categoria='ABP';S.pizarras.push(z);t.diagrama=z.id}
+      guardar();cerrarModal();ir('pizarra',z.id);aviso('Dibujala y animala: se guarda sola al salir')};
+    {const d=$('#aDel',m);if(d)d.onclick=()=>confirmar('¿Eliminar la jugada?','Se quita de la biblioteca (la pizarra queda en Pizarras).','Eliminar',()=>{S.tareas=S.tareas.filter(x=>x.id!==t.id);guardar();pintar()})}
+  }});
+}
 function verTarea(id){
   const t=tarea(id);const pz=S.pizarras.find(p=>p.id===t.diagrama);
   modal(t.titulo,`<div class="grilla g2" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)">
     <div>${pz?`<div class="cancha" id="vtCancha" style="padding:6px">${svgPizarra(pz,{mini:true})}</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">${pz.pasos&&pz.pasos.length?`<button class="btn chico ama" id="vtPlay">▶ Ver animación</button><span class="sub" style="font-size:12.5px">${pz.pasos.length+1} pasos</span>`:''}<span class="sub" style="font-size:12.5px;margin-left:auto">Diagrama: ${esc(pz.nombre)}</span></div>`:imgTarea(t)?`<img src="${imgTarea(t)}" alt="Dibujo de la tarea" style="width:100%;border-radius:8px;border:1px solid var(--linea);background:#fff">`:'<div class="vacio">Sin diagrama.</div>'}</div>
     <div><div class="chips" style="margin-bottom:10px"><span class="chip ama">${esc(catTarea(t.categoria))}</span><span class="chip">${esc(t.tipo)}</span><span class="chip">${esc(t.contenido)}</span></div>
-      <div class="lista">${[['Objetivo',t.objetivo],[J('Pl'),t.nJug],['Espacio',t.espacio],['Dificultad',t.dificultad],['Duración',t.duracion+' min']].map(([a,b])=>`<div class="fila" style="padding:6px 0"><span class="sub">${a}</span><b class="der">${esc(b)}</b></div>`).join('')}</div></div></div>
+      <div class="lista">${[['Objetivo',t.objetivo],[J('Pl'),t.nJug],['Espacio',t.espacio+(t.medidas?' · '+t.medidas:'')],['Dificultad',t.dificultad],['Exigencia',t.exigencia?'●'.repeat(+t.exigencia)+'○'.repeat(5-t.exigencia):''],['Duración',(t.series&&t.minSerie?t.series+' × '+t.minSerie+'′'+(t.pausa?' · descanso '+t.pausa:'')+' · ':'')+t.duracion+' min']].filter(([a,b])=>b!=null&&b!=='').map(([a,b])=>`<div class="fila" style="padding:6px 0"><span class="sub">${a}</span><b class="der">${esc(b)}</b></div>`).join('')}</div></div></div>
   <h3 style="margin:18px 0 6px">Descripción</h3><p style="margin:0;white-space:pre-line">${esc(t.descripcion)}</p>
   <h3 style="margin:18px 0 6px">Consignas</h3><ul style="margin:0;padding-left:20px">${(t.consignas||'').split('\n').filter(Boolean).map(c=>`<li>${esc(c)}</li>`).join('')||'<li class="tenue">Sin consignas.</li>'}</ul>
+  ${(t.contOf||[]).length||(t.contDef||[]).length?`<h3 style="margin:18px 0 6px">Contenidos</h3><div class="chips">${(t.contOf||[]).map(c=>`<span class="chip" style="border-color:#2E9E5B">⚽ ${esc(c)}</span>`).join('')}${(t.contDef||[]).map(c=>`<span class="chip" style="border-color:#D0402F">🛡 ${esc(c)}</span>`).join('')}</div>`:''}
+  ${t.progComp||t.progCompet?`<h3 style="margin:18px 0 6px">Cómo progresarla</h3><div class="lista">${t.progComp?`<div class="fila" style="padding:6px 0"><span class="sub" style="min-width:120px">Más complejidad</span><span>${esc(t.progComp)}</span></div>`:''}${t.progCompet?`<div class="fila" style="padding:6px 0"><span class="sub" style="min-width:120px">Más competencia</span><span>${esc(t.progCompet)}</span></div>`:''}</div>`:''}
+  ${t.material?`<h3 style="margin:18px 0 6px">Material</h3><p style="margin:0">${esc(t.material)}</p>`:''}
+  ${t.abp?abpInfoHtml(t):''}
   <h3 style="margin:18px 0 6px">Video</h3>${t.video?`<a class="btn chico" href="${esc(t.video)}" target="_blank" rel="noopener">▶ Ver video</a>`:'<span class="tenue">Sin video cargado.</span>'}
   <div class="modal-pie"><button class="btn peligro" id="bT" style="margin-right:auto">Eliminar</button><button class="btn" id="sesT">＋ A una sesión</button><button class="btn" id="pdfT">Ficha PDF</button><button class="btn" id="favT">${t.fav?'★ Favorita':'☆ Favorita'}</button><button class="btn" id="dupT">Clonar</button><button class="btn pri" id="eT">Editar</button></div>`,{ancho:true,alMontar:m=>{
     {const bp=$('#vtPlay',m),box=$('#vtCancha',m);if(bp&&box&&pz){let an=null;const fin=()=>{an=null;bp.textContent='▶ Ver animación';box.innerHTML=svgPizarra(pz,{mini:true})};
       bp.onclick=()=>{if(an){cancelAnimationFrame(an);fin();return}bp.textContent='■ Detener';box.innerHTML=svgPizarra(pz,{frame:0});const t0=performance.now()+400;
         const loop=now=>{if(!document.body.contains(box))return;const st=estadoAnim(pz,Math.max(0,now-t0));if(st.fin){box.innerHTML=svgPizarra(pz,{frame:pz.pasos.length});an=null;bp.textContent='↻ Repetir';return}box.innerHTML=svgPizarra(pz,{frame:st.seg,over:st.over});an=requestAnimationFrame(loop)};an=requestAnimationFrame(loop)}}}
-    $('#eT',m).onclick=()=>{cerrarModal();editarTarea(t)};
+    $('#eT',m).onclick=()=>{cerrarModal();t.abp?editarABP(t):editarTarea(t)};
     $('#pdfT',m).onclick=()=>fichaTareaPDF(t,$('#pdfT',m));
     $('#sesT',m).onclick=()=>{cerrarModal();sumarASesion(t.id)};
     $('#favT',m).onclick=()=>{t.fav=!t.fav;guardar();$('#favT',m).textContent=t.fav?'★ Favorita':'☆ Favorita';pintar()};
@@ -2483,6 +2597,9 @@ async function fichaTareaPDF(t,btn){
     const cons=(t.consignas||'').split('\n').filter(Boolean);
     if(cons.length){tituloSec(xR,yR,'Consignas');yR+=7;cons.forEach((c,i)=>{doc.setFillColor(...NEGRO);doc.circle(xR+2.3,yR-1.2,2.3,'F');doc.setTextColor(...AMA);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.text(String(i+1),xR+2.3,yR-.1,{align:'center'});doc.setTextColor(40,38,34);doc.setFont('helvetica','normal');doc.setFontSize(9.5);const l=doc.splitTextToSize(G2(c),colW-8);doc.text(l,xR+7,yR,{lineHeightFactor:1.35});yR+=l.length*4.6+2.5})}
     y=Math.max(yL,yR)+3;
+    {const extra=[];if((t.contOf||[]).length)extra.push(['Contenidos con pelota',t.contOf.join(' · ')]);if((t.contDef||[]).length)extra.push(['Contenidos sin pelota',t.contDef.join(' · ')]);if(t.series&&t.minSerie)extra.push(['Series',t.series+' × '+t.minSerie+' min'+(t.pausa?' · descanso '+t.pausa:'')]);if(t.medidas)extra.push(['Medidas',t.medidas]);if(t.exigencia)extra.push(['Exigencia',t.exigencia+' / 5']);if(t.progComp)extra.push(['Progresión · más complejidad',t.progComp]);if(t.progCompet)extra.push(['Progresión · más competencia',t.progCompet]);if(t.material)extra.push(['Material',t.material]);
+      if(t.abp){const a=t.abp;[['Tipo de ABP',a.tipo],['Complejidad',a.comp?a.comp+' / 5':''],['Claves',a.claves],['Principios',(a.princ||[]).join(' · ')],['Golpeo',(a.golpeo||[]).join(' · ')],['Debilidad del rival que ataca',a.deb]].forEach(x=>{if(x[1])extra.push(x)})}
+      extra.forEach(([k,v])=>{if(y>262){doc.addPage();y=20}doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...GRIS);doc.text(G2(k).toUpperCase(),M,y,{charSpace:.3});doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(40,38,34);const l=doc.splitTextToSize(G2(String(v)),AW);doc.text(l,M,y+4.6);y+=4.6+l.length*4.4+3})}
     // ---------- materiales (salen del diagrama) ----------
     const mat={};if(pz){pz.elementos.forEach(e=>{if(e.t!=='J'&&MATERIALES[e.t]){const n=MATERIALES[e.t].n;mat[n]=(mat[n]||0)+1}});const cols=new Set(pz.elementos.filter(e=>e.t==='J'&&e.color&&e.color!=='#F08A24'&&e.color!=='hueco').map(e=>e.color));if(cols.size>1)mat['Pecheras ('+cols.size+' colores)']=''}
     const matTxt=Object.entries(mat).map(([n,c])=>c?(c+' × '+n.toLowerCase()):n).join('   ·   ');
@@ -2512,15 +2629,27 @@ function editarTarea(t,op={}){
     <label class="campo">Nº de ${J('pl')}<input type="text" id="tnj" name="nJug" value="${esc(t.nJug)}" placeholder="Ej.: 12"></label>
     <label class="campo">Espacio<select id="tes" name="espacio">${opts(ESPACIOS,t.espacio)}</select></label>
     <label class="campo">Dificultad<select id="tdi" name="dificultad">${opts(DIFICULTAD,t.dificultad)}</select></label>
-    <label class="campo">Duración (min)<input type="number" id="tdu" name="duracion" min="1" value="${t.duracion}"></label>
+    <label class="campo">Duración total (min)<input type="number" id="tdu" name="duracion" min="1" value="${t.duracion}"></label>
+    <label class="campo">Series<input type="number" name="series" min="1" value="${esc(t.series||'')}" placeholder="Ej.: 2"></label>
+    <label class="campo">Minutos por serie<input type="number" name="minSerie" min="1" value="${esc(t.minSerie||'')}" placeholder="Ej.: 8"></label>
+    <label class="campo">Descanso entre series<input type="text" name="pausa" value="${esc(t.pausa||'')}" placeholder="Ej.: 2'"></label>
+    <label class="campo">Medidas del espacio<input type="text" name="medidas" value="${esc(t.medidas||'')}" placeholder="Ej.: 40 × 40 m"></label>
+    <label class="campo">Exigencia física<select name="exigencia"><option value="">—</option>${[1,2,3,4,5].map(v=>`<option value="${v}" ${+t.exigencia===v?'selected':''}>${v} · ${['Muy baja','Baja','Media','Alta','Muy alta'][v-1]}</option>`).join('')}</select></label>
+    <div class="campo ancho"><span>Contenidos con pelota</span><div class="chips" style="margin-top:4px">${CONT_OF.map(c=>`<button type="button" class="chip" data-cof="${esc(c)}" aria-pressed="${(t.contOf||[]).includes(c)}" style="cursor:pointer;${(t.contOf||[]).includes(c)?'border-color:var(--tinta);font-weight:700;background:var(--carta2)':''}">${(t.contOf||[]).includes(c)?'✓ ':''}${esc(c)}</button>`).join('')}</div></div>
+    <div class="campo ancho"><span>Contenidos sin pelota</span><div class="chips" style="margin-top:4px">${CONT_DEF.map(c=>`<button type="button" class="chip" data-cdf="${esc(c)}" aria-pressed="${(t.contDef||[]).includes(c)}" style="cursor:pointer;${(t.contDef||[]).includes(c)?'border-color:var(--tinta);font-weight:700;background:var(--carta2)':''}">${(t.contDef||[]).includes(c)?'✓ ':''}${esc(c)}</button>`).join('')}</div></div>
     <label class="campo ancho">Descripción<textarea id="tde" name="descripcion">${esc(t.descripcion)}</textarea></label>
     <label class="campo ancho">Consignas (una por renglón)<textarea id="tcg" name="consignas">${esc(t.consignas)}</textarea></label>
+    <label class="campo">Cómo progresar: más complejidad<input type="text" name="progComp" value="${esc(t.progComp||'')}" placeholder="Ej.: obligar a definir con la pierna menos hábil"></label>
+    <label class="campo">Cómo progresar: más competencia<input type="text" name="progCompet" value="${esc(t.progCompet||'')}" placeholder="Ej.: contar goles y que pierda el equipo que menos hace"></label>
+    <label class="campo ancho">Material (además del que sale del diagrama)<input type="text" name="material" value="${esc(t.material||'')}" placeholder="Ej.: 2 arcos, 10 conos, pecheras de 2 colores"></label>
     <label class="campo">Link de video<input type="url" id="tvi" name="video" value="${esc(t.video)}" placeholder="https://…"></label>
     <label class="campo">Diagrama<select id="tdg" name="diagrama"><option value="">Sin diagrama</option>${opts(S.pizarras.map(p=>[p.id,p.nombre]),t.diagrama)}</select></label>
   </form><div class="modal-pie"><span class="sub" style="margin-right:auto;font-size:13px">Los diagramas se dibujan en la Pizarra táctica.</span><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="gT">Guardar tarea</button></div>`,{ancho:true,alMontar:m=>{
     conectarCont(m);
+    const tog=(attr,key)=>$$('['+attr+']',m).forEach(b=>b.onclick=()=>{const v=b.getAttribute(attr),a=t[key]=Array.isArray(t[key])?t[key]:[],i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);const on=a.includes(v);b.setAttribute('aria-pressed',on);b.style.borderColor=on?'var(--tinta)':'';b.style.fontWeight=on?700:'';b.style.background=on?'var(--carta2)':'';b.textContent=(on?'✓ ':'')+v});
+    tog('data-cof','contOf');tog('data-cdf','contDef');
     {const tc=$('#tc',m);let prev=tc.value;tc.onchange=()=>{if(tc.value!=='__nueva'){prev=tc.value;return}const nom=(prompt('Nombre de la nueva categoría:')||'').trim();if(!nom){tc.value=prev;return}if(!CATEG().includes(nom)){S.club.categoriasExtra=[...(S.club.categoriasExtra||[]),nom];guardar()}const o=document.createElement('option');o.value=o.textContent=nom;tc.insertBefore(o,tc.querySelector('[value="__nueva"]'));tc.value=prev=nom}}
-    $('#gT',m).onclick=()=>{const d=leerForm($('#fT',m));if(!d.titulo.trim()){aviso('Poné un nombre a la tarea.');return}if(d.categoria==='__nueva'){aviso('Elegí un momento del juego.');return}Object.assign(t,d,{duracion:+d.duracion||10});if(n)S.tareas.push(t);guardar();cerrarModal();aviso('Tarea guardada');pintar();if(op.despues)op.despues(t.id)};
+    $('#gT',m).onclick=()=>{const d=leerForm($('#fT',m));if(!d.titulo.trim()){aviso('Poné un nombre a la tarea.');return}if(d.categoria==='__nueva'){aviso('Elegí un momento del juego.');return}Object.assign(t,d,{duracion:+d.duracion||(+d.series&&+d.minSerie?d.series*d.minSerie:10)});if(n)S.tareas.push(t);guardar();cerrarModal();aviso('Tarea guardada');pintar();if(op.despues)op.despues(t.id)};
   }});
 }
 /* ================= PIZARRA TÁCTICA ================= */
@@ -2852,6 +2981,8 @@ VISTAS.pizarra=el=>{
       <div class="pzA-h">Consigna · paso ${FR+1} de ${PZ.pasos.length+1}</div>
       <textarea id="pzNota" class="pzA-nota" maxlength="90" rows="3" placeholder="Ej.: La 6 fija a la central" aria-label="Consigna de este paso">${esc((PZ.notas||[])[FR]||'')}</textarea>
       <div class="pzA-ayuda">Se muestra sobre la cancha, al presentar y en el PDF.</div>
+      <div class="pzA-h">Fichas</div>
+      <div class="pzA-card"><div class="pzA-row"><span>Tamaño de todas</span><div style="display:flex;align-items:center;gap:6px"><button class="pa chico" id="escMenos" aria-label="Achicar fichas">−</button><b style="min-width:46px;text-align:center">${Math.round((PZ.escala||1)*100)}%</b><button class="pa chico" id="escMas" aria-label="Agrandar fichas">＋</button></div></div><div class="pzA-ayuda" style="margin:4px 0 0">Para una sola: tocala y elegí el tamaño.</div></div>
       <div class="pzA-h">Espacio</div>
       <div class="pzA-card"><div class="pzA-row"><span>Cancha</span><select id="pzFormato" aria-label="Cancha">${opts(Object.keys(FORMATOS),PZ.formato)}<option value="__medida">📐 A medida…</option></select></div>
         <div class="pzA-row"><span>${zMay?'Zona de trabajo':'Medidas'}</span><span class="pzA-med"><input type="number" id="pzMedW" min="3" max="120" step="0.5" value="${zMay?+zMay.w.toFixed(1):Wc}" aria-label="Largo en metros"><i>×</i><input type="number" id="pzMedH" min="3" max="90" step="0.5" value="${zMay?+zMay.h.toFixed(1):Hc}" aria-label="Ancho en metros"><i>m</i></span></div>
@@ -2888,6 +3019,7 @@ VISTAS.pizarra=el=>{
     if(i>=0){const prev=S.pizarras[i],vs=(prev.versiones||PZ.versiones||[]).slice();if(firmaPz(prev)!==firmaPz(PZ)){vs.unshift({t:Date.now(),d:sinVersiones(prev)});vs.length=Math.min(vs.length,10)}PZ.versiones=vs}
     const c=JSON.parse(JSON.stringify(PZ));if(i>=0)S.pizarras[i]=c;else S.pizarras.push(c);guardar();aviso('Ejercicio guardado');pintar()};
   $('#pzVers').onclick=verVersiones;
+  {const cambiarEsc=d=>{snap();PZ.escala=Math.max(.5,Math.min(2.2,Math.round(((PZ.escala||1)+d)*10)/10));pintar()};const a=$('#escMenos'),b=$('#escMas');if(a)a.onclick=()=>cambiarEsc(-.1);if(b)b.onclick=()=>cambiarEsc(.1)}
   {const fb=$('#pzFotos');if(fb)fb.onclick=()=>{snap();PZ.sinFotos=!PZ.sinFotos;pintar()}}
   $('#pzPng').onclick=exportarPng;
   $('#pzFondo').onchange=e=>{snap();PZ.fondo=e.target.value;redibujar()};
@@ -3243,7 +3375,7 @@ function pintarSel(){
     box.innerHTML=`<div class="panel" style="margin-top:12px"><div class="panel-cab"><div><div class="etq">Seleccionadas</div><h3 style="margin-top:2px">${ids.length} piezas</h3></div><div class="der"><button class="btn chico fantasma" id="mX">Listo</button></div></div>
       <p class="sub" style="margin:0 0 8px;font-size:13px">Arrastrá cualquiera de las marcadas para mover todo junto. Con <b>Supr</b> o <b>Eliminar</b> las borrás de una vez. Tip: con <b>Shift + clic</b> sumás o sacás piezas.</p>
       <div class="colores">${PALETA_J.map(c=>`<button class="sw" data-mc="${c}" style="${swBg(c)}" title="${c}"></button>`).join('')}</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn chico" id="mFila" title="Todas a la misma altura">⇹ Alinear en fila</button><button class="btn chico" id="mCol" title="Todas en la misma columna">⇵ Alinear en columna</button><button class="btn chico" id="mRep" title="Misma distancia entre cada una">↔ Repartir parejo</button><button class="btn chico" id="mDup">Duplicar</button><button class="btn chico" id="mUnir">Unir en línea</button><button class="btn chico peligro" id="mDel">Eliminar</button></div></div>`;
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn chico" id="mFila" title="Todas a la misma altura">⇹ Alinear en fila</button><button class="btn chico" id="mCol" title="Todas en la misma columna">⇵ Alinear en columna</button><button class="btn chico" id="mRep" title="Misma distancia entre cada una">↔ Repartir parejo</button><span class="seg">${[[.7,'Chicas'],[1,'Normal'],[1.35,'Grandes']].map(([v,t])=>`<button data-tamm="${v}">${t}</button>`).join('')}</span><button class="btn chico" id="mDup">Duplicar</button><button class="btn chico" id="mUnir">Unir en línea</button><button class="btn chico peligro" id="mDel">Eliminar</button></div></div>`;
     $('#mX',box).onclick=()=>{MULTI.clear();redibujar();pintarSel()};
     const alin=modo=>{const L=PZ.elementos.filter(e=>MULTI.has(e.id)&&!e.lock).map(e=>({e,p:posEn(PZ,e,FR)}));if(L.length<2){aviso('Elegí al menos 2 piezas');return}snap();
       const xs=L.map(q=>q.p[0]),ys=L.map(q=>q.p[1]),av=a=>a.reduce((s,v)=>s+v,0)/a.length;
@@ -3253,6 +3385,7 @@ function pintarSel(){
       redibujar();pintarSel()};
     $('#mFila',box).onclick=()=>alin('fila');$('#mCol',box).onclick=()=>alin('col');$('#mRep',box).onclick=()=>alin('rep');
     $('#mDel',box).onclick=borrarMulti;
+    box.querySelectorAll('[data-tamm]').forEach(b=>b.onclick=()=>{snap();const v=+b.dataset.tamm;PZ.elementos.filter(e=>MULTI.has(e.id)).forEach(e=>{if(v===1)delete e.s;else e.s=v});redibujar()});
     $('#mDup',box).onclick=()=>{snap();const d=radio(PZ.formato)*2.4,nuevos=new Set();PZ.elementos.filter(e=>MULTI.has(e.id)).forEach(e=>{const [x,y]=posEn(PZ,e,FR);const c={...e,id:uid(),x:x+d,y:y+d};PZ.elementos.push(c);nuevos.add(c.id)});MULTI=nuevos;redibujar();pintarSel()};
     $('#mUnir',box).onclick=()=>{snap();const els=PZ.elementos.filter(e=>MULTI.has(e.id)).map(e=>({e,p:posEn(PZ,e,FR)}));const [W,H]=FORMATOS[PZ.formato];const v=esVertical(PZ.formato);els.sort((a,b)=>v?a.p[0]-b.p[0]:a.p[1]-b.p[1]);for(let i=1;i<els.length;i++)PZ.lineas.push({id:uid(),a:els[i-1].e.id,b:els[i].e.id});redibujar()};
     $$('[data-mc]',box).forEach(b=>b.onclick=()=>{snap();PZ.elementos.forEach(e=>{if(MULTI.has(e.id)&&(e.t==='J'||b.dataset.mc!=='hueco'))e.color=b.dataset.mc});redibujar()});
@@ -3274,6 +3407,7 @@ function pintarSel(){
         <label class="pzA-row"><span>Arranca</span><select id="selDel">${opts([['0','Junto con el resto'],['0.3','Un poco después'],['0.55','Más tarde']],String(dl))}</select></label>
         ${e.t==='J'?`<label class="pzA-chk"><input type="checkbox" id="selPega" ${bl?'checked':''}> 🔗 La pelota va con ${RAMA()==='M'?'él':RAMA()==='X'?'ella/él':'ella'}</label>`:''}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${(pa.cur||{})[e.id]?'<button class="btn chico" id="selRecta">Recorrido recto</button>':'<span class="sub" style="font-size:12.5px">Para curvar el recorrido, arrastrá el punto amarillo del medio.</span>'}</div></div>`}
+    h+=`<div class="etq" style="margin-top:10px">Tamaño de esta ficha</div><div class="seg" style="margin-top:4px">${[[.7,'Chica'],[1,'Normal'],[1.35,'Grande'],[1.7,'Muy grande']].map(([v,t])=>`<button data-tame="${v}" class="${(e.s||1)===v?'activo':''}">${t}</button>`).join('')}</div>`;
     h+=`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="btn chico" id="selDup">Duplicar</button><button class="btn chico peligro" id="selDel">Eliminar</button></div>`;
   }
   if(SEL.tipo==='tr'){tit='Dibujo libre';h='<p class="sub" style="margin:0;font-size:13px">Arrastralo para moverlo. Con el menú de arriba cambiás color y grosor.</p>'}
@@ -3298,6 +3432,7 @@ function pintarSel(){
   if(q('flJunto'))q('flJunto').onchange=e=>{const a=PZ.flechas.find(x=>x.id===SEL.id);if(!a)return;snap();if(e.target.checked)a.junto=true;else delete a.junto;
     if(PZ.auto&&PZ.pasos&&PZ.pasos.length){PZ.pasos=[];PZ.flechas.forEach(f=>f.fr=0);animarDesdeFlechas(PZ);FR=0;redibujar();pintarSel();aviso(e.target.checked?'Listo: se mueven al mismo tiempo. Tocá ▶ para verlo.':'Listo: vuelven a ir una después de la otra.')}
     else aviso(PZ.pasos&&PZ.pasos.length?'Esta jugada tiene pasos armados a mano: tocá ✨ Animar desde flechas para rearmarla.':'Ahora tocá ✨ Animar desde flechas.')};
+  box.querySelectorAll('[data-tame]').forEach(b=>b.onclick=()=>{const e=PZ.elementos.find(x=>x.id===SEL.id);if(!e)return;snap();const v=+b.dataset.tame;if(v===1)delete e.s;else e.s=v;redibujar();pintarSel()});
   if(q('selDup'))q('selDup').onclick=()=>{snap();if(SEL.tipo==='el'){const e=PZ.elementos.find(x=>x.id===SEL.id);const [x,y]=posEn(PZ,e,FR);const c={...e,id:uid(),x:x+radio(PZ.formato)*2.4,y};if(c.t==='J'&&c.n!==undefined&&c.n!=='')c.n=PZ.elementos.filter(z=>z.t==='J'&&z.color===c.color).length+1;PZ.elementos.push(c);SEL={tipo:'el',id:c.id}}else{const z=PZ.zonas.find(x=>x.id===SEL.id);const c={...z,id:uid(),x:z.x+2,y:z.y+2};PZ.zonas.push(c);SEL={tipo:'zo',id:c.id}}redibujar();pintarSel()};
   $$('[data-sc]',box).forEach(b=>b.onclick=()=>{snap();const o=SEL.tipo==='zo'?PZ.zonas.find(x=>x.id===SEL.id):PZ.elementos.find(x=>x.id===SEL.id);o.color=b.dataset.sc;redibujar();pintarSel()});
   if(q('selN'))q('selN').oninput=e=>{PZ.elementos.find(x=>x.id===SEL.id).n=e.target.value;redibujar()};
@@ -4221,7 +4356,8 @@ function abpPartido(el,p){
     <p class="sub" style="margin:-4px 0 12px">Elegí una jugada: se abre en la pizarra con ${hayTit?'tus titulares ya ubicadas (número, nombre y foto)':'números genéricos'}. Movelas, dibujá y tocá <b>Guardar</b>. Queda en este partido y se puede compartir en el link.</p>
     ${hayTit?'':`<div class="aviso-caja" style="background:#FFF4CC;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13.5px">Para que aparezcan tus ${J('pl')} con nombre y foto, primero elegí las titulares en <b>Convocatoria</b>.</div>`}
     <div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">${PLANTILLAS_ABP.map(([n,fn],i)=>`<button class="ct" data-abpn="${i}" style="text-align:left;padding:8px;font:inherit;color:inherit"><div class="cancha" style="padding:4px">${svgPizarra(armarPlantilla('Medio campo',fn()),{mini:true})}</div><b style="display:block;margin-top:6px">＋ ${esc(n)}</b></button>`).join('')}
-      <button class="ct" id="abpBlanco" style="text-align:left;padding:8px;font:inherit;color:inherit;display:grid;place-items:center;min-height:150px"><b>＋ Pizarra en blanco<br><span class="sub" style="font-weight:400">medio campo, con las titulares</span></b></button></div></div>
+      <button class="ct" id="abpBlanco" style="text-align:left;padding:8px;font:inherit;color:inherit;display:grid;place-items:center;min-height:150px"><b>＋ Pizarra en blanco<br><span class="sub" style="font-weight:400">medio campo, con las titulares</span></b></button>
+      <button class="ct" id="abpBib" style="text-align:left;padding:8px;font:inherit;color:inherit;display:grid;place-items:center;min-height:150px"><b>📚 De mi biblioteca<br><span class="sub" style="font-weight:400">${S.tareas.filter(t=>t.abp&&t.diagrama).length} jugadas guardadas</span></b></button></div></div>
     <div class="panel" style="margin-top:14px"><h3>Jugadas armadas (${mias.length})</h3>${mias.length?`<div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${mias.map(z=>`<div class="ct" style="padding:8px"><div class="cancha" style="padding:4px">${svgPizarra(z,{mini:true})}</div><b style="display:block;margin:6px 0">${esc(z.nombre)}</b><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn chico pri" data-abpa="${z.id}">Abrir</button><button class="btn chico" data-abpr="${z.id}">📝 Tarea de cada una</button><button class="btn chico" data-abpq="${z.id}" title="La saca de este partido (la pizarra sigue en Pizarras)">Quitar</button></div></div>`).join('')}</div>`:'<div class="vacio">Todavía no armaste pelotas paradas para este partido.</div>'}</div>`;
   const crear=z=>{z.categoria='ABP';z.carpeta=('vs '+(p.rival||'')).trim();S.pizarras.push(z);p.pizarras.push(z.id);guardar();irPz(p,'abp',z.id)};
   $$('[data-abpn]',el).forEach(b=>b.onclick=()=>{const [n,fn]=PLANTILLAS_ABP[+b.dataset.abpn];const z=abpConPlantel(armarPlantilla('Medio campo',fn()),p);z.nombre=n+' · vs '+(p.rival||'rival');crear(z)});
@@ -4229,6 +4365,9 @@ function abpPartido(el,p){
     const tit=ordenParaCancha((p.titulares||[]).map(jugador).filter(Boolean)),[W,H]=FORMATOS['Medio campo']||[40,32];
     tit.forEach((j,i)=>z.elementos.push({id:uid(),t:'J',x:W*(i+1)/(tit.length+1),y:H-3,color:j.posicion==='Arquera/o'?'#F08A24':(camisetaPropia()?'club':'#FFD400'),n:j.dorsal||i+1,nombre:j.apellido||j.nombre,jid:j.id}));crear(z)};
   $$('[data-abpa]',el).forEach(b=>b.onclick=()=>irPz(p,'abp',b.dataset.abpa));
+  $('#abpBib',el).onclick=()=>{const L=S.tareas.filter(t=>t.abp&&S.pizarras.some(z=>z.id===t.diagrama));if(!L.length){aviso('Todavía no guardaste jugadas en Biblioteca → Pelota parada');return}
+    modal('Elegí una jugada de tu biblioteca',`<div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">${L.map(t=>{const z=S.pizarras.find(x=>x.id===t.diagrama);return `<button class="ct" data-abpl="${t.id}" style="text-align:left;padding:8px;font:inherit;color:inherit"><div class="cancha" style="padding:4px">${svgPizarra(z,{mini:true})}</div><b style="display:block;margin-top:6px">${esc(t.titulo)}</b><span class="sub" style="font-size:12px">${esc(t.abp.tipo||'')}</span></button>`}).join('')}</div>`,{ancho:true,alMontar:m=>{
+      $$('[data-abpl]',m).forEach(b=>b.onclick=()=>{const t=tarea(b.dataset.abpl),z0=S.pizarras.find(x=>x.id===t.diagrama),z=JSON.parse(JSON.stringify(z0));z.id=uid();z.nombre=t.titulo+' · vs '+(p.rival||'rival');z.versiones=[];abpConPlantel(z,p);cerrarModal();crear(z)})}})};
   $$('[data-abpr]',el).forEach(b=>b.onclick=()=>rolesABP(S.pizarras.find(z=>z.id===b.dataset.abpr)));
   $$('[data-abpq]',el).forEach(b=>b.onclick=()=>{p.pizarras=p.pizarras.filter(x=>x!==b.dataset.abpq);guardar();pintar()});
 }
@@ -5493,6 +5632,32 @@ function guardarSemanaTipo(m){
     <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okST">Guardar</button></div>`,{alMontar:md=>{$('#okST',md).onclick=()=>{const n=leerForm($('#fST',md)).n.trim()||'Semana tipo';
       S.semanasTipo=semanasTipo();S.semanasTipo.push({id:uid(),nombre:n.slice(0,60),foco:m.foco||'',objetivo:m.objetivo||'',creada:iso(HOY),sesiones:ses.map(s=>({dia:diasEntre(m.inicio,s.fecha),hora:s.hora||'',titulo:s.titulo||'',objetivo:s.objetivo||'',contenidos:[...(s.contenidos||[])],tareas:JSON.parse(JSON.stringify(s.tareas||[])),rpe:s.rpe}))});
       guardar();cerrarModal();aviso('Semana tipo guardada')}}})}
+const SES_MODELO=[
+  {n:'Presión alta',k:/presi[oó]n|recuper|pressing/i,t:['Rondo','Juego de posición','Juego reducido','Partido condicionado'],rpe:7},
+  {n:'Tercera jugadora',k:/tercer|apoyo|pared/i,t:['Rondo','Juego de posición','Juego de posición','Partido condicionado'],rpe:6},
+  {n:'Circular para progresar',k:/progres|circula|inicio|salida/i,t:['Rondo','Juego de posición','Juego de posición','Juego reducido'],rpe:6},
+  {n:'Desmarque de ruptura',k:/desmarque|ruptura|espalda|profund/i,t:['Técnica analítica','Juego de posición','Oleadas','Partido condicionado'],rpe:7},
+  {n:'Último pase y definición',k:/finaliz|defin|remate|[uú]ltimo pase/i,t:['Técnica analítica','Juego de posición','Finalización','Juego reducido'],rpe:6},
+  {n:'Transiciones',k:/transici|contraataq|p[eé]rdida/i,t:['Rondo','Oleadas','Juego reducido','Partido condicionado'],rpe:8},
+  {n:'Gambeta y 1 contra 1',k:/gambeta|1 ?(vs|contra|x) ?1|duelo|regate/i,t:['Técnica analítica','Finalización','Juego reducido','Partido condicionado'],rpe:7},
+  {n:'Pelota parada (día previo)',k:/pelota parada|c[oó]rner|tiro libre|abp/i,t:['Técnica analítica','Pelota parada','Pelota parada','Juego reducido'],rpe:4}];
+function semanaMicro(m,ses){
+  const ini=deIso(m.inicio),fin=deIso(m.fin),dias=[];for(let d=new Date(ini);d<=fin&&dias.length<10;d=sumarDias(d,1))dias.push(new Date(d));
+  if(!dias.length)return '';
+  const pts=SP().filter(p=>{const f=deIso(p.fecha);return f>=ini&&f<=sumarDias(fin,2)}).sort((a,b)=>a.fecha.localeCompare(b.fecha)),pm=pts[0];
+  const md=d=>{if(!pm)return '';const n=Math.round((d-deIso(pm.fecha))/864e5);return n===0?'MD':n<0?'MD'+n:'MD+'+n};
+  return `<div class="micro-sem">${dias.map(d=>{const f=iso(d),ss=ses.filter(s=>s.fecha===f),pp=SP().filter(p=>p.fecha===f),hoy=f===iso(HOY),lab=md(d);
+    return `<div class="micro-dia ${hoy?'hoy':''} ${pp.length?'partido':''}"><div class="micro-cab"><b>${DIAS[d.getDay()]} ${d.getDate()}</b>${lab?`<span class="micro-md">${lab}</span>`:''}</div>${pp.map(p=>`<button class="micro-it p" data-pp="${p.id}">⚽ vs ${esc(p.rival)}${p.hora?' · '+esc(p.hora):''}</button>`).join('')}${ss.map(s=>`<button class="micro-it" data-s="${s.id}">${esc(s.titulo)}<small>${durSesion(s)}′ · RPE ${s.rpe}</small></button>`).join('')}${!pp.length&&!ss.length?'<span class="sub" style="font-size:11.5px">Descanso</span>':''}</div>`}).join('')}</div>`;
+}
+function sesionesModelo(){
+  const elegir=(mod,tipo,usados)=>{const c=S.tareas.filter(t=>!t.abp&&t.tipo===tipo&&!usados.has(t.id));return c.find(t=>mod.k.test(t.titulo+' '+t.objetivo+' '+(t.contenido||'')))||c[0]||null};
+  modal('Sesiones modelo',`<p class="sub" style="margin:0 0 12px">Sesiones de 4 tareas armadas por contenido. Metodika elige tareas de tu biblioteca: después podés cambiar cualquiera.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px">${SES_MODELO.map((mod,i)=>{const us=new Set(),ts=mod.t.map(tp=>{const x=elegir(mod,tp,us);if(x)us.add(x.id);return [tp,x]});return `<div class="panel" style="padding:12px;margin:0"><b style="font-size:15px">${esc(mod.n)}</b><div style="margin:8px 0;font-size:13px">${ts.map(([tp,x],k)=>`<div style="padding:3px 0"><b>T${k+1}</b> ${esc(tp)}${x?`<div class="sub" style="font-size:12px;margin-left:22px">${esc(x.titulo)}</div>`:'<div class="sub" style="font-size:12px;margin-left:22px;color:#D0402F">sin tarea de este tipo</div>'}</div>`).join('')}</div><button class="btn pri chico" data-usm="${i}">Usar sesión</button></div>`}).join('')}</div>`,{ancho:true,alMontar:m=>{
+    $$('[data-usm]',m).forEach(b=>b.onclick=()=>{const mod=SES_MODELO[+b.dataset.usm],us=new Set(),tareas=mod.t.map(tp=>{const x=elegir(mod,tp,us);if(x)us.add(x.id);return x}).filter(Boolean).map(x=>({tareaId:x.id,min:+x.duracion||12}));
+      const mic=[...SMc()].find(mm=>deIso(mm.inicio)<=HOY&&HOY<=deIso(mm.fin));
+      const s={id:uid(),microId:mic?mic.id:'',fecha:iso(HOY),hora:'18:30',titulo:mod.n,objetivo:mod.n,contenidos:mic?[mic.foco]:[],tareas,rpe:mod.rpe,obs:'',jugadores:SJ().map(j=>j.id)};
+      cerrarModal();editarSesion(s);aviso('Revisá la fecha y las tareas, y tocá Guardar')})}});
+}
 function usarSemanaTipo(){
   const L=semanasTipo();const lunes=sumarDias(HOY,-((HOY.getDay()+6)%7)),prox=sumarDias(lunes,7);
   if(!L.length){modal('Semana tipo',`<p style="margin:0">Todavía no guardaste ninguna. Abrí un microciclo que te haya servido y tocá <b>⭐ Guardar como semana tipo</b>.</p><div class="modal-pie"><button class="btn pri" data-cerrar>Entendido</button></div>`);return}
@@ -5726,7 +5891,7 @@ VISTAS.rendimiento=el=>{
   // participación en goles
   const GFt=Math.max(B.GF,1),part=D.map(x=>({j:x.j,g:x.st.gol,a:x.st.asis,t:x.st.gol+x.st.asis})).filter(x=>x.t>0).sort((a,b)=>b.t-a.t).slice(0,6);
   const parejas={};ev.filter(e=>e.tipo==='gol'&&e.jug&&e.jug2).forEach(e=>{const k=e.jug2+'>'+e.jug;parejas[k]=(parejas[k]||0)+1});const parT=Object.entries(parejas).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  el.innerHTML=cabecera('Temporada '+S.club.temporada,'Rendimiento','Cómo viene el equipo: resultados, goles, el once tipo y las '+J('pl')+' destacadas.')+filtros+
+  el.innerHTML=cabecera('Temporada '+S.club.temporada,'Rendimiento','Cómo viene el equipo: resultados, goles, el once tipo y las '+J('pl')+' destacadas.',`<button class="btn" id="rXls">⤓ Excel</button><button class="btn pri" id="rPdf">⤓ Informe PDF</button>`)+filtros+
   `<div class="grilla" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px">
     <div class="panel" style="padding:14px;margin:0"><div class="etq">Balance</div><div style="font-size:26px;font-weight:800"><span style="color:${COL.V}">${B.V}V</span> <span style="color:${COL.E}">${B.E}E</span> <span style="color:${COL.D}">${B.D}D</span></div><div class="sub" style="font-size:12.5px">${B.pts} puntos · ${(B.pts/B.n).toFixed(2).replace('.',',')} por partido</div></div>
     ${card('Goles',B.GF+' – '+B.GC,(B.GF-B.GC>=0?'+':'')+(B.GF-B.GC)+' de diferencia')}${card('Valla invicta',vallas,vallas+' de '+B.n+' partidos')}${card('Tarjetas',ama+roj,ama+' amarillas · '+roj+' rojas')}
@@ -5739,10 +5904,50 @@ VISTAS.rendimiento=el=>{
   <div class="grilla g2" style="margin-bottom:14px"><div class="panel"><h3>Once tipo</h3>${once}</div>
     <div class="panel"><h3>Destacadas</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${dest.map(([t,f,fmt])=>`<div><div class="etq">${t}</div>${top(f,fmt)}</div>`).join('')}</div></div></div>
   <div class="grilla g2"><div class="panel"><h3>Participación en los goles</h3>${part.length?part.map(x=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0">${avatar(x.j)}<div style="flex:1;min-width:0"><b>${esc(x.j.apellido||x.j.nombre)}</b><div style="height:7px;border-radius:6px;background:var(--linea);margin-top:3px;overflow:hidden;display:flex"><i style="width:${100*x.g/GFt}%;background:${COL.V}"></i><i style="width:${100*x.a/GFt}%;background:#4C8DF6"></i></div></div><span class="sub" style="font-size:12.5px;text-align:right">${Math.round(100*x.t/GFt)}%<br>${x.g} G · ${x.a} A</span></div>`).join('')+'<p class="sub" style="font-size:12px;margin:6px 0 0"><i style="display:inline-block;width:10px;height:10px;background:'+COL.V+';border-radius:2px"></i> goles · <i style="display:inline-block;width:10px;height:10px;background:#4C8DF6;border-radius:2px"></i> asistencias · % de los goles del equipo</p>':'<span class="sub">—</span>'}</div>
-    <div class="panel"><h3>Parejas asistencia → gol</h3>${parT.length?parT.map(([k,n])=>{const [a,g]=k.split('>').map(jugador);return a&&g?`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--linea)">${avatar(a)}<b>${esc(a.apellido)}</b><span class="sub">→</span>${avatar(g)}<b style="flex:1">${esc(g.apellido)}</b><span class="chip">${n} gol${n>1?'es':''}</span></div>`:''}).join(''):'<div class="vacio" style="padding:14px">Se completa con los goles y asistencias cargados en <b>En vivo</b>.</div>'}</div></div>`;
+    <div class="panel"><h3>Parejas asistencia → gol</h3>${parT.length?parT.map(([k,n])=>{const [a,g]=k.split('>').map(jugador);return a&&g?`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--linea)">${avatar(a)}<b>${esc(a.apellido)}</b><span class="sub">→</span>${avatar(g)}<b style="flex:1">${esc(g.apellido)}</b><span class="chip">${n} gol${n>1?'es':''}</span></div>`:''}).join(''):'<div class="vacio" style="padding:14px">Se completa con los goles y asistencias cargados en <b>En vivo</b>.</div>'}</div></div>
+  <div class="panel" style="margin-top:14px"><h3>Mapa de lesiones</h3>${mapaLesiones()}</div>`;
   conRend(el);
 };
-function conRend(el){const c=$('#rC',el),l=$('#rL',el);if(c)c.onchange=e=>{fRendComp=e.target.value;pintar()};if(l)l.onchange=e=>{fRendLugar=e.target.value;pintar()}}
+function conRend(el){{const a=$('#rPdf',el),b=$('#rXls',el);if(a)a.onclick=()=>informeEquipoPDF(a);if(b)b.onclick=()=>informeEquipoXLS()}const c=$('#rC',el),l=$('#rL',el);if(c)c.onchange=e=>{fRendComp=e.target.value;pintar()};if(l)l.onchange=e=>{fRendLugar=e.target.value;pintar()}}
+function datosTemporada(){
+  const ps=[...SP()].filter(p=>p.estado==='finalizado'&&p.golesF!=null&&(!fRendComp||p.competicion===fRendComp)&&(!fRendLugar||p.condicion===fRendLugar)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const res=p=>p.golesF>p.golesC?'V':p.golesF===p.golesC?'E':'D',V=ps.filter(p=>res(p)==='V').length,E=ps.filter(p=>res(p)==='E').length,D=ps.length-V-E,GF=ps.reduce((a,p)=>a+p.golesF,0),GC=ps.reduce((a,p)=>a+p.golesC,0),mt=minutosEquipo();
+  const jug=LINEAS.flatMap(([k])=>ordenJ(SJ().filter(j=>lineaDe(j)===k))).map(j=>{const st=statsJugador(j.id),n=notaPartidosJ(j);return {j,st,pm:mt?Math.round(100*st.min/mt):0,nota:n}});
+  return {ps,res,V,E,D,GF,GC,pts:V*3+E,vallas:ps.filter(p=>p.golesC===0).length,jug}}
+async function informeEquipoPDF(btn){
+  const t0=btn.textContent;btn.disabled=true;btn.textContent='Armando…';
+  try{const JsPDF=await cargarJsPDF(),doc=new JsPDF({unit:'mm',format:'a4'}),W=210,H=297,M=14,d=datosTemporada(),cam=camisetaClub();
+    const hex=x=>[parseInt(x.slice(1,3),16),parseInt(x.slice(3,5),16),parseInt(x.slice(5,7),16)],AC=lumHex(cam.c1)<200?hex(cam.c1):[20,20,18],NEG=[20,20,18],GR=[110,108,100],L2=[236,234,228];
+    const T=(sz,st,c)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz);doc.setTextColor(...(c||NEG))};
+    const esc0=await escudoPDF(S.club.escudo).catch(()=>null);
+    const cab=(tit)=>{doc.setFillColor(...AC);doc.rect(0,0,W,30,'F');let x=M;if(esc0){try{const hh=20,ww=hh*esc0.ar;doc.addImage(esc0.url,'PNG',M,5,ww,hh);x=M+ww+5}catch(e){}}
+      T(8,'bold',[255,255,255]);doc.text(('INFORME DE TEMPORADA · '+(S.club.temporada||'')).toUpperCase(),x,11);T(18,'bold',[255,255,255]);doc.text(tit,x,20);T(9,'normal',[230,230,230]);doc.text([S.club.nombre,CATN()].filter(Boolean).join(' · ')+(fRendComp?' · '+fRendComp:''),x,26);return 40};
+    let y=cab('Resumen');
+    const cards=[['PARTIDOS',String(d.ps.length)],['BALANCE',d.V+'V '+d.E+'E '+d.D+'D'],['PUNTOS',d.pts+' ('+(d.ps.length?(d.pts/d.ps.length).toFixed(2):'0')+' x p.)'],['GOLES',d.GF+' - '+d.GC],['VALLA INVICTA',String(d.vallas)]],cw=(W-2*M-4*3)/5;
+    cards.forEach(([k,v],i)=>{const x=M+i*(cw+3);doc.setFillColor(...L2);doc.roundedRect(x,y,cw,18,2,2,'F');T(6.5,'bold',GR);doc.text(k,x+3,y+5.5);T(11.5,'bold');doc.text(v,x+3,y+13.5)});y+=26;
+    T(11,'bold');doc.text('RESULTADOS',M,y);y+=5;
+    const fila=(cols,xs,yy,st,c)=>{cols.forEach((v,i)=>{T(8.5,st,c);doc.text(String(v),xs[i],yy)})};
+    const xsR=[M,M+24,M+34,M+118,M+142,M+162];fila(['Fecha','J','Rival','Cond.','Resultado',''],xsR,y,'bold',GR);y+=2;doc.setDrawColor(...L2);doc.line(M,y,W-M,y);y+=4.5;
+    d.ps.forEach((p,ix)=>{if(y>H-20){doc.addPage();y=cab('Resultados')}const r=d.res(p),col=r==='V'?[46,158,91]:r==='E'?[224,161,0]:[208,64,47];fila([fCorta(p.fecha),String(p.jornada||ix+1),doc.splitTextToSize(p.rival,80)[0],p.condicion||'—',p.golesF+' - '+p.golesC,''],xsR,y,'normal');doc.setFillColor(...col);doc.roundedRect(xsR[5],y-3.4,9,4.6,1,1,'F');T(8,'bold',[255,255,255]);doc.text(r,xsR[5]+4.5,y,{align:'center'});y+=5.6});
+    doc.addPage();y=cab(J('Pl'));
+    const xsJ=[M,M+9,M+62,M+76,M+92,M+106,M+120,M+134,M+148,M+162,M+176],hd=['#',J('Sg'),'PJ','Min','% min','Goles','Asist.','Amar.','Rojas','Nota','Línea'];
+    fila(hd,xsJ,y,'bold',GR);y+=2;doc.line(M,y,W-M,y);y+=4.5;
+    d.jug.forEach((x,i)=>{if(y>H-20){doc.addPage();y=cab(J('Pl'));fila(hd,xsJ,y,'bold',GR);y+=6.5}if(i%2){doc.setFillColor(248,247,243);doc.rect(M-1,y-3.8,W-2*M+2,5.4,'F')}
+      fila([x.j.dorsal||'',doc.splitTextToSize(x.j.apellido?x.j.apellido+(x.j.nombre?', '+x.j.nombre:''):x.j.nombre,50)[0],x.st.pj,x.st.min,x.pm+'%',x.st.gol,x.st.asis,x.st.ama,x.st.roj,x.nota?x.nota.toFixed(1):'—',nombreLinea(lineaDe(x.j),1)||''],xsJ,y,'normal');y+=5.4});
+    y+=6;if(y>H-60){doc.addPage();y=cab('Destacadas')}
+    T(11,'bold');doc.text('DESTACADAS',M,y);y+=6;
+    const tops=[['Más minutos',x=>x.st.min,v=>v+"'"],[RAMA()==='M'?'Goleadores':'Goleadoras',x=>x.st.gol,v=>v],['Asistencias',x=>x.st.asis,v=>v],['Nota',x=>x.nota||0,v=>v.toFixed(1)]],tw=(W-2*M-9)/4;
+    tops.forEach(([t,f,fm],i)=>{const x0=M+i*(tw+3);doc.setFillColor(...L2);doc.roundedRect(x0,y,tw,30,2,2,'F');T(7,'bold',GR);doc.text(t.toUpperCase(),x0+3,y+5);d.jug.filter(x=>f(x)>0).sort((a,b)=>f(b)-f(a)).slice(0,3).forEach((x,k)=>{T(9,'bold');doc.text((k+1)+'. '+doc.splitTextToSize(x.j.apellido||x.j.nombre,tw-18)[0],x0+3,y+12+k*6);T(9,'bold',AC);doc.text(String(fm(f(x))),x0+tw-3,y+12+k*6,{align:'right'})})});
+    const n=doc.getNumberOfPages();for(let i=1;i<=n;i++){doc.setPage(i);T(7,'normal',GR);doc.text('Metodika · '+(S.club.nombre||'')+' · generado el '+fFecha(iso(HOY)),M,H-7);doc.text(i+' / '+n,W-M,H-7,{align:'right'})}
+    doc.save(('informe-temporada-'+(S.club.nombre||'club')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-')+'.pdf');aviso('Informe descargado');
+  }catch(e){console.error(e);aviso('No se pudo armar el PDF')}btn.disabled=false;btn.textContent=t0}
+async function informeEquipoXLS(){
+  try{const X=await cargarXLSX(),d=datosTemporada(),wb=X.utils.book_new();
+    const p=[['Fecha','Jornada','Competición','Rival','Condición','Goles a favor','Goles en contra','Resultado'],...d.ps.map(x=>[x.fecha,x.jornada||'',x.competicion||'',x.rival,x.condicion||'',x.golesF,x.golesC,d.res(x)])];
+    const j=[['Dorsal','Apellido','Nombre','Puesto','PJ','Minutos','% minutos','Goles','Asistencias','Amarillas','Rojas','Nota'],...d.jug.map(x=>[x.j.dorsal||'',x.j.apellido||'',x.j.nombre||'',puestoTxt(x.j)||'',x.st.pj,x.st.min,x.pm,x.st.gol,x.st.asis,x.st.ama,x.st.roj,x.nota?+x.nota.toFixed(2):''])];
+    const r=[['Partidos',d.ps.length],['Ganados',d.V],['Empatados',d.E],['Perdidos',d.D],['Puntos',d.pts],['Goles a favor',d.GF],['Goles en contra',d.GC],['Vallas invictas',d.vallas]];
+    [['Resumen',r],['Partidos',p],[J('Pl'),j]].forEach(([n,a])=>{const ws=X.utils.aoa_to_sheet(a);ws['!cols']=a[0].map(()=>({wch:16}));X.utils.book_append_sheet(wb,ws,n)});
+    X.writeFile(wb,'temporada-'+(S.club.temporada||'')+'.xlsx');aviso('Excel descargado')}catch(e){console.error(e);aviso('No se pudo armar el Excel')}}
 /* ================= ASISTENCIA ================= */
 let periodoA='30';
 VISTAS.asistencia=el=>{
