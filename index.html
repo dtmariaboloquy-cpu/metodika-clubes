@@ -586,6 +586,7 @@ main{padding-top:0}
 .av-tipos{display:flex!important;flex-wrap:wrap;width:100%;box-sizing:border-box}.av-tipos button{flex:1 1 auto}
 #avTxt{box-sizing:border-box;max-width:100%}
 .cal-mc .chip{white-space:normal;max-width:100%}
+.lateral{overflow-x:clip}
 .pz-scrub{flex-basis:100%;display:flex;align-items:center;gap:10px;order:-1}
 .pz-scrub .sc-t{font-size:12px;color:var(--pzs);min-width:38px;text-align:center;font-variant-numeric:tabular-nums}
 .sc-bar{position:relative;flex:1;display:flex;gap:2px;height:30px;cursor:pointer;touch-action:none;user-select:none}
@@ -885,7 +886,7 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 /* ===== ETAPA 2 · marcadores ===== */
 .hero{border-radius:16px;margin-bottom:16px;border:1px solid var(--linea);background:linear-gradient(135deg,color-mix(in srgb,var(--pc,var(--met)) 10%,var(--carta)) 0,var(--carta) 60%)}
 #cont{--pc:var(--met)}
-body:has(.cab.p-equipo) #cont{--pc:var(--equ)}body:has(.cab.p-cancha) #cont{--pc:var(--can)}
+body[data-pilar=equipo] #cont{--pc:var(--equ)}body[data-pilar=cancha] #cont{--pc:var(--can)}
 .hero-par{display:grid;grid-template-columns:1fr auto 1fr;gap:10px 18px;align-items:center;padding:18px 20px}
 .hp-eq{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-weight:700;font-size:14.5px;min-width:0}
 .hp-mid{text-align:center}.hp-cuenta{display:flex;flex-direction:column;align-items:center;line-height:1}
@@ -918,6 +919,7 @@ body:has(.cab.p-equipo) #cont{--pc:var(--equ)}body:has(.cab.p-cancha) #cont{--pc
 @keyframes entra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 #cont>*{animation:entra .28s ease both}#cont>*:nth-child(2){animation-delay:.04s}#cont>*:nth-child(3){animation-delay:.08s}#cont>*:nth-child(4){animation-delay:.12s}
 @media (prefers-reduced-motion:reduce){#cont>*{animation:none}}
+body.en-pizarra #cont>*{animation:none}
 .fila.click,.hs-it,.cj{transition:transform .15s ease,background .15s ease,box-shadow .15s ease}
 .fila.click:hover{background:var(--carta2)}.hs-it:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.25)}
 </style>
@@ -1476,7 +1478,7 @@ function pintar(){
   if(typeof bienvenidaPrueba==='function')bienvenidaPrueba();
   if(S.demo&&enDemoNube)$('#salirDemo').onclick=()=>location.reload();
   else if(S.demo)$('#salirDemo').onclick=()=>confirmar('¿Empezar con tu club?','Se borran los datos de ejemplo y la app queda vacía para que cargues tu plantel. La biblioteca trae 12 tareas de base para arrancar.','Empezar de cero',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Cargá los datos de tu club.')});
-  document.body.classList.toggle('en-pizarra',ruta==='pizarra');
+  document.body.classList.toggle('en-pizarra',ruta==='pizarra');document.body.dataset.pilar=pilarDe(ruta)||'';
   (VISTAS[ruta]||VISTAS.inicio)($('#cont'));
   if(ruta==='pizarra')requestAnimationFrame(ajustarPzAlto);
 }
@@ -1975,12 +1977,26 @@ function posReconocida(t){t=String(t||'').toLowerCase().normalize('NFD').replace
 function posDesdeTexto(t){const i=posReconocida(t);return POSICIONES[i<0?3:i]}
 function fechaDesde(v,X){if(v==null||v==='')return '';if(typeof v==='number'){const d=X.SSF.parse_date_code(v);if(d)return d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0')}
   const t=String(v).trim();let m=t.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){let y=+m[3];if(y<100)y+=y>30?1900:2000;return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}m=t.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
+/* Excel completo de Alonbalon (Competiciones → Descargar Excel): hojas "Matches Summary" y "Player Details" */
+function alonbalonCompleto(wb,X){
+  const hM=wb.Sheets['Matches Summary'],hP=wb.Sheets['Player Details'];if(!hM||!hP)return null;
+  const fM=X.utils.sheet_to_json(hM,{header:1,raw:true,defval:''}),fP=X.utils.sheet_to_json(hP,{header:1,raw:true,defval:''});
+  const cab=(fM[0]||[]).map(h=>String(h||'').toLowerCase()),cL=cab.findIndex(h=>/home|away|venue|local|visit|lugar|condici/.test(h));
+  const par=[['Fecha','Rival','Goles equipo','Goles rival','Resultado','Condición']];
+  fM.slice(1).forEach(r=>{if(!(r[0] instanceof Date))return;const v=cL>=0?String(r[cL]||'').toLowerCase():'';par.push([r[0],String(r[1]||'').trim(),r[2]??'',r[3]??'',r[4]??'',/home|local|casa/.test(v)?'Local':/away|visit|fuera/.test(v)?'Visitante':''])});
+  const ac={};
+  fP.slice(1).forEach(r=>{if(!(r[0] instanceof Date))return;const n=String(r[3]||'').trim();if(!n)return;const a=ac[n]=ac[n]||{pj:0,tit:0,sup:0,min:0,gol:0,gc:0,asis:0,ama:0,roj:0,nn:0,ns:0};
+    const st=String(r[5]||'').toLowerCase(),mi=+r[6]||0;if(mi>0){a.pj++;if(/titular|starter|start|inicial/.test(st))a.tit++;else a.sup++}
+    a.min+=mi;a.gol+=+r[7]||0;a.gc+=+r[8]||0;a.asis+=+r[9]||0;a.ama+=+r[10]||0;a.roj+=+r[11]||0;const rt=+r[12]||0;if(rt>0){a.ns+=rt;a.nn++}});
+  const jug=[['Apellido','Grupo de posición','Partidos jugados','Titular','Suplente','Minutos','Goles','Asistencias','Amarillas','Rojas','Calificación']];
+  Object.entries(ac).forEach(([n,a])=>{const arq=a.gc>0&&a.gol===0;jug.push([n,arq?'Arquera':'',a.pj,a.tit,a.sup,a.min,arq?a.gc:a.gol,a.asis,a.ama,a.roj,a.nn?Math.round(a.ns/a.nn*100)/100:''])});
+  return {par,jug}}
 function importarEstadisticas(){
   const sb=(S.club&&S.club.statsBase)||null,conB=SJ().filter(j=>j.base).length,nP=SP().filter(p=>p.estado!=='programado').length;
   modal('Estadísticas de la temporada',`<p style="margin:0 0 12px">Elegí cómo querés llevar las estadísticas de ${J('pl')}:</p>
     <div style="display:grid;gap:10px">
       <div class="panel" style="padding:12px;margin:0"><b>1 · Empezar de cero</b><p class="sub" style="margin:4px 0 0;font-size:13.5px">Metodika suma sola los minutos, goles, asistencias y tarjetas de cada partido que cargues en <b>En vivo</b>. ${nP?'Ya hay '+nP+' partido'+(nP>1?'s':'')+' cargado'+(nP>1?'s':'')+'.':''}</p></div>
-      <div class="panel" style="padding:12px;margin:0"><b>2 · Subir las que ya tenés</b><p class="sub" style="margin:4px 0 8px;font-size:13.5px">Un Excel o CSV con una fila por ${J('sg')} (por ejemplo, la tabla de jugadoras que descargás de <b>Alonbalon</b>). Se carga como punto de partida.</p><label class="btn pri chico" for="estF">⬆ Elegir archivo</label><input type="file" id="estF" accept=".xlsx,.xls,.csv" hidden></div>
+      <div class="panel" style="padding:12px;margin:0"><b>2 · Subir las que ya tenés</b><p class="sub" style="margin:4px 0 8px;font-size:13.5px">Un Excel o CSV con una fila por ${J('sg')} (por ejemplo, la tabla de jugadoras de <b>Alonbalon</b>, o el Excel completo de <b>Competiciones → Descargar Excel</b>). Se carga como punto de partida.</p><label class="btn pri chico" for="estF">⬆ Elegir archivo</label><input type="file" id="estF" accept=".xlsx,.xls,.csv" hidden></div>
       <div class="panel" style="padding:12px;margin:0"><b>3 · Continuar desde lo que subiste</b><p class="sub" style="margin:4px 0 0;font-size:13.5px">Después de subirlas, cada partido nuevo que cargues en Metodika se <b>suma</b> a esos números. No se pisa nada.</p></div>
     </div>
     ${conB?`<div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--carta2);font-size:13.5px">✅ Hay estadísticas importadas de <b>${conB}</b> ${conB===1?J('sg'):J('pl')}${sb&&sb.fuente?' ('+esc(sb.fuente)+(sb.fecha?' · '+esc(fFecha(sb.fecha)):'')+')':''}. <button class="btn chico fantasma" id="estQuitar" style="margin-left:6px">🗑 Quitar lo importado</button></div>`:''}
@@ -1989,7 +2005,8 @@ function importarEstadisticas(){
     $('#estF',m).onchange=async e=>{const f=e.target.files[0];if(!f)return;const box=$('#estPrev',m);box.innerHTML='<p class="sub">Leyendo…</p>';
       try{const X=await cargarXLSX(),wb=X.read(await f.arrayBuffer(),{type:'array'});
         const norm=k=>String(k).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
-        const crudo=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
+        const wbAb=X.read(await f.arrayBuffer(),{type:'array',cellDates:true}),ab=alonbalonCompleto(wbAb,X);
+        const crudo=ab?ab.jug:X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
         let hi=crudo.findIndex((r,k)=>k<25&&r.some(c=>/^(nombre|apellido|jugador|jugadora|apodo)/.test(norm(c))));if(hi<0)hi=0;
         const tit=(crudo[hi]||[]).map(c=>norm(c));
         const col=(...ps)=>{for(const p of ps){const i=tit.findIndex(t=>p instanceof RegExp?p.test(t):t===p);if(i>=0)return i}return -1};
@@ -2365,6 +2382,11 @@ async function informeTemporadaPDF(j){
   const C={tinta:[20,20,18],tinta2:[38,37,33],ama:[255,212,0],amaO:[201,163,0],gris:[110,105,95],gris2:[244,242,236],linea:[222,218,208],texto:[33,33,30],
     azul:[47,111,219],verde:[30,140,90],rojo:[210,64,47],naranja:[240,138,36],violeta:[139,92,246],claro:[230,227,219],blanco:[255,255,255]};
   const club=S.club||{},temp=club.temporada||String(HOY.getFullYear());
+  // colores del club: si la camiseta tiene un color oscuro, el informe sale con ese color en lugar del negro y amarillo de Metodika
+  if(camisetaPropia()){const k=camisetaClub(),rgb=h=>{const n=parseInt(h.slice(1),16);return [n>>16,n>>8&255,n&255]},lu=c=>(c[0]*299+c[1]*587+c[2]*114)/1000,c1=rgb(k.c1),c2=rgb(k.c2||'#FFFFFF');
+    if(lu(c1)<130){C.tinta=c1.map(v=>Math.round(v*.82));C.tinta2=c1.map(v=>Math.min(255,Math.round(v*1.08+6)));
+      if(lu(c2)<200&&Math.abs(lu(c2)-lu(c1))>40){C.ama=c2;C.amaO=c2.map(v=>Math.round(v*.8))}else{C.ama=c1.map(v=>Math.min(255,Math.round(v+(255-v)*.35)));C.amaO=c1;C.sobreOsc=[255,255,255]}}}
+  C.sobreOsc=C.sobreOsc||C.ama;C.txtAma=lu0(C.ama)>150?C.tinta:[255,255,255];function lu0(c){return (c[0]*299+c[1]*587+c[2]*114)/1000}
   const T=(sz,st,col)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz);doc.setTextColor(...(col||C.texto))};
   const nombre=(j.nombre+' '+j.apellido).trim(),dorsal=j.dorsal||'–',pos=puestoTxt(j)||'Sin posición',esArq=/arquer/i.test(j.posicion||'');
   const posCorta=esArq?'ARQ':/central|lateral|defens/i.test(j.posicion||'')?'DEF':/volante/i.test(j.posicion||'')?'MED':/delanter|extremo/i.test(j.posicion||'')?'DEL':pos.slice(0,3).toUpperCase();
@@ -2404,7 +2426,7 @@ async function informeTemporadaPDF(j){
   const cajas=(y,datos,h=22)=>{const n=datos.length,cw=(W-28-(n-1)*2.5)/n;datos.forEach((d,i)=>{const x=14+i*(cw+2.5);card(x,y,cw,h);doc.setFillColor(...C.ama);doc.rect(x+cw/2-4,y,8,.9,'F');T(n>7?12.5:14,'bold',C.tinta);doc.text(String(d[0]),x+cw/2,y+11,{align:'center'});T(6.8,'normal',C.gris);doc.text(doc.splitTextToSize(d[1],cw-3),x+cw/2,y+16.5,{align:'center'})});return y+h+8};
   const dona=(cx,cy,rE,rI,seg)=>{const total=seg.reduce((s,x)=>s+(x[0]||0),0);if(!total){doc.setFillColor(...C.claro);doc.circle(cx,cy,rE,'F')}else{let ang=-Math.PI/2;seg.forEach(s=>{if(!s[0])return;const fin=ang+2*Math.PI*s[0]/total;doc.setFillColor(...s[1]);doc.setDrawColor(...s[1]);doc.setLineWidth(.05);const paso=Math.PI/90;for(let q=ang;q<fin-1e-6;q+=paso){const b=Math.min(fin,q+paso+.004);const p1=[cx+rE*Math.cos(q),cy+rE*Math.sin(q)],p2=[cx+rE*Math.cos(b),cy+rE*Math.sin(b)],p3=[cx+rI*Math.cos(b),cy+rI*Math.sin(b)],p4=[cx+rI*Math.cos(q),cy+rI*Math.sin(q)];doc.triangle(p1[0],p1[1],p2[0],p2[1],p3[0],p3[1],'FD');doc.triangle(p1[0],p1[1],p3[0],p3[1],p4[0],p4[1],'FD')}ang=fin})}doc.setFillColor(...C.blanco);doc.circle(cx,cy,rI,'F')};
   const barraComp=(y,et,vt,p,pp,pt,col)=>{const x=14,w=W-28;T(9.5,'bold');doc.text(et,x,y);T(9.5,'bold',col);doc.text(vt,x+w,y,{align:'right'});y+=3;doc.setFillColor(...C.gris2);doc.roundedRect(x,y,w,5,2.5,2.5,'F');doc.setFillColor(...col);doc.roundedRect(x,y,Math.max(6,w*Math.min(100,Math.max(0,p))/100),5,2.5,2.5,'F');if(pp!=null){const mx=x+w*Math.min(100,Math.max(0,pp))/100;doc.setDrawColor(...C.tinta);doc.setLineWidth(.8);doc.line(mx,y-1.2,mx,y+6.2);doc.setLineWidth(.2);T(7,'normal',C.gris);doc.text(pt,Math.min(Math.max(mx,x+18),x+w-18),y+9.5,{align:'center'})}return y+15};
-  const fotoEn=(cx,cy,r)=>{if(foto){try{doc.addImage(foto,'PNG',cx-r,cy-r,2*r,2*r);return}catch(e){}}doc.setFillColor(...C.tinta);doc.circle(cx,cy,r,'F');T(r*1.3,'bold',C.ama);doc.text(iniciales||'?',cx,cy+r*.16,{align:'center'})};
+  const fotoEn=(cx,cy,r)=>{if(foto){try{doc.addImage(foto,'PNG',cx-r,cy-r,2*r,2*r);return}catch(e){}}doc.setFillColor(...C.tinta);doc.circle(cx,cy,r,'F');T(r*1.3,'bold',C.sobreOsc);doc.text(iniciales||'?',cx,cy+r*.16,{align:'center'})};
   const escudoEn=(cx,cy,h)=>{if(esc0){const w=h*esc0.ar;try{doc.addImage(esc0.url,'PNG',cx-w/2,cy-h/2,w,h);return true}catch(e){}}return false};
   const r3=r=>{const l=String(r||'').replace(/club|atl[eé]tico|c\.a\.|deportivo|futbol|fútbol/ig,'').trim();return (l||String(r||'—')).slice(0,3).toUpperCase()};
   const fc=iso=>{const d=deIso(iso);return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')};
@@ -2413,14 +2435,14 @@ async function informeTemporadaPDF(j){
 
   // ================= PORTADA =================
   doc.setFillColor(...C.tinta);doc.rect(0,0,W,150,'F');doc.setFillColor(...C.tinta2);for(let sx=6;sx<W;sx+=16)doc.rect(sx,0,8,150,'F');
-  doc.setFillColor(...C.ama);doc.rect(0,150,W,1.6,'F');
+  doc.setFillColor(...C.sobreOsc);doc.rect(0,150,W,1.6,'F');
   doc.setFillColor(...C.blanco);doc.circle(W/2,38,21,'F');
   if(!escudoEn(W/2,38,28)){T(22,'bold',C.tinta);doc.text(((club.nombre||'M').replace(/^(Club|Atlético|Deportivo)\s+/gi,'')[0]||'M').toUpperCase(),W/2,46,{align:'center'})}
   T(13,'bold',C.blanco);doc.text((club.nombre||'Mi club').toUpperCase(),W/2,72,{align:'center'});
   T(9.5,'normal',[200,195,185]);doc.text([club.categoria,'Temporada '+temp].filter(Boolean).join('  ·  '),W/2,79,{align:'center'});
-  doc.setDrawColor(...C.ama);doc.setLineWidth(.5);doc.line(W/2-22,88,W/2+22,88);
+  doc.setDrawColor(...C.sobreOsc);doc.setLineWidth(.5);doc.line(W/2-22,88,W/2+22,88);
   T(25,'bold',C.blanco);doc.text('INFORME DE TEMPORADA',W/2,103,{align:'center'});
-  T(13,'bold',C.ama);doc.text(('PERFIL DE '+sg).toUpperCase(),W/2,112,{align:'center',charSpace:1.2});
+  T(13,'bold',C.sobreOsc);doc.text(('PERFIL DE '+sg).toUpperCase(),W/2,112,{align:'center',charSpace:1.2});
   doc.setFillColor(...C.blanco);doc.circle(W/2,150,30,'F');fotoEn(W/2,150,27.5);doc.setDrawColor(...C.tinta);doc.setLineWidth(.8);doc.circle(W/2,150,27.6,'S');doc.setLineWidth(.2);
   T(22,'bold',C.tinta);doc.text(nombre,W/2,195,{align:'center'});
   T(11.5,'normal',C.gris);doc.text(['#'+dorsal,pos,edad!=null?edad+' años':''].filter(Boolean).join('   ·   '),W/2,204,{align:'center'});
@@ -2433,7 +2455,7 @@ async function informeTemporadaPDF(j){
   doc.setFillColor(...C.gris2);doc.circle(32,y+16,15,'F');fotoEn(32,y+16,14);
   T(16,'bold',C.tinta);doc.text(doc.splitTextToSize(nombre,60)[0],53,y+10);
   doc.setFillColor(...C.tinta);doc.rect(53,y+14,10,6,'F');T(8.5,'bold',C.blanco);doc.text(String(dorsal),58,y+18.2,{align:'center'});
-  doc.setFillColor(...C.ama);doc.rect(63,y+14,14,6,'F');T(8.5,'bold',C.tinta);doc.text(posCorta,70,y+18.2,{align:'center'});
+  doc.setFillColor(...C.ama);doc.rect(63,y+14,14,6,'F');T(8.5,'bold',C.txtAma);doc.text(posCorta,70,y+18.2,{align:'center'});
   T(10,'normal',C.gris);doc.text([j.categoria,edad!=null?edad+' años':''].filter(Boolean).join(' · '),53,y+27);
   card(116,y,W-130,32);T(10,'bold',C.tinta);doc.text('Detalles de '+(RAMA()==='M'?'el jugador':RAMA()==='F'?'la jugadora':'la/el jugador/a'),121,y+8);
   T(8.5,'bold');doc.text('Nacimiento',121,y+17);doc.text('Pie hábil',152,y+17);doc.text('Altura',175,y+17);
@@ -2493,6 +2515,78 @@ async function informeTemporadaPDF(j){
       y+=56}
   }
 
+  // ================= LESIONES (figura propia de frente y de espaldas) =================
+  const eps=[...(j.lesiones||[]).filter(x=>x.k==='lesion'),...(j.estado&&j.estado.k==='lesion'?[{...j.estado,hasta:'',abierta:true}]:[])].filter(x=>x.desde||x.zona||x.zc);
+  if(eps.length){
+    doc.addPage();y=22;y=titulo('Lesiones de la temporada',y);
+    const FR={'Cabeza':[100,52],'Cuello':[100,100],'Hombro':[62,124],'Brazo / codo':[54,186],'Muñeca / mano':[57,240],'Abdomen':[100,192],'Cadera / ingle':[88,228],'Aductor':[95,284],'Cuádriceps':[84,292],'Rodilla':[84,338],'Tibia / peroné':[84,388],'Tobillo':[84,428],'Pie':[82,443],'Otra':[148,60]};
+    const BK={'Espalda':[100,168],'Isquiotibial':[84,302],'Gemelo':[84,378],'Cabeza':[100,52],'Cuello':[100,104]};
+    const marcas={f:[],b:[]};
+    eps.forEach((x,i)=>{const z=zonaLes(x)||'Otra',atras=!!BK[z]&&!['Cabeza','Cuello'].includes(z),base=(atras?BK:FR)[z]||FR.Otra;let [px,py]=base;
+      const der=/derech/i.test(x.lado||''),izq=/izquier/i.test(x.lado||'');if(px!==100){if(atras){if(der)px=200-px}else if(izq)px=200-px}
+      (atras?marcas.b:marcas.f).push({n:i+1,x:px,y:py,z})});
+    const look=lookClub(),kk=esArq?kitPieza({color:'#F08A24'}):kitPieza({color:'club'});
+    const svgFig=v=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 470" width="400" height="940"><defs>${club.escudo?`<image id="escClub" href="${club.escudo}" width="16" height="16" preserveAspectRatio="xMidYMid meet"/>`:''}</defs>${figura(look,kk.kit,{vista:v,accion:'parada',rol:kk.rol,num:dorsal,apellido:j.apellido||'',escudo:club.escudo&&!esArq?'escClub':null})}</svg>`;
+    const aPng=async t=>{try{const im=await svgAImagen(t),c=document.createElement('canvas');c.width=400;c.height=940;c.getContext('2d').drawImage(im,0,0,400,940);return c.toDataURL('image/png')}catch(e){return null}};
+    const [imF,imB]=await Promise.all([aPng(svgFig('frente')),aPng(svgFig('espalda'))]);
+    const fw=56,fh=fw*470/200,fy=y+2,pos2=[[W/2-fw-14,'f',imF,'De frente'],[W/2+14,'b',imB,'De espaldas']];
+    pos2.forEach(([fx,k,im,lab])=>{if(im)doc.addImage(im,'PNG',fx,fy,fw,fh);T(8,'normal',C.gris);doc.text(lab,fx+fw/2,fy+fh+5,{align:'center'});
+      marcas[k].forEach(m=>{const mx=fx+m.x/200*fw,my=fy+m.y/470*fh,izqL=m.x<100||(k==='f'&&m.x===100);const lx=izqL?fx-4:fx+fw+4;
+        doc.setDrawColor(...C.rojo);doc.setLineWidth(.4);doc.line(mx,my,lx,my);doc.setFillColor(...C.rojo);doc.circle(mx,my,2.4,'F');T(6.5,'bold',C.blanco);doc.text(String(m.n),mx,my+.9,{align:'center'});
+        T(8.5,'bold',C.rojo);doc.text(m.z,izqL?lx-1:lx+1,my+1,{align:izqL?'right':'left'})})});
+    y=fy+fh+12;
+    const cw2=(W-28-5)/2;eps.forEach((x,i)=>{const col=i%2,xx=14+col*(cw2+5);if(col===0)y=nueva(y,26);const hasta=x.hasta||iso(HOY);
+      const pp=jugadosP.filter(p=>p.fecha>=(x.desde||'0')&&p.fecha<=hasta).length,dd=x.desde?diasEntre(x.desde,hasta):null;
+      card(xx,y,cw2,22);doc.setFillColor(...C.rojo);doc.circle(xx+6,y+7,2.6,'F');T(7,'bold',C.blanco);doc.text(String(i+1),xx+6,y+8,{align:'center'});
+      T(10,'bold',C.tinta);doc.text(doc.splitTextToSize((x.zona||zonaLes(x)||'Lesión')+(x.lado?' · '+x.lado:''),cw2-16)[0],xx+11,y+8.2);
+      T(8,'normal',C.gris);doc.text((x.desde?fl(x.desde):'')+(x.abierta?' · sigue en recuperación':x.hasta?' – '+fl(x.hasta):''),xx+11,y+13.5);
+      doc.text([dd!=null?dd+' días':'',pp+(pp===1?' partido sin jugar':' partidos sin jugar')].filter(Boolean).join(' · '),xx+11,y+18.3);
+      if(col===1||i===eps.length-1)y+=26});
+  }
+
+  // ================= RENDIMIENTO: radar contra el equipo y dónde rinde mejor =================
+  {
+    const notaDe=p=>{const v=(p.notasJ||{})[j.id];return typeof v==='number'&&v>0?v:null};
+    const cuenta=(fs,id)=>{const conM=fs.filter(f=>f.min>0),pj=conM.length||1;return {gol:fs.reduce((s,f)=>s+f.gol,0)/pj,asis:fs.reduce((s,f)=>s+f.asis,0)/pj,min:fs.reduce((s,f)=>s+f.min,0)/pj,
+      nota:(()=>{const n=jugadosP.map(p=>{const v=(p.notasJ||{})[id];return typeof v==='number'&&v>0?v:null}).filter(v=>v!=null);return n.length?prom(n):0})(),
+      tarj:fs.reduce((s,f)=>s+f.ama+2*f.roj,0)/pj,pj:conM.length}};
+    const yo=cuenta(filas,j.id),otros=SJ().filter(x=>x.id!==j.id).map(x=>cuenta(jugadosP.map(p=>filaPartidoJug(p,x.id)),x.id)).filter(o=>o.pj>0);
+    const promK=k=>otros.length?prom(otros.map(o=>o[k])):0;
+    if(yo.pj||otros.length){
+      doc.addPage();y=22;y=titulo(Sg+' frente al promedio del equipo',y);
+      const ejes=[['Goles',v=>v.gol],['Asistencias',v=>v.asis],['Minutos',v=>v.min],['Nota',v=>v.nota],['Disciplina',v=>Math.max(0,1-v.tarj)]];
+      const maxE=ejes.map(([n,f])=>Math.max(.0001,f(yo),...otros.map(f)));
+      const cx=W/2-44,cy=y+42,R=30,ang=i=>-Math.PI/2+i*2*Math.PI/ejes.length,pt=(i,v)=>[cx+Math.cos(ang(i))*R*v,cy+Math.sin(ang(i))*R*v];
+      [.25,.5,.75,1].forEach(q=>{doc.setDrawColor(...C.linea);doc.setLineWidth(.2);const ps=ejes.map((_,i)=>pt(i,q));ps.forEach((p,i)=>{const n=ps[(i+1)%ps.length];doc.line(p[0],p[1],n[0],n[1])})});
+      ejes.forEach(([n],i)=>{const [ex,ey]=pt(i,1);doc.setDrawColor(...C.linea);doc.line(cx,cy,ex,ey);const [lx,ly]=pt(i,1.2);T(8,'bold',C.tinta);doc.text(n,lx,ly+1,{align:Math.abs(lx-cx)<3?'center':lx<cx?'right':'left'})});
+      const poli=(vals,col,rell,dash)=>{const ps=vals.map((v,i)=>pt(i,Math.max(.02,Math.min(1,v))));const ls=ps.slice(1).map((p,i)=>[p[0]-ps[i][0],p[1]-ps[i][1]]);
+        doc.setDrawColor(...col);doc.setLineWidth(.6);if(dash)doc.setLineDashPattern([1.4,1.1],0);const gs=rell&&doc.setGState&&doc.GState;if(rell){doc.setFillColor(...(gs?rell:C.gris2));if(gs)doc.setGState(new doc.GState({opacity:.28}))}
+        doc.lines(ls,ps[0][0],ps[0][1],[1,1],rell?'FD':'S',true);if(gs)doc.setGState(new doc.GState({opacity:1}));doc.setLineDashPattern([],0)};
+      poli(ejes.map(([n,f],i)=>(otros.length?prom(otros.map(f)):0)/maxE[i]),C.gris,null,true);
+      poli(ejes.map(([n,f],i)=>f(yo)/maxE[i]),C.tinta,C.ama,false);
+      const lx0=W/2+16;let ly=y+14;T(8.5,'bold',C.tinta);doc.setFillColor(...C.ama);doc.rect(lx0,ly-3,5,3.5,'F');doc.text(nombre.split(' ')[0],lx0+7,ly);ly+=6;doc.setDrawColor(...C.gris);doc.setLineDashPattern([1.4,1.1],0);doc.line(lx0,ly-1.5,lx0+5,ly-1.5);doc.setLineDashPattern([],0);T(8.5,'normal',C.gris);doc.text('Promedio del equipo',lx0+7,ly);ly+=9;
+      const fmt=(v,d=1)=>v.toFixed(d).replace('.',',');
+      [['Goles por partido',fmt(yo.gol,2),fmt(promK('gol'),2)],['Asistencias por partido',fmt(yo.asis,2),fmt(promK('asis'),2)],['Minutos por partido',Math.round(yo.min)+"'",Math.round(promK('min'))+"'"],['Nota promedio',yo.nota?fmt(yo.nota):'—',promK('nota')?fmt(promK('nota')):'—'],['Tarjetas por partido',fmt(yo.tarj,2),fmt(promK('tarj'),2)]]
+        .forEach(([t,a,b])=>{T(8,'normal',C.gris);doc.text(t,lx0,ly);T(9,'bold',C.tinta);doc.text(a,W-34,ly,{align:'right'});T(8,'normal',C.gris);doc.text(b,W-14,ly,{align:'right'});ly+=6.2});
+      T(7,'normal',C.gris);doc.text(Sg,W-34,y+8,{align:'right'});doc.text('Equipo',W-14,y+8,{align:'right'});
+      y=cy+R+16;
+      // dónde rinde mejor
+      const conN=filas.map(f=>({f,n:notaDe(f.p)})).filter(x=>x.n!=null&&x.f.min>0);
+      y=titulo('Dónde rinde mejor',y);
+      if(conN.length<2){T(9,'normal',C.gris);doc.text(doc.splitTextToSize('Cargá la nota de cada partido (en el partido → Notas) y acá aparece en qué contexto rinde mejor: de local o visitante, de titular o suplente, ganando o perdiendo, y por sistema.',W-28),14,y);y+=14}
+      else{
+        const grupo=(t,pares)=>({t,items:pares.map(([lab,fn])=>{const v=conN.filter(x=>fn(x.f));return {lab,n:v.length,m:v.length?prom(v.map(x=>x.n)):null}}).filter(x=>x.n)});
+        const G=[grupo('Condición',[['Local',f=>/local/i.test(f.p.condicion||'')],['Visitante',f=>/visit/i.test(f.p.condicion||'')]]),
+          grupo('Rol',[['Titular',f=>f.estado==='tit'],['Suplente',f=>f.estado==='sup']]),
+          grupo('Resultado',[['Ganado',f=>f.p.golesF>f.p.golesC],['Empatado',f=>f.p.golesF===f.p.golesC],['Perdido',f=>f.p.golesF<f.p.golesC]]),
+          grupo('Sistema',[...new Set(conN.map(x=>(x.f.p.aline||{}).sistema).filter(Boolean))].map(s=>['1-'+s,f=>(f.p.aline||{}).sistema===s]))].filter(g=>g.items.length);
+        const gw=(W-28-(G.length-1)*6)/G.length;let maxH=0;
+        G.forEach((g,gi)=>{const gx=14+gi*(gw+6);let yy=y;T(9,'bold',C.tinta);doc.text(g.t,gx,yy);yy+=5;g.items.sort((a,b)=>b.m-a.m).forEach(it=>{T(8,'normal',C.texto);doc.text(it.lab+' ('+it.n+')',gx,yy+2.6);T(8.5,'bold',C.tinta);doc.text(it.m.toFixed(1).replace('.',','),gx+gw,yy+2.6,{align:'right'});
+          doc.setFillColor(...C.gris2);doc.roundedRect(gx,yy+4,gw,2.2,1.1,1.1,'F');doc.setFillColor(...C.tinta);doc.roundedRect(gx,yy+4,gw*Math.min(1,it.m/10),2.2,1.1,1.1,'F');yy+=10});maxH=Math.max(maxH,yy-y)});
+        y+=maxH+4;T(7.5,'normal',C.gris);doc.text('Nota promedio (1 a 10) y entre paréntesis la cantidad de partidos.',14,y);y+=6}
+    }
+  }
+
   // ================= PÁGINA 4 =================
   doc.addPage();y=22;
   if(ultEv){
@@ -2507,17 +2601,22 @@ async function informeTemporadaPDF(j){
     [['Fortalezas',inf.fortalezas,C.verde],['Aspectos a mejorar',inf.mejorar,C.naranja],['Devolución',inf.devolucion,C.azul]].forEach(b=>{if(!b[1])return;T(10,'normal');const ls=doc.splitTextToSize(b[1],W-36);y=nueva(y,ls.length*5+14);doc.setFillColor(...b[2]);doc.rect(14,y-4,1.6,ls.length*5+8,'F');T(9.5,'bold',b[2]);doc.text(b[0],19,y);T(10,'normal');doc.text(ls,19,y+6);y+=ls.length*5+12});
   }
   if(filas.length){
-    y=nueva(y,40);y=titulo('Historial completo de partidos',y+1);
-    const heads=['Fecha','Rival','Estado','Min',esArq?'G. rec.':'Goles','Asist.','Recup.','Tarj.'],ws=[22,52,30,16,17,16,16,13],tw=ws.reduce((s,v)=>s+v,0),x0=14,rh=5.6;
-    const head=yy=>{doc.setFillColor(...C.tinta);doc.roundedRect(x0,yy,tw,6.5,1.2,1.2,'F');T(7.8,'bold',C.blanco);let x=x0;heads.forEach((h,i)=>{doc.text(h,x+2.5,yy+4.4);x+=ws[i]});return yy+6.5};
-    y=head(y);const NE={tit:'Titular',sup:'Suplente',nc:'No '+conv};
-    filas.forEach((f,ri)=>{if(y+rh>H-22){doc.addPage();y=head(18)}if(ri%2){doc.setFillColor(...C.gris2);doc.rect(x0,y,tw,rh,'F')}
-      const tj=(f.ama?f.ama+'A':'')+(f.roj?(f.ama?' ':'')+f.roj+'R':'');
-      const cel=[fl(f.fecha),String(f.rival).slice(0,26),NE[f.estado],f.min?f.min+"'":'—',esArq?(f.min?String(f.grec):'—'):(f.gol?String(f.gol):'—'),f.asis?String(f.asis):'—',f.rec?String(f.rec):'—',tj||'—'];
-      let x=x0;cel.forEach((c,i)=>{const est=i===2;T(7.8,est?'bold':'normal',est?(f.estado==='tit'?C.verde:f.estado==='sup'?C.azul:C.gris):C.texto);doc.text(c,x+2.5,y+3.9);x+=ws[i]});y+=rh});
-    doc.setDrawColor(...C.linea);doc.setLineWidth(.2);doc.line(x0,y,x0+tw,y);y+=6;
+    y=nueva(y,40);y=titulo('Partidos de la temporada',y+1);
+    const escs={};await Promise.all([...new Set(filas.map(f=>f.p.rivalEscudo||escudoLib(f.rival)||''))].filter(Boolean).map(async src=>{try{escs[src]=await escudoPDF(src)}catch(e){}}));
+    const NE={tit:'Titular',sup:'Suplente',nc:'No '+conv},cw=(W-28-5)/2,ch=21;
+    [...filas].reverse().forEach((f,i)=>{const col=i%2,x=14+col*(cw+5);if(col===0){if(y+ch>H-22){doc.addPage();y=22}}
+      card(x,y,cw,ch);const src=f.p.rivalEscudo||escudoLib(f.rival)||'',im=escs[src];
+      if(im){try{doc.addImage(im,'PNG',x+3,y+3,9,9)}catch(e){}}else{doc.setFillColor(...C.gris2);doc.circle(x+7.5,y+7.5,4.5,'F');T(8,'bold',C.gris);doc.text(String(f.rival||'?')[0].toUpperCase(),x+7.5,y+8.8,{align:'center'})}
+      T(9.5,'bold',C.tinta);doc.text(doc.splitTextToSize(String(f.rival),cw-44)[0],x+15,y+7.2);
+      const gf=f.p.golesF,gc=f.p.golesC,jug=gf!=null&&gc!=null,rc=!jug?C.gris:gf>gc?C.verde:gf<gc?C.rojo:C.naranja;
+      T(13,'bold',rc);doc.text(jug?gf+' - '+gc:'—',x+cw-4,y+8.4,{align:'right'});
+      T(7.5,'normal',C.gris);doc.text([fl(f.fecha),/local/i.test(f.p.condicion||'')?'L':/visit/i.test(f.p.condicion||'')?'V':'',f.min?f.min+"'":'',esArq?(f.min?f.grec+' GR':''):[f.gol?f.gol+'G':'',f.asis?f.asis+'A':''].filter(Boolean).join(' ')].filter(Boolean).join(' · '),x+15,y+12.6);
+      const ec=f.estado==='tit'?C.verde:f.estado==='sup'?C.azul:C.gris;doc.setFillColor(...ec);T(7,'bold',C.blanco);const tw=doc.getTextWidth(NE[f.estado])+5;doc.roundedRect(x+15,y+14.6,tw,4.4,2.2,2.2,'F');doc.text(NE[f.estado],x+15+tw/2,y+17.7,{align:'center'});
+      if(f.ama||f.roj){let tx=x+15+tw+3;for(let q=0;q<f.ama;q++){doc.setFillColor(240,195,0);doc.rect(tx,y+14.8,2.6,3.6,'F');tx+=3.6}for(let q=0;q<f.roj;q++){doc.setFillColor(...C.rojo);doc.rect(tx,y+14.8,2.6,3.6,'F');tx+=3.6}}
+      if(col===1||i===filas.length-1)y+=ch+4});
+    y+=2;
   }
-  y=nueva(y,30);y+=12;doc.setDrawColor(...C.tinta);doc.setLineWidth(.3);doc.line(W-84,y,W-14,y);
+  y=nueva(y,20);y+=6;doc.setDrawColor(...C.tinta);doc.setLineWidth(.3);doc.line(W-84,y,W-14,y);
   T(9,'bold',C.tinta);doc.text('Cuerpo técnico'+(club.categoria?' · '+club.categoria:''),W-49,y+5,{align:'center',maxWidth:72});
   T(8,'normal',C.gris);doc.text([club.cuerpoTecnico,club.nombre].filter(Boolean).join(' · '),W-49,y+9.5,{align:'center',maxWidth:72});
 
@@ -2563,9 +2662,10 @@ async function informeTemporadaPDF(j){
     }
   }
   // ---------- encabezado y pie ----------
-  const N=doc.internal.getNumberOfPages(),gen='Metodika · Generado el '+HOY.toLocaleDateString('es-AR');
+  const firma=(typeof PERFIL!=='undefined'&&PERFIL&&PERFIL.nombre)||(typeof USR!=='undefined'&&USR&&USR.displayName)||club.cuerpoTecnico||'';
+  const N=doc.internal.getNumberOfPages(),gen='Metodika'+(firma?' · '+firma:'')+' · Generado el '+HOY.toLocaleDateString('es-AR');
   for(let p=1;p<=N;p++){doc.setPage(p);
-    if(p>1){doc.setFillColor(...C.tinta);doc.rect(0,0,W,9,'F');doc.setFillColor(...C.ama);doc.rect(0,9,W,.7,'F');T(7.5,'bold',C.blanco);doc.text('INFORME DE TEMPORADA '+temp,14,6,{charSpace:.5});T(7.5,'normal',[200,195,185]);doc.text(nombre+'  ·  #'+dorsal+'  ·  '+pos,W-14,6,{align:'right'})}
+    if(p>1){doc.setFillColor(...C.tinta);doc.rect(0,0,W,9,'F');doc.setFillColor(...C.sobreOsc);doc.rect(0,9,W,.7,'F');T(7.5,'bold',C.blanco);doc.text('INFORME DE TEMPORADA '+temp,14,6,{charSpace:.5});T(7.5,'normal',[200,195,185]);doc.text(nombre+'  ·  #'+dorsal+'  ·  '+pos,W-14,6,{align:'right'})}
     doc.setDrawColor(...C.linea);doc.setLineWidth(.2);doc.line(14,H-15,W-14,H-15);
     T(7,'normal',C.gris);doc.text(gen,14,H-9);doc.text('Página '+p+' de '+N,W-14,H-9,{align:'right'});
     if(p>1){const cl=club.nombre||'';T(7.5,'bold',C.tinta);const wc=doc.getTextWidth(cl);T(7,'normal',C.gris);const wcat=club.categoria?doc.getTextWidth('  ·  '+club.categoria):0;const tw=wc+wcat+(esc0?6:0);let x=W/2-tw/2;if(esc0){escudoEn(x+2.2,H-10.2,4.4);x+=6}T(7.5,'bold',C.tinta);doc.text(cl,x,H-9);if(club.categoria){T(7,'normal',C.gris);doc.text('  ·  '+club.categoria,x+wc,H-9)}}
@@ -4564,7 +4664,7 @@ function barraRapida(){
     ${chip('prMia',mia,'＋ '+J('Sg').replace(/^./,c=>c.toUpperCase()),'Tocá y después tocá la cancha: va con el próximo número libre')}${chip('prRiv',riv,'＋ Rival','Rival con el próximo número libre')}${chip('prArq','#F08A24','＋ '+(RAMA()==='M'?'Arquero':'Arquera'),'Arquera con el 1 (o el próximo libre)')}
     <button class="pr-b" id="prBola" title="Pelota">⚽</button><button class="pr-b" id="prEq" title="Equipo completo en un sistema">👥 Equipo</button>
     <span class="pr-sep"></span>
-    <button class="pr-b ${PZ.offside?'on':''}" id="prFj" title="Línea de fuera de juego automática">🚩 Fuera de juego</button><button class="pr-b ${PZ_TV?'on':''}" id="prTv" title="Ver la cancha inclinada, como en la TV">📺 TV</button><button class="pr-b" id="prMun" title="Cómo se ven las jugadoras en la vista TV y en el video">👤</button>
+    <button class="pr-b ${PZ.offside?'on':''}" id="prFj" title="Línea de fuera de juego automática">🚩 Fuera de juego</button><button class="pr-b ${PZ_TV?'on':''}" id="prTv" title="Ver la cancha inclinada, como en la TV">📺 TV</button><button class="pr-b" id="prMun" title="Cómo se ven las jugadoras en la vista TV y en el video">👤</button><button class="pr-b ${PZ_FULL?'on':''}" id="prAmp" title="Pizarra a pantalla completa: la cancha bien grande (Esc para salir)">⛶ ${PZ_FULL?'Normal':'Amplia'}</button>
     <span class="pr-z"><button class="pr-b" id="pzZMenos" title="Alejar" ${PZV.s===1?'disabled':''}>−</button><b id="pzZNiv">${Math.round(PZV.s*100)}%</b><button class="pr-b" id="pzZMas" title="Acercar (también con Ctrl + rueda)">＋</button><button class="pr-b" id="pzZ0" title="Ver toda la cancha" ${PZV.s===1?'disabled':''}>⤢</button></span></div>`}
 function conectarRapida(){
   const poner=(col,n)=>{colorJ=col;NUM_J=n;herr='J';SEL=null;cerrarTray();const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document);aviso('Tocá la cancha para ubicar el '+n+'. Después seguís con el siguiente.')};
@@ -4574,6 +4674,7 @@ function conectarRapida(){
   if(q('prArq'))q('prArq').onclick=()=>{const u=usadosJ('#F08A24');poner('#F08A24',u.has('1')?libreJ('#F08A24',12):1)};
   if(q('prBola'))q('prBola').onclick=()=>elegirHerr('P');
   if(q('prEq'))q('prEq').onclick=()=>agregarEquipo();
+  if(q('prAmp'))q('prAmp').onclick=()=>ponerAmplia(!PZ_FULL);
   if(q('prFj'))q('prFj').onclick=fueraDeJuego;if(q('prMun'))q('prMun').onclick=ajustesMunecos;
   if(q('tvSalir'))q('tvSalir').onclick=()=>{PZ_TV=false;pintar()};
   if(q('prTv'))q('prTv').onclick=()=>{PZ_TV=!PZ_TV;SEL=null;pintar();if(PZ_TV)aviso('Vista TV: ideal para presentar. Para mover fichas, volvé a tocar 📺 TV.')};
@@ -6610,12 +6711,12 @@ function compararPartidos(a,b){
     $('#cpA',m).onchange=e=>{cerrarModal();compararPartidos(e.target.value,$('#cpB',m).value)};$('#cpB',m).onchange=e=>{cerrarModal();compararPartidos($('#cpA',m).value,e.target.value)}}});
 }
 function importarPartidos(){
-  modal('Importar partidos',`<p style="margin:0 0 10px">Subí un Excel o CSV con los partidos (por ejemplo, el <b>Excel de la competición</b> que descargás de Alonbalon). Columnas que reconoce: fecha, rival, goles a favor, goles en contra, resultado, local/visitante y jornada.</p>
+  modal('Importar partidos',`<p style="margin:0 0 10px">Subí un Excel o CSV con los partidos (por ejemplo, el <b>Excel de la competición</b> de Alonbalon, o el completo de <b>Competiciones → Descargar Excel</b>). Columnas que reconoce: fecha, rival, goles a favor, goles en contra, resultado, local/visitante y jornada.</p>
     <label class="btn pri chico" for="ipmF">⬆ Elegir archivo</label><input type="file" id="ipmF" accept=".xlsx,.xls,.csv" hidden><div id="ipmPrev" style="margin-top:12px"></div>`,{ancho:true,alMontar:m=>{
     $('#ipmF',m).onchange=async e=>{const f=e.target.files[0];if(!f)return;const box=$('#ipmPrev',m);box.innerHTML='<p class="sub">Leyendo…</p>';
       try{const X=await cargarXLSX(),wb=X.read(await f.arrayBuffer(),{type:'array',cellDates:true});
         const norm=k=>String(k).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
-        const crudo=X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
+        const ab=alonbalonCompleto(wb,X),crudo=ab?ab.par:X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:'',raw:true});
         let hi=crudo.findIndex((r,k)=>k<25&&r.some(c=>/^(rival|fecha|partido)/.test(norm(c))));if(hi<0)hi=0;
         const tit=(crudo[hi]||[]).map(norm),col=(...ps)=>{for(const p of ps){const i=tit.findIndex(t=>p.test(t));if(i>=0)return i}return -1};
         const C={fe:col(/^fecha/),ri:col(/^rival/,/^equipo rival/,/^contrario/),gf:col(/^goles (equipo|a favor|favor|propios)/,/^gf$/,/^a favor/),gc:col(/^goles (rival|en contra|contra)/,/^gc$/,/^en contra/),re:col(/^resultado/),co:col(/^condicion/,/^local/,/^cond/),jo:col(/^jornada/,/^fecha n/,/^j$/),ho:col(/^hora/)};
