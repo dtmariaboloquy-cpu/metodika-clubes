@@ -77,7 +77,17 @@ label.lbl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;
 .flash{position:absolute;right:12px;top:12px;background:var(--ok);color:#fff;border-radius:8px;padding:6px 12px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none}
 .flash.on{opacity:1}
 
-.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.ctrl .c-play,.ctrl .c-herr{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ctrl .c-pp{min-width:64px;font-size:15px;padding:7px 14px}
+.ctrl .clock{min-width:52px;text-align:center}
+.ctrl .c-vel{width:auto;padding:6px 8px;font-size:13px}
+.c-mas{position:relative}
+.c-menu{position:absolute;right:0;bottom:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;min-width:200px;background:var(--panel,#0F2A47);border:1px solid var(--line,#2A3B52);border-radius:10px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.c-menu[hidden]{display:none}
+.c-menu button{text-align:left;border:0;background:transparent;color:inherit;padding:9px 10px;border-radius:7px;font:inherit;font-size:13.5px;cursor:pointer}
+.c-menu button:hover{background:rgba(255,255,255,.08)}
+@media (max-width:700px){.ctrl{justify-content:center}.ctrl [data-skip="-10"],.ctrl [data-skip="10"]{display:none}.ctrl .c-herr{width:100%;justify-content:center}.c-menu{position:fixed;left:12px;right:12px;bottom:12px;top:auto}}
 .clock{font-family:var(--f-d);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;padding:0 6px}
 .clock small{font-family:var(--f-b);font-weight:600;color:var(--pink);font-size:12px;margin-left:4px}
 .sep{width:1px;height:22px;background:var(--line);margin:0 4px}
@@ -279,7 +289,7 @@ h1,h2,h3{letter-spacing:-.2px}
     <select class="inp" id="selProyecto" title="Proyecto"></select>
     <button class="btn" id="btnNuevo">+ Nuevo análisis</button>
     <button class="btn" id="btnDatos">Datos del partido</button>
-    <button class="btn danger sm" id="btnBorrarProy" title="Borrar este análisis">Borrar</button>
+    <button class="btn danger sm" id="btnBorrarProy" title="Borrar este análisis" aria-label="Borrar este análisis">🗑</button>
     <button class="btn" id="btnGuia">❓ Cómo se usa</button>
     <div class="status" id="status"><span class="dot"></span><span id="statusTxt">Conectando…</span></div>
   </div>
@@ -344,28 +354,29 @@ h1,h2,h3{letter-spacing:-.2px}
       <input type="file" id="jsonIn" accept=".json,application/json" hidden>
 
       <div class="ctrl">
-        <button class="btn sm" id="bPlay" title="Espacio">▶︎ / ❚❚</button>
-        <button class="btn sm" data-skip="-10">−10 s</button>
-        <button class="btn sm" data-skip="-5">−5 s</button>
-        <button class="btn sm" data-skip="5">+5 s</button>
-        <button class="btn sm" data-skip="10">+10 s</button>
-        <span class="sep"></span>
-        <button class="btn sm" data-rate="0.25">0,25×</button>
-        <button class="btn sm" data-rate="0.5">0,5×</button>
-        <button class="btn sm" data-rate="1">1×</button>
-        <button class="btn sm" data-rate="2">2×</button>
-        <span class="sep"></span>
-        <span class="clock" id="clock">0:00</span>
-        <div style="flex:1"></div>
-        <button class="btn sm" id="bIni1">Marcar inicio 1T</button>
-        <button class="btn sm" id="bIni2">Marcar inicio 2T</button>
-        <button class="btn sm" id="bZoom" title="Acercar una zona del video">🔍 Zoom</button>
-        <button class="btn sm" id="bAPizarra" title="Pasar este momento a la pizarra de Metodika para corregir la jugada">🧩 A pizarra</button>
-        <button class="btn sm" id="bEntreDos" title="Marcar acciones entre dos personas al mismo tiempo">👥 Entre dos</button>
-        <button class="btn sm" id="bCaptura" title="Sacar una foto de este momento, con el dibujo si hay">📷 Capturar</button>
-        <button class="btn sm" id="bDibujar" title="Dibujar sobre el tag seleccionado">✏️ Dibujar</button>
-        <button class="btn sm" id="bCambiarVideo">Cambiar video</button>
-        <button class="btn sm" id="bFull">Pantalla completa</button>
+        <div class="c-play">
+          <button class="btn sm" data-skip="-10" title="Atrás 10 segundos">−10</button>
+          <button class="btn sm" data-skip="-5" title="Atrás 5 segundos">−5</button>
+          <button class="btn solid c-pp" id="bPlay" title="Reproducir o pausar (Espacio)">▶ ❚❚</button>
+          <button class="btn sm" data-skip="5" title="Adelante 5 segundos">+5</button>
+          <button class="btn sm" data-skip="10" title="Adelante 10 segundos">+10</button>
+          <span class="clock" id="clock">0:00</span>
+          <select class="inp c-vel" id="velSel" title="Velocidad"><option value="0.25">🐢 0,25×</option><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select>
+        </div>
+        <div class="c-herr">
+          <button class="btn sm" id="bDibujar" title="Dibujar sobre el tag seleccionado">✏️ Dibujar</button>
+          <button class="btn sm" id="bZoom" title="Acercar una zona del video">🔍 Zoom</button>
+          <button class="btn sm" id="bCaptura" title="Sacar una foto de este momento, con el dibujo si hay">📷 Foto</button>
+          <button class="btn sm" id="bAPizarra" title="Pasar este momento a la pizarra de Metodika para corregir la jugada">🧩 A pizarra</button>
+          <button class="btn sm" id="bFull" title="Pantalla completa">⛶</button>
+          <div class="c-mas"><button class="btn sm" id="bMas" title="Más opciones">⋯ Más</button>
+            <div class="c-menu" id="cMenu" hidden>
+              <button id="bIni1">Marcar inicio 1T</button>
+              <button id="bIni2">Marcar inicio 2T</button>
+              <button id="bEntreDos">👥 Marcar entre dos</button>
+              <button id="bCambiarVideo">🎞 Cambiar video</button>
+            </div></div>
+        </div>
       </div>
 
       <div class="card" style="margin-top:10px">
@@ -2810,6 +2821,10 @@ $("#bIni1").onclick = ()=>{ if(!kind) return toast("Primero cargá el video."); 
 $("#bIni2").onclick = ()=>{ if(!kind) return toast("Primero cargá el video."); P.ini2 = +player.time().toFixed(1); changed(); render(); toast("Inicio del 2T marcado en "+fmt(P.ini2)); };
 $("#bFull").onclick = ()=>pantallaCompleta();
 $("#bCaptura").onclick = ()=>fotoMomento();
+$("#velSel").onchange = e=>{ player.rate(+e.target.value); toast("Velocidad "+e.target.selectedOptions[0].textContent.replace("🐢 ","")); };
+$("#bMas").onclick = e=>{ e.stopPropagation(); $("#cMenu").hidden = !$("#cMenu").hidden; };
+document.addEventListener("click", e=>{ const m=$("#cMenu"); if (m && !m.hidden && !e.target.closest(".c-mas")) m.hidden = true; });
+$("#cMenu").addEventListener("click", e=>{ if (e.target.closest("button")) setTimeout(()=>{ $("#cMenu").hidden = true; }, 0); });
 /* ---------- Zoom sobre el video ---------- */
 const ZM = {s:1, x:.5, y:.5};
 function aplicarZoom(){
