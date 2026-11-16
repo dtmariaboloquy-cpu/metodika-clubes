@@ -881,6 +881,45 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .vacio::before{content:"";display:block;width:74px;height:48px;margin:0 auto 12px;opacity:.55;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 74 48' fill='none' stroke='%23999' stroke-width='2'%3E%3Crect x='2' y='2' width='70' height='44' rx='3'/%3E%3Cpath d='M37 2v44'/%3E%3Ccircle cx='37' cy='24' r='8'/%3E%3Crect x='2' y='14' width='9' height='20'/%3E%3Crect x='63' y='14' width='9' height='20'/%3E%3C/svg%3E")}
 .vacio .btn{margin-top:12px}
 @media (max-width:860px){.cab,.cab.p-cancha,.cab.p-equipo{padding:12px 16px 0}.cab .cab-ico{width:38px;height:38px;border-radius:11px}.cab .cab-ico svg{width:20px;height:20px}.cab p{display:none}}
+
+/* ===== ETAPA 2 · marcadores ===== */
+.hero{border-radius:16px;margin-bottom:16px;border:1px solid var(--linea);background:linear-gradient(135deg,color-mix(in srgb,var(--pc,var(--met)) 10%,var(--carta)) 0,var(--carta) 60%)}
+#cont{--pc:var(--met)}
+body:has(.cab.p-equipo) #cont{--pc:var(--equ)}body:has(.cab.p-cancha) #cont{--pc:var(--can)}
+.hero-par{display:grid;grid-template-columns:1fr auto 1fr;gap:10px 18px;align-items:center;padding:18px 20px}
+.hp-eq{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-weight:700;font-size:14.5px;min-width:0}
+.hp-mid{text-align:center}.hp-cuenta{display:flex;flex-direction:column;align-items:center;line-height:1}
+.hp-cuenta b{font:400 54px/1 var(--f-x);color:var(--pc,var(--met))}.hp-cuenta small{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--sub);margin-top:4px}
+.hp-vs{font-weight:700;margin-top:8px;text-transform:capitalize}
+.hp-prep{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border-top:1px solid var(--linea);padding-top:12px}
+.hp-bar{flex:1 1 140px;height:8px;border-radius:6px;background:var(--carta2);overflow:hidden}.hp-bar i{display:block;height:100%;background:var(--pc,var(--met));border-radius:6px}
+.hp-chips{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}.hp-chips span{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--carta2);color:var(--sub)}.hp-chips span.ok{color:var(--verde);background:color-mix(in srgb,var(--verde) 14%,transparent)}
+.hero-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;overflow:hidden;padding:0;background:var(--linea)}
+.hk{background:var(--carta);padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.hk b{font:400 34px/1 var(--f-x)}.hk span{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);font-weight:700}.hk small{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hk.ok b{color:var(--verde)}.hk.aviso b{color:var(--ambar)}.hk.mal b{color:var(--rojo)}.hk.cum span{text-transform:none;letter-spacing:0;color:var(--tinta);font-size:13.5px}
+.hero-sem{padding:14px 16px}.hs-cab{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}.hs-cab b{font-size:15px}
+.hs-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.hs-d{background:var(--carta2);border-radius:10px;padding:8px;min-height:88px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.hs-d.hoy{box-shadow:inset 0 0 0 2px var(--pc,var(--met))}.hs-d.pas{opacity:.55}
+.hs-n{font-size:11px;color:var(--sub);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between}.hs-n b{font-size:15px;color:var(--tinta);letter-spacing:0}
+.hs-it{border:0;text-align:left;background:var(--carta);color:var(--tinta);border-radius:7px;padding:5px 7px;font-size:12px;cursor:pointer;line-height:1.25;overflow:hidden}
+.hs-it i{display:block;font-style:normal;color:var(--sub);font-size:11px}.hs-it.par{background:color-mix(in srgb,var(--equ) 22%,var(--carta));font-weight:700}
+.hs-libre{font-size:11.5px;color:var(--sub);margin-top:auto}
+@media (max-width:860px){.cab .acc{width:100%;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;margin-left:0}.cab .acc>*{flex:none}
+.hero-par{grid-template-columns:1fr auto 1fr;padding:14px}.hp-cuenta b{font-size:40px}.hp-eq span{font-size:12.5px}
+  .hs-dias{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:46%;overflow-x:auto;scrollbar-width:none}}
+/* ===== ETAPA 3 · colores con un solo significado, movimiento suave ===== */
+.cg-k{background:color-mix(in srgb,var(--cgc,#888) 13%,var(--carta))!important;color:var(--tinta)!important;border:1px solid color-mix(in srgb,var(--cgc,#888) 40%,transparent)!important}
+.cg-k.rojo{--cgc:var(--rojo)}.cg-k.amar{--cgc:var(--ambar)}.cg-k.verde{--cgc:var(--verde)}
+.cg-k b{color:var(--cgc)!important}.cg-k span,.cg-k i{color:var(--tinta)!important;opacity:.85}
+:root[data-theme="light"] .cab:not(.p-cancha):not(.p-equipo) .eyebrow,:root[data-theme="light"] .demo-banda b,:root[data-theme="light"] .hero:not(.hero-kpi) .hp-cuenta b{color:#8A6D00!important}
+:root[data-theme="light"] .cab.p-cancha .eyebrow{color:#1E8A43!important}:root[data-theme="light"] .cab.p-equipo .eyebrow{color:#C84E16!important}
+@keyframes entra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#cont>*{animation:entra .28s ease both}#cont>*:nth-child(2){animation-delay:.04s}#cont>*:nth-child(3){animation-delay:.08s}#cont>*:nth-child(4){animation-delay:.12s}
+@media (prefers-reduced-motion:reduce){#cont>*{animation:none}}
+.fila.click,.hs-it,.cj{transition:transform .15s ease,background .15s ease,box-shadow .15s ease}
+.fila.click:hover{background:var(--carta2)}.hs-it:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.25)}
 </style>
 
 <div class="app">
@@ -1826,14 +1865,14 @@ VISTAS.plantel=el=>{
   const lista=ordenJ(SJ().filter(j=>(!filtroPos||j.posicion===filtroPos)&&(!filtroCat||j.categoria===filtroCat)));
   const minTot=minutosEquipo();
   el.innerHTML=cabecera(SJ().length+' '+J('pl'),'Plantel','',`${SJ().length>1?`<button class="btn" id="cmpJ">⇄ Comparar ${J('pl')}</button>`:''}${SJ().length?`<button class="btn" id="tablaPdf">⬇ Tabla PDF</button><button class="btn" id="tablaXls">⬇ Tabla Excel</button>`:''}<button class="btn" id="impJ">⬆ Importar desde Excel</button>${SJ().length?'<button class="btn" id="impEst">📊 Estadísticas</button>':''}${SJ().length?'<button class="btn" id="fotosJ">📷 Cargar fotos</button>':''}<button class="btn pri" id="nuevaJ">＋ Agregar ${J('sg')}</button>`)+
-  `<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
+  marcadorPlantel()+`<div class="filtros"><select id="fPos" style="width:auto"><option value="">Todas las posiciones</option>${opts(POSICIONES.map(p=>[p,posTxt(p)]),filtroPos)}</select>
    <select id="fCat" style="width:auto"><option value="">Todas las categorías</option>${opts(cats,filtroCat)}</select>${SJ().length?`<button class="btn ${SELJ?'pri':''}" id="selModo" style="margin-left:auto">${SELJ?'✕ Terminar selección':'☑ Seleccionar varias'}</button>`:''}</div>`+(SELJ?`<div class="selj-barra"><b>${SELJ.size}</b> ${SELJ.size===1?'elegida':'elegidas'}<span class="sub">Tocá las tarjetas para elegir</span><span style="flex:1"></span><button class="btn chico" id="selTodas">${lista.length&&lista.every(j=>SELJ.has(j.id))?'Ninguna':'Todas'}</button><button class="btn chico peligro" id="selBorrar" ${SELJ.size?'':'disabled'}>🗑 Eliminar ${SELJ.size||''}</button></div>`:'')+
   (!SELJ&&SJ().length?`<div class="seg-pl"><button class="btn chico" id="plObj">🎯 Objetivos del plantel</button><button class="btn chico" id="plLinks">📲 Links a ${J('pl')}</button>${usaCiclo()?'<button class="btn chico" id="plCic">🔴 Ciclo del plantel</button>':''}</div>`:'')+
   (!SELJ&&!filtroPos&&!filtroCat?panelNoDisp():'')+(lista.length?(()=>{const CT=coloresTarjeta();el.style.setProperty('--ct-osc',CT.osc);el.style.setProperty('--ct-clr',CT.clr);const carta=j=>{const a=asistJugador(j.id),st=statsJugador(j.id),pm=minTot?Math.round(100*st.min/minTot):0,col=pm>=60?'var(--verde)':pm>=25?'var(--ambar)':'var(--rojo)';return `<button class="cj ${SELJ?'selmodo':''} ${SELJ&&SELJ.has(j.id)?'sel':''}" data-id="${j.id}">${SELJ?`<span class="cj-check">${SELJ.has(j.id)?'✓':''}</span>`:''}<div class="cj-foto" style="${j.foto?'':'background:'+CT.fondo}">${j.foto?`<img src="${j.foto}" alt="">`:`<span class="ini">${esc(iniciales(j))}</span><span class="addf" data-foto="${j.id}" role="button" title="Agregar foto">📷 Agregar foto</span>`}<span class="cj-dor">${j.dorsal||'–'}</span>${j.foto?`<span class="camf" data-foto="${j.id}" role="button" title="Cambiar foto">📷</span>`:''}</div><div class="cj-txt" style="min-width:0"><b>${esc(j.nombre+' '+j.apellido)}</b><small>${esc(puestoTxt(j))}</small><div class="chips" style="margin-top:5px">${chipEstado(j,true)}<span class="chip">${esc(j.categoria||'—')}</span>${a.t?`<span class="chip ${a.pct>=85?'ok':a.pct>=70?'aviso':'mal'}">${a.pct}% asist.</span>`:''}</div>${minTot?`<div class="mini"><span><b>${st.pj}</b> PJ</span><span><b>${st.gol}</b> goles</span><span><b>${st.asis}</b> asist.</span></div><div class="minbar"><div class="lbl"><span>Minutos</span><span>${pm}%</span></div><div class="barra"><i style="width:${pm}%;background:${col}"></i></div></div>`:''}</div></button>`};
     if(filtroPos)return `<div class="cartas-j">${lista.map(carta).join('')}</div>`;
     return LINEAS.map(([k])=>{const g=lista.filter(j=>lineaDe(j)===k);return g.length?`<h2 class="linea-tit">${g.length} ${esc(nombreLinea(k,g.length))}</h2><div class="cartas-j">${g.map(carta).join('')}</div>`:''}).join('')})():`<div class="vacio">Todavía no cargaste ${J('pl')}.<br><button class="btn pri" style="margin-top:12px" id="nuevaJ2">＋ Agregar ${J('sg')}</button></div>`);
   $$('[data-ndj]',el).forEach(b=>b.onclick=()=>ir('plantel',b.dataset.ndj));
-  $('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
+  conectarMarcadores(el);$('#fPos').onchange=e=>{filtroPos=e.target.value;pintar()};
   $('#fCat').onchange=e=>{filtroCat=e.target.value;pintar()};
   $('#nuevaJ').onclick=()=>editarJugador();
   $('#impJ').onclick=importarPlantel;
@@ -2567,7 +2606,7 @@ VISTAS.planificacion=el=>{
   const micros=[...SMc()].sort((a,b)=>b.inicio.localeCompare(a.inicio));
   const sinMicro=SS().filter(s=>!S.microciclos.find(m=>m.id===s.microId));
   el.innerHTML=cabecera('Microciclos y sesiones','Planificación','Organizá la semana, armá cada sesión con tareas de la biblioteca y controlá la carga.',`<button class="btn" id="sesMod">📚 Sesiones modelo</button><button class="btn" id="usST">📋 Usar semana tipo</button><button class="btn" id="nMicro">＋ Microciclo</button><button class="btn pri" id="nSes">＋ Sesión</button>`)+
-  panelContenidos()+(micros.length||sinMicro.length?micros.map(m=>{
+  marcadorSemana()+panelContenidos()+(micros.length||sinMicro.length?micros.map(m=>{
     const ses=SS().filter(s=>s.microId===m.id).sort((a,b)=>a.fecha.localeCompare(b.fecha));
     const actual=deIso(m.inicio)<=HOY&&HOY<=deIso(m.fin);
     const carga=ses.reduce((a,s)=>a+cargaSesion(s),0);
@@ -2585,7 +2624,7 @@ VISTAS.planificacion=el=>{
   $$('[data-st]',el).forEach(b=>b.onclick=()=>guardarSemanaTipo(S.microciclos.find(m=>m.id===b.dataset.st)));
   $$('[data-contp]',el).forEach(b=>b.onclick=()=>{CONT_P=b.dataset.contp;const y=scrollY;pintar();scrollTo(0,y)});
   const n2=$('#nMicro2');if(n2)n2.onclick=()=>editarMicro();
-  $('#nSes').onclick=()=>editarSesion();
+  $('#nSes').onclick=()=>editarSesion();conectarMarcadores(el);
   $$('[data-em]',el).forEach(b=>b.onclick=()=>editarMicro(S.microciclos.find(m=>m.id===b.dataset.em)));
   $$('[data-ns]',el).forEach(b=>b.onclick=()=>editarSesion(null,b.dataset.ns));
   $$('[data-s]',el).forEach(b=>b.onclick=()=>verSesion(b.dataset.s));
@@ -4738,11 +4777,11 @@ VISTAS.partido=el=>{
     const jug=SP().filter(x=>x.estado==='finalizado').sort((a,b)=>b.fecha.localeCompare(a.fecha));
     const fila=x=>`<div class="fila click" data-p="${x.id}"><div style="min-width:86px"><b>${fFecha(x.fecha)}</b><div class="sub" style="font-size:12.5px">${esc(x.hora)}</div></div><div><b>vs ${esc(x.rival)}</b><div class="sub" style="font-size:13px">${esc(x.competicion)} · ${esc(x.condicion)}</div></div><div class="der">${x.estado==='finalizado'?`<span class="chip ${x.golesF>x.golesC?'ok':x.golesF<x.golesC?'mal':''}">${x.golesF}-${x.golesC}</span>`:x.estado==='en juego'?'<span class="chip ama">En juego</span>':'<span class="chip">Programado</span>'}</div></div>`;
     el.innerHTML=cabecera('Previa, en vivo y análisis','Partido','Elegí un partido para armar la convocatoria, registrar las acciones en vivo y ver el análisis.',`<button class="btn pri" id="nP">＋ Nuevo partido</button>`)+
-    `<div class="grilla g2"><div class="panel"><h3>Próximos</h3>${prox.length?`<div class="lista">${prox.map(fila).join('')}</div>`:'<div class="vacio">Sin partidos programados.</div>'}</div><div class="panel"><h3>Jugados</h3>${jug.length?`<div class="lista">${jug.map(fila).join('')}</div>`:'<div class="vacio">Todavía no hay partidos jugados.</div>'}</div></div>`;
+    marcadorPartido()+`<div class="grilla g2"><div class="panel"><h3>Próximos</h3>${prox.length?`<div class="lista">${prox.map(fila).join('')}</div>`:'<div class="vacio">Sin partidos programados.</div>'}</div><div class="panel"><h3>Jugados</h3>${jug.length?`<div class="lista">${jug.map(fila).join('')}</div>`:'<div class="vacio">Todavía no hay partidos jugados.</div>'}</div></div>`;
     el.insertAdjacentHTML('beforeend',panelRotacion());
     $$('[data-rotn]',el).forEach(b=>b.onclick=()=>{ROT_N=+b.dataset.rotn;const y=scrollY;pintar();scrollTo(0,y)});
     $$('[data-rotj]',el).forEach(b=>b.onclick=()=>ir('plantel',b.dataset.rotj));
-    $('#nP').onclick=()=>editarPartido();
+    $('#nP').onclick=()=>editarPartido();conectarMarcadores(el);
     $$('[data-p]',el).forEach(b=>b.onclick=()=>{tabPartido=S.partidos.find(x=>x.id===b.dataset.p).estado==='finalizado'?'analisis':'previa';ir('partido',b.dataset.p)});
     return;
   }
@@ -5060,7 +5099,30 @@ function presentarPartido(p){
   function cerrar(){document.removeEventListener('keydown',tecla);if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});ov.remove()}
   document.addEventListener('keydown',tecla);pinta();try{ov.requestFullscreen&&ov.requestFullscreen().catch(()=>{})}catch(e){}
 }
-function prepPartido(p){
+/* ================= ETAPA 2 · marcadores: lo más importante de cada sección, en grande ================= */
+function marcadorPartido(){
+  const p=proximoPartido();if(!p)return '';
+  const dias=diasEntre(iso(HOY),p.fecha),pr=prepItems(p),ok=pr.filter(x=>x[3]).length,club=S.club||{};
+  const cuenta=dias===0?'<b>HOY</b><small>se juega</small>':dias===1?'<b>MAÑANA</b><small>se juega</small>':`<b>${dias}</b><small>días</small>`;
+  return `<div class="hero hero-par"><div class="hp-eq">${escudoHtml(club.escudo,club.nombre,58)}<span>${esc(club.nombre||'Mi equipo')}</span></div>
+    <div class="hp-mid"><div class="hp-cuenta">${cuenta}</div><div class="hp-vs">${esc(fFecha(p.fecha))}${p.hora?' · '+esc(p.hora)+' h':''}</div><div class="sub">${esc([p.competicion,p.condicion].filter(Boolean).join(' · '))}</div></div>
+    <div class="hp-eq">${escudoHtml(p.rivalEscudo,p.rival,58)}<span>${esc(p.rival||'Rival')}</span></div>
+    <div class="hp-prep"><div class="hp-bar"><i style="width:${Math.round(100*ok/pr.length)}%"></i></div><span><b>${ok} de ${pr.length}</b> listas para el partido</span><div class="hp-chips">${pr.map(x=>`<span class="${x[3]?'ok':''}">${x[3]?'✓':'○'} ${esc(x[1])}</span>`).join('')}</div><button class="btn pri" data-hpar="${p.id}">Preparar el partido →</button></div></div>`}
+function marcadorPlantel(){
+  const L=SJ();if(!L.length)return '';
+  const fuera=L.filter(noDisp),duda=L.filter(j=>estadoJ(j).k!=='disp'&&!noDisp(j)),disp=L.length-fuera.length-duda.length;
+  const hoy=iso(HOY).slice(5),cum=L.filter(j=>j.nacimiento&&j.nacimiento.length>=10).map(j=>{let f=iso(HOY).slice(0,4)+j.nacimiento.slice(4);if(f.slice(5)<hoy)f=(+f.slice(0,4)+1)+f.slice(4);return {j,f}}).sort((a,b)=>a.f.localeCompare(b.f))[0];
+  const k=(n,t,c,s='')=>`<div class="hk ${c}"><b>${n}</b><span>${t}</span>${s?`<small>${s}</small>`:''}</div>`;
+  return `<div class="hero hero-kpi">${k(L.length,J('Pl'),'')}${k(disp,'Disponibles','ok',Math.round(100*disp/L.length)+'% del plantel')}${k(duda.length,'En duda','aviso',duda.slice(0,2).map(j=>j.nombre).join(', '))}${k(fuera.length,'Fuera','mal',fuera.slice(0,2).map(j=>j.nombre).join(', '))}${cum?`<div class="hk cum"><b>🎂</b><span>${esc(cum.j.nombre+' '+(cum.j.apellido||''))}</span><small>${cum.f===iso(HOY)?'¡Hoy!':fFecha(cum.f)}</small></div>`:''}</div>`}
+function marcadorSemana(){
+  const lun=sumarDias(HOY,-((HOY.getDay()+6)%7)),dias=[...Array(7)].map((_,i)=>iso(sumarDias(lun,i))),hoyI=iso(HOY);
+  const ses=SS(),par=SP();if(!ses.length&&!par.length)return '';
+  const mc=SMc().find(m=>m.inicio<=hoyI&&m.fin>=hoyI);
+  return `<div class="hero hero-sem"><div class="hs-cab"><b>Esta semana</b>${mc?`<span class="chip">${esc(mc.nombre||'Microciclo')}${mc.objetivo?' · '+esc(mc.objetivo):''}</span>`:''}</div><div class="hs-dias">${dias.map(f=>{const d=deIso(f),ss=ses.filter(s=>s.fecha===f),pp=par.filter(p=>p.fecha===f);
+    return `<div class="hs-d ${f===hoyI?'hoy':''} ${f<hoyI?'pas':''}"><div class="hs-n">${DIAS[d.getDay()]}<b>${d.getDate()}</b></div>${pp.map(p=>`<button class="hs-it par" data-hpar="${p.id}">⚽ vs ${esc(p.rival)}</button>`).join('')}${ss.map(s=>`<button class="hs-it" data-hses="${s.id}">${esc(s.hora||'')} ${esc(s.titulo||'Sesión')}${s.tareas&&s.tareas.length?` <i>${s.tareas.length} tareas</i>`:''}</button>`).join('')}${!pp.length&&!ss.length?'<span class="hs-libre">Libre</span>':''}</div>`}).join('')}</div></div>`}
+function conectarMarcadores(el){$$('[data-hpar]',el).forEach(b=>b.onclick=()=>{tabPartido='previa';ir('partido',b.dataset.hpar)});$$('[data-hses]',el).forEach(b=>b.onclick=()=>verSesion(b.dataset.hses))}
+
+function prepItems(p){
   const inf=p.informe||{},nInf=infItems(inf).length,pz=(p.pizarras||[]).map(id=>S.pizarras.find(z=>z.id===id)).filter(Boolean),nAbp=pz.filter(z=>z.categoria==='ABP').length,c=p.citacion||{};
   const it=[['previa','Convocatoria',p.convocados.length?p.convocados.length+' '+(RAMA()==='F'?'convocadas':RAMA()==='M'?'convocados':'convocadas/os'):'Sin convocar',p.convocados.length>0],
     ['previa','Titulares',p.titulares.length+' de 11',p.titulares.length>=11],
@@ -5068,6 +5130,8 @@ function prepPartido(p){
     ['piz','Pizarras',pz.length-nAbp?(pz.length-nAbp)+' pizarra'+(pz.length-nAbp>1?'s':''):'Sin pizarras',pz.length-nAbp>0],
     ['abp','Pelota parada',nAbp?nAbp+' jugada'+(nAbp>1?'s':''):'Sin jugadas',nAbp>0],
     ['cita','Citación',c.hora||c.lugar?[c.hora&&c.hora+' h',c.lugar].filter(Boolean).join(' · '):'Sin hora ni lugar',!!(c.hora||c.lugar)]];
+  return it}
+function prepPartido(p){const it=prepItems(p);
   const ok=it.filter(x=>x[3]).length;
   return `<div class="panel prep-p" style="margin-bottom:14px;padding:12px 14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><b>Preparación del partido</b><span class="chip ${ok===it.length?'ok':'aviso'}">${ok} de ${it.length} listas</span><div style="flex:1;height:6px;border-radius:9px;background:var(--linea);overflow:hidden;min-width:60px"><div style="height:100%;width:${Math.round(ok/it.length*100)}%;background:${ok===it.length?'#2E9E5B':'var(--acento,#FFD400)'}"></div></div></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px">${it.map(([k,t,d,v])=>`<button class="btn chico" data-prep="${k}" style="justify-content:flex-start;text-align:left;padding:7px 9px;${v?'':'opacity:.85'}"><span style="font-size:15px;margin-right:6px">${v?'✅':'⬜'}</span><span><b style="display:block;font-size:13px">${t}</b><span class="sub" style="font-size:11.5px;font-weight:400">${esc(d)}</span></span></button>`).join('')}</div></div>`;
