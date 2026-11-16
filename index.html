@@ -216,7 +216,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--tinta);outline:none}
 body.pz-fs{overflow:hidden}
 .pz-opc[hidden],.pz-tray[hidden],.pz-burb[hidden]{display:none!important}
 /* ===== Pizarra · diseño Vestuario ===== */
-.pzA{--pzbg:#0E0F0D;--pzc:#171915;--pzl:#262922;--pzt:#EDEAE0;--pzs:#8E8A7E;background:var(--pzbg);color:var(--pzt);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;margin:-6px 0 18px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.pzA{--pzbg:#0E0F0D;--pzc:#171915;--pzl:#262922;--pzt:#EDEAE0;--pzs:#8E8A7E;background:var(--pzbg);color:var(--pzt);border-radius:16px;overflow:hidden;overflow:clip;display:flex;flex-direction:column;margin:-6px 0 18px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .pzA-top{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--pzl);flex-wrap:wrap}
 .pzA-logo{width:36px;height:36px;border-radius:9px;background:#FFD400;color:#141412;display:grid;place-items:center;font:900 22px 'Barlow Condensed',Arial;flex:none}
 .pzA-tit{flex:1 1 220px;min-width:0}.pzA .pzA-tit input[type=text]{background:transparent;border:0;color:#fff;font:800 22px/1.1 'Barlow Condensed',Arial;letter-spacing:.4px;text-transform:uppercase;padding:2px 0;width:100%;outline:none;border-bottom:1px dashed transparent}
@@ -810,10 +810,19 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 
 /* pizarra: cancha + pasos a la vista sin bajar */
 .pzA-stage #cancha{display:flex;justify-content:center}
-.pzA-stage #cancha>svg{max-height:calc(100vh - 370px);min-height:240px;width:auto!important;max-width:100%;height:auto}
+.pzA-stage #cancha>svg{max-height:var(--pzh,calc(100vh - 370px));min-height:240px;width:auto!important;max-width:100%;height:auto}
 .pzA-tl{position:sticky;bottom:0;z-index:4;background:var(--pzbg);padding-bottom:8px;margin:0 -14px -14px;padding-left:14px;padding-right:14px;box-shadow:0 -8px 16px rgba(0,0,0,.25)}
 .pzA-fr{width:104px}.pzA-add{min-height:62px}.pzA-play{width:46px;height:46px}
-.pz-guia{font-size:13px;padding:7px 11px;margin:0}
+.pz-guia{font-size:13px;padding:7px 11px;margin:0;display:flex;gap:10px;align-items:flex-start}.pz-guia>span{flex:1}
+.pz-guia-x{border:0;background:transparent;color:inherit;opacity:.7;cursor:pointer;font-size:14px;padding:0 4px;flex:none}.pz-guia-x:hover{opacity:1}
+.pz-guia-mini{align-self:flex-start;border:1px solid rgba(255,212,0,.35);background:rgba(255,212,0,.08);color:var(--pzt);border-radius:8px;padding:4px 10px;font-size:12.5px;cursor:pointer}
+@media (min-width:801px) and (max-height:860px){
+  body.en-pizarra .lateral{position:static}
+  .pzA-top{padding:6px 12px;gap:10px}.pzA-sub{display:none}.pzA-logo{width:30px;height:30px;font-size:18px}
+  .pzA-tit input[type=text]{font-size:19px}.pzA-acc .pa{padding-top:5px;padding-bottom:5px}
+  .pzA-stage{padding:10px 14px;gap:8px}
+  .pzA-tl{padding-top:8px;padding-bottom:6px;gap:10px}.pzA-fr{width:84px}.pzA-add{min-height:48px;width:60px}.pzA-play{width:40px;height:40px}
+}
 @media(max-width:800px){.pzA-stage #cancha>svg{max-height:calc(100vh - 470px);min-height:170px}.pzA-add.ayuda{display:none}.pzA-tlc{margin-top:-4px;flex-wrap:wrap}.pzA-tlc select{max-width:46%;font-size:12px}.pzA-play{width:40px;height:40px;font-size:16px}.pzA-fr{width:66px!important}.pzA-tl{margin:0 -8px -8px;padding-left:8px;padding-right:8px;gap:8px}.pzA-fr{width:78px}.pzA-add{width:58px;min-height:52px}.pzA-add small{font-size:10px}.pzA-add.auto{min-width:78px;padding:0 6px}.pz-guia{font-size:12.5px}}
 
 .micro-sem{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:4px 0 14px}.micro-dia{border:1px solid var(--linea);border-radius:10px;padding:6px;min-height:86px;display:flex;flex-direction:column;gap:4px;background:var(--carta)}.micro-dia.hoy{border-color:var(--tinta);border-width:1.5px}.micro-dia.partido{background:var(--carta2)}.micro-cab{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:12px}.micro-md{font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:6px;background:var(--tinta);color:var(--carta)}.micro-it{border:0;border-radius:7px;background:rgba(255,212,0,.16);color:inherit;font:inherit;font-size:12px;font-weight:700;text-align:left;padding:5px 6px;cursor:pointer}.micro-it small{display:block;font-weight:500;opacity:.75;font-size:11px}.micro-it.p{background:rgba(46,158,91,.22)}@media(max-width:800px){.micro-sem{grid-template-columns:repeat(7,minmax(92px,1fr));overflow-x:auto}}
@@ -1333,7 +1342,8 @@ const ULT_PILAR={};
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-sub]');if(a){e.preventDefault();ir(a.dataset.sub)}});
 function rutasPilar(k){const p=PILARES.find(x=>x[0]===k);return p?p[3].filter(r=>r!=='coordinacion'||(miRol()==='coord'&&cats().length>1)):[]}
 function subnavHtml(){const k=pilarDe(ruta);if(!k)return '';return `<nav class="subnav" aria-label="Secciones de ${k}">${rutasPilar(k).map(r=>`<a data-sub="${r}" class="${ruta===r?'activo':''}">${esc(NOM_R[r]||r)}</a>`).join('')}</nav>`}
-function ir(r,p=null){try{if(typeof ruta!=='undefined'&&ruta==='pizarra'&&r!=='pizarra'&&typeof PZ!=='undefined'&&PZ){const desdeP=!!PZ_PARTIDO,existe=S.pizarras.some(x=>x.id===PZ.id);if((desdeP||existe)&&guardarPzAuto())aviso('Pizarra guardada');PZ_PARTIDO=null}}catch(e){console.warn(e)}if(r!=='pizarra'&&typeof PZ_FULL!=='undefined'&&PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs')}ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0)}
+function ir(r,p=null){try{if(typeof ruta!=='undefined'&&ruta==='pizarra'&&r!=='pizarra'&&typeof PZ!=='undefined'&&PZ){const desdeP=!!PZ_PARTIDO,existe=S.pizarras.some(x=>x.id===PZ.id);if((desdeP||existe)&&guardarPzAuto())aviso('Pizarra guardada');PZ_PARTIDO=null}}catch(e){console.warn(e)}if(r!=='pizarra'&&typeof PZ_FULL!=='undefined'&&PZ_FULL){PZ_FULL=false;document.body.classList.remove('pz-fs')}ruta=r;param=p;try{history.replaceState(null,'','#'+r)}catch(e){}pintar();window.scrollTo(0,0);
+  if(r==='pizarra'&&innerWidth>800)setTimeout(()=>{const w=$('#pizWrap');if(!w)return;const cab=innerHeight<860?0:(($('.lateral')||{}).offsetHeight||0);window.scrollTo(0,Math.max(0,w.getBoundingClientRect().top+scrollY-cab-6));ajustarPzAlto()},60)}
 function pintarMenu(){
   const pa=pilarDe(ruta);if(pa)ULT_PILAR[pa]=ruta;
   $('#menu').innerHTML=PILARES.map(([k,t])=>`<a href="#${ULT_PILAR[k]||rutasPilar(k)[0]}" data-pilar="${k}" class="pilar p-${k} ${pa===k?'activo':''}"><i style="background:${k==='metodo'?'var(--met)':k==='cancha'?'var(--can)':'var(--equ)'}"></i><span class="pl-t">${t}<small>${DESC_PILAR[k]}</small></span></a>`).join('');
@@ -1373,7 +1383,9 @@ function pintar(){
   if(typeof bienvenidaPrueba==='function')bienvenidaPrueba();
   if(S.demo&&enDemoNube)$('#salirDemo').onclick=()=>location.reload();
   else if(S.demo)$('#salirDemo').onclick=()=>confirmar('¿Empezar con tu club?','Se borran los datos de ejemplo y la app queda vacía para que cargues tu plantel. La biblioteca trae 12 tareas de base para arrancar.','Empezar de cero',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Cargá los datos de tu club.')});
+  document.body.classList.toggle('en-pizarra',ruta==='pizarra');
   (VISTAS[ruta]||VISTAS.inicio)($('#cont'));
+  if(ruta==='pizarra')requestAnimationFrame(ajustarPzAlto);
 }
 
 /* ================= CALENDARIO ================= */
@@ -3148,7 +3160,9 @@ function guiaAnim(){
   else if(!n)t=`<b>Para que se muevan:</b> tocá <b>＋ Paso 2</b> (abajo) y <b>arrastrá</b> a cada jugadora y la pelota adonde van.${fl?' O, como ya dibujaste flechas, tocá <b>✨ Mover según flechas</b> y se arma sola.':''}`;
   else if(FR>0)t=`<b>Estás en el paso ${FR+1}:</b> arrastrá a las jugadoras y la pelota a su nuevo lugar. La línea punteada muestra de dónde vienen. ¿Listo? Tocá <b>▶</b> para verla. Para seguir, <b>＋ Paso ${n+2}</b>.`;
   else t=`La jugada tiene <b>${n+1} pasos</b>. Tocá <b>▶</b> para verla moverse, o tocá un paso (abajo) para cambiarlo.`;
-  return `<div class="pz-guia">🎬 ${t}</div>`;
+  let oc=false;try{oc=localStorage.getItem('mtk_pz_guia')==='1'}catch(e){}
+  if(oc)return `<button class="pz-guia-mini" id="pzGuiaVer" title="Mostrar la ayuda">🎬 ¿Cómo animar?</button>`;
+  return `<div class="pz-guia"><span>🎬 ${t}</span><button class="pz-guia-x" id="pzGuiaX" title="Ocultar la ayuda para tener más cancha" aria-label="Ocultar la ayuda">✕</button></div>`;
 }
 function pizarraNueva(f='11 vs 11'){return normalizar({id:uid(),nombre:'Nuevo ejercicio',formato:f,categoria:'Entrenamiento',carpeta:'',elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],fondo:''})}
 const ICOS_H={
@@ -3170,6 +3184,15 @@ const ICO_MAT={P:[12,12,17,0],O:[12,12.6,9.5,0],D:[12,12.5,13,0],R:[12,12,8.4,0]
 function icoMat(m){if(m==='I')return `<rect x="5" y="5" width="14" height="14" rx="4" fill="#fff" stroke="currentColor" stroke-width="1.6"/><text x="12" y="16.2" text-anchor="middle" font-family="Barlow Condensed,Arial" font-weight="700" font-size="11" fill="#141412">1</text>`;const [x,y,r,rot,k]=ICO_MAT[m];const c=MATERIALES[m].c;return `<defs>${DEFS_MAT}</defs>`+dibMat(m,x,y,r,c==='#FFFFFF'&&m!=='P'?'#7C8794':c,rot,k||10)}
 function bHerr(k,t){const i=ICO_MAT[k]?icoMat(k):typeof ICOS_H[k]==='function'?ICOS_H[k](colorJ):ICOS_H[k];return `<button data-h="${k}" class="${herr===k?'activo':''}" title="${esc(t)}"><svg class="ico" viewBox="0 0 24 24">${i}</svg><span>${esc(t)}</span></button>`}
 function arqTxt(){return RAMA()==='M'?'Arquero':RAMA()==='F'?'Arquera':'Arquera/o'}
+/* La cancha usa todo el alto que hay en la pantalla (sin tener que bajar) */
+function ajustarPzAlto(){const w=$('#pizWrap'),sv=$('#cancha>svg');if(!w||!sv)return;
+  if(innerWidth<=800||PZ_FULL){w.style.removeProperty('--pzh');return}
+  const cab=document.body.classList.contains('en-pizarra')&&innerHeight<860?0:(($('.lateral')||{}).offsetHeight||0);
+  const off=sv.getBoundingClientRect().top-w.getBoundingClientRect().top,g=$('.pz-guia,.pz-guia-mini',w),tl=$('.pzA-tl',w);
+  const abajo=(g?g.offsetHeight+10:0)+(tl?tl.offsetHeight:0)+18;
+  const arriba=Math.max(sv.getBoundingClientRect().top,cab+off);
+  w.style.setProperty('--pzh',Math.max(280,Math.round(innerHeight-arriba-abajo))+'px')}
+window.addEventListener('resize',()=>{if(ruta==='pizarra')ajustarPzAlto()});
 VISTAS.pizarra=el=>{
   {let d=null;try{d=localStorage.getItem('metodika_pz_pendiente')}catch(e){}if(d)setTimeout(revisarPizarraPendiente,0)}
   pararAnim();
@@ -3273,6 +3296,7 @@ VISTAS.pizarra=el=>{
   {const fv=$('#frVel');if(fv)fv.onchange=()=>{snap();const pa=PZ.pasos[FR-1];const v=+fv.value;if(v===1)delete pa.vel;else pa.vel=v}}
   const fq=$('#frQuitar');if(fq)fq.onclick=()=>{snap();PZ.pasos.splice(FR-1,1);if(PZ.notas&&PZ.notas.length>FR)PZ.notas.splice(FR,1);PZ.flechas=PZ.flechas.filter(a=>(a.fr||0)!==FR).map(a=>((a.fr||0)>FR?{...a,fr:a.fr-1}:a));PZ.trazos=(PZ.trazos||[]).filter(a=>(a.fr||0)!==FR).map(a=>((a.fr||0)>FR?{...a,fr:a.fr-1}:a));FR--;SEL=null;pintar()};
   $('#frPlay').onclick=()=>animando?pararAnim(true):reproducir();
+  {const gx=$('#pzGuiaX');if(gx)gx.onclick=()=>{try{localStorage.setItem('mtk_pz_guia','1')}catch(e){}pintar()};const gv=$('#pzGuiaVer');if(gv)gv.onclick=()=>{try{localStorage.removeItem('mtk_pz_guia')}catch(e){}pintar()}}
   $$('[data-fcp]',el).forEach(b=>b.onclick=()=>{fCatPz=b.dataset.fcp;pintar()});
   const fc=$('#fCarp');if(fc)fc.onchange=e=>{fCarpeta=e.target.value;pintar()};
   $$('[data-abrir]',el).forEach(b=>b.onclick=()=>{PZ=normalizar(JSON.parse(JSON.stringify(S.pizarras.find(p=>p.id===b.dataset.abrir))));hist=[];FR=0;SEL=null;pintar();window.scrollTo(0,0)});
