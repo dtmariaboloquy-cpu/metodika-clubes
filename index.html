@@ -159,6 +159,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--tinta);outline:none}
 .modal-cab h2{font-size:22px}
 .modal-cab .x{margin-left:auto}
 .modal-pie{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+.pz-fs .aviso-t{bottom:92px!important}
 .aviso-t{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--negro);color:#fff;padding:10px 18px;border-radius:99px;font-weight:600;z-index:80;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 
 /* Tarjetas de jugadora */
@@ -256,40 +257,40 @@ body.pz-fs{overflow:hidden}
 .pzA .panel{background:var(--pzc);border-color:var(--pzl);color:var(--pzt);margin:0!important}.pzA .panel h3{color:#fff}.pzA .sub{color:var(--pzs)}
 .pzA .panel .btn{background:#22251F;border-color:#33362F;color:#EDEAE0}.pzA .panel .btn.peligro{color:#FF8A80}.pzA .panel .campo{color:var(--pzs)}
 .pzA .panel input,.pzA .panel select{background:#11120F;border-color:#33362F;color:#fff}
-.pzA.piz-full{position:fixed;inset:0;z-index:60;border-radius:0;margin:0;overflow:auto}
-.pzA.piz-full .cancha svg{max-height:calc(100vh - 230px)}
-.pzA.piz-full{height:100vh;overflow:hidden}
-.pzA.piz-full .pzA-top{padding:5px 12px;gap:10px;flex-wrap:nowrap}.pzA.piz-full .pzA-sub{display:none}.pzA.piz-full .pzA-logo{width:28px;height:28px;font-size:17px}
-.pzA.piz-full .pzA-tit input[type=text]{font-size:18px}.pzA.piz-full .pzA-acc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.pzA.piz-full .pzA-acc .pa{padding-top:5px;padding-bottom:5px;white-space:nowrap}
-.pzA.piz-full .pzA-body{grid-template-columns:76px minmax(0,1fr);flex:1;min-height:0}
-.pzA.piz-full .pzA-dock{overflow-y:auto;scrollbar-width:none}
-.pzA.piz-full .pzA-tit{flex:0 1 240px}.pzA.piz-full .pzA-acc{margin-left:auto;min-width:0}
-.pzA.piz-full .pzA-props{display:none}
-.pzA.piz-full.panel-on .pzA-props{display:block;position:fixed;right:0;top:46px;bottom:96px;border-bottom:1px solid var(--pzl);width:320px;overflow-y:auto;z-index:70;background:var(--pzbg);border-left:1px solid var(--pzl);box-shadow:-12px 0 30px rgba(0,0,0,.35)}
-.pzA.piz-full .pzA-stage{padding:4px 8px 0;gap:4px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
-.pzA.piz-full .cancha-box{flex:1;min-height:0;display:flex;background:repeating-linear-gradient(90deg,var(--cesped) 0 4.2vw,var(--cesped2) 4.2vw 8.4vw)}
-.pzA.piz-full #cancha{background:transparent!important;padding:0!important;border-radius:0!important;box-shadow:none!important}
-.pzA.piz-full .pzA-body{grid-template-columns:minmax(0,1fr)!important;position:relative}
-.pzA.piz-full .pzA-dock{position:absolute;left:10px;top:50%;transform:translateY(-50%);z-index:7;width:64px!important;max-height:calc(100% - 120px);border:1px solid var(--pzl)!important;border-radius:18px;background:rgba(14,15,13,.92);box-shadow:0 10px 30px rgba(0,0,0,.4)}
-.pzA.piz-full .pz-tray{left:90px!important;top:100px!important;width:300px;max-height:calc(100% - 170px);overflow-y:auto;border-radius:16px!important}.pzA.piz-full .pz-tray .tray-g{display:grid!important;grid-template-columns:repeat(3,1fr);gap:6px}.pzA.piz-full .pzA-frames{overflow:visible!important}.pzA.piz-full .pzA-add{white-space:nowrap}.pzA.piz-full .pzA-tlc{margin-left:6px}
-.pzA.piz-full .pzA-tl{left:50%!important;right:auto!important;transform:translateX(-50%);max-width:calc(100% - 20px);background:rgba(14,15,13,.92)!important;border:1px solid var(--pzl)!important;border-radius:16px;padding:5px 10px!important;box-shadow:0 10px 30px rgba(0,0,0,.4)!important}
-.pzA.piz-full .pzA-tlc,.pzA.piz-full .pzA-frames{background:none!important}
-.pzA.piz-full .pz-rapida{left:86px}
-.pzA.piz-full .pz-pick{left:86px;top:46px}
-.pzA.piz-full #cancha{flex:1;min-width:0;min-height:0;width:100%;height:100%}
-.pzA.piz-full .pzA-stage #cancha>svg{max-height:none!important;min-height:0!important;width:100%!important;height:100%!important}
-.pzA.piz-full .pzA-stage{position:relative;padding:0!important}
-.pzA.piz-full .pz-rapida{position:absolute;top:6px;left:8px;right:8px;z-index:6;pointer-events:none;min-height:0}.pzA.piz-full .pz-rapida>*{pointer-events:auto}.pzA.piz-full .pz-rapida .pr-sep{pointer-events:none}
-.pzA.piz-full .pz-rapida .pr-b{padding:4px 9px;background:rgba(23,25,21,.92)}
-.pzA.piz-full .pzA-tl{position:absolute!important;left:8px;right:8px;bottom:6px;margin:0!important;z-index:6;pointer-events:none}.pzA.piz-full .pzA-tl>*{pointer-events:auto}
-.pzA.piz-full .pzA-tlc,.pzA.piz-full .pzA-frames{background:rgba(14,15,13,.88);border-radius:10px;padding:3px}
-.pzA.piz-full .pz-scrub{display:none}
-.pzA.piz-full .pzA-fr{width:auto!important;min-width:34px;height:32px;opacity:1;background:var(--pzc);border:1px solid var(--pzl)}.pzA.piz-full .pzA-fr svg{display:none}.pzA.piz-full .pzA-fr span{position:static;display:grid;place-items:center;height:100%;background:none;color:var(--pzt)}.pzA.piz-full .pzA-fr.on{outline:2px solid #FFD400}.pzA.piz-full .pzA-fr.on span{color:#FFD400}
-.pzA.piz-full .pzA-add{min-height:32px!important;height:32px;width:auto!important;flex-direction:row;padding:0 10px;font-size:13px;gap:5px}.pzA.piz-full .pzA-add.ayuda{display:none}
-.pzA.piz-full .pzA-tl{padding:4px 8px 6px;gap:8px;flex-wrap:nowrap}.pzA.piz-full .pzA-frames{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px}
+.pzA:is(.piz-full,.pz-emb){position:fixed;inset:0;z-index:60;border-radius:0;margin:0;overflow:auto}
+.pzA:is(.piz-full,.pz-emb) .cancha svg{max-height:calc(100vh - 230px)}
+.pzA:is(.piz-full,.pz-emb){height:100vh;overflow:hidden}
+.pzA:is(.piz-full,.pz-emb) .pzA-top{padding:5px 12px;gap:10px;flex-wrap:nowrap}.pzA:is(.piz-full,.pz-emb) .pzA-sub{display:none}.pzA:is(.piz-full,.pz-emb) .pzA-logo{width:28px;height:28px;font-size:17px}
+.pzA:is(.piz-full,.pz-emb) .pzA-tit input[type=text]{font-size:18px}.pzA:is(.piz-full,.pz-emb) .pzA-acc{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.pzA:is(.piz-full,.pz-emb) .pzA-acc .pa{padding-top:5px;padding-bottom:5px;white-space:nowrap}
+.pzA:is(.piz-full,.pz-emb) .pzA-body{grid-template-columns:76px minmax(0,1fr);flex:1;min-height:0}
+.pzA:is(.piz-full,.pz-emb) .pzA-dock{overflow-y:auto;scrollbar-width:none}
+.pzA:is(.piz-full,.pz-emb) .pzA-tit{flex:0 1 240px}.pzA:is(.piz-full,.pz-emb) .pzA-acc{margin-left:auto;min-width:0}
+.pzA:is(.piz-full,.pz-emb) .pzA-props{display:none}
+.pzA:is(.piz-full,.pz-emb).panel-on .pzA-props{display:block;position:fixed;right:0;top:46px;bottom:96px;border-bottom:1px solid var(--pzl);width:320px;overflow-y:auto;z-index:70;background:var(--pzbg);border-left:1px solid var(--pzl);box-shadow:-12px 0 30px rgba(0,0,0,.35)}
+.pzA:is(.piz-full,.pz-emb) .pzA-stage{padding:4px 8px 0;gap:4px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.pzA:is(.piz-full,.pz-emb) .cancha-box{flex:1;min-height:0;display:flex;background:repeating-linear-gradient(90deg,var(--cesped) 0 4.2vw,var(--cesped2) 4.2vw 8.4vw)}
+.pzA:is(.piz-full,.pz-emb) #cancha{background:transparent!important;padding:0!important;border-radius:0!important;box-shadow:none!important}
+.pzA:is(.piz-full,.pz-emb) .pzA-body{grid-template-columns:minmax(0,1fr)!important;position:relative}
+.pzA:is(.piz-full,.pz-emb) .pzA-dock{position:absolute;left:10px;top:50%;transform:translateY(-50%);z-index:7;width:64px!important;max-height:calc(100% - 120px);border:1px solid var(--pzl)!important;border-radius:18px;background:rgba(14,15,13,.92);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.pzA:is(.piz-full,.pz-emb) .pz-tray{left:90px!important;top:100px!important;width:300px;max-height:calc(100% - 170px);overflow-y:auto;border-radius:16px!important}.pzA:is(.piz-full,.pz-emb) .pz-tray .tray-g{display:grid!important;grid-template-columns:repeat(3,1fr);gap:6px}.pzA:is(.piz-full,.pz-emb) .pzA-frames{overflow:visible!important}.pzA:is(.piz-full,.pz-emb) .pzA-add{white-space:nowrap}.pzA:is(.piz-full,.pz-emb) .pzA-tlc{margin-left:6px}
+.pzA:is(.piz-full,.pz-emb) .pzA-tl{left:50%!important;right:auto!important;transform:translateX(-50%);max-width:calc(100% - 20px);background:rgba(14,15,13,.92)!important;border:1px solid var(--pzl)!important;border-radius:16px;padding:5px 10px!important;box-shadow:0 10px 30px rgba(0,0,0,.4)!important}
+.pzA:is(.piz-full,.pz-emb) .pzA-tlc,.pzA:is(.piz-full,.pz-emb) .pzA-frames{background:none!important}
+.pzA:is(.piz-full,.pz-emb) .pz-rapida{left:86px}
+.pzA:is(.piz-full,.pz-emb) .pz-pick{left:86px;top:46px}
+.pzA:is(.piz-full,.pz-emb) #cancha{flex:1;min-width:0;min-height:0;width:100%;height:100%}
+.pzA:is(.piz-full,.pz-emb) .pzA-stage #cancha>svg{max-height:none!important;min-height:0!important;width:100%!important;height:100%!important}
+.pzA:is(.piz-full,.pz-emb) .pzA-stage{position:relative;padding:0!important}
+.pzA:is(.piz-full,.pz-emb) .pz-rapida{position:absolute;top:6px;left:8px;right:8px;z-index:6;pointer-events:none;min-height:0}.pzA:is(.piz-full,.pz-emb) .pz-rapida>*{pointer-events:auto}.pzA:is(.piz-full,.pz-emb) .pz-rapida .pr-sep{pointer-events:none}
+.pzA:is(.piz-full,.pz-emb) .pz-rapida .pr-b{padding:4px 9px;background:rgba(23,25,21,.92)}
+.pzA:is(.piz-full,.pz-emb) .pzA-tl{position:absolute!important;left:8px;right:8px;bottom:6px;margin:0!important;z-index:6;pointer-events:none}.pzA:is(.piz-full,.pz-emb) .pzA-tl>*{pointer-events:auto}
+.pzA:is(.piz-full,.pz-emb) .pzA-tlc,.pzA:is(.piz-full,.pz-emb) .pzA-frames{background:rgba(14,15,13,.88);border-radius:10px;padding:3px}
+.pzA:is(.piz-full,.pz-emb) .pz-scrub{display:none}
+.pzA:is(.piz-full,.pz-emb) .pzA-fr{width:auto!important;min-width:34px;height:32px;opacity:1;background:var(--pzc);border:1px solid var(--pzl)}.pzA:is(.piz-full,.pz-emb) .pzA-fr svg{display:none}.pzA:is(.piz-full,.pz-emb) .pzA-fr span{position:static;display:grid;place-items:center;height:100%;background:none;color:var(--pzt)}.pzA:is(.piz-full,.pz-emb) .pzA-fr.on{outline:2px solid #FFD400}.pzA:is(.piz-full,.pz-emb) .pzA-fr.on span{color:#FFD400}
+.pzA:is(.piz-full,.pz-emb) .pzA-add{min-height:32px!important;height:32px;width:auto!important;flex-direction:row;padding:0 10px;font-size:13px;gap:5px}.pzA:is(.piz-full,.pz-emb) .pzA-add.ayuda{display:none}
+.pzA:is(.piz-full,.pz-emb) .pzA-tl{padding:4px 8px 6px;gap:8px;flex-wrap:nowrap}.pzA:is(.piz-full,.pz-emb) .pzA-frames{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px}
 
-.pzA.piz-full .pz-guia{display:none}
-.pzA.piz-full .pzA-tl{padding-top:6px;padding-bottom:6px;gap:10px}.pzA.piz-full .pzA-fr{width:76px}.pzA.piz-full .pzA-add{min-height:42px;width:58px}.pzA.piz-full .pzA-play{width:38px;height:38px}
+.pzA:is(.piz-full,.pz-emb) .pz-guia{display:none}
+.pzA:is(.piz-full,.pz-emb) .pzA-tl{padding-top:6px;padding-bottom:6px;gap:10px}.pzA:is(.piz-full,.pz-emb) .pzA-fr{width:76px}.pzA:is(.piz-full,.pz-emb) .pzA-add{min-height:42px;width:58px}.pzA:is(.piz-full,.pz-emb) .pzA-play{width:38px;height:38px}
 @media (max-width:900px){
   .pzA{margin:0 -10px 16px;border-radius:12px}
   .pzA-body{grid-template-columns:minmax(0,1fr)}
@@ -631,7 +632,7 @@ main{padding-top:0}
 .pz-rapida .pr-z .pr-b{padding:5px 9px}
 .cancha.zoom svg{cursor:grab}
 .cancha-box{position:relative}.tv-salir{position:absolute;left:50%;top:6px;transform:translateX(-50%);z-index:5;border:1px solid rgba(255,212,0,.5);background:rgba(14,15,13,.85);color:#fff;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;white-space:nowrap}.tv-salir b{color:#FFD400}
-.cancha.tv{perspective:1200px}.cancha.tv>svg{transform:var(--tvt,rotateX(34deg) scale(1.1));transform-origin:50% 92%;pointer-events:none;filter:drop-shadow(0 30px 30px rgba(0,0,0,.45))}
+.cancha.tv{perspective:1200px}.cancha.tv>svg{transform:var(--tvt,rotateX(34deg) scale(1.1));transform-origin:50% 92%;filter:drop-shadow(0 30px 30px rgba(0,0,0,.45))}
 @media (max-width:600px){
   .lateral .marca b{display:none}
   .lateral .pie-lat{gap:2px}.pie-lat .util{min-width:36px;padding:3px 2px}
@@ -965,6 +966,25 @@ body.en-pizarra #cont>*{animation:none}
 /* gráficos más modernos */
 .graf rect[rx="4"]{rx:6px}
 .barra{border-radius:8px}.barra i{border-radius:8px;background-image:linear-gradient(90deg,transparent,rgba(255,255,255,.18))}
+@media (min-width:901px){.pzA:is(.piz-full,.pz-emb):not(.panel-on) .pz-burb:not([hidden]){display:flex!important}}
+.pzA-sec{display:contents}
+.pzA:is(.piz-full,.pz-emb) .pzA-sec{display:none;position:absolute;top:var(--pzTopH,44px);right:10px;z-index:80;flex-direction:column;gap:4px;padding:8px;background:rgba(14,15,13,.97);border:1px solid var(--pzl);border-radius:14px;box-shadow:0 14px 34px rgba(0,0,0,.5);min-width:190px}
+.pzA:is(.piz-full,.pz-emb) .pzA-sec.abierto{display:flex}.pzA:is(.piz-full,.pz-emb) .pzA-sec .pa{justify-content:flex-start;width:100%}
+.pzA:is(.piz-full,.pz-emb) .pz-guia-mini{display:none}
+.pzA:is(.piz-full,.pz-emb) .pzA-frames{flex:none}
+.pzA:is(.piz-full,.pz-emb) .pzA-tl{left:0!important;right:0!important;margin:0 auto!important;width:fit-content;transform:none!important}
+.pzA:is(.piz-full,.pz-emb) .pzA-dock{top:44px;bottom:8px;transform:none;max-height:none;overflow-y:auto}
+.pzA:is(.piz-full,.pz-emb) .pzA-dock .pz-bar{gap:1px;padding:4px 0}
+.pzA:is(.piz-full,.pz-emb) .pzA-dock .pz-bar>button{padding:5px 2px;gap:1px;font-size:10px;width:62px}
+.pzA:is(.piz-full,.pz-emb) .pzA-dock .pz-bar .sep{margin:2px 8px}
+@media (max-height:640px){.pzA:is(.piz-full,.pz-emb) .pzA-dock .pz-bar>button{padding:3px 2px}.pzA:is(.piz-full,.pz-emb) .pzA-dock .pz-bar>button .ico{width:19px;height:19px}.pzA:is(.piz-full,.pz-emb) .pzA-dock .pz-bar .flechita{display:none}}
+.pzA:is(.piz-full,.pz-emb) .pz-tray{top:44px!important;width:380px;max-height:calc(100% - 52px)}.pzA:is(.piz-full,.pz-emb) .pz-tray .tray-g{grid-template-columns:repeat(4,1fr)!important}
+.pzA:is(.piz-full,.pz-emb) .pz-tray .tray-g>button{min-height:0;padding:6px 3px;font-size:11.5px}
+
+/* pizarra embebida en la página (sin pantalla completa): misma disposición pro que la amplia */
+.pzA.pz-emb{position:relative;inset:auto;z-index:1;height:var(--pzEmbH,calc(100vh - 80px));min-height:440px;border-radius:14px;margin:0}
+.pzA.pz-emb.panel-on .pzA-props{position:absolute;top:var(--pzTopH,46px);bottom:0;border-bottom:0}
+@media (min-width:901px){.pzA.pz-emb:not(.panel-on) .pz-burb:not([hidden]){display:flex!important}}
 </style>
 
 <div class="app">
@@ -2847,7 +2867,7 @@ function editarSesion(s,microId){
     $('#addCont',m).onclick=addC;$('#nuevoCont',m).onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addC()}};
     $('#sr',m).oninput=e=>{s.rpe=+e.target.value||0;pintarT(m)};
     $('#sj',m).onchange=e=>{$('#elegirJ',m).hidden=e.target.value!=='elegir'};
-    const crearEnPz=()=>{$('#gS',m).click();PZ_SESION={id:s.id};PZ_PARTIDO=null;PZ=pizarraNueva();PZ.nombre='Nueva tarea';FR=0;SEL=null;hist=[];cerrarModal();ir('pizarra');aviso('Armá la tarea y tocá “✓ Guardar tarea y volver a la sesión”')};
+    const crearEnPz=()=>{$('#gS',m).click();PZ_SESION={id:s.id};PZ_PARTIDO=null;resguardarPz();PZ=pizarraNueva();PZ.nombre='Nueva tarea';FR=0;SEL=null;hist=[];cerrarModal();ir('pizarra');aviso('Armá la tarea y tocá “✓ Guardar tarea y volver a la sesión”')};
     $('#addTP',m).onclick=crearEnPz;
     $('#addT',m).onclick=()=>elegirTareas(ids=>{ids.forEach(id=>{const t=tarea(id);s.tareas.push({tareaId:id,min:t.duracion||10})});pintarT(m)},m,crearEnPz);
     $('#gS',m).onclick=()=>{const d=leerForm($('#fS',m));const js=d.jsel==='todas'?SJ().map(j=>j.id):(d.jugadores||[]);delete d.jsel;delete d.jugadores;
@@ -3441,7 +3461,7 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
     return tvK===1?body:`<g transform="translate(${x*k} ${y*k}) scale(1 ${tvK.toFixed(3)}) translate(${-x*k} ${-y*k})">${body}</g>`};
   return `<svg viewBox="${-pad} ${-pad} ${W*k+pad*2} ${H*k+pad*2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama ${esc(pz.nombre||'')}"><defs>${vivo&&PZ_TV&&!mini&&S.club&&S.club.escudo?`<image id="escClub" href="${S.club.escudo}" width="16" height="16" preserveAspectRatio="xMidYMid meet"/>`:''}${mk}${DEFS_MAT}${defsCamiseta()}<radialGradient id="gJug" cx=".36" cy=".26" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity=".08"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></radialGradient><radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient><pattern id="${pid}" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="${ES.l}" fill-opacity=".1"/><path d="M0 0L5 5M5 0L0 5" stroke="${ES.l}" stroke-opacity=".55" stroke-width=".6"/></pattern></defs>
     <rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="${ES.a}"/>${fr.join('')}${vig}${logo}${lineasCancha(pz.formato,k,ES.l,pid)}${refTacticas(pz,k,ES.l)}
-    ${pz.fondoImg?`<image href="${pz.fondoImg}" x="0" y="0" width="${W*k}" height="${H*k}" preserveAspectRatio="none"/><rect x="0" y="0" width="${W*k}" height="${H*k}" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="${k*.12}"/>`:''}${mini?'':svgResp(pz,pos,k,r,W,H)}${pz.zonas.map(zon).join('')}${lineasSvg}${trazosV.map(tra).join('')}${estela}${flechasV.map(fle).join('')}${flechasV.map(numF).join('')}${previa?fle(previa):''}${pz.elementos.filter(e=>e.t!=='J'&&e.t!=='P').map(elV).join('')}${sinFichas?'':pz.elementos.filter(e=>e.t==='J').map(elV).join('')}${sinFichas?'':pz.elementos.filter(e=>e.t==='P').map(elV).join('')}${pz.textos.map(txt).join('')}${extra}${hl}</svg>`;
+    ${pz.fondoImg?`<image href="${pz.fondoImg}" x="0" y="0" width="${W*k}" height="${H*k}" preserveAspectRatio="none"/><rect x="0" y="0" width="${W*k}" height="${H*k}" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="${k*.12}"/>`:''}${mini?'':svgResp(pz,pos,k,r,W,H)}${pz.zonas.map(zon).join('')}${lineasSvg}${trazosV.map(tra).join('')}${estela}${flechasV.map(fle).join('')}${flechasV.map(numF).join('')}${previa?fle(previa):''}${pz.elementos.filter(e=>e.t!=='J'&&e.t!=='P').map(elV).join('')}${sinFichas?'':pz.elementos.filter(e=>e.t==='J').map(elV).join('')}${sinFichas?'':pz.elementos.filter(e=>e.t==='P').map(elV).join('')}${pz.textos.map(txt).join('')}${extra}${hl}${vivo&&PZ_TV&&!mini?[[0,0],[W*k,0],[W*k,H*k],[0,H*k]].map(([a,b],i)=>`<rect class="tvk" data-k="${i}" x="${a-.5}" y="${b-.5}" width="1" height="1" fill="none" stroke="none"/>`).join(''):''}</svg>`;
 }
 
 
@@ -3479,10 +3499,13 @@ function svgBloque(pz,pos,k,r,W,H){
 }
 /* ---------- Editor ---------- */
 let MULTI=new Set(),UNIR_A=null;
+function pzEmb(){return !PZ_FULL&&innerWidth>900}
 let PZ_FULL=false,PZ_PANEL=false,PZ_OPC=false,TRAY=null,fut=[];
 let PZ=null,herr='mover',hist=[],FR=0,SEL=null,colorJ='#FFD400',colorZ='#FFFFFF',animando=null,fCatPz='',fCarpeta='';
 let PZ_PARTIDO=null,PZ_SESION=null;
 function irPz(p,tab,id){PZ_PARTIDO={id:p.id,tab};ir('pizarra',id)}
+/* antes de cambiar de pizarra, guardar la que estaba si tenía cambios (para no perder trabajo) */
+function resguardarPz(){try{if(!PZ)return;const i=S.pizarras.findIndex(x=>x.id===PZ.id);const sucio=i>=0?firmaPz(S.pizarras[i])!==firmaPz(PZ):(PZ.elementos.length||PZ.flechas.length||PZ.textos.length||PZ.zonas.length);if(sucio&&guardarPzAuto()){const n=PZ.nombre||'el ejercicio';setTimeout(()=>aviso('Guardé “'+n+'” antes de abrir otro'),50)}}catch(e){console.warn(e)}}
 function guardarPzAuto(){if(!PZ)return false;const nom=document.getElementById('pzNombre');if(nom&&nom.value.trim())PZ.nombre=nom.value.trim();
   const i=S.pizarras.findIndex(x=>x.id===PZ.id),c=JSON.parse(JSON.stringify(PZ));let cambio=false;
   if(i>=0){const prev=S.pizarras[i];if(firmaPz(prev)!==firmaPz(PZ)||prev.nombre!==PZ.nombre||JSON.stringify(prev.roles||{})!==JSON.stringify(PZ.roles||{})||!!prev.sinFotos!==!!PZ.sinFotos){c.versiones=prev.versiones;S.pizarras[i]=c;cambio=true}}
@@ -3522,30 +3545,31 @@ function arqTxt(){return RAMA()==='M'?'Arquero':RAMA()==='F'?'Arquera':'Arquera/
 /* La cancha usa todo el alto que hay en la pantalla (sin tener que bajar) */
 function ajustarPzAlto(){const w=$('#pizWrap'),sv=$('#cancha>svg');if(!w||!sv)return;
   if(innerWidth<=800){w.style.removeProperty('--pzh');return}
+  if(w.classList.contains('pz-emb')){const cab=(document.body.classList.contains('en-pizarra')&&innerHeight<860)?0:(($('.lateral')||{}).offsetHeight||0);w.style.setProperty('--pzEmbH',Math.max(440,innerHeight-cab-14)+'px');const tp=$('.pzA-top',w);if(tp)w.style.setProperty('--pzTopH',tp.offsetHeight+'px');return}
   const cab=PZ_FULL||(document.body.classList.contains('en-pizarra')&&innerHeight<860)?0:(($('.lateral')||{}).offsetHeight||0);
   const off=sv.getBoundingClientRect().top-w.getBoundingClientRect().top,g=$('.pz-guia,.pz-guia-mini',w),tl=$('.pzA-tl',w);
   const abajo=(g?g.offsetHeight+10:0)+(tl?tl.offsetHeight:0)+18;
   const arriba=Math.max(sv.getBoundingClientRect().top,cab+off);
   w.style.setProperty('--pzh',Math.max(280,Math.round(innerHeight-arriba-abajo))+'px')}
-window.addEventListener('resize',()=>{if(ruta==='pizarra')ajustarPzAlto()});
+window.addEventListener('resize',()=>{if(ruta!=='pizarra')return;const w=$('#pizWrap');if(w&&!PZ_FULL&&w.classList.contains('pz-emb')!==pzEmb()){pintar();return}ajustarPzAlto()});
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&PZ_FULL&&ruta==='pizarra'&&!document.getElementById('presOv'))ponerAmplia(false)});
 VISTAS.pizarra=el=>{
   {let d=null;try{d=localStorage.getItem('metodika_pz_pendiente')}catch(e){}if(d)setTimeout(revisarPizarraPendiente,0)}
   pararAnim();
-  if(param){const p=S.pizarras.find(x=>x.id===param);if(p){PZ=normalizar(JSON.parse(JSON.stringify(p)));FR=0;SEL=null;hist=[];PZV={s:1,cx:.5,cy:.5}}param=null}
+  if(param){const p=S.pizarras.find(x=>x.id===param);if(p){if(PZ&&PZ.id!==p.id)resguardarPz();PZ=normalizar(JSON.parse(JSON.stringify(p)));FR=0;SEL=null;hist=[];PZV={s:1,cx:.5,cy:.5}}param=null}
   if(!PZ)PZ=pizarraNueva();
   normalizar(PZ);
   const carpetas=[...new Set(S.pizarras.map(p=>normalizar(p).carpeta).filter(Boolean))].sort();
   const guardadas=S.pizarras.filter(p=>(!fCatPz||p.categoria===fCatPz)&&(!fCarpeta||p.carpeta===fCarpeta));
   const [Wc,Hc]=FORMATOS[PZ.formato]||[40,30],nJ=PZ.elementos.filter(e=>e.t==='J').length,zMay=[...PZ.zonas].sort((x,y)=>areaZona(y)-areaZona(x))[0];
   const espTxt=zMay?`${+zMay.w.toFixed(1)} × ${+zMay.h.toFixed(1)} m`:`${Wc} × ${Hc} m`,area=zMay?areaZona(zMay):Wc*Hc,jEn=zMay?PZ.elementos.filter(e=>e.t==='J'&&dentroZona(zMay,...posEn(PZ,e,FR))).length:nJ;
-  el.innerHTML=`<div class="pzA ${PZ_FULL?'piz-full':''} ${PZ_FULL&&PZ_PANEL?'panel-on':''}" id="pizWrap">
+  el.innerHTML=`<div class="pzA ${PZ_FULL?'piz-full':pzEmb()?'pz-emb':''} ${(PZ_FULL||pzEmb())&&PZ_PANEL?'panel-on':''}" id="pizWrap">
   <div class="pzA-top"><div class="pzA-logo">M</div><div class="pzA-tit"><input type="text" id="pzNombre" value="${esc(PZ.nombre)}" aria-label="Nombre del ejercicio"><div class="pzA-sub">${esc([S.club&&S.club.nombre,(()=>{try{return CATN()}catch(e){return ''}})()].filter(Boolean).join(' · ')||'Pizarra táctica')}</div></div>
-    <div class="pzA-acc">${PZ_SESION?'<button class="pa y" id="pzVolverS">✓ Guardar tarea y volver a la sesión</button>':''}${PZ_PARTIDO?'<button class="pa y" id="pzVolverP">← Guardar y volver al partido</button>':''}${PZ_FULL?`<button class="pa" id="pzSalirFull" title="Salir de la pizarra amplia (Esc)">${ic('x')} Salir</button><button class="pa ${PZ_PANEL?'y':''}" id="pzPanel" title="Mostrar u ocultar la consigna, las medidas y la ficha">${ic('panel')} Panel</button>`:''}<button class="pa" id="pzNueva">Nueva</button><button class="pa" id="pzPlant">Plantillas</button><button class="pa" id="pzPres">${ic('play')} Presentar</button><button class="pa" id="pzVid">${ic('video')} Video</button><button class="pa" id="pzPng">${ic('bajar')} Exportar</button><button class="pa" id="pzShare">${ic('compartir')} Compartir</button><button class="pa" id="pzTarea">${ic('tarea')} A tarea</button><button class="pa" id="pzFotos" title="Mostrar u ocultar las fotos de las jugadoras">${ic('foto')} ${PZ.sinFotos?'Sin fotos':'Fotos'}</button><button class="pa" id="pzVers" title="Volver a una versión guardada antes">${ic('reloj')} Versiones</button><button class="pa y" id="pzGuardar">Guardar</button></div></div>
+    <div class="pzA-acc">${PZ_SESION?'<button class="pa y" id="pzVolverS">✓ Guardar tarea y volver a la sesión</button>':''}${PZ_PARTIDO?'<button class="pa y" id="pzVolverP">← Guardar y volver al partido</button>':''}${PZ_FULL?`<button class="pa" id="pzSalirFull" title="Salir de la pizarra amplia (Esc)">${ic('x')} Salir</button>`:''}${PZ_FULL||pzEmb()?`<button class="pa ${PZ_PANEL?'y':''}" id="pzPanel" title="Mostrar u ocultar la consigna, las medidas y la ficha">${ic('panel')} Panel</button>`:''}<button class="pa" id="pzPres">${ic('play')} Presentar</button><button class="pa" id="pzVid">${ic('video')} Video</button><button class="pa" id="pzPng">${ic('bajar')} Exportar</button>${PZ_FULL||pzEmb()?'<button class="pa" id="pzMasB" title="Más opciones">⋯ Más</button>':''}<span class="pzA-sec" id="pzSec"><button class="pa" id="pzNueva">Nueva</button><button class="pa" id="pzPlant">Plantillas</button><button class="pa" id="pzShare">${ic('compartir')} Compartir</button><button class="pa" id="pzTarea">${ic('tarea')} A tarea</button><button class="pa" id="pzFotos" title="Mostrar u ocultar las fotos de las jugadoras">${ic('foto')} ${PZ.sinFotos?'Sin fotos':'Fotos'}</button><button class="pa" id="pzVers" title="Volver a una versión guardada antes">${ic('reloj')} Versiones</button><button class="pa" id="pzAtajos" title="Atajos del teclado">⌨️ Atajos</button></span><button class="pa y" id="pzGuardar" title="Guardar (Ctrl+S)">${ic('check')} Guardar</button></div></div>
   <div class="pzA-body">
     <div class="pzA-dock">${barraPizarra()}</div>
     <div class="pzA-stage"><div class="pz-tray" id="pzTray" hidden></div>
-      ${barraRapida()}<div class="cancha-box">${PZ_TV?'<button class="tv-salir" id="tvSalir" title="Volver a la vista plana para mover fichas">📺 Vista TV · <b>✏️ Volver a editar</b></button>':''}<div class="cancha ${PZ_TV?'tv':''}" id="cancha" style="--tvt:${PZ_TVANG==='lat'?'rotateX(40deg) rotateZ(-14deg) scale(1.05)':`rotateX(${PZ_TVANG}deg) scale(${1+(+PZ_TVANG-20)/140})`}">${svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI,vivo:true})}</div><div class="pz-burb" id="pzBurb" hidden></div></div>
+      ${barraRapida()}<div class="cancha-box">${PZ_TV?'<button class="tv-salir" id="tvSalir" title="Volver a la vista plana">📺 Vista TV · <b>Volver a plana</b></button>':''}<div class="cancha ${PZ_TV?'tv':''}" id="cancha" style="--tvt:${PZ_TVANG==='lat'?'rotateX(40deg) rotateZ(-14deg) scale(1.05)':`rotateX(${PZ_TVANG}deg) scale(${1+(+PZ_TVANG-20)/140})`}">${svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI,vivo:true})}</div><div class="pz-burb" id="pzBurb" hidden></div></div>
       ${guiaAnim()}
       <div class="pzA-tl">${scrubHtml()}
         <button class="pzA-play ${PZ.pasos.length?'':'off'}" id="frPlay" ${PZ.pasos.length?'':'disabled'} title="Reproducir jugada">${animando?'■':'▶'}</button>
@@ -3593,11 +3617,12 @@ VISTAS.pizarra=el=>{
   $('#pzLimpiar').onclick=()=>{snap();Object.assign(PZ,{elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],trazos:[]});FR=0;SEL=null;MULTI.clear();pintar()};
   {const vs=$('#pzVolverS');if(vs)vs.onclick=()=>{if(!PZ.elementos.length&&!PZ.zonas.length){aviso('Armá la tarea en la cancha antes de guardarla');return}const sid=PZ_SESION.id;pasarATarea(id=>{const ses=S.sesiones.find(x=>x.id===sid),t=tarea(id);PZ_SESION=null;if(ses&&t){ses.tareas=ses.tareas||[];ses.tareas.push({tareaId:id,min:t.duracion||10});guardar()}ir('planificacion');if(ses)setTimeout(()=>{editarSesion(ses);aviso('Tarea sumada a la sesión ✓')},120)})}}
   {const vb=$('#pzVolverP');if(vb)vb.onclick=()=>{const pp=PZ_PARTIDO;tabPartido=pp.tab||'piz';ir('partido',pp.id)}}
-  $('#pzNueva').onclick=()=>{PZ=pizarraNueva(PZ.formato);hist=[];FR=0;SEL=null;pintar()};
+  $('#pzNueva').onclick=()=>{resguardarPz();PZ=pizarraNueva(PZ.formato);hist=[];FR=0;SEL=null;pintar()};
   $('#pzGuardar').onclick=()=>{PZ.nombre=$('#pzNombre').value.trim()||'Ejercicio';const i=S.pizarras.findIndex(p=>p.id===PZ.id);
     if(i>=0){const prev=S.pizarras[i],vs=(prev.versiones||PZ.versiones||[]).slice();if(firmaPz(prev)!==firmaPz(PZ)){vs.unshift({t:Date.now(),d:sinVersiones(prev)});vs.length=Math.min(vs.length,10)}PZ.versiones=vs}
     const c=JSON.parse(JSON.stringify(PZ));if(i>=0)S.pizarras[i]=c;else S.pizarras.push(c);guardar();aviso('Ejercicio guardado');pintar()};
   $('#pzVers').onclick=verVersiones;
+  {const mb=$('#pzMasB'),sec=$('#pzSec');$('#pzAtajos').onclick=()=>{if(sec)sec.classList.remove('abierto');atajosPz()};if(mb&&sec){mb.onclick=ev=>{ev.stopPropagation();sec.classList.toggle('abierto');mb.classList.toggle('y',sec.classList.contains('abierto'))};sec.addEventListener('click',()=>setTimeout(()=>{sec.classList.remove('abierto');mb.classList.remove('y')},0));document.addEventListener('pointerdown',function f(ev){if(!document.body.contains(sec)){document.removeEventListener('pointerdown',f);return}if(!sec.contains(ev.target)&&ev.target!==mb){sec.classList.remove('abierto');mb.classList.remove('y')}})}}
   {const cambiarEsc=d=>{snap();PZ.escala=Math.max(.5,Math.min(2.2,Math.round(((PZ.escala||1)+d)*10)/10));pintar()};const a=$('#escMenos'),b=$('#escMas');if(a)a.onclick=()=>cambiarEsc(-.1);if(b)b.onclick=()=>cambiarEsc(.1)}
   {const fb=$('#pzFotos');if(fb)fb.onclick=()=>{snap();PZ.sinFotos=!PZ.sinFotos;pintar()}}
   $('#pzPng').onclick=exportarPng;
@@ -3637,7 +3662,7 @@ VISTAS.pizarra=el=>{
   {const gx=$('#pzGuiaX');if(gx)gx.onclick=()=>{try{localStorage.setItem('mtk_pz_guia','1')}catch(e){}pintar()};const gv=$('#pzGuiaVer');if(gv)gv.onclick=()=>{try{localStorage.removeItem('mtk_pz_guia')}catch(e){}pintar()}}
   $$('[data-fcp]',el).forEach(b=>b.onclick=()=>{fCatPz=b.dataset.fcp;pintar()});
   const fc=$('#fCarp');if(fc)fc.onchange=e=>{fCarpeta=e.target.value;pintar()};
-  $$('[data-abrir]',el).forEach(b=>b.onclick=()=>{PZ=normalizar(JSON.parse(JSON.stringify(S.pizarras.find(p=>p.id===b.dataset.abrir))));hist=[];FR=0;SEL=null;pintar();window.scrollTo(0,0)});
+  $$('[data-abrir]',el).forEach(b=>b.onclick=()=>{if(b.dataset.abrir!==PZ.id)resguardarPz();PZ=normalizar(JSON.parse(JSON.stringify(S.pizarras.find(p=>p.id===b.dataset.abrir))));hist=[];FR=0;SEL=null;pintar();window.scrollTo(0,0)});
   $$('[data-borrarpz]',el).forEach(b=>b.onclick=()=>confirmar('¿Eliminar el ejercicio?','Las tareas que lo usan quedan sin diagrama.','Eliminar',()=>{S.pizarras=S.pizarras.filter(p=>p.id!==b.dataset.borrarpz);S.tareas.forEach(t=>{if(t.diagrama===b.dataset.borrarpz)t.diagrama=''});guardar();pintar()}));
   conectarCancha();pintarSel();
 };
@@ -3703,7 +3728,7 @@ function barraPizarra(){
 function elegirHerr(h){herr=h;NUM_J=null;UNIR_A=null;if(h!=='mover')SEL=null;if(h!=='lazo')MULTI.clear();cerrarTray();
   const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document);redibujar();pintarSel();
   if(h==='unir')aviso('Tocá una pieza y después otra para unirlas y ver la distancia');if(h==='lazo')aviso('Arrastrá un rectángulo para elegir varias piezas y después movelas juntas')}
-let NUM_J=null,PEND_J=null;const EQ_COL={L:'club',V:'#E23B2E'};
+let NUM_J=null,PEND_J=null,colorM=null;const EQ_COL={L:'club',V:'#E23B2E'};
 function usadosJ(col){return new Set(PZ.elementos.filter(x=>x.t==='J'&&x.color===col).map(x=>String(x.n)))}
 function sigLibre(col,n){const u=usadosJ(col);u.add(String(n));for(let j=1;j<=30;j++){const i=((+n+j-1)%30)+1;if(!u.has(String(i)))return i}return null}
 function panelEquipos(){const fila=(k,tit)=>{const col=EQ_COL[k],u=usadosJ(col);return `<div class="eqp"><div class="eqp-cab"><b>${tit}</b><span class="colores mini">${PALETA_J.filter(c=>c!=='hueco').map(c=>`<button class="sw ${col===c?'activo':''}" data-eqc="${k}|${c}" title="${c==='club'?'Camiseta del club':c}" style="${swBg(c)}"></button>`).join('')}</span></div><div class="eqp-g">${Array.from({length:18},(_,i)=>i+1).map(n=>{const en=u.has(String(n)),on=NUM_J===n&&colorJ===col;return `<button class="eqp-n ${en?'usado':''} ${on?'on':''}" data-eqn="${k}|${n}" title="${en?'Ya está en la cancha':'Tocá y después tocá la cancha'}"><span class="eqp-f" style="background:${col==='club'?camisetaClub().c1:col};color:${tintaSobre(col==='club'?camisetaClub().c1:col)}">${n}</span></button>`}).join('')}</div></div>`};
@@ -3716,12 +3741,14 @@ function abrirTray(g){const t=$('#pzTray');if(!t)return;if(TRAY===g){cerrarTray(
   if(g==='jug')h+=panelEquipos();
   if(g==='tac')h=`<div class="tray-tac"><button id="tcCsp"><b>⇄ Con / sin pelota</b><small>Arma la estructura con pelota y el bloque sin pelota, animados</small></button><button id="tcBloque" class="${PZ.bloque?'activo':''}"><b>📏 Distancias del bloque</b><small>${PZ.bloque?'Encendido · tocá para apagar':'Largo, ancho y metros entre líneas'}</small></button><button id="tcFj" class="${PZ.offside?'activo':''}"><b>🚩 Fuera de juego</b><small>${PZ.offside?'Encendido · tocá para apagar':'La línea sigue sola a la última defensora'}</small></button><button id="tcResp" class="${PZ.resp?'activo':''}"><b>🔷 Zonas de responsabilidad</b><small>${PZ.resp?'Encendido · tocá para cambiar o apagar':'El espacio que cubre cada '+J('sg')}</small></button></div>`;
   if(g==='mat')h+=`<div class="tray-g" style="margin-top:6px"><button id="pzImg"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.8" fill="currentColor"/><path d="M5 17l4.5-4.5 3 3 2.5-2.5L19 17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Imagen</button></div><input type="file" id="pzImgF" accept="image/*" hidden>`;
+  if(g==='mat')h+=`<div class="etq" style="margin-top:10px">Color de los materiales</div><div class="colores"><button class="chip ${colorM?'':'activo'}" data-tcm="" style="height:26px;padding:0 10px;font-size:12px">Original</button>${PALETA.filter(c=>c!=='hueco').map(c=>`<button class="sw ${colorM===c?'activo':''}" data-tcm="${c}" style="background:${c}" title="${c}"></button>`).join('')}</div><p class="sub" style="margin:4px 0 0;font-size:12px">Para cambiar uno que ya está: tocalo y elegí el color.</p>`;
   if(g==='zon')h+=`<div class="etq" style="margin-top:10px">Color de la zona</div><div class="colores">${PALETA.filter(c=>c!=='hueco').map(c=>`<button class="sw ${colorZ===c?'activo':''}" data-tcz="${c}" style="background:${c}"></button>`).join('')}</div>`;
   if(g==='fle')h+=`<p class="sub" style="margin:8px 0 0;font-size:12.5px">Arrastrá en la cancha para dibujarla. Después tocala para cambiarle color, grosor o curva.</p>`;
   t.innerHTML=h;t.hidden=false;
   if(g==='tac'){$('#tcCsp',t).onclick=()=>{cerrarTray();conSinPelota()};$('#tcBloque',t).onclick=()=>{cerrarTray();medirBloque()};$('#tcResp',t).onclick=()=>{cerrarTray();zonasResp()};$('#tcFj',t).onclick=()=>{cerrarTray();fueraDeJuego()}}
   $$('[data-th]',t).forEach(b=>b.onclick=()=>elegirHerr(b.dataset.th));
   $$('[data-tcj]',t).forEach(b=>b.onclick=()=>{colorJ=b.dataset.tcj;herr='J';TRAY=null;abrirTray('jug');const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document)});
+  $$('[data-tcm]',t).forEach(b=>b.onclick=()=>{colorM=b.dataset.tcm||null;TRAY=null;abrirTray('mat')});
   $$('[data-tcz]',t).forEach(b=>b.onclick=()=>{colorZ=b.dataset.tcz;if(!['rect','cuad','circ'].includes(herr))herr='rect';TRAY=null;abrirTray('zon');const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document)});
   const eq=$('#pzEquipo',t);if(eq)eq.onclick=()=>{cerrarTray();agregarEquipo()};
   $$('[data-eqn]',t).forEach(b=>b.onclick=()=>{const [k,n]=b.dataset.eqn.split('|');colorJ=EQ_COL[k];NUM_J=+n;herr='J';cerrarTray();const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document);aviso('Tocá la cancha para ubicar el '+n+' de '+(k==='L'?'Local':'Visitante')+'. Después seguís con el siguiente.')});
@@ -3893,6 +3920,15 @@ function anclaSel(o){const k=10;
   if(SEL.tipo==='tr'){const xs=o.pts.map(q=>q[0]),ys=o.pts.map(q=>q[1]);return [(Math.min(...xs)+Math.max(...xs))/2,Math.min(...ys),Math.max(...ys)]}
   if(SEL.tipo==='ln'){const a=PZ.elementos.find(e=>e.id===o.a),b=PZ.elementos.find(e=>e.id===o.b);if(!a||!b)return null;const [x1,y1]=posEn(PZ,a,FR),[x2,y2]=posEn(PZ,b,FR);return [(x1+x2)/2,Math.min(y1,y2),Math.max(y1,y2)]}
   return null}
+/* editar con una ventanita (sirve igual en la pizarra amplia y con doble clic) */
+function editarTextoPz(o){modal('Editar texto',`<label class="campo">Texto<input type="text" id="etTx" maxlength="80" value="${esc(o.txt||'')}"></label><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="etOk">Listo</button></div>`,{alMontar:m=>{const i=$('#etTx',m);setTimeout(()=>{i.focus();i.select()},50);const ok=()=>{const v=i.value.trim();cerrarModal();if(!v||v===o.txt)return;snap();o.txt=v;redibujar();pintarSel()};$('#etOk',m).onclick=ok;i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();ok()}}}})}
+function editarFichaPz(o){if(!o||o.t!=='J')return;const L=SJ();
+  modal('Número y nombre',`<form class="form" id="efF"><label class="campo">Número<input type="text" id="efN" maxlength="3" value="${esc(o.n??'')}"></label><label class="campo">Nombre<input type="text" id="efNom" maxlength="20" value="${esc(o.nombre||'')}" placeholder="Opcional"></label>
+    ${L.length?`<label class="campo ancho">O elegí de tu plantel<select id="efJ"><option value="">—</option>${ordenJ([...L]).map(j=>`<option value="${j.id}" ${o.jid===j.id?'selected':''}>${esc((j.dorsal?j.dorsal+' · ':'')+j.nombre+' '+(j.apellido||''))}</option>`).join('')}</select></label>`:''}</form>
+    <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="efOk">Listo</button></div>`,{alMontar:m=>{const n=$('#efN',m),nm=$('#efNom',m),sj=$('#efJ',m);setTimeout(()=>{n.focus();n.select()},50);
+    if(sj)sj.onchange=()=>{const j=L.find(x=>x.id===sj.value);if(j){if(j.dorsal)n.value=j.dorsal;nm.value=j.apellido||j.nombre||''}};
+    const ok=()=>{snap();o.n=n.value.trim();o.nombre=nm.value.trim();if(sj&&sj.value)o.jid=sj.value;else if(sj)delete o.jid;cerrarModal();redibujar();pintarSel()};
+    $('#efOk',m).onclick=ok;[n,nm].forEach(x=>x.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();ok()}})}})}
 function pintarBurbuja(){
   const bu=$('#pzBurb'),svg=$('#cancha svg');if(!bu||!svg)return;
   const o=objSel();if(!o||herr==='lazo'||animando){bu.hidden=true;BURB_COL=false;return}
@@ -3931,7 +3967,7 @@ function accionBurbuja(a,b){
   if(a==='col'){BURB_COL=!BURB_COL;pintarBurbuja();return}
   if(a==='lock'){snap();if(o.lock)delete o.lock;else o.lock=true;BURB_COL=false;redibujar();pintarSel();aviso(o.lock?'Bloqueada: ya no se mueve. Tocala para desbloquearla.':'Desbloqueada');return}
   if(a==='del'){BURB_COL=false;borrarSel();return}
-  if(a==='edit'){if(SEL.tipo==='tx'){const v=prompt('Texto',o.txt);if(v!=null&&v.trim()){snap();o.txt=v.trim();redibujar()}return}const p=$('#panelSel');if(p){pintarSel();p.scrollIntoView({behavior:'smooth',block:'center'});const i=$('input',p);if(i)setTimeout(()=>i.focus(),350)}return}
+  if(a==='edit'){if(SEL.tipo==='tx')editarTextoPz(o);else editarFichaPz(o);return}
   if(a==='dup'){duplicarSel();return}
   snap();
   if(a==='setcol'){const c=b.dataset.bc;if(SEL.tipo==='el'){o.color=c;if(o.t==='J')colorJ=c}else if(SEL.tipo==='zo'){o.color=c;colorZ=c}else o.c=c}
@@ -4045,10 +4081,18 @@ function borrarMulti(){if(!MULTI.size)return;snap();const ids=[...MULTI],n=ids.l
   [['fl','flechas'],['tx','textos'],['zo','zonas'],['tr','trazos']].forEach(([t,f])=>{PZ[f]=(PZ[f]||[]).filter(o=>!MULTI.has(t+':'+o.id)||o.lock)});
   MULTI.clear();redibujar();pintarSel();aviso(n+(n===1?' pieza borrada':' piezas borradas')+' · Deshacer con ↶')}
 function borrarSel(){if(!SEL)return;{const o=objSel();if(o&&o.lock){aviso('Está bloqueada: desbloqueala para borrarla');return}}snap();const f={el:'elementos',zo:'zonas',fl:'flechas',tx:'textos',ln:'lineas',tr:'trazos'}[SEL.tipo];PZ[f]=PZ[f].filter(x=>x.id!==SEL.id);if(SEL.tipo==='el'){PZ.pasos.forEach(p=>delete p.pos[SEL.id]);PZ.lineas=PZ.lineas.filter(l=>l.a!==SEL.id&&l.b!==SEL.id)}SEL=null;BURB_COL=false;redibujar();pintarSel()}
+let PZ_COPIA=null;
+function atajosPz(){const f=(k,t)=>`<div style="display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--linea)"><span style="min-width:150px">${k.split('+').map(x=>`<kbd style="display:inline-block;padding:2px 7px;border:1px solid var(--linea);border-bottom-width:2px;border-radius:6px;font:700 12px Barlow,Arial;margin-right:3px">${x}</kbd>`).join('')}</span><span>${t}</span></div>`;
+  modal('⌨️ Atajos del teclado',`<div>${f('Supr','Borrar lo que elegiste (también Retroceso ⌫)')}${f('Ctrl+Z','Deshacer')}${f('Ctrl+Y','Rehacer')}${f('Ctrl+D','Duplicar')}${f('Ctrl+C','Copiar')}${f('Ctrl+V','Pegar')}${f('Ctrl+A','Elegir todo lo de la cancha')}${f('Ctrl+S','Guardar el ejercicio')}${f('← ↑ → ↓','Mover un poquito (con Shift, más)')}${f('Esc','Soltar la selección · salir de amplia')}${f('?','Ver esta ayuda')}</div><p class="sub" style="font-size:12.5px;margin:10px 0 0">Para elegir varias: Shift + clic en cada una.</p><div class="modal-pie"><button class="btn pri" data-cerrar>Entendido</button></div>`)}
 document.addEventListener('keydown',e=>{if(ruta!=='pizarra')return;if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
   const c=e.ctrlKey||e.metaKey,kk=e.key.toLowerCase();
   if(c&&kk==='z'&&!e.shiftKey){e.preventDefault();deshacer();return}
   if(c&&(kk==='y'||(kk==='z'&&e.shiftKey))){e.preventDefault();rehacer();return}
+  if(c&&kk==='s'){e.preventDefault();const g=$('#pzGuardar');if(g)g.click();return}
+  if(c&&kk==='a'){e.preventDefault();SEL=null;MULTI.clear();PZ.elementos.forEach(x=>{if(!x.lock)MULTI.add(x.id)});[['fl','flechas'],['tx','textos'],['zo','zonas'],['tr','trazos']].forEach(([t,f])=>(PZ[f]||[]).forEach(o=>{if(!o.lock&&(t==='zo'||(o.fr||0)===FR))MULTI.add(t+':'+o.id)}));redibujar();pintarSel();aviso(MULTI.size+' piezas elegidas · Supr las borra · arrastrá una para mover todas');return}
+  if(c&&kk==='c'&&SEL){PZ_COPIA={...SEL};aviso('Copiada · Ctrl+V para pegar');return}
+  if(c&&kk==='v'&&PZ_COPIA){const f={el:'elementos',zo:'zonas',fl:'flechas',tx:'textos',tr:'trazos'}[PZ_COPIA.tipo];if(f&&(PZ[f]||[]).some(x=>x.id===PZ_COPIA.id)){e.preventDefault();SEL={...PZ_COPIA};duplicarSel();PZ_COPIA={...SEL};redibujar();pintarSel()}return}
+  if(e.key==='?'||(e.key==='F1')){e.preventDefault();atajosPz();return}
   if(e.key==='Escape'){if(TRAY){cerrarTray();return}if(SEL||MULTI.size){SEL=null;MULTI.clear();redibujar();pintarSel();return}if(PZ_FULL){ponerAmplia(false)}return}
   if(MULTI.size&&!SEL&&(e.key==='Delete'||e.key==='Backspace')){e.preventDefault();borrarMulti();return}
   if(!SEL)return;
@@ -4058,10 +4102,17 @@ document.addEventListener('keydown',e=>{if(ruta!=='pizarra')return;if(['INPUT','
   if(mv){e.preventDefault();const st=e.shiftKey?2:.5,o=objSel();if(!o)return;snap();const dx=mv[0]*st,dy=mv[1]*st;
     if(o.lock)return;if(SEL.tipo==='el'){const [x,y]=posEn(PZ,o,FR);setPos(o,x+dx,y+dy)}else if(SEL.tipo==='tr'){o.pts=o.pts.map(q=>[q[0]+dx,q[1]+dy])}else if(SEL.tipo==='fl'){o.x1+=dx;o.x2+=dx;o.y1+=dy;o.y2+=dy;if(o.cx!=null){o.cx+=dx;o.cy+=dy}}else if(o.x!=null){o.x+=dx;o.y+=dy}
     redibujar()}});
+/* vista TV: pasar un punto de la pantalla a la cancha plana (homografía con las 4 esquinas) */
+function homografia(src,dst){const A=[],B=[];for(let i=0;i<4;i++){const [x,y]=src[i],[u,v]=dst[i];A.push([x,y,1,0,0,0,-u*x,-u*y]);B.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);B.push(v)}
+  const n=8;for(let c=0;c<n;c++){let m=c;for(let r=c+1;r<n;r++)if(Math.abs(A[r][c])>Math.abs(A[m][c]))m=r;[A[c],A[m]]=[A[m],A[c]];[B[c],B[m]]=[B[m],B[c]];const d=A[c][c];if(Math.abs(d)<1e-12)return null;for(let r=0;r<n;r++){if(r===c)continue;const f=A[r][c]/d;if(!f)continue;for(let k=c;k<n;k++)A[r][k]-=f*A[c][k];B[r]-=f*B[c]}}
+  const h=B.map((b,i)=>b/A[i][i]);return (x,y)=>{const w=h[6]*x+h[7]*y+1;return [(h[0]*x+h[1]*y+h[2])/w,(h[3]*x+h[4]*y+h[5])/w]}}
+function tvAPlano(svg,cx,cy){const ks=[...svg.querySelectorAll('.tvk')].sort((a,b)=>a.dataset.k-b.dataset.k);if(ks.length!==4)return null;
+  const scr=ks.map(e=>{const r=e.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]}),usr=ks.map(e=>[+e.getAttribute('x')+.5,+e.getAttribute('y')+.5]);
+  const f=homografia(scr,usr);if(!f)return null;const [x,y]=f(cx,cy);return {x,y}}
 function conectarCancha(){
   const svg=$('#cancha svg');if(!svg)return;
   const k=10,r=radio(PZ.formato);
-  const pto=ev=>{const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());const [W,H]=FORMATOS[PZ.formato];return {x:Math.max(-1,Math.min(W+1,q.x/k)),y:Math.max(-1,Math.min(H+1,q.y/k))}};
+  const pto=ev=>{let q;if(PZ_TV){q=tvAPlano(svg,ev.clientX,ev.clientY)}if(!q){const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;q=p.matrixTransform(svg.getScreenCTM().inverse())}const [W,H]=FORMATOS[PZ.formato];return {x:Math.max(-1,Math.min(W+1,q.x/k)),y:Math.max(-1,Math.min(H+1,q.y/k))}};
   const repintar=(o={})=>{svg.innerHTML=new DOMParser().parseFromString(svgPizarra(PZ,{frame:FR,sel:SEL,multi:MULTI,vivo:true,...o}),'image/svg+xml').documentElement.innerHTML};
   let drag=null;
   const hits=p=>{
@@ -4071,7 +4122,7 @@ function conectarCancha(){
       if(SEL.tipo==='zo'){const z=PZ.zonas.find(x=>x.id===SEL.id);if(z&&d(z.x+z.w,z.y+z.h)<r*1.1)return {t:'zoRes',o:z}}
       if(SEL.tipo==='fl'){const a=PZ.flechas.find(x=>x.id===SEL.id);if(a){const [mx,my]=puntoCurva(a,.5);if(d(mx,my)<r*1.1)return {t:'flMid',o:a};if(d(a.x1,a.y1)<r)return {t:'flA',o:a};if(d(a.x2,a.y2)<r)return {t:'flB',o:a}}}
     }
-    let best=null,bd=1e9;PZ.elementos.forEach(e=>{const [x,y]=posEn(PZ,e,FR);const dd=d(x,y);const lim=(e.t==='E'?r*2.6:e.t==='G'?3.7:r*1.5)*(e.s||1);if(dd<lim&&dd<bd){bd=dd;best=e}});if(best)return {t:'el',o:best};
+    let best=null,bd=1e9;const tvK=PZ_TV?1/Math.cos((PZ_TVANG==='lat'?40:+PZ_TVANG||34)*Math.PI/180):0;PZ.elementos.forEach(e=>{const [x,y]=posEn(PZ,e,FR);let dd=d(x,y);if(tvK&&e.t==='J'){const top=y-3.3*r*(e.s||1)*tvK,yy=Math.max(top,Math.min(y,p.y));dd=Math.min(dd,d(x,yy))}const lim=(e.t==='E'?r*2.6:e.t==='G'?3.7:r*1.5)*(e.s||1);if(dd<lim&&dd<bd){bd=dd;best=e}});if(best)return {t:'el',o:best};
     for(const t of [...PZ.textos].reverse()){const w=t.txt.length*r*(t.tam||1)*.32+r*.4;if(Math.abs(p.x-t.x)<w&&p.y<t.y+r*.3&&p.y>t.y-r*(t.tam||1))return {t:'tx',o:t}}
     for(const l of PZ.lineas){const ea=PZ.elementos.find(e=>e.id===l.a),eb=PZ.elementos.find(e=>e.id===l.b);if(!ea||!eb)continue;const [x1,y1]=posEn(PZ,ea,FR),[x2,y2]=posEn(PZ,eb,FR),L2=(x2-x1)**2+(y2-y1)**2||1,tt=Math.max(0,Math.min(1,((p.x-x1)*(x2-x1)+(p.y-y1)*(y2-y1))/L2));if(d(x1+tt*(x2-x1),y1+tt*(y2-y1))<r*.6)return {t:'ln',o:l}}
     for(const t of (PZ.trazos||[]).filter(t=>(t.fr||0)===FR))if(t.pts.some(q=>d(q[0],q[1])<r*.7))return {t:'tr',o:t};
@@ -4079,9 +4130,12 @@ function conectarCancha(){
     for(const z of [...PZ.zonas].reverse())if(dentroZona(z,p.x,p.y))return {t:'zo',o:z};
     return null;
   };
+  const dobleToque=ev=>{const t=performance.now(),u=window.ultToquePz;window.ultToquePz={t,x:ev.clientX,y:ev.clientY};if(u&&t-u.t<380&&Math.hypot(ev.clientX-u.x,ev.clientY-u.y)<12){window.ultToquePz=null;return true}return false};
+  const editarDoble=ev=>{if(animando||herr!=='mover')return false;const h=hits(pto(ev));if(!h||!h.o||h.o.lock)return false;if(h.t==='tx'){SEL={tipo:'tx',id:h.o.id};editarTextoPz(h.o);return true}if(h.t==='el'&&h.o.t==='J'){SEL={tipo:'el',id:h.o.id};editarFichaPz(h.o);return true}return false};
   svg.onpointerdown=ev=>{
     if(animando)return;
-    ev.preventDefault();const p=pto(ev);svg.setPointerCapture(ev.pointerId);if(TRAY)cerrarTray();
+    if(dobleToque(ev)&&editarDoble(ev)){ev.preventDefault();return}
+    ev.preventDefault();{const ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))ae.blur()}const p=pto(ev);svg.setPointerCapture(ev.pointerId);if(TRAY)cerrarTray();
     // con una herramienta de colocar, tocar justo una pieza existente la elige (así se puede editar sin cambiar de herramienta)
     if(herr!=='mover'&&herr!=='borrar'&&herr!=='unir'&&herr!=='lazo'&&!FLECHAS[herr]&&!['rect','cuad','circ'].includes(herr)){const h0=hits(p);if(h0&&h0.t==='el'){const [x0,y0]=posEn(PZ,h0.o,FR);if(Math.hypot(x0-p.x,y0-p.y)<r*.9*(h0.o.s||1)){herr='mover';const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document)}}}
     {const bu=$('#pzBurb');if(bu)bu.hidden=true}
@@ -4118,7 +4172,7 @@ function conectarCancha(){
     if(herr==='texto'){modal('Texto en la cancha',`<label class="campo">Qué querés escribir<input type="text" id="nuevoTx" placeholder="Ej.: Zona de presión"></label><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okTx">Agregar</button></div>`,{alMontar:m=>{const ok=()=>{const v=$('#nuevoTx',m).value.trim();cerrarModal();if(!v)return;snap();const t={id:uid(),x:p.x,y:p.y,txt:v,tam:1};PZ.textos.push(t);SEL={tipo:'tx',id:t.id};herr='mover';pintar()};$('#okTx',m).onclick=ok;$('#nuevoTx',m).onkeydown=e=>{if(e.key==='Enter')ok()}}});return}
     snap();const e={id:uid(),t:herr,x:p.x,y:p.y};
     if(herr==='J'){e.color=colorJ;e.n=PZ.elementos.filter(x=>x.t==='J'&&x.color===colorJ).length+1}
-    else if(MATERIALES[herr])e.color=MATERIALES[herr].c;
+    else if(MATERIALES[herr])e.color=(colorM&&herr!=='P'?colorM:MATERIALES[herr].c);
     if(herr==='I'){const us=PZ.elementos.filter(x=>x.t==='I').map(x=>+x.n||0);e.n=(us.length?Math.max(...us):0)+1}
     if(herr==='J'&&PEND_J){const pj=PEND_J;e.n=pj.dorsal||e.n;e.nombre=pj.apellido||pj.nombre||'';e.jid=pj.id;PEND_J=null;NUM_J=null;PZ.elementos.push(e);SEL={tipo:'el',id:e.id};redibujar();pintarSel();herr='mover';const bar=$('.pz-bar');if(bar)bar.outerHTML=barraPizarra();conectarBarra(document);abrirElegirJug();return}
     if(herr==='J'&&NUM_J!=null){e.n=NUM_J;NUM_J=sigLibre(colorJ,NUM_J);if(NUM_J!=null)aviso('Siguiente: '+NUM_J+' · tocá la cancha')}
@@ -4171,18 +4225,18 @@ function colocarEquipo(formato,sistema,lado,col,arqNaranja,gente,colArq){
 function agregarEquipo(){
   if(!COMPLETAS.includes(PZ.formato)){aviso('Para cargar un equipo completo elegí una cancha de 11, 9, 8, 7 o 5.');return}
   const sist=SISTEMAS[PZ.formato],prox=proximoPartido(),hayTit=prox&&prox.titulares&&prox.titulares.length;
-  const colRival=colorJ==='#FFFFFF'?'#E23B2E':'#FFFFFF';
+  const colRival=colorJ==='#FFFFFF'?'#E23B2E':'#FFFFFF',yaHay=PZ.elementos.filter(e=>e.t==='J'&&e.color===colorJ).length>=4,col0=yaHay?(colorJ==='#E23B2E'?'#FFFFFF':'#E23B2E'):colorJ;
   modal('Agregar equipo completo',`<form class="form" id="fEq">
     <label class="campo">Sistema<select id="eqS" name="sistema">${opts(sist,sist[0])}</select></label>
-    <label class="campo">Ataca hacia<select id="eqL" name="lado">${opts([['der','La derecha →'],['izq','← La izquierda']],'der')}</select></label>
-    <div class="campo ancho">Color de camiseta<div class="colores" id="eqC">${PALETA_J.map(c=>`<button type="button" class="sw ${colorJ===c?'activo':''}" data-c="${c}" style="${swBg(c)}"></button>`).join('')}</div></div>
+    <label class="campo">Ataca hacia<select id="eqL" name="lado">${opts([['der','La derecha →'],['izq','← La izquierda']],yaHay?'izq':'der')}</select></label>
+    <div class="campo ancho">Color de camiseta<div class="colores" id="eqC">${PALETA_J.map(c=>`<button type="button" class="sw ${col0===c?'activo':''}" data-c="${c}" style="${swBg(c)}"></button>`).join('')}</div></div>
     <label class="campo ancho" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="eqArq" name="arq" checked> ${arqTxt()} con camiseta naranja</label>
     <label class="campo ancho">Nombres<select id="eqN" name="nombres"><option value="">Solo números</option>${SJ().length?`<option value="plantel">Nombres y dorsales del plantel</option>`:''}${hayTit?`<option value="partido">Titulares del próximo partido (vs ${esc(prox.rival)})</option>`:''}</select></label>
     <div class="ancho" style="border-top:1px solid var(--linea);padding-top:10px"><label style="display:flex;align-items:center;gap:8px;font-weight:600"><input type="checkbox" id="eqR" name="rival"> Sumar el rival enfrentado</label></div>
     <label class="campo">Sistema del rival<select id="eqRS" name="sistRival">${opts(sist,sist[0])}</select></label>
     <div class="campo">Color del rival<div class="colores" id="eqRC">${PALETA.filter(c=>c!=='hueco').map(c=>`<button type="button" class="sw ${colRival===c?'activo':''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div></div>
   </form><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="okEq">Agregar a la cancha</button></div>`,{alMontar:m=>{
-    let col=colorJ,colR=colRival;
+    let col=col0,colR=colRival;
     $$('#eqC [data-c]',m).forEach(b=>b.onclick=()=>{col=b.dataset.c;$$('#eqC .sw',m).forEach(x=>x.classList.toggle('activo',x===b))});
     $$('#eqRC [data-c]',m).forEach(b=>b.onclick=()=>{colR=b.dataset.c;$$('#eqRC .sw',m).forEach(x=>x.classList.toggle('activo',x===b))});
     $('#okEq',m).onclick=()=>{
@@ -4247,7 +4301,7 @@ function plantillasABP(){
   const cuerpo=()=>`<div class="seg" style="margin-bottom:12px"><button data-tp="ent" class="${tabPlant==='ent'?'activo':''}">Entrenamiento</button><button data-tp="abp" class="${tabPlant==='abp'?'activo':''}">Pelota parada</button></div><p class="sub" style="margin:0 0 12px">Elegí una y ajustala a tu equipo. Se abre como un ejercicio nuevo (no borra el actual si ya lo guardaste).</p><div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${lista().map((p,i)=>`<button class="ct" data-pl="${i}" style="text-align:left;padding:0;font:inherit;color:inherit"><div class="mini">${svgPizarra(armarPlantilla(p.f,p.fn()),{mini:true})}</div><div class="cuerpo" style="padding:9px 10px;gap:4px"><b style="font-size:14px">${esc(p.n)}</b><span class="sub" style="font-size:12px">${esc(p.sub)} · ${esc(p.f)}</span></div></button>`).join('')}</div>`;
   const conectar=m=>{
     $$('[data-tp]',m).forEach(b=>b.onclick=()=>{tabPlant=b.dataset.tp;m.querySelector('#plCuerpo').innerHTML=cuerpo();conectar(m)});
-    $$('[data-pl]',m).forEach(b=>b.onclick=()=>{const p=lista()[+b.dataset.pl];PZ=armarPlantilla(p.f,p.fn());PZ.nombre=p.n;PZ.categoria=p.cat;hist=[];FR=0;SEL=null;MULTI.clear();cerrarModal();herr='mover';pintar();aviso('Plantilla cargada: ajustala y tocá Guardar')});
+    $$('[data-pl]',m).forEach(b=>b.onclick=()=>{const p=lista()[+b.dataset.pl];resguardarPz();PZ=armarPlantilla(p.f,p.fn());PZ.nombre=p.n;PZ.categoria=p.cat;hist=[];FR=0;SEL=null;MULTI.clear();cerrarModal();herr='mover';pintar();aviso('Plantilla cargada: ajustala y tocá Guardar')});
   };
   modal('Plantillas',`<div id="plCuerpo">${cuerpo()}</div>`,{ancho:true,alMontar:conectar});
 }
@@ -4355,14 +4409,16 @@ function reaccionRivales(pz,pasos,W,H){
   const esArq=e=>e.color==='#F08A24';
   const riv=jug.filter(e=>e.color!==ataca&&!NEUTRO.includes(e.color));if(!riv.length)return;
   pz.rivIds=riv.map(e=>e.id);const casa={},cur={};riv.forEach(e=>{casa[e.id]=[e.x,e.y];cur[e.id]=[e.x,e.y]});
-  const S0=Math.max(W,H),corre=S0*.28,marca=Math.max(1.4,S0*.04),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
-  pasos.forEach(p=>{if(!p.pos[pel.id])return;bp=p.pos[pel.id];
+  const rr=radio(pz.formato)*(pz.escala||1),S0=Math.max(W,H),corre=S0*.28,marca=Math.max(1.4,S0*.04,rr*2.6),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const atac=jug.filter(e=>!riv.includes(e)),posA={};atac.forEach(e=>posA[e.id]=[e.x,e.y]);
+  pasos.forEach(p=>{atac.forEach(a=>{if(p.pos[a.id])posA[a.id]=p.pos[a.id]});if(!p.pos[pel.id])return;bp=p.pos[pel.id];
     const libres=riv.filter(e=>!p.pos[e.id]&&!esArq(e));
     const pres=libres.slice().sort((a,b)=>d(cur[a.id],bp)-d(cur[b.id],bp))[0];
     riv.forEach(e=>{if(p.pos[e.id])return;let t;
       if(esArq(e)){t=[casa[e.id][0]+(bp[0]-casa[e.id][0])*.12,casa[e.id][1]+(bp[1]-casa[e.id][1])*.06]}
       else if(e===pres){const v=[bp[0]-cur[e.id][0],bp[1]-cur[e.id][1]],L=Math.hypot(...v)||1,avance=Math.min(corre,Math.max(0,L-marca));t=[cur[e.id][0]+v[0]/L*avance,cur[e.id][1]+v[1]/L*avance]}
       else{const h=casa[e.id];t=[h[0]+(bp[0]-h[0])*.22,h[1]+(bp[1]-h[1])*.14]}
+      if(!esArq(e))for(let it=0;it<3;it++)atac.forEach(a=>{const q=p.pos[a.id]||posA[a.id],v=[t[0]-q[0],t[1]-q[1]],L=Math.hypot(...v);if(L<rr*2.2){const u=L>.01?[v[0]/L,v[1]/L]:[0,1];t=[q[0]+u[0]*rr*2.2,q[1]+u[1]*rr*2.2]}});
       t=[cl(t[0],.5,W-.5),cl(t[1],.5,H-.5)];
       if(d(t,cur[e.id])>.3){p.pos[e.id]=[+t[0].toFixed(2),+t[1].toFixed(2)];cur[e.id]=p.pos[e.id]}})})}
 /* Rehace la animación automática con la versión nueva (solo pizarras animadas por Metodika) */
@@ -4761,7 +4817,7 @@ async function escenaTV(g,pz,st,box,t){TV_ANG=(PZ_TVANG==='lat'?40:+PZ_TVANG||34
 }
 
 /* ---------- Íconos propios de Metodika (mismo trazo en toda la app) ---------- */
-const IC={x:'<path d="M6 6l12 12M18 6L6 18"/>',panel:'<path d="M4 6h16M4 12h16M4 18h16"/>',play:'<path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/>',video:'<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="M16 10.5l5-3v9l-5-3"/>',
+const IC={x:'<path d="M6 6l12 12M18 6L6 18"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',panel:'<path d="M4 6h16M4 12h16M4 18h16"/>',play:'<path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/>',video:'<rect x="3" y="6" width="13" height="12" rx="2.5"/><path d="M16 10.5l5-3v9l-5-3"/>',
  bajar:'<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>',compartir:'<circle cx="17.5" cy="5.5" r="2.5"/><circle cx="6.5" cy="12" r="2.5"/><circle cx="17.5" cy="18.5" r="2.5"/><path d="M8.7 10.8l6.6-4M8.7 13.2l6.6 4"/>',tarea:'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4h6v3H9zM8.5 12h7M8.5 16h5"/>',
  foto:'<rect x="3" y="6.5" width="18" height="13" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8.5 6.5l1.5-2.5h4l1.5 2.5"/>',reloj:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
  jug:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',pelota:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5l3.3 2.4-1.3 3.9h-4l-1.3-3.9z" fill="currentColor"/><path d="M12 3.5v4M15.3 9.9l4-1.3M14 13.8l2.5 3.4M10 13.8L7.5 17.2M8.7 9.9l-4-1.3"/>',
@@ -4847,7 +4903,7 @@ function conectarRapida(){
   if(q('prAmp'))q('prAmp').onclick=()=>ponerAmplia(!PZ_FULL);
   if(q('prFj'))q('prFj').onclick=fueraDeJuego;if(q('prMun'))q('prMun').onclick=ajustesMunecos;
   if(q('tvSalir'))q('tvSalir').onclick=()=>{PZ_TV=false;pintar()};
-  if(q('prTv'))q('prTv').onclick=()=>{PZ_TV=!PZ_TV;SEL=null;pintar();if(PZ_TV)aviso('Vista TV: ideal para presentar. Para mover fichas, volvé a tocar 📺 TV.')};
+  if(q('prTv'))q('prTv').onclick=()=>{PZ_TV=!PZ_TV;SEL=null;pintar();if(PZ_TV)aviso('Vista TV: podés mover las fichas igual. Para volver a la cancha plana, tocá 📺 TV.')};
   if(q('pzZMas'))q('pzZMas').onclick=()=>zoomPz(PZV.s+.5);
   if(q('pzZMenos'))q('pzZMenos').onclick=()=>zoomPz(PZV.s-.5);
   if(q('pzZ0'))q('pzZ0').onclick=()=>{PZV={s:1,cx:.5,cy:.5};aplicarZoomPz()};
