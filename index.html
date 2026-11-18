@@ -7570,7 +7570,7 @@ async function leerMaterial(x,btn){
   btn.disabled=false;btn.textContent=t;
 }
 function adminLecturas(){
-  modal('Administrar biblioteca de lectura',`<div class="tabs" id="tabsAL"><button data-al="mat" class="activo">Subir material</button><button data-al="rec">Agregar recomendada</button><button data-al="planes">Clubes con plan</button></div><div id="cuerpoAL"></div>`,{ancho:true,alMontar:m=>{
+  modal('Panel de Metodika · lecturas y clubes',`<div class="tabs" id="tabsAL"><button data-al="mat" class="activo">Subir material</button><button data-al="rec">Agregar recomendada</button><button data-al="planes">Clubes con plan</button></div><div id="cuerpoAL"></div>`,{ancho:true,alMontar:m=>{
     const pint=k=>{$$('[data-al]',m).forEach(b=>b.classList.toggle('activo',b.dataset.al===k));const c=$('#cuerpoAL',m);
       if(k==='mat'){c.innerHTML=`<form class="form" id="fMat"><label class="campo ancho">Título<input type="text" id="lmT" placeholder="Ej.: Libro de Planificación Metodika"></label><label class="campo ancho">Descripción<textarea id="lmD" placeholder="Qué trae y para quién sirve"></textarea></label><label class="campo ancho">Archivo (PDF, hasta 15 MB)<input type="file" id="lmF" accept="application/pdf"></label></form><p class="sub" style="font-size:13px">Solo subí material tuyo o con permiso de quien lo escribió.</p><div class="modal-pie"><span class="sub" id="lmP" style="margin-right:auto"></span><button class="btn pri" id="lmOk">Subir</button></div>`;
         $('#lmOk',m).onclick=async()=>{const ti=$('#lmT',m).value.trim(),f=$('#lmF',m).files[0];if(!ti||!f){aviso('Poné un título y elegí el archivo.');return}if(f.size>15*1024*1024){aviso('El archivo pesa más de 15 MB.');return}
