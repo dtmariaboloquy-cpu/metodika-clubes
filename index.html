@@ -1073,6 +1073,15 @@ details.se-mas{border:1px solid var(--linea);border-radius:10px;padding:8px 12px
 .aj-w{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:16px;align-items:start}.aj-prev{background:#2A2D27;border-radius:16px;overflow:hidden;touch-action:none;background-image:linear-gradient(45deg,#33362F 25%,transparent 25%,transparent 75%,#33362F 75%),linear-gradient(45deg,#33362F 25%,transparent 25%,transparent 75%,#33362F 75%);background-size:24px 24px;background-position:0 0,12px 12px}.aj-prev canvas{width:100%;height:auto;display:block;cursor:grab}
 .aj-prev.circ{border-radius:50%;max-width:360px;margin:auto}.aj-ctl{display:flex;flex-direction:column;gap:6px}.aj-mini{display:flex;gap:10px;margin-top:10px}.aj-m{width:72px;height:72px;border-radius:14px;display:grid;place-items:center}.aj-m.o{background:#141412}.aj-m.c{background:#F4F1EA}.aj-m canvas{width:56px;height:56px}
 @media (max-width:640px){.aj-w{grid-template-columns:1fr}}
+.tv-ov{position:absolute;left:0;top:0;pointer-events:none;z-index:3;overflow:visible}.cancha-box{overflow:hidden}
+
+/* que la barra de arriba y la de pasos no tapen los arcos: la cancha se dibuja en el espacio libre entre las dos */
+.pzA:is(.piz-full,.pz-emb) .cancha-box{padding:44px 74px 64px 84px;box-sizing:border-box}
+.pzA:is(.piz-full,.pz-emb) .cancha-box:has(.cancha.tv){padding:0}
+.pzA:is(.piz-full,.pz-emb) #cancha>svg{box-shadow:none!important;border-radius:0!important}
+@media (max-width:900px){.pzA:is(.piz-full,.pz-emb) .cancha-box{padding:40px 6px 60px}}
+.ct-sel{display:flex;gap:8px;align-items:center;margin-bottom:12px}.ct-sel select{width:auto;font-weight:700}.ct-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.ct-c{background:var(--carta2,rgba(255,255,255,.04));border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}.ct-c b{font:800 26px var(--f-x,Barlow)}.ct-c small{color:var(--sub)}
+.ct-t td.n,.ct-t th.n{text-align:right;white-space:nowrap}.ct-up{color:#2E9E5B;font-weight:800;font-style:normal}.ct-down{color:#D0402F;font-weight:800;font-style:normal}.ct-j td.n i{font-size:12px;margin-left:3px}
 </style>
 
 <div class="app">
@@ -1663,7 +1672,7 @@ function pintar(){
   else if(S.demo)$('#salirDemo').onclick=()=>confirmar('¿Empezar con tu club?','Se borran los datos de ejemplo y la app queda vacía para que cargues tu plantel. La biblioteca trae 12 tareas de base para arrancar.','Empezar de cero',()=>{S=clubVacio();guardar();ir('ajustes');aviso('Listo. Cargá los datos de tu club.')});
   document.body.classList.toggle('en-pizarra',ruta==='pizarra');document.body.dataset.pilar=pilarDe(ruta)||'';
   (VISTAS[ruta]||VISTAS.inicio)($('#cont'));
-  if(ruta==='pizarra')requestAnimationFrame(ajustarPzAlto);
+  if(ruta==='pizarra'){requestAnimationFrame(ajustarPzAlto);if(typeof tvVigilar==='function')tvVigilar()}else if(TV_OBS){TV_OBS.disconnect();TV_OBS=null}
 }
 
 /* ================= CALENDARIO ================= */
@@ -1872,9 +1881,9 @@ function minutosJugados(p,id){
   if(entra!==null)tot+=fin-entra;
   return tot;
 }
-function statsJugador(id){
+function statsJugador(id,pf){
   const o={pj:0,min:0,gol:0,asis:0,rec:0,per:0,fal:0,ama:0,roj:0,des:0};
-  SP().filter(p=>p.estado!=='programado').forEach(p=>{
+  SP().filter(p=>p.estado!=='programado'&&(!pf||pf(p))).forEach(p=>{
     const m=minutosJugados(p,id);if(m>0){o.pj++;o.min+=m}
     if(p.statsJ){const x=p.statsJ[id];if(x){o.gol+=x.gol||0;o.asis+=x.asis||0;o.ama+=x.ama||0;o.roj+=x.roj||0}return}
     p.eventos.forEach(e=>{
@@ -1885,7 +1894,7 @@ function statsJugador(id){
       if(e.tipo==='tarjeta'){e.color==='roja'?o.roj++:o.ama++}
     });
   });
-  const j=jugador(id),b=j&&j.base;if(b){['pj','min','gol','asis','ama','roj'].forEach(k=>{o[k]+=(+b[k]||0)})}
+  const j=jugador(id),b=!pf&&j&&j.base;if(b){['pj','min','gol','asis','ama','roj'].forEach(k=>{o[k]+=(+b[k]||0)})}
   return o;
 }
 function notaPartidosJ(j){const v=SP().map(x=>x.notasJ&&+x.notasJ[j.id]).filter(n=>n>0),b=j.base&&+j.base.nota>0?j.base:null,n=v.length+(b?(+b.pj||1):0),s=v.reduce((a,x)=>a+x,0)+(b?(+b.nota)*(+b.pj||1):0);return n?s/n:null}
@@ -3863,8 +3872,9 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
   if(multi&&multi.size&&!mini)pz.elementos.filter(e=>multi.has(e.id)).forEach(e=>{const [x,y]=pos(e);hl+=`<circle cx="${x*k}" cy="${y*k}" r="${r*1.55}" fill="none" stroke="#4FB3E8" stroke-width="${r*.14}" stroke-dasharray="${r*.35} ${r*.25}"/>`});
   if(rectSel)hl+=`<rect x="${Math.min(rectSel.x1,rectSel.x2)*k}" y="${Math.min(rectSel.y1,rectSel.y2)*k}" width="${Math.abs(rectSel.x2-rectSel.x1)*k}" height="${Math.abs(rectSel.y2-rectSel.y1)*k}" fill="rgba(79,179,232,.12)" stroke="#4FB3E8" stroke-width="${r*.08}" stroke-dasharray="${r*.3} ${r*.2}"/>`;
   const extra=mini?'':svgBloque(pz,pos,k,r,W,H)+svgOffside(pz,pos,k,r,W,H)+(sinNota?'':svgNota(pz,over?frame+1:frame,k,W,H));
+  if(vivo&&PZ_TV&&!mini)TVF={pz,frame,over,L:[]};
   const tvK=vivo&&PZ_TV&&!mini?1/Math.cos((PZ_TVANG==='lat'?40:+PZ_TVANG||34)*Math.PI/180):1,elV=e=>{const [x,y]=pos(e),h=alt&&e.t==='P'?(alt[e.id]||0):0;let body;
-    if(tvK!==1&&e.t==='J'){body=figuraPieza(pz,e,x*k,y*k,r*(e.s||1)*1.85,frame,over,performance.now())}
+    if(tvK!==1&&e.t==='J'){TVF.L.push({e,x:x*k,y:y*k,r:r*(e.s||1)});body=`<ellipse cx="${x*k}" cy="${y*k}" rx="${r*(e.s||1)*.95}" ry="${r*(e.s||1)*.55}" fill="rgba(0,0,0,.4)"/>`}
     else if(h>.05){const rr=r*(e.s||1),up=h*k*(tvK!==1?1.2:.55),sc=1+h*(tvK!==1?.02:.07);body=`<ellipse cx="${x*k}" cy="${y*k+rr*.25}" rx="${rr*.85*Math.max(.5,1-h/14)}" ry="${rr*.35}" fill="rgba(0,0,0,.35)"/><g transform="translate(0 ${-up}) translate(${x*k} ${y*k}) scale(${sc}) translate(${-x*k} ${-y*k})">${el(e)}</g>`}
     else body=el(e);
     return tvK===1?body:`<g transform="translate(${x*k} ${y*k}) scale(1 ${tvK.toFixed(3)}) translate(${-x*k} ${-y*k})">${body}</g>`};
@@ -4323,7 +4333,22 @@ async function exportarPdfPizarra(cfg){
 /* ---------- Menú flotante de la pieza elegida ---------- */
 let BURB_COL=false;
 function objSel(){if(!SEL)return null;const f={el:'elementos',zo:'zonas',fl:'flechas',tx:'textos',ln:'lineas',tr:'trazos'}[SEL.tipo];return f?PZ[f].find(x=>x.id===SEL.id):null}
-function figAltoPant(svg,o){const g=svg.querySelector(`[data-fid="${o.id}"]`);if(g){const r=g.getBoundingClientRect();if(r.height)return r.height}const vb=svg.viewBox.baseVal,esc=svg.getBoundingClientRect().width/vb.width;return radio(PZ.formato)*10*(o.s||1)*4.6*esc}
+/* Vista TV: las jugadoras se dibujan paradas (de pie, no inclinadas por la perspectiva) en una capa encima de la cancha */
+let TVF=null,TV_OBS=null,TV_RAF=0;
+function tvFiguras(){TV_RAF=0;const box=$('.cancha-box'),sv=$('#cancha>svg');let ov=document.getElementById('tvOv');
+  if(!PZ_TV||!box||!sv||!TVF||ruta!=='pizarra'){if(ov)ov.remove();return}
+  const ks=[...sv.querySelectorAll('.tvk')].sort((a,b)=>a.dataset.k-b.dataset.k);if(ks.length!==4)return;
+  const B=box.getBoundingClientRect(),scr=ks.map(e=>{const r=e.getBoundingClientRect();return [r.left+r.width/2-B.left,r.top+r.height/2-B.top]}),usr=ks.map(e=>[+e.getAttribute('x')+.5,+e.getAttribute('y')+.5]),fw=homografia(usr,scr);if(!fw)return;
+  if(!ov){ov=document.createElementNS('http://www.w3.org/2000/svg','svg');ov.id='tvOv';ov.setAttribute('class','tv-ov');box.appendChild(ov)}
+  ov.setAttribute('viewBox',`0 0 ${B.width} ${B.height}`);ov.setAttribute('width',B.width);ov.setAttribute('height',B.height);
+  const ahora=performance.now(),items=TVF.L.map(it=>{const [x,y]=fw(it.x,it.y),[x2,y2]=fw(it.x+it.r,it.y);return {...it,sx:x,sy:y,rp:Math.hypot(x2-x,y2-y)}}).sort((a,b)=>a.sy-b.sy);
+  const esc=S.club&&S.club.escudo;
+  ov.innerHTML=`<defs>${esc?`<image id="escClub" href="${esc}" width="16" height="16" preserveAspectRatio="xMidYMid meet"/>`:''}${defsCamiseta()}</defs>`+items.map(it=>figuraPieza(TVF.pz,it.e,it.sx,it.sy,it.rp*1.9,TVF.frame,TVF.over,ahora)).join('')}
+function tvVigilar(){const c=$('#cancha');if(TV_OBS){TV_OBS.disconnect();TV_OBS=null}if(!c||!PZ_TV){tvFiguras();return}
+  TV_OBS=new MutationObserver(()=>{if(!TV_RAF)TV_RAF=requestAnimationFrame(tvFiguras)});TV_OBS.observe(c,{childList:true,subtree:true,attributes:true,attributeFilter:['viewBox']});
+  requestAnimationFrame(()=>requestAnimationFrame(tvFiguras))}
+window.addEventListener('resize',()=>{if(PZ_TV&&!TV_RAF)TV_RAF=requestAnimationFrame(tvFiguras)});
+function figAltoPant(svg,o){const g=document.querySelector(`#tvOv [data-fid="${o.id}"]`)||svg.querySelector(`[data-fid="${o.id}"]`);if(g){const r=g.getBoundingClientRect();if(r.height)return r.height}const vb=svg.viewBox.baseVal,esc=svg.getBoundingClientRect().width/vb.width;return radio(PZ.formato)*10*(o.s||1)*4.6*esc}
 function anclaSel(o){const k=10;
   if(SEL.tipo==='el'){const [x,y]=posEn(PZ,o,FR),rr=radio(PZ.formato)*(o.s||1)*(o.t==='E'?2.8:o.t==='G'?1.8:1.4);return [x,y-rr,y+rr]}
   if(SEL.tipo==='zo')return [o.x+o.w/2,o.y,o.y+o.h];
@@ -4996,29 +5021,29 @@ function figOsc(h,f){if(!/^#[0-9a-f]{6}$/i.test(h||''))return h;const n=parseInt
 function figTinta(h){if(!/^#[0-9a-f]{6}$/i.test(h||''))return '#FFFFFF';const n=parseInt(h.slice(1),16);return ((n>>16)*299+(n>>8&255)*587+(n&255)*114)/1000>150?'#141412':'#FFFFFF'}
 function figSeg(len,w1,w2,fill){return `<path d="M${-w1/2} 0 L${-w2/2} ${len} Q0 ${len+w2*.65} ${w2/2} ${len} L${w1/2} 0 Q0 ${-w1*.55} ${-w1/2} 0Z" fill="${fill}"/>`}
 /* ciclo de carrera de perfil (mirando a la derecha): [muslo, rodilla]; negativo = hacia adelante */
-const FIG_CICLO=[[-34,18],[-18,8],[2,22],[22,44],[34,82],[12,104],[-22,84],[-40,44]];
+const FIG_CICLO=[[-32,14],[-20,10],[-4,16],[10,26],[18,42],[10,58],[-8,56],[-24,32]];
 function figCiclo(t,amp=1){const n=FIG_CICLO.length,x=((t%1)+1)%1*n,i=Math.floor(x),f=x-i,a=FIG_CICLO[i],b=FIG_CICLO[(i+1)%n];return [(a[0]+(b[0]-a[0])*f)*amp,(a[1]+(b[1]-a[1])*f)*amp]}
 function figura(look,kit,o={}){
   const u='fg'+(++FIG_N),L={...FIG_DEF,...(look||{})},M=L.genero==='M',P=L.piel,Pd=figOsc(P,.8),Pdd=figOsc(P,.68),H=L.pelo,Hd=figOsc(H,.65);
   const vista=o.vista||'frente',dir=o.dir||1,acc=o.accion||'parada',t=o.t||0,rol=o.rol||'jug';
   let {c1,c2,dis,sh,me,bo}=kit;bo=bo||L.botines||'#111111';
-  const peinado=M?L.peinadoM:L.peinadoF,hombro=M?37:32,cad=M?33:31,mangaL=rol==='arq';
+  const peinado=M?L.peinadoM:L.peinadoF,hombro=M?38:34,cad=M?34:32,mangaL=rol==='arq';
   const defs=`<defs><linearGradient id="${u}pl" x1="0" x2="1"><stop offset="0" stop-color="${Pd}"/><stop offset=".5" stop-color="${figOsc(P,1.1)}"/><stop offset="1" stop-color="${figOsc(P,.72)}"/></linearGradient>
    <linearGradient id="${u}pf" x1="0" x2="1"><stop offset="0" stop-color="${figOsc(P,.62)}"/><stop offset="1" stop-color="${figOsc(P,.74)}"/></linearGradient>
    <radialGradient id="${u}ca" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="${figOsc(P,1.1)}"/><stop offset=".65" stop-color="${P}"/><stop offset="1" stop-color="${Pd}"/></radialGradient>
    <linearGradient id="${u}vo" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".34"/><stop offset=".3" stop-color="#fff" stop-opacity=".12"/><stop offset=".62" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></linearGradient>
    <linearGradient id="${u}pe" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="${figOsc(H,1.5)}"/><stop offset=".5" stop-color="${H}"/><stop offset="1" stop-color="${Hd}"/></linearGradient>
-   <linearGradient id="${u}bo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${figOsc(bo,1.6)}"/><stop offset="1" stop-color="${figOsc(bo,.55)}"/></linearGradient></defs>`;
+   <filter id="${u}ol" x="-15%" y="-6%" width="130%" height="112%"><feMorphology in="SourceAlpha" operator="dilate" radius="3.2" result="d"/><feFlood flood-color="#0E0F0C" flood-opacity=".9"/><feComposite in2="d" operator="in" result="o"/><feMerge><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="${u}bo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${figOsc(bo,1.6)}"/><stop offset="1" stop-color="${figOsc(bo,.55)}"/></linearGradient></defs>`;
   const raya=c2===c1?figOsc(c1,.7):c2;
   /* ---------- piezas comunes ---------- */
-  const media=(w)=>`<path d="M${-w} 22 L-7 82 Q0 86 7 82 L${w} 22 Q0 18 ${-w} 22Z" fill="${me}"/><path d="M${-w-.1} 24 h${2*w+.2} v6 h${-2*w-.2}z" fill="${figOsc(me,.72)}"/>`;
-  const botinF=`<path d="M-9 78 Q0 68 9 78 L11 90 Q0 96 -11 90Z" fill="url(#${u}bo)"/><path d="M-8 91 h16" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"/>`;
-  const botinP0=a=>`<g transform="translate(0 82) rotate(${a})"><path d="M-8 -4 L-8 8 Q-8 12 -2 12 L18 12 Q23 12 21 6 Q15 1 6 -1 L2 -6Z" fill="url(#${u}bo)"/><path d="M-6 12 h24" stroke="rgba(255,255,255,.35)" stroke-width="1.6"/></g>`;
-  const piernaF=(x,[th,kn,sc=1],y0=256)=>`<g transform="translate(${x} ${y0}) rotate(${th}) scale(1 ${sc})">${figSeg(80,M?31:30,M?21:20,`url(#${u}pl)`)}<g transform="translate(0 80) rotate(${kn}) scale(1 ${sc<1?Math.max(.55,sc*.92):1})">${figSeg(82,M?21:20,12.5,`url(#${u}pl)`)}${media(M?10.5:10)}${botinF}</g></g>`;
-  const piernaP=([th,kn],lejos)=>`<g transform="translate(100 252) rotate(${th})">${figSeg(80,M?30:29,M?20:19,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}<g transform="translate(0 80) rotate(${kn})">${figSeg(82,M?20:19,12.5,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}${media(M?10:9.5).replace(new RegExp(me,'g'),lejos?figOsc(me,.78):me)}${botinP0(-(th+kn)*.95)}</g></g>`;
+  const media=(w)=>`<path d="M${-w} 26 L-8 90 Q0 94 8 90 L${w} 26 Q0 22 ${-w} 26Z" fill="${me}"/><path d="M${-w-.1} 28 h${2*w+.2} v6 h${-2*w-.2}z" fill="${figOsc(me,.72)}"/>`;
+  const botinF=`<path d="M-10 84 Q0 74 10 84 L12 96 Q0 102 -12 96Z" fill="url(#${u}bo)"/><path d="M-9 97 h18" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"/>`;
+  const botinP0=a=>`<g transform="translate(0 90) rotate(${a})"><path d="M-8 -4 L-8 8 Q-8 12 -2 12 L18 12 Q23 12 21 6 Q15 1 6 -1 L2 -6Z" fill="url(#${u}bo)"/><path d="M-6 12 h24" stroke="rgba(255,255,255,.35)" stroke-width="1.6"/></g>`;
+  const piernaF=(x,[th,kn,sc=1],y0=256)=>`<g transform="translate(${x} ${y0}) rotate(${th}) scale(1 ${sc})">${figSeg(88,M?40:38,M?27:25,`url(#${u}pl)`)}<g transform="translate(0 86) rotate(${kn}) scale(1 ${sc<1?Math.max(.8,sc):1})">${figSeg(90,M?27:25,15,`url(#${u}pl)`)}${media(M?12.5:12)}${botinF}</g></g>`;
+  const piernaP=([th,kn],lejos)=>`<g transform="translate(100 252) rotate(${th})">${figSeg(88,M?38:36,M?26:24,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}<g transform="translate(0 86) rotate(${kn})">${figSeg(90,M?26:24,15,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}${media(M?10:9.5).replace(new RegExp(me,'g'),lejos?figOsc(me,.78):me)}${botinP0(-(th+kn)*.95)}</g></g>`;
   const manga=(w,len)=>`<path d="M${-w} -4 Q0 -10 ${w} -4 L${w-1} ${len} Q0 ${len+4} ${-(w-1)} ${len}Z" fill="${c1}"/><path d="M${-w} -4 Q0 -10 ${w} -4 L${w-1} ${len} Q0 ${len+4} ${-(w-1)} ${len}Z" fill="url(#${u}vo)"/>${mangaL?'':`<path d="M${-w+1} ${len-2} Q0 ${len+2} ${w-1} ${len-2}" stroke="${raya}" stroke-width="2.6" fill="none"/>`}`;
   const mano=rol==='arq'?`<ellipse cx="0" cy="58" rx="9" ry="10" fill="#1A1A1A"/><rect x="-8" y="46" width="16" height="7" rx="2" fill="${c2==='#141412'?'#F08A24':c2}"/>`:`<ellipse cx="0" cy="56" rx="6.4" ry="7.6" fill="${P}"/>`;
-  const brazo=(x,y,[a,e],lejos)=>`<g transform="translate(${x} ${y}) rotate(${a})">${figSeg(60,M?16:14,M?12.5:11,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}${manga(M?11:10,mangaL?58:26)}<g transform="translate(0 58) rotate(${e})">${mangaL?figSeg(52,13,11,c1):figSeg(52,12.5,9,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}${mano}</g></g>`;
+  const brazo=(x,y,[a,e],lejos)=>`<g transform="translate(${x} ${y}) rotate(${a})">${figSeg(60,M?20:18,M?15:14,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}${manga(M?13:12,mangaL?58:26)}<g transform="translate(0 58) rotate(${e})">${mangaL?figSeg(52,15,13,c1):figSeg(52,15,11,lejos?`url(#${u}pf)`:`url(#${u}pl)`)}${mano}</g></g>`;
   const short=(d)=>`<path d="${d}" fill="${sh}"/><path d="${d}" fill="url(#${u}vo)"/>`;
   /* ---------- poses ---------- */
   let s='',bob=0,lean=0;
@@ -5040,7 +5065,7 @@ function figura(look,kit,o={}){
     const cara=`<path d="M113 56 Q118 53 122 56 Q118 59 113 56Z" fill="#fff"/><circle cx="118.6" cy="56.2" r="2.4" fill="#2B1A10"/><path d="M111 48.5 Q117 45 123 48" stroke="${Hd}" stroke-width="${M?3:2.2}" fill="none" stroke-linecap="round"/><path d="M117 79 Q121 79 123 76" stroke="${M?'#6A3526':'#A0473F'}" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="100" cy="62" rx="4" ry="6.5" fill="${Pd}"/>`;
     s+=`<g transform="translate(0 ${bob}) rotate(${lean} 100 300)">`;
     s+=brazo(100,122,brB,true)+piernaP(B,true)+cola;
-    s+=short(`M82 210 H118 L123 258 Q104 266 85 260Z`)+piernaP(A,false);
+    {const sa=Math.max(-40,Math.min(30,A[0]))*.55,sb=Math.max(-40,Math.min(30,B[0]))*.4;s+=piernaP(A,false)+short(`M80 208 H120 L${126-sa*.3} 262 Q${104} ${272+Math.abs(sa)*.15} ${82+sb*.2} 264Z`)+`<path d="M${120} 214 L${124-sa*.3} 258" stroke="${sh===c2?c1:c2}" stroke-width="3" opacity=".9"/>`}
     s+=`<path d="M94 84 h13 v28 h-13z" fill="${Pd}"/><path d="${torso}" fill="${c1}"/>`;
     if(dis==='bastones')s+=`<clipPath id="${u}t"><path d="${torso}"/></clipPath><g clip-path="url(#${u}t)">${[84,100,116].map(x=>`<rect x="${x-4.5}" y="100" width="9" height="140" fill="${c2}"/>`).join('')}</g>`;
     if(dis==='rayas')s+=`<clipPath id="${u}t"><path d="${torso}"/></clipPath><g clip-path="url(#${u}t)">${[146,172,198].map(y=>`<rect x="70" y="${y}" width="60" height="10" fill="${c2}"/>`).join('')}</g>`;
@@ -5055,7 +5080,7 @@ function figura(look,kit,o={}){
       pase:{L:[4,0],R:[-40,30],A:[48,-14],B:[-40,18]},remate:{L:[4,0],R:[-56,24],A:[58,-14],B:[-52,18]}}[acc];
     let po=pz;
     if(!po){const ph=Math.sin(t*Math.PI*2),ap=acc==='conduce'?.7:1,l=Math.max(0,ph)*ap,r=Math.max(0,-ph)*ap;
-      po={L:[3,0,1-.32*l],R:[-3,0,1-.32*r],A:[8+r*10,-25-r*55],B:[-8-l*10,25+l*55],y:-Math.abs(ph)*5}}
+      po={L:[3+l*3,-l*6,1-.14*l],R:[-3-r*3,r*6,1-.14*r],A:[8+r*12,-20-r*40],B:[-8-l*12,20+l*40],y:-Math.abs(ph)*4}}
     const yy=po.y||0;
     const torso=M?`M${100-hombro} 113 Q100 105 ${100+hombro} 113 L${100+hombro+10} 136 L${100+hombro} 142 L${100+cad} 226 Q100 232 ${100-cad} 226 L${100-hombro} 142 L${100-hombro-10} 136 Z`
       :`M${100-hombro} 115 Q100 107 ${100+hombro} 115 L${100+hombro+9} 136 L${100+hombro-1} 141 Q${100+hombro-5} 178 ${100+cad} 224 Q100 230 ${100-cad} 224 Q${100-hombro+5} 178 ${100-hombro+1} 141 L${100-hombro-9} 136 Z`;
@@ -5095,7 +5120,7 @@ function figura(look,kit,o={}){
     }
     s+='</g>';
   }
-  return defs+`<ellipse cx="100" cy="448" rx="${vista==='perfil'?44:58}" ry="8" fill="rgba(0,0,0,.35)"/>`+s;
+  return defs+`<ellipse cx="100" cy="448" rx="${vista==='perfil'?44:58}" ry="8" fill="rgba(0,0,0,.35)"/>`+`<g filter="url(#${u}ol)">${s}</g>`;
 }
 /* vista y acción según cómo se mueve en la pantalla */
 function figVista(dx,dy){const d=Math.hypot(dx,dy);if(d<.05)return {vista:'frente',dir:1};if(Math.abs(dx)>=Math.abs(dy)*.7)return {vista:'perfil',dir:dx>=0?1:-1};return dy<0?{vista:'espalda',dir:1}:{vista:'frente',dir:1}}
@@ -5157,7 +5182,7 @@ function ajustesMunecos(){
     <div id="mPrev" style="display:flex;gap:4px;justify-content:center;align-items:flex-end;background:radial-gradient(ellipse at 50% 85%,#2C3A24 0,#141712 70%);border-radius:12px;padding:8px;margin-bottom:12px;overflow-x:auto">${prev()}</div>
     ${fila('Plantel','genero',[['F','Jugadoras'],['M','Jugadores']])}${fila('Piel','piel',OP.piel)}${fila('Pelo','pelo',OP.pelo)}${f.genero==='M'?fila('Peinado','peinadoM',OP.peinadoM):fila('Peinado','peinadoF',OP.peinadoF)}${fila('Short','short',OP.short)}${fila('Medias','medias',OP.medias)}${fila('Botines','botines',OP.botines)}
     ${S.club.escudo?fila('Escudo en el pecho','escudo',[['si','Sí'],['no','No']]).replace(/data-mv="si"[^>]*class="chip /,'$&').replace('data-mk="escudo"','data-mk="escudo"'):'<p class="sub" style="font-size:12.5px">Cargá el escudo del club en Ajustes y aparece en el pecho.</p>'}`;
-  modal('👤 Cómo se ven '+(f.genero==='M'?'los jugadores':'las jugadoras'),`<div id="mCuerpo">${cuerpo()}</div><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="mOk">Guardar</button></div>`,{ancho:true,alMontar:m=>{
+  modal('👤 Cómo se ven en la vista TV',`<div id="mCuerpo">${cuerpo()}</div><div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="mOk">Guardar</button></div>`,{ancho:true,alMontar:m=>{
     const ligar=()=>{$$('[data-mk]',m).forEach(b=>{if(b.dataset.mk==='escudo')b.classList.toggle('activo',(b.dataset.mv==='si')===!!f.escudo);b.onclick=()=>{const k=b.dataset.mk,v=b.dataset.mv;f[k]=k==='escudo'?v==='si':v;$('#mCuerpo',m).innerHTML=cuerpo();ligar()}})};ligar();
     $('#mOk',m).onclick=()=>{S.club.figura={genero:f.genero,piel:f.piel,pelo:f.pelo,peinadoF:f.peinadoF,peinadoM:f.peinadoM,short:f.short,medias:f.medias,botines:f.botines,escudo:!!f.escudo};FIG_CACHE.clear();guardar();cerrarModal();pintar();aviso('Listo: así se van a ver en la vista TV y en el video')}}});
 }
@@ -7391,14 +7416,14 @@ VISTAS.fixture=el=>{
   (jug.length?`<div class="panel" style="margin-bottom:14px;padding:12px 14px"><div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap"><b style="font-size:22px"><span style="color:#2E9E5B">${G}V</span> <span style="color:#E0A100">${E}E</span> <span style="color:#D0402F">${P}D</span></b><span class="sub">${G*3+E} puntos · ${(jug.length?(G*3+E)/jug.length:0).toFixed(2).replace('.',',')} por partido</span></div><div style="display:flex;height:8px;border-radius:9px;overflow:hidden;margin-top:8px;background:var(--linea)"><i style="width:${100*G/jug.length}%;background:#2E9E5B"></i><i style="width:${100*E/jug.length}%;background:#E0A100"></i><i style="width:${100*P/jug.length}%;background:#D0402F"></i></div></div>`:'')+
   (lista.length?`<div class="panel fx-lin" style="margin-bottom:16px">${lin}</div>`:'')+
   `<div class="grilla" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr));margin-bottom:16px">${[['PJ',jug.length],['Ganados',G],['Empates',E],['Perdidos',P],['Goles a favor',GF],['Goles en contra',GC],['Diferencia',(GF-GC>0?'+':'')+(GF-GC)],['Puntos',G*3+E]].map(([t,v])=>`<div class="panel" style="padding:14px"><div class="etq">${t}</div><div class="dato" style="font-size:30px">${v}</div></div>`).join('')}</div>
-  <div class="filtros"><select id="fc" style="width:auto"><option value="">Todas las competiciones</option>${opts(comps,fComp)}</select></div>
+  <div class="filtros"><select id="fc" style="width:auto"><option value="">Todas las competiciones</option>${opts(comps,fComp)}</select>${comps.length>1?'<button class="btn" id="fCmp">⚖ Comparar torneos</button>':''}<button class="btn fantasma" id="fGc">🏆 Competiciones</button></div>
   ${lista.length?`<div class="tabla-c"><table><thead><tr><th>Fecha</th><th>Hora</th><th>Competición</th><th>Rival</th><th>Cond.</th><th>Resultado</th><th class="n">Convoc.</th><th class="n">Recup.</th><th class="n">Pérd.</th><th></th></tr></thead><tbody>
     ${lista.map(p=>{const res=p.golesF!=null&&p.estado!=='programado';const rec=p.eventos.filter(e=>e.tipo==='recuperacion').length,per=p.eventos.filter(e=>e.tipo==='perdida').length;const prox=p===lista.find(x=>x.estado!=='finalizado'&&deIso(x.fecha)>=HOY);
       return `<tr class="click" data-p="${p.id}" ${prox?'style="box-shadow:inset 4px 0 0 var(--amarillo)"':''}><td><b>${fFecha(p.fecha)}</b></td><td>${esc(p.hora)}</td><td>${esc(p.competicion)}</td><td>${esc(p.rival)}</td><td>${p.condicion==='Local'?'L':p.condicion==='Visitante'?'V':p.condicion==='Neutral'?'N':'—'}</td><td>${res?`<span class="chip ${p.golesF>p.golesC?'ok':p.golesF<p.golesC?'mal':''}">${p.golesF}-${p.golesC} ${p.golesF>p.golesC?'G':p.golesF<p.golesC?'P':'E'}</span>`:prox?'<span class="chip ama">Próximo</span>':'<span class="tenue">—</span>'}</td><td class="n">${p.convocados.length||''}</td><td class="n">${rec||''}</td><td class="n">${per||''}</td><td><button class="btn chico fantasma" data-ed="${p.id}">Editar</button></td></tr>`}).join('')}</tbody></table></div>`:'<div class="vacio">Cargá los partidos de la temporada.</div>'}`;
   $('#nP').onclick=()=>editarPartido();
   $('#impP').onclick=importarPartidos;
   {const c=$('#cmpP');if(c)c.onclick=()=>compararPartidos()}
-  $('#fc').onchange=e=>{fComp=e.target.value;pintar()};
+  $('#fc').onchange=e=>{fComp=e.target.value;pintar()};{const x=$('#fCmp');if(x)x.onclick=()=>compararTorneos();const y=$('#fGc');if(y)y.onclick=gestionCompeticiones}
   $$('[data-ed]',el).forEach(b=>b.onclick=e=>{e.stopPropagation();editarPartido(S.partidos.find(p=>p.id===b.dataset.ed))});
   $$('[data-p]',el).forEach(r=>r.onclick=()=>{const p=S.partidos.find(x=>x.id===r.dataset.p);tabPartido=p.estado==='finalizado'?'analisis':'previa';ir('partido',p.id)});
 };
@@ -7450,21 +7475,57 @@ function importarPartidos(archivo){
         const comps=[...new Set(SP().map(p=>p.competicion).filter(Boolean))];
         box.innerHTML=`<div class="panel" style="padding:12px;margin:0"><b>${datos.length} partidos en el archivo</b>${datos.some(x=>x.repe)?` <span class="sub">· ${datos.filter(x=>x.repe).length} ya estaban en Metodika y no se repiten</span>`:''}
           <div style="overflow:auto;max-height:44vh;margin-top:8px"><table style="width:100%;font-size:13px;border-collapse:collapse"><thead><tr style="text-align:left"><th></th><th>J</th><th>Fecha</th><th>Rival</th><th>Resultado</th><th>Condición</th></tr></thead><tbody>${datos.map((x,i)=>`<tr style="border-top:1px solid var(--linea);${x.repe?'opacity:.5':''}"><td><input type="checkbox" data-iu="${i}" ${x.usar?'checked':''}></td><td><input type="text" data-ij="${i}" value="${esc(x.jornada)}" style="width:44px;padding:3px 5px"></td><td>${esc(fFecha(x.fecha))}${x.hora?' · '+esc(x.hora):''}</td><td><span style="display:inline-flex;align-items:center;gap:6px">${escudoHtml('',x.rival,22)}${esc(x.rival)}</span></td><td>${x.estado==='finalizado'?`<b>${x.golesF}-${x.golesC}</b>`:'<span class="sub">Por jugar</span>'}</td><td><select data-ic="${i}" style="font-size:12.5px;padding:3px 6px"><option value="">—</option>${['Local','Visitante','Neutral'].map(c=>`<option ${x.condicion===c?'selected':''}>${c}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>
-          <div class="form" style="margin-top:10px"><label class="campo">Competición<input type="text" id="ipmC" list="ipmCl" value="${esc(comps[0]||'Liga')}"><datalist id="ipmCl">${comps.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label></div>
+          <div class="form" style="margin-top:10px"><label class="campo">Competición o torneo<input type="text" id="ipmC" list="ipmCl" value="${esc(comps[0]||'')}" placeholder="Ej.: Apertura 2026"></label><p class="sub" style="font-size:12.5px;margin:4px 0 0">Si es otro torneo (por ejemplo el Clausura), escribí un nombre nuevo: así después los podés comparar.</p><label style="display:none"><datalist id="ipmCl">${comps.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label></div>
           <p class="sub" style="font-size:12.5px;margin:6px 0 0">El archivo de Alonbalon no dice si fuimos locales o visitantes: elegilo en cada fila si querés (lo podés cambiar después).</p></div>
           <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="ipmOk">Importar partidos</button></div>`;
         $$('[data-iu]',m).forEach(c=>c.onchange=()=>datos[+c.dataset.iu].usar=c.checked);
         $$('[data-ij]',m).forEach(c=>c.onchange=()=>datos[+c.dataset.ij].jornada=c.value.trim());
         $$('[data-ic]',m).forEach(c=>c.onchange=()=>datos[+c.dataset.ic].condicion=c.value);
         if(ab&&ab.porFecha){const nf=Object.keys(ab.porFecha).length;box.insertAdjacentHTML('afterbegin',`<div style="padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--verde) 14%,transparent);margin-bottom:10px;font-size:13.5px">✅ Es el Excel completo de Alonbalon: además de los resultados se cargan las <b>estadísticas de cada ${J('sg')} en cada partido</b> (${nf} partidos): titular o suplente, minutos, goles, asistencias, tarjetas, nota y goles recibidos. Si el partido ya estaba en Metodika, se le actualizan los datos.</div>`)}
-        $('#ipmOk',m).onclick=()=>{const comp=$('#ipmC',m).value.trim()||'Liga',sel=datos.filter(x=>x.usar);if(!sel.length&&!(ab&&ab.porFecha)){aviso('No elegiste ningún partido');return}
-          sel.forEach(x=>S.partidos.push({id:uid(),competicion:comp,fecha:x.fecha,hora:x.hora||'',rival:x.rival,condicion:x.condicion||'',golesF:x.golesF,golesC:x.golesC,estado:x.estado,jornada:x.jornada,convocados:[],titulares:[],eventos:[],reloj:{tiempo:1,corriendo:false,acum:0,inicio:0},duracionTiempo:S.club.duracionTiempo||45,obs:'',importado:true}));
+        $('#ipmOk',m).onclick=()=>{const comp=$('#ipmC',m).value.trim();if(!comp){aviso('Escribí el nombre de la competición, por ejemplo Apertura 2026');$('#ipmC',m).focus();return}const _c=comp,sel=datos.filter(x=>x.usar);if(!sel.length&&!(ab&&ab.porFecha)){aviso('No elegiste ningún partido');return}
+          const impId=uid();sel.forEach(x=>S.partidos.push({id:uid(),imp:impId,impF:iso(HOY),competicion:comp,fecha:x.fecha,hora:x.hora||'',rival:x.rival,condicion:x.condicion||'',golesF:x.golesF,golesC:x.golesC,estado:x.estado,jornada:x.jornada,convocados:[],titulares:[],eventos:[],reloj:{tiempo:1,corriendo:false,acum:0,inicio:0},duracionTiempo:S.club.duracionTiempo||45,obs:'',importado:true}));
           let conSt=0,sinJ=0;if(ab&&ab.porFecha){S.partidos.filter(p=>enCat(p.cat)).forEach(p=>{const l=ab.porFecha[p.fecha];if(!l)return;const enArch=datos.find(x=>x.fecha===p.fecha&&normTxt(x.rival)===normTxt(p.rival));if(!enArch)return;sinJ+=aplicarStatsPartido(p,l);if(p.estado==='programado'&&enArch.estado==='finalizado'){p.estado='finalizado';p.golesF=enArch.golesF;p.golesC=enArch.golesC}conSt++})}
           guardar();cerrarModal();pintar();aviso('Listo: '+sel.length+' partidos nuevos'+(conSt?' · estadísticas de cada '+J('sg')+' en '+conSt+' partidos':'')+(sinJ?' · '+sinJ+' nombres no se encontraron en el plantel':''))};
       }catch(x){console.warn(x);box.innerHTML='<div class="vacio">No pude leer el archivo. Probá guardarlo como .xlsx o .csv.</div>'}};
     $('#ipmF',m).onchange=e=>procesar(e.target.files[0]);if(archivo)procesar(archivo);
   }});
 }
+/* ================= COMPETICIONES: ordenar, borrar y comparar torneos ================= */
+function compsLista(){const m={};SP().forEach(p=>{const c=p.competicion||'Sin competición';(m[c]=m[c]||[]).push(p)});return Object.entries(m).sort((a,b)=>(a[1][0]||{}).fecha<(b[1][0]||{}).fecha?-1:1)}
+function balComp(ps){const J=ps.filter(p=>p.estado==='finalizado'&&p.golesF!=null),V=J.filter(p=>p.golesF>p.golesC).length,E=J.filter(p=>p.golesF===p.golesC).length,D=J.length-V-E,GF=J.reduce((a,p)=>a+p.golesF,0),GC=J.reduce((a,p)=>a+p.golesC,0),VI=J.filter(p=>p.golesC===0).length;
+  const ama=J.reduce((a,p)=>a+(p.statsJ?Object.values(p.statsJ).reduce((x,y)=>x+(y.ama||0),0):p.eventos.filter(e=>e.tipo==='tarjeta'&&e.color!=='roja').length),0),roj=J.reduce((a,p)=>a+(p.statsJ?Object.values(p.statsJ).reduce((x,y)=>x+(y.roj||0),0):p.eventos.filter(e=>e.tipo==='tarjeta'&&e.color==='roja').length),0);
+  const L=J.filter(p=>p.condicion==='Local'),Vi=J.filter(p=>p.condicion==='Visitante'),pts=a=>a.reduce((s,p)=>s+(p.golesF>p.golesC?3:p.golesF===p.golesC?1:0),0);
+  return {n:J.length,V,E,D,GF,GC,VI,ama,roj,pts:V*3+E,ppp:J.length?(V*3+E)/J.length:0,gfp:J.length?GF/J.length:0,gcp:J.length?GC/J.length:0,ef:J.length?Math.round(100*(V*3+E)/(J.length*3)):0,ptsL:L.length?pts(L)/L.length:null,ptsV:Vi.length?pts(Vi)/Vi.length:null,nota:(()=>{const v=J.flatMap(p=>Object.values(p.notasJ||{})).filter(x=>x>0);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null})()}}
+function gestionCompeticiones(){const pint=()=>{const L=compsLista(),imps={};SP().filter(p=>p.imp).forEach(p=>{(imps[p.imp]=imps[p.imp]||[]).push(p)});
+  return `<p class="sub" style="margin:0 0 10px">Cada torneo por separado. Podés cambiarle el nombre o borrarlo si lo subiste mal.</p>
+    <div class="lista">${L.map(([c,ps])=>{const b=balComp(ps);return `<div class="fila" style="flex-wrap:wrap;gap:8px"><div style="flex:1;min-width:180px"><b>${esc(c)}</b><div class="sub" style="font-size:12.5px">${ps.length} partidos · ${fCorta(ps[0].fecha)} al ${fCorta(ps[ps.length-1].fecha)} · ${b.V}V ${b.E}E ${b.D}D · ${b.GF}-${b.GC}</div></div><button class="btn chico" data-cren="${esc(c)}">✏️ Renombrar</button><button class="btn chico peligro" data-cdel="${esc(c)}">🗑 Borrar</button></div>`}).join('')||'<div class="vacio">Todavía no hay partidos.</div>'}</div>
+    ${Object.keys(imps).length?`<div class="etq" style="margin:14px 0 6px">Archivos importados</div><div class="lista">${Object.entries(imps).map(([k,ps])=>`<div class="fila"><div style="flex:1"><b>${esc(ps[0].competicion||'')}</b><div class="sub" style="font-size:12.5px">${ps.length} partidos importados el ${fFecha(ps[0].impF||iso(HOY))}</div></div><button class="btn chico" data-ideh="${k}">↶ Deshacer esta importación</button></div>`).join('')}</div>`:''}`};
+  modal('🏆 Competiciones',`<div id="gcC">${pint()}</div><div class="modal-pie"><button class="btn" data-cerrar>Cerrar</button>${compsLista().length>1?'<button class="btn pri" id="gcCmp">⚖ Comparar torneos</button>':''}</div>`,{ancho:true,alMontar:m=>{
+    const ligar=()=>{
+      $$('[data-cren]',m).forEach(b=>b.onclick=()=>{const c=b.dataset.cren;pedirEn('Nuevo nombre',c,n=>{if(!n||!n.trim()||n.trim()===c)return;SP().forEach(p=>{if((p.competicion||'Sin competición')===c)p.competicion=n.trim()});guardar();$('#gcC',m).innerHTML=pint();ligar();aviso('Listo: ahora se llama '+n.trim())})});
+      $$('[data-cdel]',m).forEach(b=>b.onclick=()=>{const c=b.dataset.cdel,ps=SP().filter(p=>(p.competicion||'Sin competición')===c);confirmarEn(m,'¿Borrar “'+c+'”?','Se borran '+ps.length+' partidos con sus estadísticas, alineaciones y eventos. No se puede deshacer.','Borrar '+ps.length+' partidos',()=>{const ids=new Set(ps.map(p=>p.id));S.partidos=S.partidos.filter(p=>!ids.has(p.id));guardar();$('#gcC',m).innerHTML=pint();ligar();aviso(ps.length+' partidos borrados')})});
+      $$('[data-ideh]',m).forEach(b=>b.onclick=()=>{const k=b.dataset.ideh,ps=SP().filter(p=>p.imp===k);confirmarEn(m,'¿Deshacer la importación?','Se borran los '+ps.length+' partidos que entraron con ese archivo. Los partidos que cargaste a mano no se tocan.','Deshacer',()=>{S.partidos=S.partidos.filter(p=>p.imp!==k);guardar();$('#gcC',m).innerHTML=pint();ligar();aviso('Importación deshecha')})})};
+    ligar();const cp=$('#gcCmp',m);if(cp)cp.onclick=()=>{cerrarModal();compararTorneos()}}})}
+function pedirEn(tit,val,ok){const c=document.createElement('div');c.className='velo';c.style.zIndex=96;c.innerHTML=`<div class="modal" style="max-width:420px"><h2 style="margin:0 0 10px">${esc(tit)}</h2><input type="text" value="${esc(val)}" maxlength="60"><div class="modal-pie"><button class="btn" data-c>Cancelar</button><button class="btn pri" data-ok>Listo</button></div></div>`;document.body.appendChild(c);const i=c.querySelector('input');setTimeout(()=>{i.focus();i.select()},30);const fin=()=>{const v=i.value;c.remove();ok(v)};c.querySelector('[data-c]').onclick=()=>c.remove();c.querySelector('[data-ok]').onclick=fin;i.onkeydown=e=>{if(e.key==='Enter')fin()}}
+/* confirmación chiquita dentro de una ventana abierta (no la cierra) */
+function confirmarEn(m,tit,txt,btn,ok){const c=document.createElement('div');c.className='velo';c.style.zIndex=96;c.innerHTML=`<div class="modal" style="max-width:420px"><h2 style="margin:0 0 8px">${esc(tit)}</h2><p style="margin:0 0 14px">${esc(txt)}</p><div class="modal-pie"><button class="btn" data-c>Cancelar</button><button class="btn peligro" data-ok>${esc(btn)}</button></div></div>`;document.body.appendChild(c);c.querySelector('[data-c]').onclick=()=>c.remove();c.querySelector('[data-ok]').onclick=()=>{c.remove();ok()}}
+function compararTorneos(a0,b0){const L=compsLista().map(x=>x[0]);if(L.length<2){aviso('Necesitás al menos dos competiciones para comparar. Importá el otro torneo con un nombre distinto.');return}
+  let A=a0||L[L.length-2],B=b0||L[L.length-1];
+  const cuerpo=()=>{const pa=SP().filter(p=>(p.competicion||'Sin competición')===A),pb=SP().filter(p=>(p.competicion||'Sin competición')===B),ba=balComp(pa),bb=balComp(pb);
+    const f1=x=>x==null?'—':(Math.round(x*100)/100).toString().replace('.',','),fila=(t,x,y,mejor='mas',fmt=v=>v)=>{const d=x==null||y==null?null:y-x,g=d==null||d===0?'':(mejor==='mas'?d>0:d<0)?'up':'down';return `<tr><td>${t}</td><td class="n">${fmt(x)}</td><td class="n">${fmt(y)}</td><td class="n ct-${g}">${d==null||d===0?'=':(d>0?'+':'')+fmt(Math.round(d*100)/100)}</td></tr>`};
+    const fA=p=>(p.competicion||'Sin competición')===A,fB=p=>(p.competicion||'Sin competición')===B;
+    const js=SJ().map(j=>({j,a:statsJugador(j.id,fA),b:statsJugador(j.id,fB)})).filter(x=>x.a.min||x.b.min).sort((x,y)=>(y.a.min+y.b.min)-(x.a.min+x.b.min));
+    const d=(x,y)=>{const v=y-x;return v?`<i class="${v>0?'ct-up':'ct-down'}">${v>0?'+':''}${v}</i>`:''};
+    return `<div class="ct-sel"><select id="ctA">${opts(L,A)}</select><span>vs</span><select id="ctB">${opts(L,B)}</select></div>
+    <div class="ct-g"><div class="ct-c"><span class="etq">${esc(A)}</span><b>${ba.V}V ${ba.E}E ${ba.D}D</b><small>${ba.pts} pts · ${ba.ef}% de efectividad</small></div><div class="ct-c"><span class="etq">${esc(B)}</span><b>${bb.V}V ${bb.E}E ${bb.D}D</b><small>${bb.pts} pts · ${bb.ef}% de efectividad</small></div></div>
+    <div class="tabla-c"><table class="ct-t"><thead><tr><th>Equipo</th><th class="n">${esc(A)}</th><th class="n">${esc(B)}</th><th class="n">Diferencia</th></tr></thead><tbody>
+      ${fila('Partidos jugados',ba.n,bb.n,'igual')}${fila('Puntos por partido',ba.ppp,bb.ppp,'mas',f1)}${fila('Efectividad (%)',ba.ef,bb.ef)}${fila('Goles a favor',ba.GF,bb.GF)}${fila('Goles en contra',ba.GC,bb.GC,'menos')}${fila('Goles a favor por partido',ba.gfp,bb.gfp,'mas',f1)}${fila('Goles en contra por partido',ba.gcp,bb.gcp,'menos',f1)}${fila('Vallas invictas',ba.VI,bb.VI)}${fila('Puntos por partido de local',ba.ptsL,bb.ptsL,'mas',f1)}${fila('Puntos por partido de visitante',ba.ptsV,bb.ptsV,'mas',f1)}${fila('Amarillas',ba.ama,bb.ama,'menos')}${fila('Rojas',ba.roj,bb.roj,'menos')}${ba.nota!=null||bb.nota!=null?fila('Valoración media',ba.nota,bb.nota,'mas',f1):''}
+    </tbody></table></div>
+    <div class="etq" style="margin:16px 0 6px">${J('Pl')}: ${esc(A)} → ${esc(B)}</div>
+    <div class="tabla-c"><table class="ct-t ct-j"><thead><tr><th>${J('Sg')}</th><th class="n">PJ</th><th class="n">Minutos</th><th class="n">Goles</th><th class="n">Asist.</th><th class="n">Tarjetas</th></tr></thead><tbody>
+    ${js.map(({j,a,b})=>`<tr><td><span class="dorsal">${j.dorsal||'–'}</span> ${esc(j.nombre+' '+(j.apellido||''))}</td><td class="n">${a.pj} → ${b.pj}</td><td class="n">${a.min}' → ${b.min}' ${d(a.min,b.min)}</td><td class="n">${a.gol} → ${b.gol} ${d(a.gol,b.gol)}</td><td class="n">${a.asis} → ${b.asis}</td><td class="n">${a.ama+a.roj} → ${b.ama+b.roj}</td></tr>`).join('')||`<tr><td colspan="6" class="tenue">Sin minutos cargados en estas competiciones.</td></tr>`}</tbody></table></div>
+    <p class="sub" style="font-size:12px;margin:8px 0 0">Verde: mejoró · Rojo: empeoró. Los minutos y goles de cada ${J('sg')} salen de lo cargado en cada partido (En vivo o el Excel completo de Alonbalon).</p>`};
+  modal('⚖ Comparar torneos',`<div id="ctC">${cuerpo()}</div><div class="modal-pie"><button class="btn" data-cerrar>Cerrar</button></div>`,{ancho:true,alMontar:m=>{const lig=()=>{$('#ctA',m).onchange=e=>{A=e.target.value;$('#ctC',m).innerHTML=cuerpo();lig()};$('#ctB',m).onchange=e=>{B=e.target.value;$('#ctC',m).innerHTML=cuerpo();lig()}};lig()}})}
 /* ================= RENDIMIENTO (tablero de la temporada) ================= */
 let fRendComp='',fRendLugar='';
 VISTAS.rendimiento=el=>{
@@ -7473,7 +7534,7 @@ VISTAS.rendimiento=el=>{
   const res=p=>p.golesF>p.golesC?'V':p.golesF===p.golesC?'E':'D',COL={V:'#2E9E5B',E:'#E0A100',D:'#D0402F'},pl=RAMA()==='M';
   const bal=a=>{const V=a.filter(p=>res(p)==='V').length,E=a.filter(p=>res(p)==='E').length,D=a.length-V-E,GF=a.reduce((s,p)=>s+p.golesF,0),GC=a.reduce((s,p)=>s+p.golesC,0);return {n:a.length,V,E,D,GF,GC,pts:V*3+E}};
   const B=bal(ps),L=bal(ps.filter(p=>p.condicion==='Local')),Vi=bal(ps.filter(p=>p.condicion==='Visitante'));
-  const filtros=`<div class="filtros" style="margin-bottom:14px"><select id="rC" style="width:auto"><option value="">Todas las competiciones</option>${opts(comps,fRendComp)}</select><select id="rL" style="width:auto"><option value="">Local y visitante</option>${opts(['Local','Visitante'],fRendLugar)}</select></div>`;
+  const filtros=`<div class="filtros" style="margin-bottom:14px"><select id="rC" style="width:auto"><option value="">Todas las competiciones</option>${opts(comps,fRendComp)}</select><select id="rL" style="width:auto"><option value="">Local y visitante</option>${opts(['Local','Visitante'],fRendLugar)}</select>${comps.length>1?'<button class="btn" id="rCmp">⚖ Comparar torneos</button>':''}<button class="btn fantasma" id="rGc">🏆 Competiciones</button></div>`;
   if(!ps.length){el.innerHTML=cabecera('Temporada '+S.club.temporada,'Rendimiento','Cómo viene el equipo en la temporada.')+filtros+'<div class="vacio">Todavía no hay partidos jugados. Cargalos en <b>Fixture</b> (o importalos de Alonbalon).</div>';conRend(el);return}
   const card=(t,v,s,c)=>`<div class="panel" style="padding:14px;margin:0"><div class="etq">${t}</div><div style="font-size:28px;font-weight:800;${c?'color:'+c:''}">${v}</div>${s?`<div class="sub" style="font-size:12.5px">${s}</div>`:''}</div>`;
   const vallas=ps.filter(p=>p.golesC===0).length,ev=ps.flatMap(p=>p.eventos||[]),ama=ev.filter(e=>e.tipo==='tarjeta'&&e.color!=='roja').length+SJ().reduce((s,j)=>s+((j.base&&+j.base.ama)||0),0),roj=ev.filter(e=>e.tipo==='tarjeta'&&e.color==='roja').length+SJ().reduce((s,j)=>s+((j.base&&+j.base.roj)||0),0);
@@ -7518,7 +7579,7 @@ VISTAS.rendimiento=el=>{
   <div class="panel" style="margin-top:14px"><h3>Mapa de lesiones</h3>${mapaLesiones()}</div>`;
   conRend(el);
 };
-function conRend(el){{const a=$('#rPdf',el),b=$('#rXls',el);if(a)a.onclick=()=>informeEquipoPDF(a);if(b)b.onclick=()=>informeEquipoXLS()}const c=$('#rC',el),l=$('#rL',el);if(c)c.onchange=e=>{fRendComp=e.target.value;pintar()};if(l)l.onchange=e=>{fRendLugar=e.target.value;pintar()}}
+function conRend(el){{const x=$('#rCmp',el);if(x)x.onclick=()=>compararTorneos();const y=$('#rGc',el);if(y)y.onclick=gestionCompeticiones}{const a=$('#rPdf',el),b=$('#rXls',el);if(a)a.onclick=()=>informeEquipoPDF(a);if(b)b.onclick=()=>informeEquipoXLS()}const c=$('#rC',el),l=$('#rL',el);if(c)c.onchange=e=>{fRendComp=e.target.value;pintar()};if(l)l.onchange=e=>{fRendLugar=e.target.value;pintar()}}
 function datosTemporada(){
   const ps=[...SP()].filter(p=>p.estado==='finalizado'&&p.golesF!=null&&(!fRendComp||p.competicion===fRendComp)&&(!fRendLugar||p.condicion===fRendLugar)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const res=p=>p.golesF>p.golesC?'V':p.golesF===p.golesC?'E':'D',V=ps.filter(p=>res(p)==='V').length,E=ps.filter(p=>res(p)==='E').length,D=ps.length-V-E,GF=ps.reduce((a,p)=>a+p.golesF,0),GC=ps.reduce((a,p)=>a+p.golesC,0),mt=minutosEquipo();
