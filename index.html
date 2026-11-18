@@ -1047,6 +1047,21 @@ body.mc-on{overflow:hidden}.mc-ov{position:fixed;inset:0;z-index:200;background:
 @media (max-width:700px){.tp-ef{grid-template-columns:40px 1fr 36px}.tp-ef input[type=date]{grid-column:2}}
 .pub-sem{max-width:880px;margin:0 auto;padding:14px;display:flex;flex-direction:column;gap:12px}.pub-t{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--linea)}.pub-g{width:170px;flex:none;background:var(--cesped,#3E8E2F);border-radius:8px;padding:3px}.pub-g svg{width:100%;height:auto;display:block}
 @media (max-width:600px){.pub-t{flex-direction:column}.pub-g{width:100%}}
+.et-m{max-width:1040px!important;width:96vw}.et-fil{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.et-fil input[type=search]{flex:1;min-width:200px}.et-fil select{width:auto}.et-md{cursor:pointer;border-left:4px solid var(--mdc)}.et-g{font-size:12.5px;margin-bottom:8px;display:flex;gap:6px;align-items:center}
+.et-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;max-height:58vh;overflow-y:auto;padding:2px}
+.et-c{border:1.5px solid var(--linea);background:var(--carta);color:inherit;border-radius:12px;padding:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;overflow:hidden;font:inherit}.et-c:hover{border-color:var(--tinta)}.et-c.on{border-color:#FFD400;box-shadow:0 0 0 2px #FFD400}
+.et-g2{position:relative;background:var(--cesped,#3E8E2F);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}.et-g2 svg{width:100%;height:100%}.et-g2>i{color:#fff;font-size:12px;opacity:.7}
+.et-n{position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:#FFD400;color:#141412;display:grid;place-items:center;font-size:13px}
+.et-ok,.et-no{position:absolute;top:6px;right:6px;font-size:10.5px;font-weight:800;border-radius:6px;padding:2px 6px;background:rgba(46,139,87,.92);color:#fff}.et-no{background:rgba(224,138,36,.95)}
+.et-tx{padding:8px;display:flex;flex-direction:column;gap:3px}.et-tx b{font-size:13.5px;line-height:1.2}.et-tx .sub{font-size:11.5px}.et-h{font-size:11.5px}
+@media (max-width:600px){.et-grid{grid-template-columns:1fr 1fr}.et-fil input[type=search]{flex:1 1 100%}.et-fil select{flex:1 1 30%;min-width:0;font-size:13px;padding:6px}.et-md{font-size:12px}.et-tx b{font-size:12.5px}}
+.se-f{display:grid;grid-template-columns:18px 76px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--linea)}.se-f.arr{opacity:.4}.se-f.drop{box-shadow:inset 0 2px 0 #FFD400}
+.se-h{cursor:grab;color:var(--sub,#8a857a);font-size:16px;user-select:none}.se-g{width:76px;height:56px;border-radius:6px;overflow:hidden;background:var(--cesped,#3E8E2F);display:grid;place-items:center}.se-g svg{width:100%;height:100%}.se-g i{color:#fff;font-style:normal;font-weight:800}
+.se-tx{display:flex;flex-direction:column;gap:2px;min-width:0}.se-tx b{font-size:14px;line-height:1.2}.se-tx .sub{font-size:12px}.se-k{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--bronce,#B58A2E)}.se-no{color:#E08A24}
+.se-min{display:flex;align-items:center;gap:2px}.se-min input{width:58px;padding:6px}.se-acc{display:flex;gap:2px}
+details.se-mas{border:1px solid var(--linea);border-radius:10px;padding:8px 12px}details.se-mas>summary{cursor:pointer;font-weight:700}
+@media (max-width:640px){.se-f{grid-template-columns:18px 64px minmax(0,1fr) auto;row-gap:4px}.se-g{width:64px;height:48px}.se-tx{grid-column:3/5}.se-min{grid-column:3;grid-row:2}.se-acc{grid-column:4;grid-row:2}.se-h,.se-g{grid-row:1/3}}
+.tp-band{border-radius:8px 8px 0 0;background:var(--ec);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 
 <div class="app">
@@ -3078,9 +3093,9 @@ function etapaDe(T,f){return (T.etapas||[]).find(e=>e.ini<=f&&f<=e.fin)}
 function panelTemporada(){const T=tempAct();
   if(!T)return `<div class="panel tp-vacio"><div><h3 style="margin:0">Plan de temporada</h3><p class="sub" style="margin:4px 0 0">Mirá toda la temporada de un vistazo: etapas, partidos, el foco de cada semana y la carga. Después armás cada microciclo desde ahí.</p></div><button class="btn pri" id="tpNuevo">＋ Armar plan de temporada</button></div>`;
   const sem=semanasTemp(T),hoyL=lunesIso(iso(HOY)),mx=Math.max(1,...sem.map(w=>SS().filter(s=>lunesIso(s.fecha)===w).reduce((a,s)=>a+cargaSesion(s),0)));
-  return `<div class="panel tp"><div class="panel-cab"><div><div class="etq" style="color:var(--bronce)">${fCorta(T.ini)} al ${fCorta(T.fin)} · ${sem.length} semanas</div><h3 style="margin-top:3px">Plan de temporada</h3></div><div class="der">${(T.etapas||[]).map(e=>`<span class="chip" style="border-left:4px solid ${e.c}">${esc(e.n)}</span>`).join('')}<button class="btn chico" id="tpEditar">✏️ Etapas y fechas</button></div></div>
-    <div class="tp-scroll" id="tpScroll"><div class="tp-grid" style="grid-template-columns:repeat(${sem.length},minmax(92px,1fr))">${sem.map(w=>{const e=etapaDe(T,w)||etapaDe(T,iso(sumarDias(deIso(w),6))),ws=(T.sem||{})[w]||{},m=SMc().find(x=>lunesIso(x.inicio)===w),ps=SP().filter(p=>lunesIso(p.fecha)===w),cg=SS().filter(s=>lunesIso(s.fecha)===w).reduce((a,s)=>a+cargaSesion(s),0);
-      const foco=(m&&m.foco)||ws.foco||'';return `<button class="tp-w ${w===hoyL?'hoy':''} ${w<hoyL?'pas':''}" data-tpw="${w}" style="--ec:${e?e.c:'transparent'}"><span class="tp-e">${e&&(e.ini>=w&&e.ini<=iso(sumarDias(deIso(w),6))||w===sem[0])?esc(e.n):''}</span><span class="tp-f">${deIso(w).getDate()}/${deIso(w).getMonth()+1}</span>${ps.map(p=>`<span class="tp-p">⚽ ${esc(String(p.rival).split(' ').slice(-1)[0])}</span>`).join('')}<span class="tp-fo">${esc(foco||'—')}</span><span class="tp-c"><i style="height:${Math.round(100*cg/mx)}%"></i></span><span class="tp-m">${m?'✓ micro':ws.foco?'＋ crear':''}</span></button>`}).join('')}</div></div>
+  return `<div class="panel tp"><div class="panel-cab"><div><div class="etq" style="color:var(--bronce)">${fCorta(T.ini)} al ${fCorta(T.fin)} · ${sem.length} semanas</div><h3 style="margin-top:3px">Plan de temporada</h3></div><div class="der">${(T.etapas||[]).map(e=>`<span class="chip" style="border-left:4px solid ${e.c}">${esc(e.n)}</span>`).join('')}<button class="btn chico" id="tpLote" title="Crear de una vez los microciclos de una etapa">⚡ Crear micros de una etapa</button><button class="btn chico" id="tpEditar">✏️ Etapas y fechas</button></div></div>
+    <div class="tp-scroll" id="tpScroll"><div class="tp-grid" style="grid-template-columns:repeat(${sem.length},minmax(92px,1fr))">${(T.etapas||[]).map(e=>{const a=sem.findIndex(w=>iso(sumarDias(deIso(w),6))>=e.ini),b=sem.map((w,k)=>w<=e.fin?k:-1).filter(k=>k>=0).pop();if(a<0||b==null||b<a)return '';return `<div class="tp-band" style="grid-row:1;grid-column:${a+1}/${b+2};--ec:${e.c}">${esc(e.n)}</div>`}).join('')}${sem.map((w,ix)=>{const e=etapaDe(T,w)||etapaDe(T,iso(sumarDias(deIso(w),6))),ws=(T.sem||{})[w]||{},m=SMc().find(x=>lunesIso(x.inicio)===w),ps=SP().filter(p=>lunesIso(p.fecha)===w),cg=SS().filter(s=>lunesIso(s.fecha)===w).reduce((a,s)=>a+cargaSesion(s),0);
+      const foco=(m&&m.foco)||ws.foco||'';return `<button class="tp-w ${w===hoyL?'hoy':''} ${w<hoyL?'pas':''}" data-tpw="${w}" style="grid-row:2;grid-column:${ix+1};--ec:${e?e.c:'transparent'}"><span class="tp-f">${deIso(w).getDate()}/${deIso(w).getMonth()+1}</span>${ps.map(p=>`<span class="tp-p">⚽ ${esc(String(p.rival).split(' ').slice(-1)[0])}</span>`).join('')}<span class="tp-fo">${esc(foco||'—')}</span><span class="tp-c"><i style="height:${Math.round(100*cg/mx)}%"></i></span><span class="tp-m">${m?'✓ micro':ws.foco?'＋ crear':''}</span></button>`}).join('')}</div></div>
     <p class="sub" style="font-size:12px;margin:6px 0 0">Tocá una semana para elegir su foco y crear el microciclo. La barrita es la carga planificada de esa semana.</p></div>`}
 function editarTemporada(){const T=JSON.parse(JSON.stringify(tempAct()||{ini:iso(HOY),fin:iso(sumarDias(HOY,7*30)),etapas:[],sem:{}}));
   const filas=()=>T.etapas.map((e,k)=>`<div class="tp-ef"><input type="color" data-ec="${k}" value="${e.c}" aria-label="Color"><input type="text" data-en="${k}" value="${esc(e.n)}" maxlength="40" aria-label="Nombre de la etapa"><input type="date" data-ei="${k}" value="${e.ini}" aria-label="Desde"><input type="date" data-eh="${k}" value="${e.fin}" aria-label="Hasta"><button type="button" class="btn chico fantasma" data-ex="${k}" aria-label="Quitar">✕</button></div>`).join('')||'<p class="sub" style="font-size:13px">Todavía no hay etapas.</p>';
@@ -3093,6 +3108,22 @@ function editarTemporada(){const T=JSON.parse(JSON.stringify(tempAct()||{ini:iso
     $$('[data-epre]',m).forEach(b=>b.onclick=()=>{leer();const k=+b.dataset.epre,ult=T.etapas.length?T.etapas[T.etapas.length-1].fin:T.ini,ini=T.etapas.length?iso(sumarDias(deIso(ult),1)):T.ini;const [n,c]=k>=0?ETAPA_PRE[k]:['Etapa','#E23B2E'];T.etapas.push({id:uid(),n,c,ini,fin:iso(sumarDias(deIso(ini),k===0?34:k===2?20:90))});$('#tpEt',m).innerHTML=filas();ligar()});
     $('#tpOk',m).onclick=()=>{leer();if(T.fin<T.ini){aviso('La fecha de fin es anterior al inicio');return}T.etapas.sort((a,b)=>a.ini.localeCompare(b.ini));S.club=S.club||{};S.club.temporadas=S.club.temporadas||{};S.club.temporadas[catAct()]=T;guardar();cerrarModal();pintar();aviso('Plan de temporada guardado')};
     const bb=$('#tpBorrar',m);if(bb)bb.onclick=()=>confirmar('¿Borrar el plan de temporada?','Los microciclos y las sesiones no se tocan.','Borrar',()=>{delete S.club.temporadas[catAct()];guardar();pintar()})}})}
+function microsDeEtapa(){const T=tempAct();if(!T||!(T.etapas||[]).length){aviso('Primero cargá las etapas en ✏️ Etapas y fechas');return}
+  const rot=[];
+  modal('⚡ Crear micros de una etapa',`<form class="form" id="fLote"><label class="campo ancho">Etapa<select id="loE">${opts(T.etapas.map(e=>[e.id,e.n+' ('+fCorta(e.ini)+' al '+fCorta(e.fin)+')']))}</select></label></form>
+    <div class="etq" style="margin:8px 0 4px">Focos que se van turnando semana a semana</div><p class="sub" style="font-size:12.5px;margin:0 0 6px">Tocalos en el orden que querés. Por ejemplo: Inicio → Juego de posición → Transiciones → Finalización, y se repite.</p>
+    <div class="chips" id="loC">${CONT().map(c=>`<button type="button" class="chip" data-lc="${esc(c)}" style="cursor:pointer">${esc(c)}</button>`).join('')}</div><div id="loR" class="sub" style="margin-top:8px;font-size:13px"></div>
+    <div id="loP" style="margin-top:10px"></div>
+    <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="loOk">Crear</button></div>`,{ancho:true,alMontar:m=>{
+    const prev=()=>{const e=T.etapas.find(x=>x.id===$('#loE',m).value),sem=semanasTemp(T).filter(w=>iso(sumarDias(deIso(w),6))>=e.ini&&w<=e.fin),nuevas=sem.filter(w=>!SMc().some(x=>lunesIso(x.inicio)===w));
+      $('#loR',m).innerHTML=rot.length?'Orden: <b>'+rot.map(esc).join(' → ')+'</b> <button type="button" class="btn chico fantasma" id="loX">Borrar orden</button>':'Todavía no elegiste focos (quedan sin foco y los elegís después).';
+      $('#loP',m).innerHTML=`<div class="sub" style="font-size:13px">${nuevas.length} semanas sin microciclo en esta etapa${sem.length-nuevas.length?' · '+(sem.length-nuevas.length)+' ya tienen y no se tocan':''}.</div><div class="chips" style="margin-top:6px">${nuevas.slice(0,26).map((w,k)=>`<span class="chip">${deIso(w).getDate()}/${deIso(w).getMonth()+1}${rot.length?' · '+esc(rot[k%rot.length]):''}</span>`).join('')}</div>`;
+      $('#loOk',m).textContent=nuevas.length?'Crear '+nuevas.length+' microciclos':'No hay semanas para crear';$('#loOk',m).disabled=!nuevas.length;
+      const x=$('#loX',m);if(x)x.onclick=()=>{rot.length=0;prev()};return nuevas};
+    $('#loE',m).onchange=prev;$$('[data-lc]',m).forEach(b=>b.onclick=()=>{rot.push(b.dataset.lc);prev()});prev();
+    $('#loOk',m).onclick=()=>{const nuevas=prev();T.sem=T.sem||{};nuevas.forEach((w,k)=>{const ps=SP().filter(p=>lunesIso(p.fecha)===w),foco=rot.length?rot[k%rot.length]:'',tipo=ps.length>1?'doble':ps.length?'tipo':'sinp';
+        S.microciclos.push({id:uid(),nombre:'Microciclo '+(SMc().length+1),inicio:w,fin:iso(sumarDias(deIso(w),6)),foco,objetivo:'',tipo,plan:{}});if(foco)T.sem[w]={...(T.sem[w]||{}),foco,tipo}});
+      S.club.temporadas[catAct()]=T;guardar();cerrarModal();pintar();aviso(nuevas.length+' microciclos creados. Planificá cada uno con ✏️ Planificar.')}}})}
 function semanaTemporada(w){const T=tempAct();if(!T)return;T.sem=T.sem||{};const ws=T.sem[w]||{},m=SMc().find(x=>lunesIso(x.inicio)===w),e=etapaDe(T,w),ps=SP().filter(p=>lunesIso(p.fecha)===w);
   modal('Semana del '+fFecha(w),`${e?`<div class="chip" style="border-left:4px solid ${e.c};margin-bottom:10px">${esc(e.n)}</div>`:''}${ps.length?`<p style="margin:0 0 10px">${ps.map(p=>`⚽ ${esc(fFecha(p.fecha))} vs <b>${esc(p.rival)}</b>`).join('<br>')}</p>`:'<p class="sub" style="margin:0 0 10px">Sin partido esta semana.</p>'}
     <form class="form" id="fTw"><label class="campo">Foco de la semana${selCont('twF','foco',(m&&m.foco)||ws.foco||CONT()[0])}</label><label class="campo">Tipo de semana<select name="tipo">${opts(TIPOS_SEM,(m&&m.tipo)||ws.tipo||(ps.length>1?'doble':ps.length?'tipo':'sinp'))}</select></label><label class="campo ancho">Objetivo<input type="text" name="objetivo" value="${esc((m&&m.objetivo)||ws.obj||'')}" placeholder="Ej.: Salir jugando ante presión alta"></label></form>
@@ -3122,7 +3153,7 @@ VISTAS.planificacion=el=>{
   $('#miFE').onclick=miFormaEntrenar;
   $$('[data-comp]',el).forEach(b=>b.onclick=ev=>{ev.preventDefault();compartirSemana(S.microciclos.find(m=>m.id===b.dataset.comp),b)});
   $$('[data-cpy]',el).forEach(b=>b.onclick=ev=>{ev.preventDefault();copiarSemana(S.microciclos.find(m=>m.id===b.dataset.cpy))});
-  {const tn=$('#tpNuevo',el);if(tn)tn.onclick=editarTemporada;const te=$('#tpEditar',el);if(te)te.onclick=editarTemporada;$$('[data-tpw]',el).forEach(b=>b.onclick=()=>semanaTemporada(b.dataset.tpw));const sc=$('#tpScroll',el),h=sc&&sc.querySelector('.tp-w.hoy');if(sc&&h)sc.scrollLeft=Math.max(0,h.offsetLeft-sc.clientWidth/3)}
+  {const tl=$('#tpLote',el);if(tl)tl.onclick=microsDeEtapa;const tn=$('#tpNuevo',el);if(tn)tn.onclick=editarTemporada;const te=$('#tpEditar',el);if(te)te.onclick=editarTemporada;$$('[data-tpw]',el).forEach(b=>b.onclick=()=>semanaTemporada(b.dataset.tpw));const sc=$('#tpScroll',el),h=sc&&sc.querySelector('.tp-w.hoy');if(sc&&h)sc.scrollLeft=Math.max(0,h.offsetLeft-sc.clientWidth/3)}
   $('#calIcs').onclick=exportarCalendario;
   /* arrastrar sesiones de un día a otro */
   $$('.mp-ses[draggable]',el).forEach(b=>{b.ondragstart=e=>{e.dataTransfer.setData('text/plain',b.dataset.s);e.dataTransfer.effectAllowed='move';b.classList.add('arr')};b.ondragend=()=>b.classList.remove('arr')});
@@ -3172,7 +3203,9 @@ function editarSesion(s,microId){
   if(s)s={...JSON.parse(JSON.stringify(s)),contenidos:contSes(s)};
   s=s||{id:uid(),microId:mic?mic.id:'',fecha:iso(HOY),hora:'18:30',titulo:'',objetivo:mic?mic.objetivo:'',contenidos:mic?[mic.foco]:[],tareas:[],rpe:6,obs:'',jugadores:SJ().map(j=>j.id)};
   const pintarT=m=>{
-    $('#listaT',m).innerHTML=s.tareas.length?s.tareas.map((t,i)=>{const ta=tarea(t.tareaId);return `<div class="fila"><span class="min">${i+1}</span><div style="min-width:0;flex:1"><b>${esc(ta?ta.titulo:'Tarea eliminada')}</b><div class="sub" style="font-size:12.5px">${esc(ta?catTarea(ta.categoria)+' · '+ta.tipo:'')}${ta&&histTxt(ta.id)?' · '+histTxt(ta.id):''}</div></div><input type="number" min="1" value="${t.min}" data-min="${i}" style="width:72px" aria-label="Minutos"><span class="sub">min</span><button type="button" class="btn chico fantasma" data-sube="${i}" aria-label="Subir">↑</button><button type="button" class="btn chico fantasma" data-quita="${i}" aria-label="Quitar">✕</button></div>`}).join(''):'<div class="vacio" style="padding:14px">Sumá tareas desde la biblioteca.</div>';
+    $('#listaT',m).innerHTML=s.tareas.length?s.tareas.map((t,i)=>{const ta=tarea(t.tareaId),pz=ta&&S.pizarras.find(p=>p.id===ta.diagrama),md=mdDe(($('#sf',m)||{}).value||s.fecha),e=ta&&md?encajaMD(ta,md):0;return `<div class="se-f" draggable="true" data-ord="${i}"><span class="se-h" title="Arrastrá para cambiar el orden">⠿</span><span class="se-g">${pz?svgPizarra(pz,{mini:true}):'<i>'+(i+1)+'</i>'}</span><div class="se-tx"><span class="se-k">Tarea ${i+1}${ta&&ta.contenido?' · '+esc(ta.contenido):''}${e<0?` <b class="se-no" title="No es lo ideal en ${md}">⚠ ${md}</b>`:''}</span><b>${esc(ta?ta.titulo:'Tarea eliminada')}</b><span class="sub">${esc(ta?[ta.tipo,ta.espacio].filter(Boolean).join(' · '):'')}${ta&&histTxt(ta.id)?' · '+histTxt(ta.id):''}</span></div><label class="se-min"><input type="number" min="1" value="${t.min}" data-min="${i}" aria-label="Minutos">′</label><span class="se-acc"><button type="button" class="btn chico" data-cambia="${i}" title="Cambiar por otra tarea">⇄</button><button type="button" class="btn chico fantasma" data-sube="${i}" aria-label="Subir">↑</button><button type="button" class="btn chico fantasma" data-quita="${i}" aria-label="Quitar">✕</button></span></div>`}).join(''):'<div class="vacio" style="padding:14px">Sumá tareas desde la biblioteca o creá una nueva en la pizarra.</div>';
+    $$('[data-cambia]',m).forEach(b=>b.onclick=()=>{const k=+b.dataset.cambia,ta=tarea(s.tareas[k].tareaId)||{};elegirTareas(ids=>{const t=tarea(ids[0]);if(!t)return;s.tareas[k]={tareaId:t.id,min:s.tareas[k].min||t.duracion||10};pintarT(m)},m,null,{uno:true,md:mdDe(($('#sf',m)||{}).value||s.fecha),cont:ta.contenido,tipo:ta.tipo,excluir:ta.id})});
+    {let dr=null;$$('.se-f',m).forEach(r=>{r.ondragstart=e=>{dr=+r.dataset.ord;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','t');r.classList.add('arr')};r.ondragend=()=>r.classList.remove('arr');r.ondragover=e=>{e.preventDefault();r.classList.add('drop')};r.ondragleave=()=>r.classList.remove('drop');r.ondrop=e=>{e.preventDefault();const to=+r.dataset.ord;if(dr==null||dr===to)return;const [x]=s.tareas.splice(dr,1);s.tareas.splice(to,0,x);dr=null;pintarT(m)}})}
     $('#totT',m).textContent=durSesion(s)+' min · carga '+(durSesion(s)*s.rpe)+' UA';guiaSes(m);
     $$('[data-min]',m).forEach(i=>i.oninput=()=>{s.tareas[+i.dataset.min].min=+i.value||0;$('#totT',m).textContent=durSesion(s)+' min · carga '+(durSesion(s)*s.rpe)+' UA'});
     $$('[data-quita]',m).forEach(b=>b.onclick=()=>{s.tareas.splice(+b.dataset.quita,1);pintarT(m)});
@@ -3185,25 +3218,27 @@ function editarSesion(s,microId){
     <label class="campo">Hora<input type="time" id="sh" name="hora" value="${esc(s.hora)}"></label>
     <label class="campo">Microciclo<select id="sm" name="microId"><option value="">Sin microciclo</option>${opts(SMc().map(m=>[m.id,m.nombre+' ('+fCorta(m.inicio)+')']),s.microId)}</select></label>
     <div class="ancho" id="sGuia"></div>
-    <div class="ancho"><div class="etq" style="margin-bottom:6px">Contenidos de la sesión <span class="tenue" style="text-transform:none;letter-spacing:0;font-weight:500">· podés marcar varios</span></div><div class="chips" id="chCont">${CONT().map(c=>`<label class="chip" style="cursor:pointer"><input type="checkbox" name="contenidos" data-lista="1" value="${esc(c)}" ${s.contenidos.includes(c)?'checked':''}> ${esc(c)}</label>`).join('')}</div>
-      <div style="display:flex;gap:6px;margin-top:8px;max-width:380px"><input type="text" id="nuevoCont" placeholder="Otro concepto, ej.: Presión tras pérdida" aria-label="Nuevo concepto"><button type="button" class="btn chico" id="addCont">＋ Agregar</button></div></div>
     <label class="campo ancho">Título<input type="text" id="st" name="titulo" value="${esc(s.titulo)}" placeholder="Ej.: Inicio ante presión alta (el MD se pone solo)"></label>
-    <label class="campo ancho">Objetivo<textarea id="so" name="objetivo" style="min-height:56px">${esc(s.objetivo)}</textarea></label>
     <div class="ancho"><div class="panel-cab" style="margin-bottom:6px"><b>Tareas</b><span class="sub" id="totT" style="margin-left:auto"></span><button type="button" class="btn chico" id="addT">＋ De la biblioteca</button><button type="button" class="btn chico pri" id="addTP">✏️ Crear nueva en la pizarra</button></div><div class="lista" id="listaT"></div></div>
     <label class="campo">RPE planificado (1 a 10)<input type="number" id="sr" name="rpe" min="1" max="10" value="${s.rpe}"></label>
+    <details class="ancho se-mas"><summary>Contenidos, objetivo, ${J('pl')} y observaciones</summary><div class="form" style="margin-top:8px">
+    <div class="ancho"><div class="etq" style="margin-bottom:6px">Contenidos de la sesión <span class="tenue" style="text-transform:none;letter-spacing:0;font-weight:500">· podés marcar varios</span></div><div class="chips" id="chCont">${CONT().map(c=>`<label class="chip" style="cursor:pointer"><input type="checkbox" name="contenidos" data-lista="1" value="${esc(c)}" ${s.contenidos.includes(c)?'checked':''}> ${esc(c)}</label>`).join('')}</div>
+      <div style="display:flex;gap:6px;margin-top:8px;max-width:380px"><input type="text" id="nuevoCont" placeholder="Otro concepto, ej.: Presión tras pérdida" aria-label="Nuevo concepto"><button type="button" class="btn chico" id="addCont">＋ Agregar</button></div></div>
+    <label class="campo ancho">Objetivo<textarea id="so" name="objetivo" style="min-height:56px">${esc(s.objetivo)}</textarea></label>
     <label class="campo">${J('Pl')} ${RAMA()==='F'?'citadas':RAMA()==='M'?'citados':'citadas/os'}<select id="sj" name="jsel"><option value="todas">Todo el plantel (${SJ().length})</option><option value="elegir" ${s.jugadores.length!==SJ().length?'selected':''}>Elegir…</option></select></label>
     <div class="ancho" id="elegirJ" ${s.jugadores.length===SJ().length?'hidden':''}><div class="chips">${ordenJ(SJ()).map(j=>`<label class="chip" style="cursor:pointer"><input type="checkbox" name="jugadores" data-lista="1" value="${j.id}" ${s.jugadores.includes(j.id)?'checked':''}> ${esc(j.nombre[0]+'. '+j.apellido)}</label>`).join('')}</div></div>
     <label class="campo ancho">Observaciones<textarea id="sob" name="obs" style="min-height:56px">${esc(s.obs)}</textarea></label>
+    </div></details>
   </form><div class="modal-pie">${n?'':'<button class="btn peligro" id="bS" style="margin-right:auto">Eliminar</button>'}<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="gS">Guardar sesión</button></div>`,{ancho:true,alMontar:m=>{
     pintarT(m);
     const addC=()=>{const n=agregarContenido($('#nuevoCont',m).value);if(!n)return;const ya=$(`#chCont input[value="${CSS.escape(n)}"]`,m);if(ya)ya.checked=true;else $('#chCont',m).insertAdjacentHTML('beforeend',`<label class="chip" style="cursor:pointer"><input type="checkbox" name="contenidos" data-lista="1" value="${esc(n)}" checked> ${esc(n)}</label>`);$('#nuevoCont',m).value='';aviso('Concepto agregado: '+n)};
     $('#addCont',m).onclick=addC;$('#nuevoCont',m).onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addC()}};
     $('#sr',m).oninput=e=>{s.rpe=+e.target.value||0;pintarT(m)};
-    $('#sf',m).addEventListener('change',()=>guiaSes(m));
+    $('#sf',m).addEventListener('change',()=>pintarT(m));
     $('#sj',m).onchange=e=>{$('#elegirJ',m).hidden=e.target.value!=='elegir'};
     const crearEnPz=()=>{$('#gS',m).click();PZ_SESION={id:s.id};PZ_PARTIDO=null;resguardarPz();PZ=pizarraNueva();PZ.nombre='Nueva tarea';FR=0;SEL=null;hist=[];cerrarModal();ir('pizarra');aviso('Armá la tarea y tocá “✓ Guardar tarea y volver a la sesión”')};
     $('#addTP',m).onclick=crearEnPz;
-    $('#addT',m).onclick=()=>elegirTareas(ids=>{ids.forEach(id=>{const t=tarea(id);s.tareas.push({tareaId:id,min:t.duracion||10})});pintarT(m)},m,crearEnPz);
+    $('#addT',m).onclick=()=>elegirTareas(ids=>{ids.forEach(id=>{const t=tarea(id);s.tareas.push({tareaId:id,min:t.duracion||10})});pintarT(m)},m,crearEnPz,{md:mdDe($('#sf',m).value||s.fecha),cont:(contSes(s)[0]||'')});
     $('#gS',m).onclick=()=>{const d=leerForm($('#fS',m));const js=d.jsel==='todas'?SJ().map(j=>j.id):(d.jugadores||[]);delete d.jsel;delete d.jugadores;
       Object.assign(s,d,{rpe:+d.rpe||0,jugadores:js,contenidos:d.contenidos||[]});delete s.contenido;if(!s.titulo.trim())s.titulo=(s.contenidos.join(' + ')||'Sesión');
       const i=S.sesiones.findIndex(x=>x.id===s.id);if(i>=0)S.sesiones[i]=s;else S.sesiones.push(s);guardar();cerrarModal();aviso('Sesión guardada');pintar()};
@@ -3211,18 +3246,28 @@ function editarSesion(s,microId){
   }});
 }
 // Selector de tareas en una capa encima del modal de sesión
-function elegirTareas(cb,modalPadre,nueva){
-  const capa=document.createElement('div');capa.className='velo';capa.style.zIndex=55;
-  capa.innerHTML=`<div class="modal"><div class="modal-cab"><h2>Elegir tareas</h2><button class="btn fantasma chico x" data-c aria-label="Cerrar">✕</button></div><input type="search" id="bT" placeholder="Buscar por nombre, contenido o tipo" style="margin-bottom:10px"><div class="lista" id="rT" style="max-height:52vh;overflow-y:auto"></div><div class="modal-pie"><button class="btn" data-c>Cancelar</button><button class="btn pri" id="okT">Agregar seleccionadas</button></div></div>`;
+function encajaMD(t,md){const g=guiaMD(md);if(!g)return 0;if(g.evita.includes(t.tipo))return -1;if(md==='MD-4'&&t.espacio==='Amplio'&&t.tipo!=='Pelota parada')return -1;return g.tipos.includes(t.tipo)||(md==='MD-4'&&t.espacio==='Reducido')||(md==='MD-3'&&t.espacio==='Amplio')?1:0}
+function elegirTareas(cb,modalPadre,nueva,ctx){ctx=ctx||{};const md=ctx.md||'',g=guiaMD(md),uno=!!ctx.uno;
+  const capa=document.createElement('div');capa.className='velo';capa.style.zIndex=90;
+  const vals=k=>unicos(S.tareas.map(t=>t[k]).filter(Boolean)).sort();
+  capa.innerHTML=`<div class="modal et-m"><div class="modal-cab"><h2>${uno?'Cambiar la tarea':'Elegir tareas'}</h2><button class="btn fantasma chico x" data-c aria-label="Cerrar">✕</button></div>
+    <div class="et-fil"><input type="search" id="bT" placeholder="Buscar por nombre, contenido o tipo"><select id="fTi" aria-label="Tipo"><option value="">Todos los tipos</option>${opts(vals('tipo'))}</select><select id="fCo" aria-label="Contenido"><option value="">Todos los contenidos</option>${opts(vals('contenido'),ctx.cont||'')}</select><select id="fEs" aria-label="Espacio"><option value="">Todo espacio</option>${opts(vals('espacio'))}</select>${g?`<label class="chip et-md" style="--mdc:${g.c}"><input type="checkbox" id="fMd" checked> Primero las que encajan con ${md}</label>`:''}</div>
+    ${g?`<div class="sub et-g">${mdBadge(md,true)} ${esc(g.n)}: ${esc(g.esp.toLowerCase())}</div>`:''}
+    <div class="et-grid" id="rT"></div>
+    <div class="modal-pie">${nueva?'<button class="btn" id="etNueva" style="margin-right:auto">✏️ No está: crearla en la pizarra</button>':''}<button class="btn" data-c>Cancelar</button>${uno?'':'<button class="btn pri" id="okT">Agregar</button>'}</div></div>`;
   document.body.appendChild(capa);
-  const sel=new Set();
-  const pin=()=>{const q=$('#bT',capa).value.toLowerCase();$('#rT',capa).innerHTML=S.tareas.filter(t=>(t.titulo+t.contenido+t.tipo+t.categoria).toLowerCase().includes(q)).map(t=>`<label class="fila click" style="cursor:pointer"><input type="checkbox" value="${t.id}" ${sel.has(t.id)?'checked':''}><div style="min-width:0"><b>${esc(t.titulo)}</b><div class="sub" style="font-size:12.5px">${esc(catTarea(t.categoria))} · ${esc(t.tipo)} · ${t.duracion} min</div></div></label>`).join('')||'<div class="vacio">No hay tareas con esa búsqueda.</div>';
-    $$('#rT input',capa).forEach(i=>i.onchange=()=>i.checked?sel.add(i.value):sel.delete(i.value))};
-  pin();$('#bT',capa).oninput=pin;$('#bT',capa).focus();
+  const sel=[];
+  const pin=()=>{const q=$('#bT',capa).value.toLowerCase(),ti=$('#fTi',capa).value,co=$('#fCo',capa).value,es=$('#fEs',capa).value,pm=$('#fMd',capa)&&$('#fMd',capa).checked;
+    let L=S.tareas.filter(t=>(!q||(t.titulo+' '+t.contenido+' '+t.tipo+' '+t.categoria).toLowerCase().includes(q))&&(!ti||t.tipo===ti)&&(!co||t.contenido===co)&&(!es||t.espacio===es)&&t.id!==ctx.excluir);
+    if(pm)L=L.map(t=>({t,e:encajaMD(t,md),p:(ctx.cont&&t.contenido===ctx.cont?1:0)+(ctx.tipo&&t.tipo===ctx.tipo?1:0)})).sort((a,b)=>b.e-a.e||b.p-a.p).map(x=>x.t);
+    $('#rT',capa).innerHTML=L.slice(0,120).map(t=>{const pz=S.pizarras.find(p=>p.id===t.diagrama),h=histTarea(t.id),e=md?encajaMD(t,md):0,k=sel.indexOf(t.id);
+      return `<button type="button" class="et-c ${k>=0?'on':''}" data-t="${t.id}"><span class="et-g2">${pz?svgPizarra(pz,{mini:true}):'<i>Sin gráfico</i>'}${k>=0?`<b class="et-n">${uno?'✓':k+1}</b>`:''}${e>0?`<span class="et-ok" title="Encaja con ${md}">✓ ${md}</span>`:e<0?`<span class="et-no" title="No es lo ideal en ${md}">⚠ ${md}</span>`:''}</span><span class="et-tx"><b>${esc(t.titulo)}</b><span class="sub">${esc([t.contenido,t.tipo,t.espacio].filter(Boolean).join(' · '))} · ${t.duracion}′</span>${h.n?`<span class="et-h">${h.n}× ${h.v.ok?'👍'+h.v.ok+' ':''}${h.v.aj?'✋'+h.v.aj+' ':''}${h.v.no?'👎'+h.v.no:''}</span>`:''}</span></button>`}).join('')||'<div class="vacio">No hay tareas con ese filtro.</div>';
+    $$('[data-t]',capa).forEach(b=>b.onclick=()=>{const id=b.dataset.t;if(uno){cb([id]);cerrar();return}const k=sel.indexOf(id);if(k>=0)sel.splice(k,1);else sel.push(id);pin();const ok=$('#okT',capa);if(ok)ok.textContent=sel.length?'Agregar '+sel.length+(sel.length===1?' tarea':' tareas'):'Agregar'})};
+  pin();['#bT','#fTi','#fCo','#fEs','#fMd'].forEach(q=>{const x=$(q,capa);if(x)x[q==='#bT'?'oninput':'onchange']=pin});setTimeout(()=>$('#bT',capa).focus(),50);
   const cerrar=()=>capa.remove();
   $$('[data-c]',capa).forEach(b=>b.onclick=cerrar);
-  $('#okT',capa).onclick=()=>{cb([...sel]);cerrar()};
-  if(nueva){const pie=$('.modal-pie',capa);if(pie){const b=document.createElement('button');b.className='btn';b.style.marginRight='auto';b.textContent='✏️ No está: crearla en la pizarra';b.onclick=()=>{cerrar();nueva()};pie.prepend(b)}}
+  const ok=$('#okT',capa);if(ok)ok.onclick=()=>{cb([...sel]);cerrar()};
+  const nv=$('#etNueva',capa);if(nv)nv.onclick=()=>{cerrar();nueva()};
 }
 /* ---------- PDF profesional de la sesión ---------- */
 async function sesionPDF(s,btn){
@@ -3246,6 +3291,7 @@ async function sesionPDF(s,btn){
   let y=cab(false);
   const datos=[['Duración',dur+' min'],['RPE planificado',String(s.rpe||'—')],['Carga',carga+' UA'],[J('Pl'),String(s.jugadores.length)]];
   const bw=(PW-M*2-9)/4;datos.forEach(([k,v],i)=>{const x=M+i*(bw+3);doc.setFillColor(246,244,238);doc.roundedRect(x,y,bw,18,2,2,'F');doc.setFillColor(...COL);doc.rect(x,y,1.3,18,'F');T(7,'bold',GR);doc.text(k.toUpperCase(),x+5,y+6.5);T(14,'bold');doc.text(v,x+5,y+14)});y+=26;
+  {const md=mdDe(s.fecha),g=guiaMD(md);if(g){const c=hexRGB(g.c);doc.setFillColor(...c);doc.roundedRect(M,y,22,9,1.5,1.5,'F');T(10,'bold',[255,255,255]);doc.text(md,M+11,y+6.2,{align:'center'});T(10.5,'bold');doc.text(g.n+' · carga '+g.carga.toLowerCase(),M+26,y+4.2);T(8.5,'normal',GR);doc.text(g.esp+' · RPE '+g.rpe[0]+'–'+g.rpe[1]+' · '+g.dur[0]+'–'+g.dur[1]+' min',M+26,y+8.4);y+=15}}
   if(s.objetivo){T(8,'bold',GR);doc.text('OBJETIVO',M,y);y+=5.5;T(12,'bold');const l=doc.splitTextToSize(s.objetivo,PW-M*2);doc.text(l,M,y);y+=l.length*5.5+4}
   const cont=contSes(s);if(cont.length){T(8,'bold',GR);doc.text('CONTENIDOS',M,y);y+=5.5;T(10.5,'normal');doc.text(cont.join(' · '),M,y,{maxWidth:PW-M*2});y+=9}
   // tabla de tareas
@@ -3253,9 +3299,11 @@ async function sesionPDF(s,btn){
   const tareas=s.tareas.map(t=>({t,ta:tarea(t.tareaId)})).filter(x=>x.ta);
   doc.setDrawColor(20,20,18);doc.line(M,y,PW-M,y);y+=6;
   tareas.forEach(({t,ta},i)=>{T(11,'bold',COL);doc.text(String(i+1).padStart(2,'0'),M,y);T(11,'bold');doc.text(G(ta.titulo).slice(0,70),M+10,y);T(10,'bold');doc.text(t.min+"'",PW-M,y,{align:'right'});
-    T(8.5,'normal',GR);doc.text([catTarea(ta.categoria),ta.tipo,ta.nJug+' '+J('pl'),ta.espacio].filter(Boolean).join(' · '),M+10,y+4.5);doc.setDrawColor(225,222,214);doc.line(M,y+8,PW-M,y+8);y+=14});
+    T(8.5,'normal',GR);doc.text([ta.contenido,ta.tipo,ta.nJug+' '+J('pl'),ta.espacio].filter(Boolean).join(' · '),M+10,y+4.5);doc.setDrawColor(225,222,214);doc.line(M,y+8,PW-M,y+8);y+=14});
   const tmin=tareas.reduce((a,x)=>a+(+x.t.min||0),0);T(10,'bold');doc.text('Tiempo de tareas: '+tmin+' min',PW-M,y,{align:'right'});y+=8;
-  if(s.obs){T(8,'bold',GR);doc.text('OBSERVACIONES',M,y);y+=5;T(10,'normal');const l=doc.splitTextToSize(s.obs,PW-M*2).slice(0,8);doc.text(l,M,y);y+=l.length*4.6}
+  if(s.obs){T(8,'bold',GR);doc.text('OBSERVACIONES',M,y);y+=5;T(10,'normal');const l=doc.splitTextToSize(s.obs,PW-M*2).slice(0,8);doc.text(l,M,y);y+=l.length*4.6+4}
+  if(s.real&&s.real.hecha&&y<PH-40){const R=s.real,rp=rpeRealProm(s),mr=minReales(s);T(8,'bold',GR);doc.text('CÓMO SALIÓ',M,y);y+=5;T(10,'bold');doc.text('Realizado: '+mr+' min · RPE '+(rp!=null?String(rp).replace('.',','):'—')+(rp!=null?' · '+Math.round(mr*rp)+' UA':'')+'   (planificado: '+dur+' min · RPE '+(s.rpe||'—')+' · '+carga+' UA)',M,y);y+=6;
+    const VT={ok:'Funcionó',aj:'Ajustar',no:'No va'};tareas.forEach(({ta},i)=>{const v=(R.val||[])[i],nt=(R.nota||[])[i];if(!v&&!nt)return;if(y>PH-20)return;T(9,'bold',v==='no'?[192,57,43]:v==='aj'?[224,138,36]:[46,139,87]);doc.text((i+1)+'. '+(VT[v]||'Nota'),M,y);T(9,'normal');const l=doc.splitTextToSize(G(ta.titulo)+(nt?' — '+nt:''),PW-M*2-30).slice(0,2);doc.text(l,M+28,y);y+=l.length*4.3+1.5})}
   pie('1');
   // --- Una tarea por media página ---
   let pag=1,slot=0;
@@ -3723,6 +3771,19 @@ function conoJ(e,x,y,r,c){if(e.ori==null||e.ori==='')return '';const L=r*4.4,A=3
   const p1=[x+L*Math.cos(o-A),y+L*Math.sin(o-A)],p2=[x+L*Math.cos(o+A),y+L*Math.sin(o+A)],gid='cg'+(++_idMat);
   return `<defs><radialGradient id="${gid}" cx="${x}" cy="${y}" r="${L}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${col}" stop-opacity=".55"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></radialGradient></defs><path d="M${x} ${y}L${p1[0]} ${p1[1]}A${L} ${L} 0 0 1 ${p2[0]} ${p2[1]}Z" fill="url(#${gid})"/><path d="M${x+r*1.05*Math.cos(o-.42)} ${y+r*1.05*Math.sin(o-.42)}L${x+r*1.55*Math.cos(o)} ${y+r*1.55*Math.sin(o)}L${x+r*1.05*Math.cos(o+.42)} ${y+r*1.05*Math.sin(o+.42)}Z" fill="${col}" stroke="#141412" stroke-width="${r*.08}"/>`}
 function fotoDeJ(id){const j=S&&S.jugadores&&S.jugadores.find(z=>z.id===id);return j&&j.foto||''}
+/* escudo sin el fondo cuadrado (para la marca de agua de la cancha): se borra el color del borde desde afuera hacia adentro */
+const ESC_L={src:'',url:'',trab:false};
+function escudoLimpio(src){if(ESC_L.src===src&&ESC_L.url)return ESC_L.url;if(ESC_L.trab&&ESC_L.src===src)return '';ESC_L.src=src;ESC_L.url='';ESC_L.trab=true;
+  const im=new Image();im.onload=()=>{try{const M=320,k=Math.min(1,M/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k)),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.drawImage(im,0,0,w,h);
+    const d=g.getImageData(0,0,w,h),p=d.data,vis=new Uint8Array(w*h),cola=[];let r0=0,g0=0,b0=0,n=0;
+    const bordes=[];for(let x=0;x<w;x++){bordes.push(x,(h-1)*w+x)}for(let y=0;y<h;y++){bordes.push(y*w,y*w+w-1)}
+    bordes.forEach(i=>{if(p[i*4+3]>200){r0+=p[i*4];g0+=p[i*4+1];b0+=p[i*4+2];n++}});
+    if(n>bordes.length*.5){r0/=n;g0/=n;b0/=n;const tol=48*48*3,cerca=i=>{const a=p[i*4+3];if(a<30)return true;const dr=p[i*4]-r0,dg=p[i*4+1]-g0,db=p[i*4+2]-b0;return dr*dr+dg*dg+db*db<tol};
+      bordes.forEach(i=>{if(!vis[i]&&cerca(i)){vis[i]=1;cola.push(i)}});
+      while(cola.length){const i=cola.pop();p[i*4+3]=0;const x=i%w,y=(i/w)|0;[[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(([a,b])=>{if(a<0||b<0||a>=w||b>=h)return;const j=b*w+a;if(!vis[j]&&cerca(j)){vis[j]=1;cola.push(j)}})}
+      g.putImageData(d,0,0)}
+    ESC_L.url=c.toDataURL('image/png')}catch(e){ESC_L.url=src}ESC_L.trab=false;try{if(typeof ruta!=='undefined'&&ruta==='pizarra'&&typeof redibujar==='function')redibujar();else if(typeof pintar==='function')pintar()}catch(e){}};
+  im.onerror=()=>{ESC_L.url=src;ESC_L.trab=false};im.src=src;return ''}
 function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=null,rectSel=null,estilo=null,vivo=false,alt=null,sinFichas=false,sinNota=false}={}){
   normalizar(pz);const ES=estilo||estiloPz();if(!estilo&&!mini)try{document.documentElement.style.setProperty('--cesped',ES.a);document.documentElement.style.setProperty('--cesped2',ES.b)}catch(e){}
   const [W,H]=FORMATOS[pz.formato]||[40,30],k=10,r=radio(pz.formato)*k*(pz.escala||1),pad=Math.max(W,H)*.045*k;
@@ -3731,7 +3792,7 @@ function svgPizarra(pz,{mini=false,frame=0,over=null,previa=null,sel=null,multi=
   if(ES.p&&!mini){const pid2='tx'+ES.p;const pat=ES.p==='cuadros'?`<pattern id="${pid2}" width="${anF*k*2}" height="${anF*k*2}" patternUnits="userSpaceOnUse"><rect width="${anF*k}" height="${anF*k}" fill="#fff" fill-opacity=".06"/><rect x="${anF*k}" y="${anF*k}" width="${anF*k}" height="${anF*k}" fill="#fff" fill-opacity=".06"/></pattern>`:ES.p==='madera'?`<pattern id="${pid2}" width="${k*4}" height="${k*.8}" patternUnits="userSpaceOnUse"><rect width="${k*4}" height="${k*.8}" fill="none" stroke="#000" stroke-opacity=".12" stroke-width="${k*.04}"/><path d="M${k*2} 0V${k*.8}" stroke="#000" stroke-opacity=".1" stroke-width="${k*.04}"/></pattern>`:`<pattern id="${pid2}" width="${k*.9}" height="${k*.9}" patternUnits="userSpaceOnUse"><circle cx="${k*.2}" cy="${k*.3}" r="${k*.05}" fill="#000" fill-opacity=".14"/><circle cx="${k*.65}" cy="${k*.7}" r="${k*.04}" fill="#fff" fill-opacity=".1"/></pattern>`;
     fr.push(`<defs>${pat}</defs><rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="url(#${pid2})"/>`)}
   const esc0=(typeof S!=='undefined'&&S.club&&S.club.escudo)||'';let logo='';
-  if(ES.logo&&esc0&&ES.op>0){const t=Math.min(W,H)*k*ES.tam/100;logo=`<image href="${esc0.replace(/"/g,'%22')}" x="${W*k/2-t/2}" y="${H*k/2-t/2}" width="${t}" height="${t}" opacity="${ES.op/100}" preserveAspectRatio="xMidYMid meet"/>`}
+  const escL=esc0?escudoLimpio(esc0):'';if(ES.logo&&escL&&ES.op>0){const t=Math.min(W,H)*k*ES.tam/100;logo=`<image href="${escL.replace(/"/g,'%22')}" x="${W*k/2-t/2}" y="${H*k/2-t/2}" width="${t}" height="${t}" opacity="${ES.op/100}" preserveAspectRatio="xMidYMid meet"/>`}
   const pid='redArco'+ES.tipo+(ES.l||'').replace('#','');
   const vig=ES.tipo==='blanca'?'':`<rect x="${-pad}" y="${-pad}" width="${W*k+pad*2}" height="${H*k+pad*2}" fill="url(#vig)"/>`;
   const colF=a=>a.c||(FLECHAS[a.k]||FLECHAS.pase).c,mkId=c=>'pt'+String(c).replace(/[^0-9a-zA-Z]/g,'');
