@@ -1656,7 +1656,7 @@ const ICO={
   tienda:'<path d="M4 8h16l-1.3 12H5.3z"/><path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2"/>',
   ajustes:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'
 };
-const RUTAS=[['inicio','Inicio'],['calendario','Calendario'],['coordinacion','Coordinación'],['metodologia','Metodología'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['rendimiento','Rendimiento'],['asistencia','Asistencia'],['cargas','Cargas'],['-'],['tienda','Tienda Metodika'],['ajustes','Ajustes'],['sugerencia','Enviar sugerencia']];
+const RUTAS=[['inicio','Inicio'],['calendario','Calendario'],['coordinacion','Coordinación'],['metodologia','Metodología'],['plantel','Plantel'],['planificacion','Planificación'],['biblioteca','Biblioteca'],['lecturas','Lecturas'],['pizarra','Pizarra táctica'],['partido','Partido'],['analisis','Análisis de rival'],['videoanalisis','Videoanálisis'],['evaluaciones','Evaluaciones'],['fixture','Fixture'],['rendimiento','Rendimiento'],['asistencia','Asistencia'],['cargas','Cargas'],['-'],['ajustes','Ajustes'],['sugerencia','Enviar sugerencia']];
 const ICO_R={calendario:'cal',coordinacion:'coord',metodologia:'metod',inicio:'inicio',plantel:'plantel',planificacion:'plan',biblioteca:'biblio',lecturas:'libro',pizarra:'pizarra',partido:'partido',analisis:'video',videoanalisis:'tag',evaluaciones:'eval',fixture:'fixture',rendimiento:'rendim',asistencia:'asist',cargas:'carga',tienda:'tienda',ajustes:'ajustes',sugerencia:'charla'};
 let ruta='inicio',param=null;
 const PILARES=[['metodo','MÉTODO','M',['inicio','calendario','coordinacion','metodologia','planificacion','biblioteca','lecturas']],['cancha','CANCHA','C',['pizarra','videoanalisis','analisis']],['equipo','EQUIPO','E',['plantel','partido','fixture','rendimiento','asistencia','cargas','evaluaciones']]];
@@ -1679,7 +1679,7 @@ function pintarMenu(){
   const util=(r,tit,extra='',lbl='')=>`<button class="util ${ruta===r?'activo':''}" data-util="${r}" title="${tit}" aria-label="${tit}"><svg viewBox="0 0 24 24">${ICO[ICO_R[r]]}</svg><span class="lbl">${lbl}</span>${extra}</button>`;
   const nube=typeof MODO!=='undefined'&&MODO==='nube'&&USR,nom=nube?((PERFIL&&PERFIL.nombre)||USR.displayName||USR.email||''):'';
   const osc=document.documentElement.getAttribute('data-theme')!=='light';
-  $('.pie-lat').innerHTML=(nube?'<span class="chip" id="estadoNube">☁ Guardado</span>':'')+`<button class="util" id="temaRap" title="${osc?'Pasar a modo claro (mejor con sol)':'Pasar a modo oscuro'}" aria-label="Cambiar modo claro u oscuro"><svg viewBox="0 0 24 24">${osc?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'}</svg><span class="lbl">${osc?'Claro':'Oscuro'}</span></button>`+util('tienda','Tienda Metodika','','Tienda')+util('sugerencia','Enviar sugerencia','','Sugerir')+util('ajustes','Ajustes',nSol?`<span class="n">${nSol}</span>`:'','Ajustes')+(nube?`<span class="yo" title="${esc(nom)}">${esc(nom.split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase())}</span>`:'');
+  $('.pie-lat').innerHTML=(nube?'<span class="chip" id="estadoNube">☁ Guardado</span>':'')+`<button class="util" id="temaRap" title="${osc?'Pasar a modo claro (mejor con sol)':'Pasar a modo oscuro'}" aria-label="Cambiar modo claro u oscuro"><svg viewBox="0 0 24 24">${osc?'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>':'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'}</svg><span class="lbl">${osc?'Claro':'Oscuro'}</span></button>`+util('sugerencia','Enviar sugerencia','','Sugerir')+util('ajustes','Ajustes',nSol?`<span class="n">${nSol}</span>`:'','Ajustes')+(nube?`<span class="yo" title="${esc(nom)}">${esc(nom.split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase())}</span>`:'');
   {const tb=$('#temaRap');if(tb)tb.onclick=()=>{const nuevo=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';try{localStorage.setItem('metodika_tema',nuevo)}catch(e){}aplicarTema();pintar();aviso(nuevo==='light'?'Modo claro activado':'Modo oscuro activado')}}
   $$('.pie-lat [data-util]').forEach(b=>b.onclick=()=>{if(b.dataset.util==='sugerencia')return enviarSugerencia();ir(b.dataset.util)});
   if(puedeInstalar()&&!$('#btnInstalar')){const bi=document.createElement('button');bi.className='util inst';bi.id='btnInstalar';bi.title='Instalar la app';bi.setAttribute('aria-label','Instalar la app');bi.innerHTML='<svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7m-3-3 3 3 3-3"/></svg><span class="lbl">Instalar</span>';bi.onclick=instalarApp;$('.pie-lat').prepend(bi)}
@@ -7974,12 +7974,17 @@ async function cargarLecturas(){
   await cargarPlan();
   LECT.cargado=true;
 }
+const KIT_GRATIS=[
+  ['Metodika-Planillas.xlsx','Planillas Metodika (Excel)','Plantel, microciclo, planificación, asistencia, entrenamientos y estadísticas. Se completa en las celdas amarillas.','xlsx'],
+  ['Metodika-Libro-de-Planificacion.pdf','Libro de Planificación (PDF)','Para imprimir: ficha del plantel, planificador anual y mensual, ficha de sesión y registro de partidos.','pdf'],
+  ['Metodika-Ficha-de-Sesion.pdf','Ficha de Sesión (PDF)','Datos de la sesión y desarrollo de las tareas. Imprimila las veces que necesites.','pdf']];
+function panelGratis(){return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>Material gratis</h3><span class="chip ok" style="margin-left:auto">Gratis para todos</span></div><p class="sub" style="margin:0 0 12px;font-size:14px">El Kit Entrenador/a de Metodika, para descargar y usar con tu plantel.</p><div class="cartas-t" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${KIT_GRATIS.map(([u,t,d,x])=>`<div class="pack"><div class="etq">${x==='xlsx'?'Excel':'PDF'}</div><h2 style="font-size:20px">${esc(t)}</h2><p class="sub" style="margin:0;font-size:14px">${esc(d)}</p><div style="margin-top:auto;display:flex;gap:8px;flex-wrap:wrap"><a class="btn pri chico" href="${u}" download>Descargar</a>${x==='pdf'?`<a class="btn chico" href="${u}" target="_blank" rel="noopener">Ver</a>`:''}</div></div>`).join('')}</div></div>`}
 VISTAS.lecturas=el=>{
   if(!LECT.cargado){el.innerHTML=cabecera('Formación','Biblioteca de lectura','')+'<div class="vacio">Cargando…</div>';cargarLecturas().then(()=>{if(ruta==='lecturas')pintar()});return}
   const duenia=esDuenia(),acceso=LECT.pago||duenia;
   const propios=LECT.items.filter(x=>x.tipo==='metodika'),recom=LECT.items.filter(x=>x.tipo==='recomendada');
   const pedir=`<a class="btn ama chico" href="mailto:${CONTACTO_MAIL}?subject=${encodeURIComponent('Plan Metodika Clubes · '+(S.club.nombre||''))}">Pedir el plan</a><a class="btn chico" href="${CONTACTO_IG}" target="_blank" rel="noopener">Instagram</a>`;
-  el.innerHTML=cabecera('Formación','Biblioteca de lectura','Material de Metodika para el cuerpo técnico y lecturas recomendadas para seguir formándote.',duenia?'<button class="btn pri" id="admL">Administrar</button>':'')+
+  el.innerHTML=cabecera('Formación','Biblioteca de lectura','Material de Metodika para el cuerpo técnico y lecturas recomendadas para seguir formándote.',duenia?'<button class="btn pri" id="admL">Administrar</button>':'')+panelGratis()+
   (MODO!=='nube'?'<div class="vacio">Entrá con tu cuenta de Metodika Clubes para ver la biblioteca de lectura.</div>':
    LECT.error==='reglas'?`<div class="vacio">${duenia?'Falta activar esta sección en Firebase (reglas de la base de datos). Seguí los pasos que te pasó Claude.':'Esta sección todavía no está disponible.'}</div>`:
    LECT.error?`<div class="vacio">No se pudo cargar: ${esc(LECT.error)}</div>`:
@@ -8028,7 +8033,7 @@ function adminLecturas(){
 
 /* ================= TIENDA ================= */
 const TIENDA='https://store.pulgy.app/metodikaoficial26';
-VISTAS.tienda=el=>{
+VISTAS.tienda=el=>{setTimeout(()=>ir('lecturas'),0);el.innerHTML='';return;
   const packs=[
     ['Kit Entrenador/a','Excel automatizado (plantel, microciclo, asistencia, estadísticas) + Libro de Planificación en PDF + Ficha de Sesión.','$10.000',true,true],
     ['Microciclos','Semanas completas listas para aplicar: objetivo, contenidos, 4 sesiones y carga planificada.','Próximamente',false,false],
