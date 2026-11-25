@@ -1089,6 +1089,14 @@ details.se-mas{border:1px solid var(--linea);border-radius:10px;padding:8px 12px
 @media (max-width:900px){.pzA:is(.piz-full,.pz-emb) .cancha-box{padding:40px 6px 60px}}
 .ct-sel{display:flex;gap:8px;align-items:center;margin-bottom:12px}.ct-sel select{width:auto;font-weight:700}.ct-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.ct-c{background:var(--carta2,rgba(255,255,255,.04));border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}.ct-c b{font:800 26px var(--f-x,Barlow)}.ct-c small{color:var(--sub)}
 .ct-t td.n,.ct-t th.n{text-align:right;white-space:nowrap}@media(max-width:600px){.ct-sel select{flex:1;min-width:0;width:100%;font-size:14px}.ct-c{padding:10px}.ct-c b{font-size:20px}.ct-t{font-size:13px}.ct-t th,.ct-t td{padding:7px 6px}.ct-t th{font-size:10.5px;letter-spacing:0}.ct-t th.n{white-space:normal;word-break:normal;max-width:90px}.ct-t .ct-dif-l{display:none}.ct-t .ct-dif-c{display:inline}}.ct-dif-c{display:none}.ct-up{color:#2E9E5B;font-weight:800;font-style:normal}.ct-down{color:#D0402F;font-weight:800;font-style:normal}.ct-j td.n i{font-size:12px;margin-left:3px}
+
+/* celular: que nada tape nada (nov 2026) */
+@media (max-width:860px){
+  .lateral{position:relative!important;top:auto!important}
+  .pzA-tl{position:static!important;box-shadow:none!important;margin:12px 0 0!important;padding-left:0!important;padding-right:0!important}
+  .acc.acc.acc.acc,.pz-bar.pz-bar.pz-bar.pz-bar{flex-wrap:wrap!important;overflow-x:visible!important}
+  .seg.seg.seg.seg{flex-wrap:wrap!important;overflow-x:visible!important;height:auto!important}
+}
 </style>
 
 <div class="app">
@@ -1629,7 +1637,7 @@ const ICO_R={calendario:'cal',coordinacion:'coord',metodologia:'metod',inicio:'i
 let ruta='inicio',param=null;
 const PILARES=[['metodo','MÉTODO','M',['inicio','calendario','coordinacion','metodologia','planificacion','biblioteca','lecturas']],['cancha','CANCHA','C',['pizarra','videoanalisis','analisis']],['equipo','EQUIPO','E',['plantel','partido','fixture','rendimiento','asistencia','cargas','evaluaciones']]];
 const NOM_R=Object.fromEntries(RUTAS.filter(r=>r[1]));NOM_R.analisis='Análisis de rival';
-const DESC_PILAR={metodo:'Calendario · Planificación',cancha:'Pizarra · Video',equipo:'Plantel · Partidos · Estadísticas'};
+const DESC_PILAR={metodo:'Planificación · Biblioteca',cancha:'Pizarra · Video',equipo:'Plantel · Partidos · Estadísticas'};
 function pilarDe(r){const p=PILARES.find(x=>x[3].includes(r));return p?p[0]:''}
 const ULT_PILAR={};
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-sub]');if(a){e.preventDefault();ir(a.dataset.sub)}});
@@ -4103,6 +4111,7 @@ VISTAS.pizarra=el=>{
   $('#pzCarpeta').oninput=e=>PZ.carpeta=e.target.value.trim();
   $('#pzFormato').onchange=e=>{if(e.target.value==='__medida'){e.target.value=PZ.formato;canchaAMedida();return}snap();PZ.formato=e.target.value;delete PZ.medida;pintar()};
   $('#pzLimpiar').onclick=()=>{snap();Object.assign(PZ,{elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],trazos:[]});FR=0;SEL=null;MULTI.clear();pintar()};
+  {const l2=$('#pzLimpiar2');if(l2)l2.onclick=()=>confirmar('¿Limpiar la cancha?','Se borra todo lo que hay en la cancha (jugadoras, flechas, zonas, textos y pasos). Si te arrepentís, tocá Deshacer.','Limpiar cancha',()=>{snap();Object.assign(PZ,{elementos:[],flechas:[],zonas:[],textos:[],pasos:[],lineas:[],trazos:[]});FR=0;SEL=null;MULTI.clear();pintar()})}
   {const vs=$('#pzVolverS');if(vs)vs.onclick=()=>{if(!PZ.elementos.length&&!PZ.zonas.length){aviso('Armá la tarea en la cancha antes de guardarla');return}const sid=PZ_SESION.id;pasarATarea(id=>{const ses=S.sesiones.find(x=>x.id===sid),t=tarea(id);PZ_SESION=null;if(ses&&t){ses.tareas=ses.tareas||[];ses.tareas.push({tareaId:id,min:t.duracion||10});guardar()}ir('planificacion');if(ses)setTimeout(()=>{editarSesion(ses);aviso('Tarea sumada a la sesión ✓')},120)})}}
   {const vb=$('#pzVolverP');if(vb)vb.onclick=()=>{const pp=PZ_PARTIDO;tabPartido=pp.tab||'piz';ir('partido',pp.id)}}
   $('#pzNueva').onclick=()=>{resguardarPz();PZ=pizarraNueva(PZ.formato);hist=[];FR=0;SEL=null;pintar()};
@@ -4211,6 +4220,7 @@ function barraPizarra(){
     <span class="sep"></span>
     <button id="pzDeshacer" ${hist.length?'':'disabled'} title="Deshacer (Ctrl+Z)"><svg class="ico" viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h11a5 5 0 010 10h-3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Deshacer</span></button>
     <button id="pzRehacer" ${fut.length?'':'disabled'} title="Rehacer (Ctrl+Y)"><svg class="ico" viewBox="0 0 24 24"><path d="M15 7l5 5-5 5M20 12H9a5 5 0 000 10h3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rehacer</span></button>
+    <button id="pzLimpiar2" title="Borrar todo lo de la cancha"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Limpiar</span></button>
     <button id="pzFull" title="Pantalla completa"><svg class="ico" viewBox="0 0 24 24">${PZ_FULL?'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" stroke="currentColor" stroke-width="2" fill="none"/>':'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="2" fill="none"/>'}</svg><span>${PZ_FULL?'Normal':'Amplia'}</span></button>
   </div>`}
 function elegirHerr(h){herr=h;NUM_J=null;UNIR_A=null;if(h!=='mover')SEL=null;if(h!=='lazo')MULTI.clear();cerrarTray();
