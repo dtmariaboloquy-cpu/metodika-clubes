@@ -573,7 +573,8 @@ main{padding-top:0}
 .cal-evs{display:flex;flex-direction:column;gap:2px;min-width:0}
 .cal-ev{display:flex;align-items:center;gap:5px;border:0;background:var(--carta2);color:var(--tinta);border-radius:6px;padding:3px 6px;font-size:11.5px;text-align:left;cursor:pointer;min-width:0;width:100%}
 .cal-ev span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cal-ev i{width:7px;height:7px;border-radius:50%;flex:none}
-.cal-ev.t-ses i,.cal-dots .t-ses{background:var(--met)}.cal-ev.t-par i,.cal-dots .t-par{background:#3B82F6}.cal-ev.t-cum i,.cal-dots .t-cum{background:#B07CFF}.cal-ev.t-les i,.cal-dots .t-les{background:var(--rojo)}
+.cal-ev.t-ses i,.cal-dots .t-ses{background:var(--met)}.cal-ev.t-par i,.cal-dots .t-par{background:#3B82F6}.cal-ev.t-cum i,.cal-dots .t-cum{background:#B07CFF}
+.cal-ev.t-ev i,.cal-dots .t-ev{background:#2EBD59}.cal-ev.t-les i,.cal-dots .t-les{background:var(--rojo)}
 .cal-ev:hover{filter:brightness(1.1);outline:1px solid var(--linea)}
 .cal-mas{font-size:11px;color:var(--sub);padding-left:6px}
 .cal-dots{display:none;gap:3px;justify-content:center;flex-wrap:wrap}.cal-dots i{width:6px;height:6px;border-radius:50%}
@@ -811,7 +812,8 @@ nav.menu a.pilar.activo i{background:var(--met)!important}nav.menu a.pilar.p-can
 .cont-f{display:grid;grid-template-columns:minmax(100px,170px) 1fr 44px;gap:8px;align-items:center;font-size:13.5px;margin-bottom:5px}.cont-f span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cont-f b{text-align:right}
 .cont-b{height:8px;border-radius:5px;background:var(--linea);overflow:hidden}.cont-b i{display:block;height:100%;background:#FFD400}
 .cont-sem{font-size:12.5px}.cont-sem td,.cont-sem th{text-align:center;padding:4px 6px;white-space:nowrap}.cont-sem td:first-child{text-align:left;max-width:150px;overflow:hidden;text-overflow:ellipsis}
-.cont-sem td span{display:inline-block;min-width:34px;padding:3px 4px;border-radius:6px;background:rgba(255,212,0,var(--a));font-weight:700;color:#141412}
+.cont-sem td span:empty{background:none!important}
+.cont-sem td span{display:inline-block;min-width:34px;padding:3px 4px;border-radius:6px;background:rgba(255,212,0,var(--a));background:color-mix(in srgb,#FFD400 calc(var(--a)*100%),#FFF4C2);font-weight:700;color:#141412}
 .cont-pend{margin-top:14px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,#E0A100 10%,transparent);border:1px solid color-mix(in srgb,#E0A100 35%,transparent);font-size:13.5px}
 .va-barras{display:grid;gap:6px}.va-f{display:grid;grid-template-columns:minmax(90px,150px) 1fr 30px 64px;gap:8px;align-items:center;font-size:13.5px}.va-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.va-b{height:8px;border-radius:5px;background:var(--carta2);overflow:hidden}.va-b i{display:block;height:100%;border-radius:5px}.va-r em{font-style:normal;font-weight:700;font-size:12px;margin-right:4px}.ok{color:var(--verde)}.mal{color:var(--rojo)}.va-js{display:flex;flex-wrap:wrap;gap:6px}.va-js em{font-style:normal;font-weight:700}
 @media(max-width:560px){.va-f{grid-template-columns:minmax(80px,1fr) 1fr 26px}.va-r{display:none}}
@@ -1096,6 +1098,28 @@ details.se-mas{border:1px solid var(--linea);border-radius:10px;padding:8px 12px
   .pzA-tl{position:static!important;box-shadow:none!important;margin:12px 0 0!important;padding-left:0!important;padding-right:0!important}
   .acc.acc.acc.acc,.pz-bar.pz-bar.pz-bar.pz-bar{flex-wrap:wrap!important;overflow-x:visible!important}
   .seg.seg.seg.seg{flex-wrap:wrap!important;overflow-x:visible!important;height:auto!important}
+}
+
+/* compu: que el menú de arriba entre entero (nov 2026) */
+@media (min-width:861px){
+  .lateral .club-mini{min-width:0;max-width:300px;overflow:hidden;white-space:nowrap;flex:0 1 auto}
+  .lateral .club-mini>span,.lateral .club-mini>div{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .lateral .pie-lat{flex:none}
+}
+@media (min-width:861px) and (max-width:1500px){
+  .lateral .club-mini{max-width:190px}
+}
+@media (min-width:861px) and (max-width:1250px){
+  .lateral .club-mini{padding-right:4px;max-width:46px;flex:none}
+  .lateral .club-mini>:not(.esc){display:none}
+}
+@media (min-width:861px) and (max-width:1180px){
+  .lateral .pl-t small{display:none}
+}
+
+@media (min-width:861px) and (max-width:1300px){
+  .pzA:is(.piz-full,.pz-emb) .pz-rapida .pr-b:has(svg){font-size:0;gap:0;padding:4px 7px}
+  .pzA:is(.piz-full,.pz-emb) .pz-rapida .pr-b:has(svg) svg{width:17px;height:17px}
 }
 </style>
 
@@ -1673,6 +1697,7 @@ function pintar(){
   if(S&&S.tareas&&S.tareas.some(t=>CATEG_VIEJAS.includes(t.categoria)))migrarCategorias();
   if(typeof estadoPlan==='function'&&estadoPlan().tipo==='vencido'){pantallaPlan();return}
   pintarMenu();
+  if(!window.__recOk&&S&&S.club&&!S.demo){window.__recOk=1;setTimeout(revisarRecordatorios,1500)}
   const v=$('#vista');
   const enDemoNube=typeof MODO!=='undefined'&&MODO==='demo';
   const banda=S.demo?`<div class="demo-banda"><b>Club de ejemplo</b><span>Estás viendo datos ficticios para conocer Metodika.</span><button class="btn chico" id="salirDemo">${enDemoNube?'Entrar o crear cuenta':'Empezar con mi club'}</button></div>`:'';
@@ -1694,10 +1719,11 @@ function pintar(){
 
 /* ================= CALENDARIO ================= */
 const MESES_L=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const TIPOS_CAL={ses:['Entrenamientos','var(--met)'],par:['Partidos','#3B82F6'],cum:['Cumpleaños','#B07CFF'],les:['Lesiones','var(--rojo)']};
-let CAL={modo:'mes',ref:null,f:{ses:1,par:1,cum:1,les:1},dia:null};
+const TIPOS_CAL={ev:['Eventos','#2EBD59'],ses:['Entrenamientos','var(--met)'],par:['Partidos','#3B82F6'],cum:['Cumpleaños','#B07CFF'],les:['Lesiones','var(--rojo)']};
+let CAL={modo:'mes',ref:null,f:{ev:1,ses:1,par:1,cum:1,les:1},dia:null};
 function eventosCal(d0,d1){
   const ev=[],en=f=>f&&f>=d0&&f<=d1;
+  ((S.club&&S.club.eventos)||[]).forEach(e=>{if(e&&en(e.f))ev.push({f:e.f,t:'ev',h:e.h||'',tx:(e.aviso?'🔔 ':'')+e.tx,id:e.id})});
   SS().forEach(s=>{if(en(s.fecha))ev.push({f:s.fecha,t:'ses',h:s.hora||'',tx:tituloSes(s),id:s.id})});
   SP().forEach(p=>{if(en(p.fecha))ev.push({f:p.fecha,t:'par',h:p.hora||'',tx:'vs '+(p.rival||'')+(p.estado==='finalizado'?' · '+p.golesF+'-'+p.golesC:''),id:p.id})});
   const y0=+d0.slice(0,4),y1=+d1.slice(0,4);
@@ -1706,7 +1732,35 @@ function eventosCal(d0,d1){
   SJ().forEach(j=>{const e=j.estado;if(e&&e.k!=='disp'&&en(e.vuelta))ev.push({f:e.vuelta,t:'les',h:'',tx:'↩ Vuelve '+j.nombre+' '+(j.apellido||''),id:j.id})});
   return ev.filter(e=>CAL.f[e.t]).sort((a,b)=>a.f.localeCompare(b.f)||String(a.h).localeCompare(String(b.h)));
 }
-function abrirEvCal(t,id){if(t==='ses')return verSesion(id);if(t==='par')return ir('partido',id);ir('plantel',id)}
+/* Eventos propios del calendario (pruebas físicas, reuniones, viajes...) con aviso el día antes y el mismo día */
+function editarEvento(id,fecha){
+  const L=(S.club.eventos=S.club.eventos||[]),e=id?L.find(x=>x.id===id):null;if(id&&!e)return;
+  const v=e||{tx:'',f:fecha||iso(HOY),h:'',aviso:true};
+  modal(e?'Editar evento':'Nuevo evento',`<form id="fEv" style="display:grid;gap:12px">
+    <label>Qué es<input type="text" id="evTx" maxlength="80" value="${esc(v.tx)}" placeholder="Prueba de sprint"></label>
+    <div id="evErr" style="font-size:13px;color:var(--rojo);margin-top:-6px" hidden>Escribí qué es el evento.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><label>Día<input type="date" id="evF" value="${esc(v.f)}" required></label><label>Hora (opcional)<input type="time" id="evH" value="${esc(v.h||'')}"></label></div>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:600"><input type="checkbox" id="evAv" ${v.aviso?'checked':''} style="width:auto"> Avisar el día antes y el mismo día</label>
+    <div class="modal-pie">${e?'<button type="button" class="btn peligro" id="evBorrar" style="margin-right:auto">Borrar</button>':''}<button type="button" class="btn" data-cerrar>Cancelar</button><button type="submit" class="btn pri">Guardar</button></div></form>`,
+  {alMontar:m=>{
+    $('#evTx',m).oninput=()=>{$('#evErr',m).hidden=true};
+    $('#fEv',m).onsubmit=ev=>{ev.preventDefault();const tx=$('#evTx',m).value.trim(),f=$('#evF',m).value;
+      if(!tx){$('#evErr',m).hidden=false;$('#evTx',m).focus();return}if(!f){$('#evF',m).focus();return}
+      const nuevo={id:e?e.id:uid(),tx,f,h:$('#evH',m).value||'',aviso:$('#evAv',m).checked};
+      S.club.eventos=e?L.map(x=>x.id===e.id?nuevo:x):[...L,nuevo];guardar();cerrarModal();CAL.dia=f;CAL.ref=f;pintar();aviso(e?'Evento actualizado':'Evento agregado')};
+    const bb=$('#evBorrar',m);if(bb)bb.onclick=()=>{S.club.eventos=L.filter(x=>x.id!==e.id);guardar();cerrarModal();pintar();aviso('Evento borrado')};
+  }});
+}
+function revisarRecordatorios(){try{
+  if(!S||!S.club||$('#capaModal').innerHTML)return;
+  const hoy=iso(HOY),man=iso(sumarDias(HOY,1)),L=(S.club.eventos||[]).filter(e=>e&&e.aviso&&(e.f===hoy||e.f===man));
+  const nuevos=L.filter(e=>{try{return !localStorage.getItem('mtk_rec_'+e.id+'_'+hoy)}catch(x){return true}});
+  if(!nuevos.length)return;
+  nuevos.forEach(e=>{try{localStorage.setItem('mtk_rec_'+e.id+'_'+hoy,'1')}catch(x){}});
+  nuevos.sort((a,b)=>a.f.localeCompare(b.f)||String(a.h).localeCompare(String(b.h)));
+  modal('Recordatorio',`<div style="display:grid;gap:8px">${nuevos.map(e=>`<div class="fila" style="border:1px solid var(--linea);border-radius:10px;padding:10px 12px"><b style="color:${e.f===hoy?'var(--rojo)':'inherit'};min-width:64px">${e.f===hoy?'Hoy':'Mañana'}</b><span style="flex:1">🔔 ${esc(e.tx)}${e.h?' · '+esc(e.h)+' h':''}</span></div>`).join('')}</div><div class="modal-pie"><button class="btn" data-cerrar>Entendido</button><button class="btn pri" id="recCal">Ver calendario</button></div>`,{alMontar:m=>{$('#recCal',m).onclick=()=>{cerrarModal();CAL.ref=hoy;CAL.dia=nuevos[0].f;ir('calendario')}}});
+}catch(e){console.warn('recordatorios',e)}}
+function abrirEvCal(t,id){if(t==='ev')return editarEvento(id);if(t==='ses')return verSesion(id);if(t==='par')return ir('partido',id);ir('plantel',id)}
 VISTAS.calendario=el=>{
   const ref=CAL.ref?deIso(CAL.ref):new Date(HOY);const hoyI=iso(HOY);
   let d0,d1,tit;
@@ -1721,19 +1775,21 @@ VISTAS.calendario=el=>{
     :`<div class="cal-sem">${dias.map(f=>{const L=porDia[f]||[],dd=deIso(f);return `<div class="cal-sd ${f===hoyI?'hoy':''}"><div class="cal-sdh">${DIAS[dd.getDay()]} <b>${dd.getDate()}</b></div>${L.length?L.map(pill).join(''):'<span class="sub" style="font-size:12.5px">—</span>'}</div>`}).join('')}</div>`;
   const diaSel=CAL.dia&&CAL.dia>=D0&&CAL.dia<=D1?CAL.dia:null;
   const agenda=dias.filter(f=>porDia[f]&&(diaSel?f===diaSel:deIso(f).getMonth()===mesAct));
-  el.innerHTML=cabecera('Agenda del equipo','Calendario','Entrenamientos, partidos, cumpleaños y lesiones en un solo lugar.',`<button class="btn" id="calHoy">Hoy</button><button class="btn" id="calAvisos">📲 Avisos al plantel</button>`)+
+  el.innerHTML=cabecera('Agenda del equipo','Calendario','Entrenamientos, partidos, cumpleaños y lesiones en un solo lugar.',`<button class="btn" id="calHoy">Hoy</button><button class="btn" id="calAvisos">📲 Avisos al plantel</button><button class="btn pri" id="calEv">＋ Evento</button>`)+
   `<div class="panel cal-panel"><div class="cal-top"><div class="cal-nav"><button class="btn chico" id="calAnt" aria-label="Anterior">‹</button><h3>${esc(tit)}</h3><button class="btn chico" id="calSig" aria-label="Siguiente">›</button></div>
     <div class="cal-modo"><button class="${CAL.modo==='mes'?'activo':''}" data-cmodo="mes">Mes</button><button class="${CAL.modo==='sem'?'activo':''}" data-cmodo="sem">Semana</button></div></div>
     <div class="cal-fil">${Object.entries(TIPOS_CAL).map(([k,[t,c]])=>`<button class="cal-f ${CAL.f[k]?'on':''}" data-cfil="${k}" style="--cc:${c}"><i></i>${t}</button>`).join('')}</div>
     ${mc.length?`<div class="cal-mc">${mc.map(m=>`<span class="chip">${esc(m.nombre||'Microciclo')} · ${fCorta(m.inicio)} al ${fCorta(m.fin)}${m.objetivo?' · '+esc(m.objetivo):''}</span>`).join('')}</div>`:''}
     ${grilla}</div>
-  ${CAL.modo==='mes'?`<div class="panel ${diaSel?'':'cal-agmes'}"><div class="panel-cab"><h3>${diaSel?fFecha(diaSel):'Todo el mes'}</h3>${diaSel?'<div class="der"><button class="btn chico fantasma" id="calTodo">Ver todo el mes</button></div>':''}</div>
+  ${CAL.modo==='mes'?`<div class="panel ${diaSel?'':'cal-agmes'}"><div class="panel-cab"><h3>${diaSel?fFecha(diaSel):'Todo el mes'}</h3>${diaSel?'<div class="der"><button class="btn chico" id="calEvD">＋ Evento este día</button><button class="btn chico fantasma" id="calTodo">Ver todo el mes</button></div>':''}</div>
     ${agenda.length?agenda.map(f=>`<div class="cal-ag"><div class="cal-agf ${f===hoyI?'hoy':''}">${DIAS[deIso(f).getDay()]}<b>${deIso(f).getDate()}</b></div><div class="cal-agl">${porDia[f].map(pill).join('')}</div></div>`).join(''):`<div class="vacio">Nada para ${diaSel?'este día':'este mes'}.</div>`}</div>`:''}`;
   const mover=n=>{const r=new Date(ref);if(CAL.modo==='mes'){r.setDate(1);r.setMonth(r.getMonth()+n)}else r.setDate(r.getDate()+7*n);CAL.ref=iso(r);CAL.dia=null;pintar()};
   $('#calAnt',el).onclick=()=>mover(-1);$('#calSig',el).onclick=()=>mover(1);
   $('#calHoy',el).onclick=()=>{CAL.ref=null;CAL.dia=hoyI;pintar()};
   $('#calAvisos',el).onclick=avisosPlantel;
   {const ct=$('#calTodo',el);if(ct)ct.onclick=()=>{CAL.dia=null;pintar()}}
+  $('#calEv',el).onclick=()=>editarEvento(null,diaSel||hoyI);
+  {const cd=$('#calEvD',el);if(cd)cd.onclick=()=>editarEvento(null,diaSel)}
   $$('[data-cmodo]',el).forEach(b=>b.onclick=()=>{CAL.modo=b.dataset.cmodo;pintar()});
   $$('[data-cfil]',el).forEach(b=>b.onclick=()=>{const k=b.dataset.cfil;CAL.f[k]=CAL.f[k]?0:1;pintar()});
   $$('[data-cev]',el).forEach(b=>b.onclick=e=>{e.stopPropagation();const i=b.dataset.cev.indexOf('|');abrirEvCal(b.dataset.cev.slice(0,i),b.dataset.cev.slice(i+1))});
@@ -8100,7 +8156,7 @@ function conectarCategorias(el){
   $$('[data-cn]',el).forEach(i=>i.onchange=()=>{const c=S.club.categorias.find(x=>x.id===i.dataset.cn);const v=i.value.trim();if(c&&v){c.nombre=v;guardar();pintarMenu();aviso('Categoría actualizada')}});
   $$('[data-cr]',el).forEach(i=>i.onchange=()=>{const c=S.club.categorias.find(x=>x.id===i.dataset.cr);if(c){c.rama=i.value;guardar();pintar()}});
   $$('[data-cdelc]',el).forEach(b=>b.onclick=()=>{const c=S.club.categorias.find(x=>x.id===b.dataset.cdelc);confirmar('¿Eliminar '+c.nombre+'?','La categoría no tiene datos cargados.','Eliminar',()=>{S.club.categorias=S.club.categorias.filter(x=>x.id!==c.id);CAT_ACT=null;guardar();pintar()})});
-  const add=()=>{const v=$('#nCat',el).value.trim();if(!v)return;if(cats().some(c=>c.nombre.toLowerCase()===v.toLowerCase())){aviso('Esa categoría ya existe.');return}S.club.categorias=[...cats(),{id:'c'+uid(),nombre:v,rama:$('#nCatR',el).value}];guardar();aviso('Categoría agregada: '+v);pintar()};
+  const add=()=>{const v=$('#nCat',el).value.trim();if(!v){aviso('Escribí el nombre de la categoría.');$('#nCat',el).focus();return}if(cats().some(c=>c.nombre.toLowerCase()===v.toLowerCase())){aviso('Esa categoría ya existe.');return}S.club.categorias=[...cats(),{id:'c'+uid(),nombre:v,rama:$('#nCatR',el).value}];guardar();aviso('Categoría agregada: '+v);pintar()};
   $('#nCatB',el).onclick=add;$('#nCat',el).onkeydown=e=>{if(e.key==='Enter')add()};
 }
 /* ---------- Datos por categoría (para coordinación) ---------- */
@@ -8177,7 +8233,7 @@ VISTAS.metodologia=el=>{
   const coord=miRol()==='coord',ets=etapas();
   const visibles=coord?ets:ets.filter(e=>(e.cats||[]).some(id=>misCats().some(c=>c.id===id)));
   el.innerHTML=cabecera('Metodología del club','Metodología por etapas',coord?'Definí qué contenidos trabaja cada etapa y mirá cuánto se está cumpliendo en cada categoría.':'Los contenidos que el club definió para tu etapa y cuánto los venís trabajando.',coord?`<button class="btn" id="mtEj">Cargar ejemplo</button><button class="btn pri" id="mtNueva">＋ Nueva etapa</button>`:'')+
-  `<div class="filtros"><div class="seg">${[[28,'Últimas 4 semanas'],[56,'Últimas 8 semanas'],[365,'Temporada']].map(([v,t])=>`<button data-md="${v}" class="${metDias===v?'activo':''}">${t}</button>`).join('')}</div></div>`+
+  (visibles.some(e=>(e.cats||[]).length)?`<div class="filtros"><div class="seg">${[[28,'Últimas 4 semanas'],[56,'Últimas 8 semanas'],[365,'Temporada']].map(([v,t])=>`<button data-md="${v}" class="${metDias===v?'activo':''}">${t}</button>`).join('')}</div></div>`:'')+
   (visibles.length?visibles.map(e=>{const cs=cats().filter(c=>(e.cats||[]).includes(c.id));
     return `<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>${esc(e.nombre)}</h3><span class="sub" style="font-size:13px">${cs.map(c=>esc(c.nombre)).join(' · ')||'Sin categorías asignadas'}</span>${coord?`<div class="der"><button class="btn chico" data-mte="${e.id}">Editar</button></div>`:''}</div>
     ${(e.contenidos||[]).length&&cs.length?`<div style="overflow:auto"><table class="tabla" style="width:100%;border-collapse:collapse;font-size:14px"><thead><tr><th style="text-align:left;padding:8px">Contenido</th>${cs.map(c=>`<th style="padding:8px;text-align:center">${esc(c.nombre)}</th>`).join('')}</tr></thead><tbody>
@@ -8274,7 +8330,7 @@ VISTAS.ajustes=el=>{
       <div style="display:flex;gap:8px;flex-wrap:wrap">${nube?'<h4 style="margin:4px 0 8px">Copias automáticas</h4><div id="respAuto" style="margin-bottom:12px"><div class="sub" style="font-size:13.5px">Cargando…</div></div>':''}<button class="btn" id="desD">Descargar copia</button><button class="btn" id="expD">Copiar mis datos</button>${nube&&!esAdmin()?'':'<label class="btn" for="impF">Restaurar desde archivo</label><input type="file" id="impF" accept=".json,application/json,text/plain" hidden>'}${nube&&!esAdmin()?'':'<button class="btn" id="impT">Pegar copia</button>'}</div></div>
     ${nube&&!esAdmin()?'':`<div class="panel"><h3>Empezar de nuevo</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">${nube?'':'<button class="btn" id="verDemo">Cargar club de ejemplo</button>'}<button class="btn peligro" id="vaciar">Borrar todo y empezar de cero</button></div></div>`}
   </div></div>`;
-  const addA=()=>{const n=agregarContenido($('#aCont').value);if(n){aviso('Concepto agregado: '+n);pintar()}};
+  const addA=()=>{if(!$('#aCont').value.trim()){aviso('Escribí el concepto que querés agregar.');$('#aCont').focus();return}const n=agregarContenido($('#aCont').value);if(n){aviso('Concepto agregado: '+n);pintar()}};
   conectarSugerencias(el);
   $('#aContB').onclick=addA;$('#aCont').onkeydown=e=>{if(e.key==='Enter')addA()};
   $$('[data-qc]').forEach(b=>b.onclick=()=>{const c=b.dataset.qc;if(CONT().length<=1){aviso('Tiene que quedar al menos un concepto.');return}const usos=S.tareas.filter(t=>t.contenido===c).length+SS().filter(s=>contSes(s).includes(c)).length;confirmar('¿Quitar “'+c+'”?',usos?'Se usa en '+usos+' tareas o sesiones. Esas quedan como están; solo deja de aparecer en la lista para elegir.':'Deja de aparecer en la lista para elegir.','Quitar',()=>{S.contenidos=CONT().filter(x=>x!==c);guardar();pintar()})});
