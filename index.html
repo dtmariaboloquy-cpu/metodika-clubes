@@ -6942,7 +6942,7 @@ function pantallaEspera(){
 function cortarSubs(){subs.forEach(u=>{try{u()}catch(e){}});subs=[]}
 /* ================= PRUEBA GRATIS Y PLAN PAGO ================= */
 const DIAS_PRUEBA=7;
-/* ===== Versión gratis (hasta FIN_GRATIS): pizarra básica y 15 tareas ===== */
+/* ===== Versión gratis (sin fecha de fin): pizarra básica y 15 tareas ===== */
 const FIN_GRATIS='2027-01-31',GR_PZ=10,GR_PASOS=2,GR_TAREAS=15,RUTAS_GRATIS=['inicio','pizarra','biblioteca','ajustes','lecturas','tienda'];
 function esGratis(){return typeof estadoPlan==='function'&&estadoPlan().tipo==='gratis'}
 function pzPropias(){const d=new Set(S.tareas.filter(t=>t.base).map(t=>t.diagrama));return S.pizarras.filter(p=>!d.has(p.id))}
@@ -6965,8 +6965,8 @@ function estadoPlan(){
   const fin=new Date(inicioPrueba().getTime()+diasPrueba()*864e5),quedan=Math.ceil((fin-new Date())/864e5);
   if(quedan>0)return {tipo:'prueba',quedan,fin};
   const g=S.club.gracia;if(g&&g.hasta&&deIso(g.hasta)>=HOY)return {tipo:'gracia',quedan:Math.max(1,Math.round((deIso(g.hasta)-HOY)/864e5))};
-  if(HOY<=deIso(FIN_GRATIS))return {tipo:'gratis'};
-  return {tipo:'vencido',vencioPlan:PLAN.pago&&!!PLAN.hasta&&!PLAN.prueba};
+  /* desde nov 2026 la versión gratis no tiene fecha de fin: después de la prueba (o si vence el plan) queda la versión gratis */
+  return {tipo:'gratis',vencioPlan:PLAN.pago&&!!PLAN.hasta&&!PLAN.prueba};
 }
 function bienvenidaPrueba(){
   const e=estadoPlan();if(e.tipo!=='prueba'||!USR||$('#capaModal').innerHTML)return;
@@ -6980,7 +6980,7 @@ function bienvenidaPrueba(){
 }
 function bandaPlan(){const e=estadoPlan();
   if(e.tipo==='gracia')return `<div class="demo-banda" style="background:#E3F1E8"><b>Verificando tu pago</b><span>Tenés acceso por ${e.quedan===1?'1 día más':e.quedan+' días más'} mientras Metodika activa tu plan.</span><button class="btn chico" id="verPlan">Ver el plan</button></div>`;
-  if(e.tipo==='gratis')return `<div class="demo-banda" style="background:var(--amarillo)"><b>Versión gratis</b><span>Pizarra y ${GR_TAREAS} tareas de la biblioteca, hasta el 31 de enero de 2027. Planificación, plantel, partidos y estadísticas están en el plan.</span><button class="btn chico" id="verPlan">Pasar al plan</button></div>`;
+  if(e.tipo==='gratis')return `<div class="demo-banda" style="background:var(--amarillo)"><b>${e.vencioPlan?'Se venció tu plan':'Versión gratis'}</b><span>${e.vencioPlan?'Mientras tanto seguís con la versión gratis: p':'P'}izarra y ${GR_TAREAS} tareas de la biblioteca. Planificación, plantel, partidos y estadísticas están en el plan.</span><button class="btn chico" id="verPlan">Pasar al plan</button></div>`;
   if(e.tipo!=='prueba')return '';
   return `<div class="demo-banda" style="background:${e.quedan<=5?'#FFE3DE':'var(--amarillo)'}"><b>Prueba gratis</b><span>${e.quedan===1?'Te queda 1 día':'Te quedan '+e.quedan+' días'} para usar Metodika Clubes sin pagar.</span><button class="btn chico" id="verPlan">Ver el plan</button></div>`}
 function pintarCandado(){const c=$('#cont');if(!c)return;const nom={planificacion:'Planificación',calendario:'Calendario',metodologia:'Metodología',plantel:'Plantel',partido:'Partidos',fixture:'Fixture',rendimiento:'Rendimiento',asistencia:'Asistencia',cargas:'Cargas',evaluaciones:'Evaluaciones',videoanalisis:'Videoanálisis',analisis:'Análisis',coordinacion:'Coordinación'}[ruta]||'Esta sección';
