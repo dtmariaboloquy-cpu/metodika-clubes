@@ -7011,7 +7011,7 @@ function abrirClub(clubId,recienCreado){
   const ref=db.collection('clubes').doc(clubId);
   let listos={club:false,datos:false,partidos:false,pizarras:false,fotos:false};
   if(!recienCreado)S={version:1,demo:false,contenidos:[...CONT_BASE],club:{nombre:'',categoria:'',temporada:String(HOY.getFullYear()),rama:'F',escudo:'',duracionTiempo:45},jugadores:[],tareas:[],pizarras:[],microciclos:[],sesiones:[],partidos:[],asistencia:{},evaluaciones:[]};
-  const listo=k=>{if(listos[k])return;listos[k]=true;if(Object.values(listos).every(Boolean)){document.body.classList.remove('sin-menu');migrarNube();{const h=(location.hash||'').replace('#','');if(VISTAS[h])ruta=h}cargarPlan().then(()=>{pintar();estadoNube(navigator.onLine===false?'offline':'guardado');setTimeout(tareasDiarias,15000)})}};
+  const listo=k=>{if(listos[k])return;listos[k]=true;if(Object.values(listos).every(Boolean)){document.body.classList.remove('sin-menu');migrarNube();{const h=(location.hash||'').replace('#','');if(VISTAS[h])ruta=h}cargarPlan().then(()=>{pintar();setTimeout(revisarEspacioDuenia,5000);estadoNube(navigator.onLine===false?'offline':'guardado');setTimeout(tareasDiarias,15000)})}};
   subs.push(ref.onSnapshot(d=>{
     if(!d.exists){cortarSubs();pantallaClub('El club ya no existe.');return}
     CLUBDOC=d.data();
@@ -7232,6 +7232,20 @@ async function medirClub(id,propio){const base='clubes/'+id+'/',r={rec:0,recN:0,
   if(propio){try{r.datos=JSON.stringify(copiaSinFotos()).length}catch(e){}try{Object.values(FOTOS||{}).forEach(f=>r.fotos+=String(f||'').length)}catch(e){}
     try{const m=await copiaModulos();r.mod=JSON.stringify(m).length}catch(e){}}
   r.total=r.rec+r.vid+r.cop+r.fotos+r.datos+r.mod;return r}
+/* Aviso para la dueña: cada 3 días revisa sola el espacio de la nube (todos los clubes) y avisa desde el 60 % */
+async function revisarEspacioDuenia(){try{
+  if(typeof esDuenia!=='function'||!esDuenia()||navigator.onLine===false)return;
+  const K='mtk_esp_chk';let ult=0;try{ult=+localStorage.getItem(K)||0}catch(e){}
+  if(Date.now()-ult<3*864e5)return;
+  const qs=await db.collection('clubes').get();let tot=0;
+  for(const c of qs.docs){const r=await medirClub(c.id,c.id===CLUB);tot+=r.total}
+  try{const q=await db.collection('lecturas-archivos').get();q.docs.forEach(x=>tot+=Math.round((+(x.data()||{}).size||0)*4/3))}catch(e){}
+  const pc=tot/ESP_TOTAL*100;
+  try{localStorage.setItem(K,String(pc<60?Date.now():Date.now()-2*864e5))}catch(e){}
+  if(pc<60||$('#capaModal').innerHTML)return;
+  const rojo=pc>=80;
+  modal('Espacio en la nube',`<p style="margin:0 0 10px">Entre todos los clubes, Metodika Clubes ya usa <b>${fmtMB(tot)}</b>: más o menos el <b>${Math.round(pc)} %</b> de 1 GB, el tope del plan gratis de Firebase.</p><p class="sub" style="margin:0;color:${rojo?'#E5484D':'#E3A008'};font-weight:700">${rojo?'Está cerca del tope. Pasá a Blaze ya, para que ningún club pierda cambios.':'Es momento de pasar a Blaze, el plan pago de Firebase, antes de llegar al tope.'}</p><div class="modal-pie"><button class="btn" data-cerrar>Más tarde</button><button class="btn pri" id="espVer">Ver detalle</button></div>`,{alMontar:m=>{$('#espVer',m).onclick=()=>{cerrarModal();ir('ajustes')}}});
+}catch(e){console.warn('revisarEspacio',e)}}
 function barraEsp(et,b,tot,col){const w=tot?Math.max(b?1.5:0,Math.round(b/tot*1000)/10):0;return `<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:13.5px"><span>${et}</span><b>${fmtMB(b)}</b></div><div style="height:8px;border-radius:99px;background:rgba(127,127,127,.18);overflow:hidden"><i style="display:block;height:100%;width:${w}%;background:${col}"></i></div></div>`}
 function conectarEspacio(el){const bt=$('#espCalc',el),caja=$('#espRes',el);if(!bt||!caja)return;
   bt.onclick=async()=>{bt.disabled=true;caja.innerHTML='<div class="sub" style="font-size:13.5px">Calculando…</div>';
