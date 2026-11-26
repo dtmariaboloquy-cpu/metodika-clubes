@@ -6754,9 +6754,15 @@ function previaPartido(el,p){
       <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="aPiz">Armar en la pizarra</button><button class="btn pri" id="aVivo">Ir a En vivo ▶</button></div></div></div>`;
   const pintarTS=()=>{$('#titSup',el).innerHTML=ordenJ(p.convocados.map(jugador).filter(Boolean)).map(j=>`<button class="bj ${p.titulares.includes(j.id)?'sel':''}" data-ts="${j.id}"><span class="dorsal">${j.dorsal||'–'}</span><span>${esc(j.nombre[0]+'. '+j.apellido)}<br><small class="sub">${p.titulares.includes(j.id)?'Titular':'Suplente'}</small></span></button>`).join('')||'<div class="vacio">Marcá la convocatoria.</div>';
     $('#nTit',el).textContent=p.titulares.length+' titulares';$('#nTit',el).className='chip '+(p.titulares.length===11?'ok':'aviso');$('#nConv',el).textContent=p.convocados.length;
-    $$('[data-ts]',el).forEach(b=>b.onclick=()=>{const id=b.dataset.ts;p.titulares=p.titulares.includes(id)?p.titulares.filter(x=>x!==id):[...p.titulares,id];guardar();pintarTS()})};
+    $$('[data-ts]',el).forEach(b=>b.onclick=()=>{const id=b.dataset.ts;
+      /* Convocatoria y Alineación usan la misma información: titulares y puestos de la cancha van juntos */
+      const hayCancha=p.aline&&Array.isArray(p.aline.slots)&&p.aline.slots.some(Boolean);
+      if(p.titulares.includes(id)){p.titulares=p.titulares.filter(x=>x!==id);if(p.aline&&Array.isArray(p.aline.slots))p.aline.slots=p.aline.slots.map(x=>x===id?null:x)}
+      else{p.titulares=[...p.titulares,id];
+        if(hayCancha&&!p.aline.slots.includes(id)){const a=alineDe(p),j=jugador(id);let k=-1;if(j&&/arquer/i.test(j.posicion||'')&&!a.slots[0])k=0;if(k<0)k=a.slots.findIndex((x,i)=>i>0&&!x);if(k<0&&!a.slots[0])k=0;if(k>=0)a.slots[k]=id}}
+      guardar();pintarTS()})};
   pintarTS();
-  $$('[data-conv]',el).forEach(c=>c.onchange=()=>{const id=c.dataset.conv;if(c.checked)p.convocados.push(id);else{p.convocados=p.convocados.filter(x=>x!==id);p.titulares=p.titulares.filter(x=>x!==id)}guardar();pintarTS()});
+  $$('[data-conv]',el).forEach(c=>c.onchange=()=>{const id=c.dataset.conv;if(c.checked)p.convocados.push(id);else{p.convocados=p.convocados.filter(x=>x!==id);p.titulares=p.titulares.filter(x=>x!==id);if(p.aline&&Array.isArray(p.aline.slots))p.aline.slots=p.aline.slots.map(x=>x===id?null:x)}guardar();pintarTS()});
   $('#convTodas',el).onclick=()=>{p.convocados=SJ().filter(j=>!noDisp(j)).map(j=>j.id);guardar();pintar()};
   $('#convNinguna',el).onclick=()=>{p.convocados=[];p.titulares=[];guardar();pintar()};
   $('#durT',el).onchange=e=>{p.duracionTiempo=+e.target.value||45;guardar()};
