@@ -2,6 +2,42 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<script>/* ===== ENTORNO DE PRUEBA (Metodika) =====
+   Con ?entorno=prueba la app usa el proyecto metodika-pruebas, guarda todo lo local aparte
+   y muestra una franja roja. Sin eso, todo funciona igual que siempre (proyecto real). */
+(function(){
+  var K='mtk_entorno',q=new URLSearchParams(location.search),p=false;
+  try{
+    if(q.get('entorno')==='real')sessionStorage.removeItem(K);
+    else if(q.get('entorno')==='prueba'){sessionStorage.setItem(K,'prueba');p=true}
+    else p=sessionStorage.getItem(K)==='prueba';
+  }catch(e){p=q.get('entorno')==='prueba'}
+  window.MTK_PRUEBA=p;
+  window.mtkQS=function(){return p?'entorno=prueba&':''};
+  if(!p)return;
+  window.MTK_FB_PRUEBA={apiKey:"AIzaSyDWv3aFg57Pc0i7BAmKwh308qieae-VSCw",authDomain:"metodika-pruebas.firebaseapp.com",projectId:"metodika-pruebas",storageBucket:"metodika-pruebas.firebasestorage.app",messagingSenderId:"924815683553",appId:"1:924815683553:web:ddb01ff71eeadc46dbeca0"};
+  /* Lo guardado en este navegador (localStorage) queda separado: en prueba no se ve ni se pisa lo real */
+  try{
+    var ls=window.localStorage,SP=Storage.prototype,PRE='PRUEBA::',g=SP.getItem,s=SP.setItem,r=SP.removeItem,kf=SP.key,
+        dl=Object.getOwnPropertyDescriptor(SP,'length'),lenO=function(o){return dl.get.call(o)},
+        mias=function(){var a=[];for(var i=0;i<lenO(ls);i++){var k=kf.call(ls,i);if(k&&k.indexOf(PRE)===0)a.push(k.slice(PRE.length))}return a};
+    SP.getItem=function(k){return this===ls?g.call(this,PRE+k):g.call(this,k)};
+    SP.setItem=function(k,v){return this===ls?s.call(this,PRE+k,v):s.call(this,k,v)};
+    SP.removeItem=function(k){return this===ls?r.call(this,PRE+k):r.call(this,k)};
+    SP.key=function(i){return this===ls?(mias()[i]===undefined?null:mias()[i]):kf.call(this,i)};
+    var cl=SP.clear;SP.clear=function(){if(this!==ls)return cl.call(this);var t=this;mias().forEach(function(k){r.call(t,PRE+k)})};
+    Object.defineProperty(SP,'length',{configurable:true,get:function(){return this===ls?mias().length:lenO(this)}});
+  }catch(e){}
+  /* Franja roja fija */
+  var poner=function(){if(document.getElementById('mtkFranjaPrueba'))return;var d=document.createElement('div');d.id='mtkFranjaPrueba';
+    d.textContent='ENTORNO DE PRUEBA · no son datos reales';
+    d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#E5484D;color:#fff;font:700 12px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-align:center;padding:4px 6px;pointer-events:none';
+    document.body.appendChild(d)};
+  var vigilar=function(){poner();try{new MutationObserver(function(){if(!document.getElementById('mtkFranjaPrueba'))poner()}).observe(document.body,{childList:true})}catch(e){}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vigilar);else vigilar();
+  try{document.title='[PRUEBA] '+document.title}catch(e){}
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#141412">
   <link rel="manifest" href="manifest.webmanifest">
@@ -2201,7 +2237,7 @@ VISTAS.plantel=el=>{
   {const sm=$('#selModo');if(sm)sm.onclick=()=>{SELJ=SELJ?null:new Set();pintar()}}
   {const st=$('#selTodas');if(st)st.onclick=()=>{const todas=lista.every(j=>SELJ.has(j.id));lista.forEach(j=>todas?SELJ.delete(j.id):SELJ.add(j.id));pintar()}}
   {const sb=$('#selBorrar');if(sb)sb.onclick=()=>{const ids=[...SELJ],ns=ids.map(id=>jugador(id)).filter(Boolean);if(!ns.length)return;
-    confirmar('¿Eliminar '+(ns.length===1?'a '+ns[0].nombre+' '+ns[0].apellido:ns.length+' '+J('pl'))+'?',(ns.length>1?ns.map(j=>j.nombre+' '+j.apellido).join(', ')+'. ':'')+'Se borran sus perfiles del plantel. Sus datos en partidos quedan registrados.'+(MODO==='nube'?' Si te equivocás, las recuperás desde Ajustes → Papelera durante '+PAPEL_DIAS+' días.':''),'Eliminar '+ns.length,()=>{const set=new Set(ids);S.jugadores=S.jugadores.filter(x=>!set.has(x.id));SELJ=null;guardar();pintar();aviso(ns.length===1?'1 perfil eliminado':ns.length+' perfiles eliminados')})}}
+    confirmar('¿Eliminar '+(ns.length===1?'a '+ns[0].nombre+' '+ns[0].apellido:ns.length+' '+J('pl'))+'?',(ns.length>1?ns.map(j=>j.nombre+' '+j.apellido).join(', ')+'. ':'')+'Se borran sus perfiles del plantel. Sus datos en partidos quedan registrados.'+(MODO==='nube'?(esAdmin()?' Si te equivocás, las recuperás desde Ajustes → Papelera durante '+PAPEL_DIAS+' días.':' Si te equivocás, quien administra el club las puede recuperar desde la Papelera durante '+PAPEL_DIAS+' días.'):''),'Eliminar '+ns.length,()=>{const set=new Set(ids);S.jugadores=S.jugadores.filter(x=>!set.has(x.id));SELJ=null;guardar();pintar();aviso(ns.length===1?'1 perfil eliminado':ns.length+' perfiles eliminados')})}}
   $$('.cj',el).forEach(b=>b.onclick=ev=>{if(SELJ){const id=b.dataset.id;SELJ.has(id)?SELJ.delete(id):SELJ.add(id);const y=scrollY;pintar();scrollTo(0,y);return}const f=ev.target.closest('[data-foto]');if(f){ev.stopPropagation();fotoRapida(f.dataset.foto);return}ir('plantel',b.dataset.id)});
   const fm=$('#fotosJ');if(fm)fm.onclick=()=>cargarFotosMasivo();
 };
@@ -2588,7 +2624,7 @@ function perfilJugador(el,j){
   $('#infJ').onclick=()=>informeJugador(j);
   $('#linkJ').onclick=()=>linkJugadora(j);
   $('#cartaJ').onclick=()=>cartaJugador(j);
-  $('#delJ').onclick=()=>confirmar('¿Eliminar a '+j.nombre+' '+j.apellido+'?','Se borra su perfil del plantel. Sus datos en partidos quedan registrados.'+(MODO==='nube'?' Si te equivocás, lo recuperás desde Ajustes → Papelera durante '+PAPEL_DIAS+' días.':''),'Eliminar',()=>{S.jugadores=S.jugadores.filter(x=>x.id!==j.id);guardar();ir('plantel');aviso(j.nombre+' '+j.apellido+' eliminad'+(RAMA()==='M'?'o':RAMA()==='F'?'a':'a/o'))});
+  $('#delJ').onclick=()=>confirmar('¿Eliminar a '+j.nombre+' '+j.apellido+'?','Se borra su perfil del plantel. Sus datos en partidos quedan registrados.'+(MODO==='nube'?(esAdmin()?' Si te equivocás, lo recuperás desde Ajustes → Papelera durante '+PAPEL_DIAS+' días.':' Si te equivocás, quien administra el club lo puede recuperar desde la Papelera durante '+PAPEL_DIAS+' días.'):''),'Eliminar',()=>{S.jugadores=S.jugadores.filter(x=>x.id!==j.id);guardar();ir('plantel');aviso(j.nombre+' '+j.apellido+' eliminad'+(RAMA()==='M'?'o':RAMA()==='F'?'a':'a/o'))});
   $('#evalJ').onclick=()=>editarEvaluacion(null,j.id);
 }
 /* Radar de las 5 dimensiones (escala 1 a 10) */
@@ -3214,7 +3250,7 @@ async function compartirSemana(m,btn){
   if(typeof MODO==='undefined'||MODO!=='nube'){window.open('https://wa.me/?text='+encodeURIComponent(textoSemana(m)),'_blank');aviso('En el club de ejemplo se comparte solo el texto. Con tu club en la nube va con un link a los gráficos.');return}
   const t0=btn.textContent;btn.disabled=true;btn.textContent='Preparando…';
   try{const d=datosSemana(m);if(!m.compartido){m.compartido=Array.from(crypto.getRandomValues(new Uint8Array(15)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');guardar()}
-    await db.collection('partidos-compartidos').doc(m.compartido).set(d);const url=location.origin+location.pathname+'?semana='+m.compartido;
+    await db.collection('partidos-compartidos').doc(m.compartido).set(d);const url=location.origin+location.pathname+'?'+mtkQS()+'semana='+m.compartido;
     window.open('https://wa.me/?text='+encodeURIComponent(textoSemana(m,url)),'_blank');try{await navigator.clipboard.writeText(url)}catch(e){}aviso('Link listo (también quedó copiado). Si cambiás la semana, volvé a compartir y el link se actualiza.')}
   catch(e){console.warn(e);aviso('No se pudo crear el link. Revisá que esté publicada la regla de “partidos-compartidos” en Firebase.')}
   btn.disabled=false;btn.textContent=t0}
@@ -5654,7 +5690,7 @@ function limpiarJugada(d){
 }
 async function compartirJugada(){
   const btn=$('#pzShare');if(btn)btn.disabled=true;
-  let url;try{url=location.origin+location.pathname+'?jugada='+await codificarJugada(PZ)}catch(e){console.warn(e);aviso('No se pudo armar el link de la jugada.');if(btn)btn.disabled=false;return}
+  let url;try{url=location.origin+location.pathname+'?'+mtkQS()+'jugada='+await codificarJugada(PZ)}catch(e){console.warn(e);aviso('No se pudo armar el link de la jugada.');if(btn)btn.disabled=false;return}
   if(btn)btn.disabled=false;
   const nombre=($('#pzNombre')&&$('#pzNombre').value.trim())||PZ.nombre||'Jugada';
   const msj='⚽ '+nombre+(PZ.pasos.length?'\nAbrí el link y tocá “Ver jugada” para verla animada:':'\nMirala acá:')+'\n'+url;
@@ -6193,7 +6229,7 @@ async function compartirPartido(p,btn){
     const datos=await datosPublicos(p);
     if(!p.compartido){p.compartido=Array.from(crypto.getRandomValues(new Uint8Array(15)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');guardar()}
     await db.collection('partidos-compartidos').doc(p.compartido).set(datos);
-    const url=location.origin+location.pathname+'?partido='+p.compartido;
+    const url=location.origin+location.pathname+'?'+mtkQS()+'partido='+p.compartido;
     window.open('https://wa.me/?text='+encodeURIComponent(textoCitacion(p,url)),'_blank');
     try{await navigator.clipboard.writeText(url)}catch(e){}
     aviso('Link listo (también quedó copiado)');
@@ -6231,7 +6267,7 @@ async function pedirRPE(s,btn){
     const datos={clubId:CLUB,club:S.club.nombre||'',categoria:catNombre(s.cat)||'',rama:ramaDe(s.cat)||'F',titulo:s.titulo||'Entrenamiento',fecha:s.fecha,hora:s.hora||'',abierto:true,ids:js.map(j=>j.id),jugadores:ordenJ(js).map(j=>({id:j.id,n:j.nombre+' '+j.apellido,d:j.dorsal?String(j.dorsal):''}))};
     if(!s.rpeLink){s.rpeLink=Array.from(crypto.getRandomValues(new Uint8Array(15)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('');guardar()}
     await db.collection('cargas').doc(s.rpeLink).set(datos);
-    const url=location.origin+location.pathname+'?rpe='+s.rpeLink;
+    const url=location.origin+location.pathname+'?'+mtkQS()+'rpe='+s.rpeLink;
     const txt='🏃 *'+tituloSes(s)+'* · '+fFecha(s.fecha)+'\nContanos cómo te sentiste en el entrenamiento (tarda 20 segundos):\n'+url;
     window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');try{await navigator.clipboard.writeText(url)}catch(e){}
     aviso('Link listo (también quedó copiado)');
@@ -6285,7 +6321,7 @@ async function paginaRPE(t){
 /* ================= LINK DE LA JUGADORA: ve sus números, objetivos, mensaje y clips desde el celu, sin cuenta ================= */
 function tokenLink(){return Array.from(crypto.getRandomValues(new Uint8Array(15)),b=>'abcdefghijkmnpqrstuvwxyz23456789'[b%32]).join('')}
 function ytIdLink(u){const m=String(u||'').match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(u||'')?u:'')}
-function urlJugadora(t){return location.origin+location.pathname+'?jugadora='+t}
+function urlJugadora(t){return location.origin+location.pathname+'?'+mtkQS()+'jugadora='+t}
 async function datosLinkJugadora(j,o){
   const st=statsJugador(j.id),a=asistJugador(j.id);let L=[];try{L=await cargarVA(true)}catch(e){}
   const todos=[];L.forEach(p=>{const yt=ytIdLink(p.video);(p.tags||[]).forEach(t=>{if(t.equipo==='rival'||!esDeJugador(t,j))return;todos.push({yt,ini:Math.max(0,+t.ini||0),fin:+t.fin||0,n:String(t.nombre||'Acción').slice(0,40),r:t.resultado||'',nota:String(t.nota||'').slice(0,200),c:t.color||'#FFD400',rival:String(p.rival||p.nombre||'').slice(0,60),f:p.fecha||''})})});
@@ -6851,7 +6887,7 @@ function editarPartido(p){
   }});
 }
 /* ================= NUBE: USUARIOS Y DATOS COMPARTIDOS ================= */
-const FB_CONFIG={apiKey:"AIzaSyAQXlqWl9LdXwGsZMo1p7BAAXsMMcGd-QE",authDomain:"metodika-clubes.firebaseapp.com",projectId:"metodika-clubes",storageBucket:"metodika-clubes.firebasestorage.app",messagingSenderId:"927882662557",appId:"1:927882662557:web:e4515abe0ba8fd1c98fa74"};
+const FB_CONFIG=window.MTK_PRUEBA?window.MTK_FB_PRUEBA:{apiKey:"AIzaSyAQXlqWl9LdXwGsZMo1p7BAAXsMMcGd-QE",authDomain:"metodika-clubes.firebaseapp.com",projectId:"metodika-clubes",storageBucket:"metodika-clubes.firebasestorage.app",messagingSenderId:"927882662557",appId:"1:927882662557:web:e4515abe0ba8fd1c98fa74"};
 let registrando=false,MODO='local',auth=null,db=null,USR=null,PERFIL=null,CLUB=null,CLUBDOC=null,SOLIC=[],subs=[],tSync=null,pintarPend=false;
 const COL_ITEMS=['partidos','pizarras'];
 let ultimo={},ultimoItems={partidos:{},pizarras:{}},ultimoFoto={},FOTOS={};
@@ -6905,7 +6941,7 @@ function pantallaClub(msg=''){
       <form id="fUnir" class="acc-form"><label class="campo">Código del club<input type="text" id="ucCod" maxlength="6" placeholder="Ej.: K7M2QX" style="text-transform:uppercase;letter-spacing:3px;font-weight:700"></label>
       <button class="btn pri" type="submit" style="justify-content:center">Pedir unirme</button></form></div>
   </div><button class="btn fantasma chico" id="salir" style="margin-top:18px">Cerrar sesión (${esc(USR.email)})</button>`);
-  $('#salir').onclick=()=>auth.signOut();
+  $('#salir').onclick=()=>salirSeguro();
   $('#fClub').onsubmit=async e=>{e.preventDefault();const n=$('#ncNom').value.trim();if(!n){aviso('Escribí el nombre del club.');return}if(!$('#ncRama').value){aviso('Elegí si el plantel es femenino, masculino o mixto.');return}
     e.target.querySelector('button').disabled=true;
     try{await crearClub(n,$('#ncCat').value.trim()||'Primera',$('#ncRama').value)}catch(x){pantallaClub(errTxt(x))}};
@@ -6935,9 +6971,44 @@ function pantallaEspera(){
   tEspera=setInterval(()=>probar(false),8000);
   $('#reint').onclick=()=>probar(true);
   $('#cancelP').onclick=async()=>{clearInterval(tEspera);try{await db.collection('clubes').doc(PERFIL.pendiente).collection('solicitudes').doc(USR.uid).delete()}catch(x){}await db.collection('usuarios').doc(USR.uid).set({pendiente:firebase.firestore.FieldValue.delete(),pendienteNombre:firebase.firestore.FieldValue.delete()},{merge:true});PERFIL.pendiente=null;pantallaClub()};
-  $('#salir').onclick=()=>{clearInterval(tEspera);auth.signOut()};
+  $('#salir').onclick=()=>{clearInterval(tEspera);salirSeguro()};
 }
 
+/* ---------- Cerrar sesión y salir del club sin dejar datos del club en la compu (compus compartidas) ---------- */
+function conTiempo(p,ms){return Promise.race([Promise.resolve(p).then(()=>true),new Promise(r=>setTimeout(()=>r(false),ms))])}
+/* sube a la nube lo que falte; devuelve false si no pudo (por ejemplo, sin internet) */
+async function subirPendientes(){let ok=true;try{if(tSync){clearTimeout(tSync);tSync=null;ok=await conTiempo(sincronizar(),8000)}}catch(e){ok=false}try{ok=(await conTiempo(db.waitForPendingWrites(),8000))&&ok}catch(e){ok=false}return ok&&navigator.onLine}
+/* borra de la compu lo guardado de un club. Análisis de rival: solo los rivales que ya están en la nube de ese club */
+async function limpiarDatosClubLocales(club,cerrandoSesion){
+  let nube=null;
+  if(club&&db){try{const q=db.collection('clubes').doc(club).collection('scouting').get();if(await conTiempo(q,8000)){nube=new Set((await q).docs.map(d=>d.id))}}catch(e){}}
+  const fijos=/^scout_(last|once_propio|split|tab)$/,borrar=[];let ultimo=null;
+  try{for(let i=0;i<localStorage.length;i++){const k=(localStorage.key(i)||'').replace(/^PRUEBA::/,'');
+    if(club&&k.startsWith('vac_'+club+'_'))borrar.push(k);
+    else if(cerrandoSesion&&/^vac_/.test(k)&&!/^vac_local_/.test(k))borrar.push(k);
+    else if(/^scout_/.test(k)&&!fijos.test(k)&&nube&&nube.has(k.slice(6)))borrar.push(k);
+    else if(cerrandoSesion&&k==='metodika_pz_pendiente')borrar.push(k);
+    if(k==='scout_last')ultimo=localStorage.getItem(k)}}catch(e){}
+  if(ultimo&&borrar.includes('scout_'+ultimo))borrar.push('scout_last');
+  borrar.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});return borrar.length}
+async function salirSeguro(forzar){
+  /* antes de borrar lo guardado en la compu, subir a la nube lo que falte */
+  if(!forzar&&typeof MODO!=='undefined'&&MODO==='nube'){
+    aviso('Guardando en la nube antes de cerrar sesión…');
+    if(!(await subirPendientes())){confirmar('Hay cambios sin subir a la nube','Todavía no se pudieron guardar en la nube algunos cambios (puede ser por falta de internet). Conectate y volvé a tocar “Cerrar sesión”. Si cerrás igual, esos cambios se pierden.','Cerrar igual',()=>salirSeguro(true));return}
+  }
+  const club=CLUB;
+  try{await limpiarDatosClubLocales(club,true)}catch(e){}try{cortarSubs()}catch(e){}try{await auth.signOut()}catch(e){}try{await db.terminate();await db.clearPersistence()}catch(e){}location.reload()}
+/* salir del club: mismo criterio, pero si no se puede guardar en la nube, NO sale */
+async function salirDelClubSeguro(ref,FV){
+  const club=CLUB;aviso('Guardando en la nube antes de salir del club…');
+  if(!(await subirPendientes())){modal('No saliste del club',`<p class="sub" style="margin:0">Hay cambios de este club que todavía no se guardaron en la nube (puede ser por falta de internet). Para que no se pierdan, no saliste del club y no se borró nada. Conectate a internet y volvé a tocar “Salir del club”.</p><div class="modal-pie"><button class="btn pri" data-cerrar>Entendido</button></div>`);return}
+  await limpiarDatosClubLocales(club,false);
+  try{cortarSubs();
+    if(!(await conTiempo(ref.update({['miembros.'+USR.uid]:FV.delete(),['info.'+USR.uid]:FV.delete()}),10000)))throw new Error('sin conexión');
+    if(!(await conTiempo(db.collection('usuarios').doc(USR.uid).set({clubId:FV.delete()},{merge:true}),10000)))throw new Error('sin conexión');
+  }catch(x){modal('No saliste del club',`<p class="sub" style="margin:0">No se pudo completar la salida (${esc(errTxt(x))}). Seguís en el club. Revisá la conexión y probá de nuevo.</p><div class="modal-pie"><button class="btn pri" data-cerrar>Entendido</button></div>`);abrirClub(club);return}
+  try{await db.terminate();await db.clearPersistence()}catch(e){}location.reload()}
 /* ---------- Abrir el club y sincronizar ---------- */
 function cortarSubs(){subs.forEach(u=>{try{u()}catch(e){}});subs=[]}
 /* ================= PRUEBA GRATIS Y PLAN PAGO ================= */
@@ -6987,8 +7058,8 @@ function pintarCandado(){const c=$('#cont');if(!c)return;const nom={planificacio
   c.innerHTML=`<div class="panel candado-p"><div class="candado-i">🔒</div><h2>${esc(nom)} está en el plan</h2><p class="sub">En la versión gratis podés usar la pizarra y ${GR_TAREAS} tareas de la biblioteca. Con el plan se suma todo: planificación, plantel, partidos, estadísticas, cargas y video, para todo tu cuerpo técnico.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn" id="cdPz">Ir a la pizarra</button><button class="btn pri" id="cdPl">Pasar al plan</button></div></div>`;
   $('#cdPz',c).onclick=()=>ir('pizarra');$('#cdPl',c).onclick=pantallaPlan;const vp=$('#verPlan');if(vp)vp.onclick=pantallaPlan}
 function pantallaPlan(){
-  const e=estadoPlan(),cod=(CLUBDOC&&CLUBDOC.codigo)||'',adm=esAdmin();
-  const asunto=encodeURIComponent('Plan Metodika Clubes · '+(S.club.nombre||'')+' · código '+cod);
+  const e=estadoPlan(),adm=esAdmin(),cod=adm?((CLUBDOC&&CLUBDOC.codigo)||''):'';
+  const asunto=encodeURIComponent('Plan Metodika Clubes · '+(S.club.nombre||'')+(cod?' · código '+cod:''));
   pantallaCompleta(`${marcaGrande()}<div class="acc-caja" style="max-width:480px">
     <h1>${e.tipo==='vencido'?(e.vencioPlan?'Se venció tu plan':'Terminó tu prueba gratis'):'Plan Metodika Clubes'}</h1>
     <p class="sub" style="margin:6px 0 14px">${e.tipo==='vencido'?'Para seguir usando la app con '+esc(S.club.nombre||'tu club')+', activá el plan. Tus datos están guardados y no se pierde nada.':'Durante la prueba podés usar todo gratis. Cuando quieras, activá el plan para seguir sin cortes.'}</p>
@@ -6997,11 +7068,11 @@ function pantallaPlan(){
       <a class="btn pri" href="${TIENDA}" target="_blank" rel="noopener" style="justify-content:center">Pagar el plan</a>
       <button class="btn" id="plPague" style="justify-content:center">Ya pagué: avisar a Metodika</button>
       <a class="btn fantasma" href="${CONTACTO_IG}" target="_blank" rel="noopener" style="justify-content:center">Consultas por Instagram</a></div>
-    <div class="panel" style="margin-top:14px;text-align:center"><div class="sub" style="font-size:12.5px">Código de tu club (pasalo cuando pagues)</div><div style="font-size:26px;font-weight:800;letter-spacing:4px">${esc(cod||'—')}</div></div>
+    ${adm?`<div class="panel" style="margin-top:14px;text-align:center"><div class="sub" style="font-size:12.5px">Código de tu club (pasalo cuando pagues)</div><div style="font-size:26px;font-weight:800;letter-spacing:4px">${esc(cod||'—')}</div></div>`:''}
     ${!adm&&e.tipo==='vencido'?'<p class="sub" style="font-size:12.5px;margin:10px 0 0">Avisale a quien administra el club.</p>':''}
     <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="btn chico fantasma" id="plCopia">Descargar copia de mis datos</button>${e.tipo==='vencido'?'<button class="btn chico fantasma" id="plYa">Ya me activaron: volver a entrar</button>':'<button class="btn chico" id="plVolver">← Volver a la app</button>'}<button class="btn chico fantasma" id="plSalir">Cerrar sesión</button></div></div>`);
   $('#plPague').onclick=()=>{
-    const mail='mailto:'+CONTACTO_MAIL+'?subject='+asunto+'&body='+encodeURIComponent('Hola! Ya pagué el plan para el club '+(S.club.nombre||'')+' (código '+cod+').\nPlan elegido: \nNombre y mail de quien pagó: ');
+    const mail='mailto:'+CONTACTO_MAIL+'?subject='+asunto+'&body='+encodeURIComponent('Hola! Ya pagué el plan para el club '+(S.club.nombre||'')+(cod?' (código '+cod+')':'')+'.\nPlan elegido: \nNombre y mail de quien pagó: ');
     if(e.tipo==='vencido'&&!S.club.graciaUsada){const h=new Date(HOY);h.setDate(h.getDate()+3);S.club.gracia={hasta:iso(h),fecha:iso(HOY)};S.club.graciaUsada=true;guardar();
       modal('¡Gracias!',`<p style="margin:0 0 12px">Ahora se abre tu correo para mandarle a Metodika el aviso con el código de tu club. <b>Mientras tanto tenés 3 días de acceso</b> para seguir usando la app.</p><div class="modal-pie"><button class="btn pri" id="grOk">Seguir usando la app</button></div>`,{alMontar:m=>{$('#grOk',m).onclick=()=>{cerrarModal();document.body.classList.remove('sin-menu');pintar()}}});
     }else if(e.tipo==='vencido'){aviso('Ya usaste los días de gracia. Metodika activa tu plan apenas vea el aviso.')}
@@ -7009,7 +7080,7 @@ function pantallaPlan(){
   $('#plCopia').onclick=()=>{const b=new Blob([JSON.stringify(S)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='metodika-copia-'+iso(HOY)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)};
   const v=$('#plVolver');if(v)v.onclick=()=>{document.body.classList.remove('sin-menu');pintar()};
   const y=$('#plYa');if(y)y.onclick=async()=>{await cargarPlan();if(estadoPlan().tipo==='vencido'){aviso('Todavía no figura activado. Si ya pagaste, puede tardar un rato.')}else{document.body.classList.remove('sin-menu');pintar();aviso('¡Plan activo!')}};
-  $('#plSalir').onclick=()=>auth.signOut();
+  $('#plSalir').onclick=()=>salirSeguro();
 }
 /* ================= GUARDADO EN LA NUBE (formato 2) =================
    Cada elemento (sesión, tarea, jugador/a, asistencia de un día…) se guarda por separado dentro de
@@ -7237,7 +7308,7 @@ function nombrePapel(x){let v={};try{v=JSON.parse(x.v)||{}}catch(e){}
   if(x.k==='evaluaciones'){const j=jugador(v.jugId);return (j?j.nombre+' '+j.apellido:'Evaluación')+(v.fecha?' · '+fCorta(v.fecha):'')}
   return v.titulo||v.nombre||'Sin nombre'}
 function papeleraVisible(){return PAPEL.filter(x=>PAPEL_NOM[x.k]).sort((a,b)=>(b.t||0)-(a.t||0))}
-function recuperarPapel(k,id){
+function recuperarPapel(k,id){if(!esAdmin()){aviso('Solo quien administra el club puede recuperar desde la Papelera.');return}
   const x=PAPEL.find(p=>p.k===k&&p.id===id);if(!x)return;let v;try{v=JSON.parse(x.v)}catch(e){aviso('No se pudo recuperar');return}
   if(S[k].some(y=>y.id===id)){aviso('Ya está recuperado');return}
   if(k==='jugadores')v.foto=FOTOS[id]||'';if(k==='pizarras')normalizar(v);
@@ -7277,7 +7348,7 @@ async function panelRespaldos(el){
   try{const ix=await db.collection('clubes').doc(CLUB).collection('datos').doc('~resp-indice').get();const dias=(ix.exists&&ix.data().dias)||{},fs=Object.keys(dias).sort().reverse();
     caja.innerHTML=fs.length?`<div class="lista">${fs.map(f=>`<div class="fila"><div style="flex:1"><b>${fFecha(f)}</b><div class="sub" style="font-size:12.5px">${Math.max(1,Math.round(dias[f].bytes/1024))} KB</div></div><button class="btn chico" data-rbaj="${f}">Descargar</button>${esAdmin()?`<button class="btn chico peligro" data-rres="${f}">Volver a este día</button>`:''}</div>`).join('')}</div>`:'<div class="sub" style="font-size:13.5px">Todavía no hay copias. La primera se hace sola hoy.</div>';
     $$('[data-rbaj]',caja).forEach(b=>b.onclick=async()=>{b.disabled=true;try{const t=await bajarRespaldo(b.dataset.rbaj);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download='metodika-copia-'+b.dataset.rbaj+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){aviso(errTxt(e))}b.disabled=false});
-    $$('[data-rres]',caja).forEach(b=>b.onclick=()=>confirmar('¿Volver al '+fFecha(b.dataset.rres)+'?','Los datos del club quedan como estaban ese día. Lo que se cargó después queda en la Papelera por si lo necesitás.','Volver a ese día',async()=>{try{const d=JSON.parse(await bajarRespaldo(b.dataset.rres));aplicarCopia(d);aviso('Datos restaurados al '+fFecha(b.dataset.rres))}catch(e){aviso(errTxt(e))}}));
+    $$('[data-rres]',caja).forEach(b=>b.onclick=()=>confirmar('¿Volver al '+fFecha(b.dataset.rres)+'?','Los datos del club quedan como estaban en la copia de ese día, que se hace la primera vez que alguien abre Metodika ese día. Lo que se cargó después queda en la Papelera por si lo necesitás, y los eventos del calendario se conservan.','Volver a ese día',async()=>{try{const d=JSON.parse(await bajarRespaldo(b.dataset.rres));aplicarCopia(d);aviso('Datos restaurados al '+fFecha(b.dataset.rres))}catch(e){aviso(errTxt(e))}}));
   }catch(e){caja.innerHTML='<div class="sub">No se pudieron leer las copias: '+esc(errTxt(e))+'</div>'}}
 /* Medidor de espacio en la nube (aproximado; se calcula solo cuando se toca el botón) */
 const ESP_TOTAL=1024*1024*1024;
@@ -7329,7 +7400,10 @@ async function restaurarModulos(L){if(MODO!=='nube'||!Array.isArray(L)||!L.lengt
   for(const x of L){if(!x||!x.id||!x.d)continue;if(!(MOD_COLS.includes(x.c)||(x.c==='datos'&&/^va_/.test(x.id))))continue;
     try{const r=db.collection(base+x.c).doc(x.id),ex=await r.get();if(ex.exists)continue;await r.set(jsonAFs(x.d));n++}catch(e){console.warn('restaurar modulo',e)}}
   return n}
-function aplicarCopia(d){if(!d||!d.club||!Array.isArray(d.jugadores))throw new Error('La copia no es válida');delete d._modulos;(d.jugadores||[]).forEach(j=>{if(!j.foto&&FOTOS[j.id])j.foto=FOTOS[j.id]});S=d;migrar();migrarTareasBase();S.pizarras.forEach(normalizar);guardar();ir('inicio')}
+function aplicarCopia(d){if(!d||!d.club||!Array.isArray(d.jugadores))throw new Error('La copia no es válida');delete d._modulos;
+  /* Los eventos del calendario no pasan por la Papelera: se conservan los que no estaban en la copia */
+  try{const act=(S&&S.club&&S.club.eventos)||[],ids=new Set((d.club.eventos||[]).map(e=>e.id));const extra=act.filter(e=>e&&!ids.has(e.id));if(extra.length)d.club.eventos=[...(d.club.eventos||[]),...extra]}catch(e){}
+  (d.jugadores||[]).forEach(j=>{if(!j.foto&&FOTOS[j.id])j.foto=FOTOS[j.id]});S=d;migrar();migrarTareasBase();S.pizarras.forEach(normalizar);guardar();ir('inicio')}
 /* Tareas de mantenimiento: copia diaria y limpieza de la papelera vieja (solo admin) */
 async function tareasDiarias(){
   try{await respaldoDiario()}catch(e){console.warn('respaldo',e)}
@@ -7350,14 +7424,14 @@ function panelEquipoHtml(){
   const ep=estadoPlan(),lim=limitePersonas(),nP=Object.keys(mi).length;
   const planTxt=ep.tipo==='pago'?`<b>Plan ${esc((PLANES[PLAN.tipo]||PLANES.club).n)}</b>${lim?` · ${nP} de ${lim} personas`:' · personas sin límite'}${PLAN.hasta?` · vence el ${fFecha(PLAN.hasta)}`:''}`:ep.tipo==='prueba'?`<b>Prueba gratis</b> · ${ep.quedan===1?'queda 1 día':'quedan '+ep.quedan+' días'}`:'';
   return `${sol}${planTxt?`<div class="panel" style="margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span>${planTxt}</span><button class="btn chico der" id="verPlan2" style="margin-left:auto">Ver planes</button></div>`:''}<div class="panel" style="margin-bottom:16px"><div class="panel-cab"><h3>Cuerpo técnico</h3><div class="der"><span class="chip">${nP}${lim?' / '+lim:''} personas</span></div></div>
-    <div class="codigo-club"><div><div class="etq">Código del club</div><div class="dato" style="letter-spacing:4px">${esc(CLUBDOC.codigo||'')}</div></div><div class="sub" style="font-size:13.5px;flex:1;min-width:200px">Compartilo con tu cuerpo técnico. Se registran en Metodika, eligen “Unirme a un club” y escriben este código. ${esAdmin()?'Vos aprobás cada pedido.':'Quien administra aprueba cada pedido.'}</div><button class="btn chico" id="copCod">Copiar código</button></div>
+    ${esAdmin()?`<div class="codigo-club"><div><div class="etq">Código del club</div><div class="dato" style="letter-spacing:4px">${esc(CLUBDOC.codigo||'')}</div></div><div class="sub" style="font-size:13.5px;flex:1;min-width:200px">Compartilo con tu cuerpo técnico. Se registran en Metodika, eligen “Unirme a un club” y escriben este código. Vos aprobás cada pedido.</div><button class="btn chico" id="copCod">Copiar código</button></div>`:`<div class="sub" style="font-size:13.5px">Para sumar a alguien al cuerpo técnico, pedile el código del club a quien lo administra.</div>`}
     <div class="lista" style="margin-top:10px">${filas}</div></div>
     <div class="panel" style="margin-bottom:16px"><h3>Mi cuenta</h3><p style="margin:0 0 10px">${esc((PERFIL&&PERFIL.nombre)||USR.displayName||'')} · <span class="sub">${esc(USR.email)}</span></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="cambiarPass">Cambiar contraseña</button><button class="btn" id="cerrarSes">Cerrar sesión</button>${!esAdmin()?'<button class="btn peligro" id="salirClub">Salir del club</button>':''}</div></div>`;
 }
 function conectarPanelEquipo(el){
   if(MODO!=='nube')return;
   const ref=db.collection('clubes').doc(CLUB),FV=firebase.firestore.FieldValue;
-  const cc=$('#copCod',el);if(cc)cc.onclick=()=>{navigator.clipboard.writeText(CLUBDOC.codigo).then(()=>aviso('Código copiado'),()=>aviso('El código es '+CLUBDOC.codigo))};
+  const cc=esAdmin()&&$('#copCod',el);if(cc)cc.onclick=()=>{navigator.clipboard.writeText(CLUBDOC.codigo).then(()=>aviso('Código copiado'),()=>aviso('El código es '+CLUBDOC.codigo))};
   {const vp=$('#verPlan2',el);if(vp)vp.onclick=pantallaPlan}
   $$('[data-aprobar]',el).forEach(b=>b.onclick=async()=>{const u=b.dataset.aprobar,s=SOLIC.find(x=>x.uid===u)||{};const lim=limitePersonas();if(lim&&Object.keys(CLUBDOC.miembros||{}).length>=lim){modal('Llegaste al límite de tu plan',`<p style="margin:0 0 12px">Tu plan <b>${esc((PLANES[PLAN.tipo]||{}).n||'')}</b> permite hasta <b>${lim} personas</b>. Para sumar a ${esc(s.nombre||'esta persona')}, pasá a un plan más grande.</p><div class="modal-pie"><button class="btn" data-cerrar>Cerrar</button><button class="btn pri" id="lim2">Ver planes</button></div>`,{alMontar:m=>{$('#lim2',m).onclick=()=>{cerrarModal();pantallaPlan()}}});return}try{await ref.update({['miembros.'+u]:'staff',['info.'+u]:{nombre:s.nombre||'',email:s.email||''}});await ref.collection('solicitudes').doc(u).delete();aviso((s.nombre||'La persona')+' ya forma parte del club')}catch(x){aviso(errTxt(x))}});
   $$('[data-rechazar]',el).forEach(b=>b.onclick=async()=>{try{await ref.collection('solicitudes').doc(b.dataset.rechazar).delete();aviso('Pedido rechazado')}catch(x){aviso(errTxt(x))}});
@@ -7368,9 +7442,9 @@ function conectarPanelEquipo(el){
       <div class="campo ancho" id="asCW">Categorías que ve<div class="chips" style="margin-top:6px">${cats().map(c=>`<label class="chip" style="cursor:pointer"><input type="checkbox" value="${c.id}" ${(e.cats||[]).includes(c.id)?'checked':''}> ${esc(c.nombre)}</label>`).join('')}</div><span class="sub" style="font-size:12.5px;margin-top:6px">Si no marcás ninguna, ve todas.</span></div></form>
       <div class="modal-pie"><button class="btn" data-cerrar>Cancelar</button><button class="btn pri" id="asOk">Guardar</button></div>`,{alMontar:m=>{const sync=()=>{$('#asCW',m).hidden=$('#asR',m).value==='coord'};$('#asR',m).onchange=sync;sync();
       $('#asOk',m).onclick=()=>{S.club.equipo={...(S.club.equipo||{}),[u]:{rol:$('#asR',m).value,cats:$$('#asCW input:checked',m).map(x=>x.value)}};guardar();cerrarModal();aviso('Guardado');pintar()}}})});
-  $('#cerrarSes',el).onclick=()=>auth.signOut();
+  $('#cerrarSes',el).onclick=()=>salirSeguro();
   $('#cambiarPass',el).onclick=async()=>{try{await auth.sendPasswordResetEmail(USR.email);aviso('Te mandamos un mail a '+USR.email+' para cambiar la contraseña.')}catch(x){aviso(errTxt(x))}};
-  const sc=$('#salirClub',el);if(sc)sc.onclick=()=>confirmar('¿Salir del club?','Vas a dejar de ver sus datos. Para volver tenés que pedir unirte otra vez.','Salir del club',async()=>{try{cortarSubs();await ref.update({['miembros.'+USR.uid]:FV.delete(),['info.'+USR.uid]:FV.delete()});await db.collection('usuarios').doc(USR.uid).set({clubId:FV.delete()},{merge:true});PERFIL={...PERFIL,clubId:null};CLUB=null;CLUBDOC=null;MODO='local';aviso('Saliste del club');pantallaClub()}catch(x){aviso(errTxt(x));abrirClub(CLUB)}});
+  const sc=$('#salirClub',el);if(sc)sc.onclick=()=>confirmar('¿Salir del club?','Vas a dejar de ver sus datos. Para volver tenés que pedir unirte otra vez. Antes de salir se guarda en la nube lo que falte, y después se borra de esta compu lo guardado de este club (también Videoanálisis y Análisis de rival).','Salir del club',()=>salirDelClubSeguro(ref,FV));
 }
 
 /* ---------- Arranque ---------- */
@@ -7396,7 +7470,7 @@ function iniciarNube(){
   auth.onAuthStateChanged(u=>{
     cortarSubs();clearInterval(tEspera);
     if(u){if(registrando)return;if(primera||!USR||USR.uid!==u.uid)alEntrar(u)}
-    else{USR=null;PERFIL=null;CLUB=null;CLUBDOC=null;SOLIC=[];MODO='local';resetSync();pantallaAcceso()}
+    else{USR=null;PERFIL=null;CLUB=null;CLUBDOC=null;SOLIC=[];MODO='local';resetSync();try{S=crearDemo();cerrarModal()}catch(e){}pantallaAcceso()}
     primera=false;
   });
 }
@@ -7891,7 +7965,7 @@ function tomarAsistencia(el,k){
   if(reg.link&&typeof MODO!=='undefined'&&MODO==='nube')cargarRespuestas(el,k,reg,lista,save);
 }
 /* ---------- Confirmación de asistencia por link (sin cuenta) ---------- */
-function urlConf(t){return location.origin+location.pathname+'?conf='+t}
+function urlConf(t){return location.origin+location.pathname+'?'+mtkQS()+'conf='+t}
 function nombreCorto(j){return (j.nombre||'').trim().split(/\s+/)[0]+' '+((j.apellido||'').trim()[0]||'')+'.'}
 async function linkConfirmacion(k,act,tp,lista,reg,save){
   if(typeof MODO==='undefined'||MODO!=='nube'){aviso('El link funciona cuando entrás con tu cuenta (no en el club de ejemplo).');return}
@@ -8050,8 +8124,8 @@ VISTAS.tienda=el=>{setTimeout(()=>ir('lecturas'),0);el.innerHTML='';return;
 
 /* ================= ANÁLISIS DE RIVAL ================= */
 VISTAS.analisis=el=>{
-  el.innerHTML=cabecera('Video y scouting','Análisis de rival','Mirá el video del rival, capturá recortes, dibujales encima y armá el plan de partido. Después lo presentás en pantalla grande o lo descargás en PDF.',`<a class="btn" href="analisis.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
-  `<iframe class="analisis-frame" src="analisis.html?v=${MOD_V}" title="Análisis de rival" allow="fullscreen; autoplay; display-capture; clipboard-read; clipboard-write" allowfullscreen></iframe>`+panelJugadasRival();
+  el.innerHTML=cabecera('Video y scouting','Análisis de rival','Mirá el video del rival, capturá recortes, dibujales encima y armá el plan de partido. Después lo presentás en pantalla grande o lo descargás en PDF.',`<a class="btn" href="analisis.html${window.MTK_PRUEBA?'?entorno=prueba':''}" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
+  `<iframe class="analisis-frame" src="analisis.html?${mtkQS()}v=${MOD_V}" title="Análisis de rival" allow="fullscreen; autoplay; display-capture; clipboard-read; clipboard-write" allowfullscreen></iframe>`+panelJugadasRival();
   conectarJugadasRival(el);
 };
 /* ---------- 7. Jugadas del rival en la pizarra ---------- */
@@ -8141,8 +8215,8 @@ function clipsVAJugador(box,j,L,tags){if(!box)return;
   $$('[data-vajug]',box).forEach(b=>b.onclick=()=>{VA_Q='jug='+encodeURIComponent(b.dataset.vajug);ir('videoanalisis')})}
 window.addEventListener('storage',e=>{if(e.key==='metodika_pz_pendiente'&&e.newValue&&S&&S.club)revisarPizarraPendiente()});
 VISTAS.videoanalisis=el=>{
-  el.innerHTML=cabecera('Video y tagging','Videoanálisis','Taggeá el partido con la botonera, sumá quién hizo cada acción, la zona y si salió bien o mal, dibujá sobre los clips y armá listas, videos y PDF para el plantel.',`<a class="btn" href="videoanalisis.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
-  `<iframe class="analisis-frame" src="videoanalisis.html?v=${MOD_V}${VA_ABRIR?'&p='+encodeURIComponent(VA_ABRIR):''}${VA_Q?'&'+VA_Q:''}" title="Videoanálisis" allow="fullscreen; autoplay; display-capture; clipboard-read; clipboard-write" allowfullscreen></iframe>`;
+  el.innerHTML=cabecera('Video y tagging','Videoanálisis','Taggeá el partido con la botonera, sumá quién hizo cada acción, la zona y si salió bien o mal, dibujá sobre los clips y armá listas, videos y PDF para el plantel.',`<a class="btn" href="videoanalisis.html${window.MTK_PRUEBA?'?entorno=prueba':''}" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>`)+
+  `<iframe class="analisis-frame" src="videoanalisis.html?${mtkQS()}v=${MOD_V}${VA_ABRIR?'&p='+encodeURIComponent(VA_ABRIR):''}${VA_Q?'&'+VA_Q:''}" title="Videoanálisis" allow="fullscreen; autoplay; display-capture; clipboard-read; clipboard-write" allowfullscreen></iframe>`;
   VA_ABRIR=null;VA_Q='';VA_CACHE=null;
 };
 
@@ -8316,7 +8390,7 @@ VISTAS.ajustes=el=>{
   const c=S.club;let esc0=c.escudo;
   const tema=temaActual();
   const nube=MODO==='nube';
-  el.innerHTML=cabecera('Configuración','Ajustes','')+panelAppHtml()+`<div class="panel panel-tour"><div style="flex:1"><h3 style="margin:0 0 4px">Recorrido por Metodika</h3><p class="tenue" style="margin:0">Un paseo de 1 minuto que muestra dónde está cada cosa.</p></div><button class="btn" id="tourAj">▶ Ver tutorial</button></div>`+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+(nube&&esAdmin()?panelRolesHtml():'')+(nube?panelPapeleraHtml():'')+
+  el.innerHTML=cabecera('Configuración','Ajustes','')+panelAppHtml()+`<div class="panel panel-tour"><div style="flex:1"><h3 style="margin:0 0 4px">Recorrido por Metodika</h3><p class="tenue" style="margin:0">Un paseo de 1 minuto que muestra dónde está cada cosa.</p></div><button class="btn" id="tourAj">▶ Ver tutorial</button></div>`+(nube&&esDuenia()?panelSugerenciasHtml():'')+(nube?panelEquipoHtml():'')+(nube&&esAdmin()?panelRolesHtml():'')+(nube&&esAdmin()?panelPapeleraHtml():'')+
   `<div class="grilla g2" style="align-items:start"><div class="panel"><h3>Datos del club</h3><form class="form" id="fC" style="margin-top:6px">
     <div class="ancho" style="display:flex;gap:14px;align-items:center"><div class="esc-prev" id="prevEsc">${c.escudo?`<img src="${c.escudo}" alt="">`:'?'}</div>${c.escudo?'<button type="button" class="btn chico" id="escAj">✂ Ajustar o quitar fondo</button>':''}<label class="btn chico" for="escF">${c.escudo?'Cambiar escudo':'Subir escudo'}</label><input type="file" id="escF" accept="image/*" hidden></div>
     <label class="campo ancho">Nombre del club<input type="text" id="cn" name="nombre" value="${esc(c.nombre)}"></label>

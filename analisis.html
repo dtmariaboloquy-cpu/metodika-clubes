@@ -2,6 +2,42 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<script>/* ===== ENTORNO DE PRUEBA (Metodika) =====
+   Con ?entorno=prueba la app usa el proyecto metodika-pruebas, guarda todo lo local aparte
+   y muestra una franja roja. Sin eso, todo funciona igual que siempre (proyecto real). */
+(function(){
+  var K='mtk_entorno',q=new URLSearchParams(location.search),p=false;
+  try{
+    if(q.get('entorno')==='real')sessionStorage.removeItem(K);
+    else if(q.get('entorno')==='prueba'){sessionStorage.setItem(K,'prueba');p=true}
+    else p=sessionStorage.getItem(K)==='prueba';
+  }catch(e){p=q.get('entorno')==='prueba'}
+  window.MTK_PRUEBA=p;
+  window.mtkQS=function(){return p?'entorno=prueba&':''};
+  if(!p)return;
+  window.MTK_FB_PRUEBA={apiKey:"AIzaSyDWv3aFg57Pc0i7BAmKwh308qieae-VSCw",authDomain:"metodika-pruebas.firebaseapp.com",projectId:"metodika-pruebas",storageBucket:"metodika-pruebas.firebasestorage.app",messagingSenderId:"924815683553",appId:"1:924815683553:web:ddb01ff71eeadc46dbeca0"};
+  /* Lo guardado en este navegador (localStorage) queda separado: en prueba no se ve ni se pisa lo real */
+  try{
+    var ls=window.localStorage,SP=Storage.prototype,PRE='PRUEBA::',g=SP.getItem,s=SP.setItem,r=SP.removeItem,kf=SP.key,
+        dl=Object.getOwnPropertyDescriptor(SP,'length'),lenO=function(o){return dl.get.call(o)},
+        mias=function(){var a=[];for(var i=0;i<lenO(ls);i++){var k=kf.call(ls,i);if(k&&k.indexOf(PRE)===0)a.push(k.slice(PRE.length))}return a};
+    SP.getItem=function(k){return this===ls?g.call(this,PRE+k):g.call(this,k)};
+    SP.setItem=function(k,v){return this===ls?s.call(this,PRE+k,v):s.call(this,k,v)};
+    SP.removeItem=function(k){return this===ls?r.call(this,PRE+k):r.call(this,k)};
+    SP.key=function(i){return this===ls?(mias()[i]===undefined?null:mias()[i]):kf.call(this,i)};
+    var cl=SP.clear;SP.clear=function(){if(this!==ls)return cl.call(this);var t=this;mias().forEach(function(k){r.call(t,PRE+k)})};
+    Object.defineProperty(SP,'length',{configurable:true,get:function(){return this===ls?mias().length:lenO(this)}});
+  }catch(e){}
+  /* Franja roja fija */
+  var poner=function(){if(document.getElementById('mtkFranjaPrueba'))return;var d=document.createElement('div');d.id='mtkFranjaPrueba';
+    d.textContent='ENTORNO DE PRUEBA · no son datos reales';
+    d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#E5484D;color:#fff;font:700 12px/1.2 system-ui,sans-serif;letter-spacing:.06em;text-align:center;padding:4px 6px;pointer-events:none';
+    document.body.appendChild(d)};
+  var vigilar=function(){poner();try{new MutationObserver(function(){if(!document.getElementById('mtkFranjaPrueba'))poner()}).observe(document.body,{childList:true})}catch(e){}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vigilar);else vigilar();
+  try{document.title='[PRUEBA] '+document.title}catch(e){}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Metodika · Análisis de video</title>
 
@@ -409,7 +445,7 @@ body.vopen .viewer{position:sticky}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
-window.MTK_FIREBASE_CONFIG = {apiKey:"AIzaSyAQXlqWl9LdXwGsZMo1p7BAAXsMMcGd-QE",authDomain:"metodika-clubes.firebaseapp.com",projectId:"metodika-clubes",storageBucket:"metodika-clubes.firebasestorage.app",messagingSenderId:"927882662557",appId:"1:927882662557:web:e4515abe0ba8fd1c98fa74"};
+window.MTK_FIREBASE_CONFIG = window.MTK_PRUEBA ? window.MTK_FB_PRUEBA : {apiKey:"AIzaSyAQXlqWl9LdXwGsZMo1p7BAAXsMMcGd-QE",authDomain:"metodika-clubes.firebaseapp.com",projectId:"metodika-clubes",storageBucket:"metodika-clubes.firebasestorage.app",messagingSenderId:"927882662557",appId:"1:927882662557:web:e4515abe0ba8fd1c98fa74"};
 window.MTK_PATH_PREFIX = "";
 </script>
 <style>
